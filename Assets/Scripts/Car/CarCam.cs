@@ -20,24 +20,23 @@ public class CarCam : MonoBehaviour
 
 	float currCamRotationSpeed;
 
-    void Awake()
-    {		
+    void Awake() {		
         rootNode = GetComponent<Transform>();
         carLock = rootNode.parent.GetComponent<Transform>();
         carPhysics = carLock.parent.GetComponent<Rigidbody>();
 		currCamRotationSpeed = cameraRotationSpeed;
+
     }
 
-    void Start()
-    {
+    void Start() {
         // Detach the camera so that it can move freely on its own.
         rootNode.parent = null;
+
     }
 
-    void FixedUpdate()
-    {
-        Quaternion look;
+    void FixedUpdate() {
 
+        Quaternion look;
         // Moves the camera to match the car's position.
         rootNode.position = Vector3.Lerp(rootNode.position, carLock.position, cameraStickiness * Time.fixedDeltaTime);
 
@@ -48,15 +47,12 @@ public class CarCam : MonoBehaviour
 			(carLock.forward.magnitude * carPhysics.velocity.magnitude)) * Mathf.Rad2Deg;
 
 		// If the car isn't moving, default to looking forwards. Prevents camera from freaking out with a zero velocity getting put into a Quaternion.LookRotation
-		if (carPhysics.velocity.magnitude < rotationSpeedThreshold)
-		{
+		if (carPhysics.velocity.magnitude < rotationSpeedThreshold) {
 			look = Quaternion.LookRotation(carLock.forward);
 			currCamRotationSpeed = 2.0f;
 		}
-
 		//If the car is turning very fast, this will counteract the camera severely de-synching with the direction of the car
-		else if (lookAngleComparison > rotationThreshold)
-		{
+		else if (lookAngleComparison > rotationThreshold) {
 			look = Quaternion.LookRotation(carLock.forward);
 			currCamRotationSpeed = 2.0f;
 			//Debug.Log("Angle Threshold: " + lookAngleComparison);
@@ -67,8 +63,9 @@ public class CarCam : MonoBehaviour
 			//Debug.Log("Velocity Look");
 		}
         
-        // Rotate the camera towards the velocity vector.
+        //Rotate the camera towards the velocity vector.
         look = Quaternion.Slerp(rootNode.rotation, look, currCamRotationSpeed * Time.fixedDeltaTime);                
         rootNode.rotation = look; 
+
     }
 }
