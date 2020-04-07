@@ -25,7 +25,25 @@ public class SteeringScript : MonoBehaviour {
 	public List<GameObject> RearWheelModels;
 
 
-	[Header("Key bindings")]
+	[Header("Optional objects")]
+	public TrailRenderer BoostTrail;
+	private bool IsBoostTrailEmitting {
+		get {
+			if (BoostTrail == null) {
+				return false;
+			}
+
+			return BoostTrail.emitting;
+		}
+		set {
+			if (BoostTrail != null) {
+				BoostTrail.emitting = value;
+			}
+		}
+	}
+
+
+	[Header("Key bindings (Required)")]
 	public InputActionReference SteeringKeyBinding;
 	public InputActionReference GasKeyBinding;
 	public InputActionReference BrakeKeyBinding;
@@ -94,6 +112,8 @@ public class SteeringScript : MonoBehaviour {
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
 
+	[Header("Boost")]
+	public float BoostSpeed = 100f;
 
 	// input buffers
 	private float steeringBuffer = 0f;
@@ -106,6 +126,8 @@ public class SteeringScript : MonoBehaviour {
 	private float yawBuffer = 0f;
 	private float pitchBuffer = 0f;
 
+	private bool boost = false;
+
 
 	private float[] wheelRotationBuffers;
 
@@ -114,6 +136,8 @@ public class SteeringScript : MonoBehaviour {
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
+
+		// BoostTrail.emitting = false;
 
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
@@ -139,6 +163,7 @@ public class SteeringScript : MonoBehaviour {
 		JumpKeyBinding.action.performed += SetJump;
 		YawKeyBinding.action.performed += SetYaw;
 		PitchKeyBinding.action.performed += SetPitch;
+		BoostKeyBinding.action.performed += StartBoost;
 
 		ResetKeyBinding.action.performed += Reset;
 
@@ -147,9 +172,10 @@ public class SteeringScript : MonoBehaviour {
 		GasKeyBinding.action.canceled += StopGas;
 		BrakeKeyBinding.action.canceled += StopBraking;
 		HandbrakeKeyBinding.action.canceled += StopHandbraking;
-		JumpKeyBinding.action.performed += ReleaseJump;
-		YawKeyBinding.action.performed += StopYaw;
-		PitchKeyBinding.action.performed += StopPitch;
+		JumpKeyBinding.action.canceled += ReleaseJump;
+		YawKeyBinding.action.canceled += StopYaw;
+		PitchKeyBinding.action.canceled += StopPitch;
+		BoostKeyBinding.action.canceled += StopBoost;
 	}
 
 	private void EnableInput() {
@@ -161,6 +187,7 @@ public class SteeringScript : MonoBehaviour {
 		YawKeyBinding.action.Enable();
 		PitchKeyBinding.action.Enable();
 		ResetKeyBinding.action.Enable();
+		BoostKeyBinding.action.Enable();
 	}
 
 	private void DisableInput() {
@@ -172,6 +199,7 @@ public class SteeringScript : MonoBehaviour {
 		YawKeyBinding.action.Disable();
 		PitchKeyBinding.action.Disable();
 		ResetKeyBinding.action.Disable();
+		BoostKeyBinding.action.Disable();
 	}
 
 
@@ -201,6 +229,7 @@ public class SteeringScript : MonoBehaviour {
 
 		Steer(dt);
 		Gas(dt);
+		Boost(dt);
 		Brake(dt);
 		Handbrake(dt);
 
@@ -470,6 +499,32 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
+	private void Boost(float dt) {
+		if (!boost) {
+			return;
+		}
+
+		rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
+		// TODO: cap velocity
+		// TODO: cap velocity differently for boosting and normal driving
+
+	}
+
+	private void StartBoost(CallbackContext _) {
+		if (boost == false) {
+			// Started boosting this press
+			// NOTE: might not be needed? input system only calls this when not already pressed?
+			IsBoostTrailEmitting = true;
+		}
+
+		boost = true;
+	}
+
+	private void StopBoost(CallbackContext _) {
+		IsBoostTrailEmitting = false;
+		boost = false;
+	}
+
 	#endregion
 
 	#endregion
@@ -484,10 +539,10 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.velocity = Vector3.zero;
 			rb.angularVelocity = Vector3.zero;
-			
+
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
-			
+
 			Debug.Log("Reset car to test spot");
 		}
 	}
@@ -531,5 +586,6 @@ public class SteeringScript : MonoBehaviour {
 
 		// }
 	}
+
 
 }
