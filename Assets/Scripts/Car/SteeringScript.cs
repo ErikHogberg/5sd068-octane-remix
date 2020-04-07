@@ -31,6 +31,7 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference BrakeKeyBinding;
 	public InputActionReference HandbrakeKeyBinding;
 	public InputActionReference JumpKeyBinding;
+	public InputActionReference BoostKeyBinding;
 
 
 	public InputActionReference YawKeyBinding;
@@ -39,7 +40,6 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference ResetKeyBinding;
 
 
-	// TODO: reset car orientation?
 	// TODO: reset car position to closest track position
 	// TODO: reverse?
 
@@ -468,6 +468,10 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	#region Boost
+
+	#endregion
+
 	#endregion
 
 	private void Reset(CallbackContext _) {
@@ -476,8 +480,14 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Reset() {
 		if (LevelWorldScript.CurrentLevel != null) {
-			rb.MovePosition(LevelWorldScript.CurrentLevel.TestRespawnSpot.transform.position);
-			rb.MoveRotation(Quaternion.identity);
+			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
+
+			rb.velocity = Vector3.zero;
+			rb.angularVelocity = Vector3.zero;
+			
+			rb.MovePosition(resetSpot.position);
+			rb.MoveRotation(resetSpot.rotation);
+			
 			Debug.Log("Reset car to test spot");
 		}
 	}
