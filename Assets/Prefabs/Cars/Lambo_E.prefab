@@ -3679,7 +3679,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2145523778284677051}
   serializedVersion: 2
-  m_Mass: 2500
+  m_Mass: 3500
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -3721,11 +3721,14 @@ MonoBehaviour:
     type: 3}
   JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
+  BoostKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
   YawKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   PitchKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  ResetKeyBinding: {fileID: 0}
+  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
   Mode: 2
   SteeringMax: 45
   SteeringCurve:
@@ -3778,7 +3781,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  GasSpeed: 6000
+  GasSpeed: 7000
   GasPedalCurve:
     serializedVersion: 2
     m_Curve:
