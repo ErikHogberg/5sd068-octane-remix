@@ -7,7 +7,7 @@ public class LevelWorldScript : MonoBehaviour {
 	// IDEA: make private, only access through static methods with null checks
 	public static LevelWorldScript CurrentLevel = null;
 
-	public GameObject TestRespawnSpot;
+	public Transform TestRespawnSpot;
 
 	private void Awake() {
 		CurrentLevel = this;
