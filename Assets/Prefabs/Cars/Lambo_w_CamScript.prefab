@@ -3841,6 +3841,12 @@ MonoBehaviour:
     type: 3}
   JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
+  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
   Mode: 2
   SteeringMax: 45
   SteeringCurve:
@@ -3973,6 +3979,20 @@ MonoBehaviour:
   DownwardForce: 10
   DownwardForceMode: 5
   UseRelativeDownwardForce: 0
+  YawSpeed: 100
+  YawInputCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  PitchSpeed: 100
+  PitchInputCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &6480983647974023088
 GameObject:
   m_ObjectHideFlags: 0
