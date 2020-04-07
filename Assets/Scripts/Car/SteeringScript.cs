@@ -1,4 +1,6 @@
-﻿using Assets.Scripts;
+﻿using System.Linq;
+
+using Assets.Scripts;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -23,6 +25,10 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Rear wheels")]
 	public List<WheelCollider> RearWheelColliders;
 	public List<GameObject> RearWheelModels;
+
+	private IEnumerable<WheelCollider> allWheelColliders;
+	private IEnumerable<GameObject> allWheelModels;
+
 
 
 	[Header("Optional objects")]
@@ -115,6 +121,11 @@ public class SteeringScript : MonoBehaviour {
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
 
+
+	[Header("Velocity cap")]
+	public bool CapVelocity = true;
+	public float VelocityCap = 30f;
+
 	// input buffers
 	private float steeringBuffer = 0f;
 	private float gasBuffer = 0f;
@@ -137,7 +148,8 @@ public class SteeringScript : MonoBehaviour {
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
-		// BoostTrail.emitting = false;
+		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
+		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
@@ -239,7 +251,16 @@ public class SteeringScript : MonoBehaviour {
 
 		Jump(dt);
 
+		ApplyVelocityCap();
 		ApplyAnimations();
+	}
+
+	private void ApplyVelocityCap() {
+		if (CapVelocity) {
+			if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
+				rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
+			}
+		}
 	}
 
 	#region Input callbacks
@@ -555,36 +576,15 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void ApplyAnimations() {
+		foreach ((WheelCollider collider, Transform ModelTransform) in allWheelColliders.Zip(allWheelModels, (collider, model) => (collider, model.transform))) {
+			Vector3 pos = ModelTransform.position;
+			Quaternion rotation = ModelTransform.rotation;
 
-		int frontWheelCount = FrontWheelColliders.Count;
+			collider.GetWorldPose(out pos, out rotation);
 
-
-		for (int i = 0; i < frontWheelCount; i++) {
-			WheelCollider frontWheelCollider = FrontWheelColliders[i];
-			GameObject frontWheelModel = FrontWheelModels[i];
-
-			wheelRotationBuffers[i] += frontWheelCollider.rpm * 360f;
-			wheelRotationBuffers[i] %= 360f;
-			float rotBuffer = wheelRotationBuffers[i];
-
-			float angle = frontWheelCollider.steerAngle;
-			Quaternion rotation = Quaternion.Euler(0, angle, 0);// * Quaternion.Euler(rotBuffer, 0, 0);
-
-			frontWheelModel.transform.localRotation = Quaternion.Euler(0, angle, 0);
+			ModelTransform.position = pos;
+			ModelTransform.rotation = rotation;
 		}
-
-		// for (int i = 0; i < RearWheelColliders.Count; i++) {
-		// 	WheelCollider rearWheelCollider = RearWheelColliders[i];
-		// 	wheelRotationBuffers[frontWheelCount + i] += rearWheelCollider.rpm * 360f;
-		// 	wheelRotationBuffers[frontWheelCount + i] %= 360f;
-
-		// 	float rotBuffer = wheelRotationBuffers[frontWheelCount + i];
-
-		// 	Quaternion rotation = Quaternion.Euler(rotBuffer, 0, 0);
-
-		// 	rearWheelCollider.gameObject.transform.localRotation = rotation;
-
-		// }
 	}
 
 
