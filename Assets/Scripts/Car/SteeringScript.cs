@@ -36,6 +36,8 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference YawKeyBinding;
 	public InputActionReference PitchKeyBinding;
 
+	public InputActionReference ResetKeyBinding;
+
 
 	// TODO: reset car orientation?
 	// TODO: reset car position to closest track position
@@ -86,7 +88,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Wether or not the force direction should be relative to the car orientation instead of world.")]
 	public bool UseRelativeDownwardForce = true;
 
-	[Header("Gas")]
+	[Header("In-air controls")]
 	public float YawSpeed = 100f;
 	public AnimationCurve YawInputCurve;
 	public float PitchSpeed = 100f;
@@ -124,6 +126,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	void Awake() {
+		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 	}
 
@@ -136,6 +139,8 @@ public class SteeringScript : MonoBehaviour {
 		JumpKeyBinding.action.performed += SetJump;
 		YawKeyBinding.action.performed += SetYaw;
 		PitchKeyBinding.action.performed += SetPitch;
+
+		ResetKeyBinding.action.performed += Reset;
 
 		// adds release actions
 		SteeringKeyBinding.action.canceled += StopSteering;
@@ -155,6 +160,7 @@ public class SteeringScript : MonoBehaviour {
 		JumpKeyBinding.action.Enable();
 		YawKeyBinding.action.Enable();
 		PitchKeyBinding.action.Enable();
+		ResetKeyBinding.action.Enable();
 	}
 
 	private void DisableInput() {
@@ -165,6 +171,7 @@ public class SteeringScript : MonoBehaviour {
 		JumpKeyBinding.action.Disable();
 		YawKeyBinding.action.Disable();
 		PitchKeyBinding.action.Disable();
+		ResetKeyBinding.action.Disable();
 	}
 
 
@@ -197,6 +204,7 @@ public class SteeringScript : MonoBehaviour {
 		Brake(dt);
 		Handbrake(dt);
 
+		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
 		Yaw(dt);
 		Pitch(dt);
 
@@ -424,18 +432,18 @@ public class SteeringScript : MonoBehaviour {
 	#endregion
 
 	#region Yaw, Pitch
-	
-	
+
+
 	private void Yaw(float dt) {
 		float yawAmount = YawSpeed * yawBuffer * dt;
 		// rb.angularVelocity += Vector3.up * yawAmount;
 		rb.AddRelativeTorque(Vector3.up * yawAmount);
 		// rb.AddForceAtPosition(Vector3.up * yawAmount, rb.position + Vector3.forward);
-		
+
 	}
 
 	private void Pitch(float dt) {
-		float pitchAmount = PitchSpeed * pitchBuffer * dt;	
+		float pitchAmount = PitchSpeed * pitchBuffer * dt;
 		// rb.angularVelocity += Vector3.right * pitchAmount;
 		rb.AddRelativeTorque(Vector3.right * pitchAmount);
 		// rb.AddForceAtPosition(Vector3.right * pitchAmount, rb.position + Vector3.forward);
@@ -462,6 +470,17 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	private void Reset(CallbackContext _) {
+		Reset();
+	}
+
+	private void Reset() {
+		if (LevelWorldScript.CurrentLevel != null) {
+			rb.MovePosition(LevelWorldScript.CurrentLevel.TestRespawnSpot.transform.position);
+			rb.MoveRotation(Quaternion.identity);
+			Debug.Log("Reset car to test spot");
+		}
+	}
 
 	private void SetDebugUIText(int index, string text = "0.00") {
 		if (DebugUIScript.MainInstance == null)

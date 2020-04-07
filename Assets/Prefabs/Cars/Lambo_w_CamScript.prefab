@@ -2017,6 +2017,7 @@ GameObject:
   - component: {fileID: 1086579908403891271}
   - component: {fileID: 6636748612478762529}
   - component: {fileID: 4679428716592370293}
+  - component: {fileID: 2850747330674287957}
   m_Layer: 0
   m_Name: Lamborgini_TestCar_5.0
   m_TagString: Untagged
@@ -2053,7 +2054,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 3085239918545355939}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.4
   m_Height: 3
   m_Direction: 0
@@ -2067,7 +2068,7 @@ BoxCollider:
   m_GameObject: {fileID: 3085239918545355939}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 4.7221136, y: 0.91568804, z: 2.616346}
   m_Center: {x: 0.025949955, y: 0.6853893, z: -0.03032136}
@@ -2080,7 +2081,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 3085239918545355939}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.4454702
   m_Height: 2.1
   m_Direction: 2
@@ -2094,7 +2095,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 3085239918545355939}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.4
   m_Height: 3
   m_Direction: 0
@@ -2108,11 +2109,25 @@ CapsuleCollider:
   m_GameObject: {fileID: 3085239918545355939}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.6
   m_Height: 2.68
   m_Direction: 2
   m_Center: {x: -2.42, y: 0.82, z: 0}
+--- !u!136 &2850747330674287957
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3085239918545355939}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.75
+  m_Height: 6.4
+  m_Direction: 0
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &3164612096522615873
 GameObject:
   m_ObjectHideFlags: 0
@@ -3841,6 +3856,12 @@ MonoBehaviour:
     type: 3}
   JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
+  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
   Mode: 2
   SteeringMax: 45
   SteeringCurve:
@@ -3973,6 +3994,20 @@ MonoBehaviour:
   DownwardForce: 10
   DownwardForceMode: 5
   UseRelativeDownwardForce: 0
+  YawSpeed: 100
+  YawInputCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  PitchSpeed: 100
+  PitchInputCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &6480983647974023088
 GameObject:
   m_ObjectHideFlags: 0
