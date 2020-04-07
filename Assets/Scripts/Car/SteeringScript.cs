@@ -32,6 +32,11 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference HandbrakeKeyBinding;
 	public InputActionReference JumpKeyBinding;
 
+
+	public InputActionReference YawKeyBinding;
+	public InputActionReference PitchKeyBinding;
+
+
 	// TODO: reset car orientation?
 	// TODO: reset car position to closest track position
 	// TODO: reverse?
@@ -81,6 +86,12 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Wether or not the force direction should be relative to the car orientation instead of world.")]
 	public bool UseRelativeDownwardForce = true;
 
+	[Header("Gas")]
+	public float YawSpeed = 100f;
+	public AnimationCurve YawInputCurve;
+	public float PitchSpeed = 100f;
+	public AnimationCurve PitchInputCurve;
+
 
 	// input buffers
 	private float steeringBuffer = 0f;
@@ -89,6 +100,10 @@ public class SteeringScript : MonoBehaviour {
 	private float brakeBuffer = 0f;
 	private float handbrakeBuffer = 0f;
 	private float jumpBuffer = 0f;
+
+	private float yawBuffer = 0f;
+	private float pitchBuffer = 0f;
+
 
 	private float[] wheelRotationBuffers;
 
@@ -119,6 +134,8 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.performed += SetBraking;
 		HandbrakeKeyBinding.action.performed += SetHandbraking;
 		JumpKeyBinding.action.performed += SetJump;
+		YawKeyBinding.action.performed += SetYaw;
+		PitchKeyBinding.action.performed += SetPitch;
 
 		// adds release actions
 		SteeringKeyBinding.action.canceled += StopSteering;
@@ -126,6 +143,8 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.canceled += StopBraking;
 		HandbrakeKeyBinding.action.canceled += StopHandbraking;
 		JumpKeyBinding.action.performed += ReleaseJump;
+		YawKeyBinding.action.performed += StopYaw;
+		PitchKeyBinding.action.performed += StopPitch;
 	}
 
 	private void EnableInput() {
@@ -134,6 +153,8 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.Enable();
 		HandbrakeKeyBinding.action.Enable();
 		JumpKeyBinding.action.Enable();
+		YawKeyBinding.action.Enable();
+		PitchKeyBinding.action.Enable();
 	}
 
 	private void DisableInput() {
@@ -142,6 +163,8 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.Disable();
 		HandbrakeKeyBinding.action.Disable();
 		JumpKeyBinding.action.Disable();
+		YawKeyBinding.action.Disable();
+		PitchKeyBinding.action.Disable();
 	}
 
 
@@ -174,10 +197,16 @@ public class SteeringScript : MonoBehaviour {
 		Brake(dt);
 		Handbrake(dt);
 
+		Yaw(dt);
+		Pitch(dt);
+
 		Jump(dt);
 
 		ApplyAnimations();
 	}
+
+	#region Input callbacks
+	#region Steering
 
 	private void Steer(float dt) {
 		// TODO: in-air movement
@@ -189,7 +218,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float sqrVelocity = rb.velocity.sqrMagnitude;
 
-		SetDebugUIText(8, sqrVelocity.ToString("F2"));
+		SetDebugUIText(8, sqrVelocity.ToString("F2")); // F2 sets format to 2 decimals, 0.00
 
 		// narrow steering angle as speed increases
 		float sqrMaxNarrowingSpeed = MaxNarrowingSpeed * MaxNarrowingSpeed;
@@ -231,6 +260,9 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(1);
 	}
+	#endregion
+
+	#region Gas
 
 	private void Gas(float dt) {
 		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue) {
@@ -294,9 +326,15 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(5);
 	}
+	#endregion
 
+	#region Braking
 	private void Brake(float dt) {
 		ApplyBrakeTorque();
+	}
+
+	private void Handbrake(float dt) {
+		ApplyHandbrakeTorque();
 	}
 
 	private void ApplyBrakeTorque() {
@@ -318,18 +356,6 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(2, brakeBuffer.ToString("F2"));
 	}
-
-	private void SetBraking(CallbackContext c) {
-		float input = c.ReadValue<float>();
-		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
-
-		SetDebugUIText(3, input.ToString("F2"));
-	}
-	private void StopBraking(CallbackContext _) {
-		brakeBuffer = 0f;
-		SetDebugUIText(3);
-	}
-
 	private void ApplyHandbrakeTorque() {
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
@@ -338,11 +364,22 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(6, handbrakeBuffer.ToString("F2"));
 	}
 
+	private void SetBraking(CallbackContext c) {
+		float input = c.ReadValue<float>();
+		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
+
+		SetDebugUIText(3, input.ToString("F2"));
+	}
 	private void SetHandbraking(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		handbrakeBuffer = HandbrakePedalCurve.EvaluateMirrored(input);
 
 		SetDebugUIText(7, input.ToString("F2"));
+	}
+
+	private void StopBraking(CallbackContext _) {
+		brakeBuffer = 0f;
+		SetDebugUIText(3);
 	}
 
 	private void StopHandbraking(CallbackContext _) {
@@ -351,20 +388,19 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(7);
 	}
 
-	private void Handbrake(float dt) {
-		ApplyHandbrakeTorque();
-	}
+	#endregion
 
+	#region Jumping, Hopping
 	private void ApplyJump() {
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			JointSpring spring = frontWheelCollider.suspensionSpring;
-			spring.spring = springInit * (1f-jumpBuffer);
+			spring.spring = springInit * (1f - jumpBuffer);
 			frontWheelCollider.suspensionSpring = spring;
 		}
 
 		foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
 			JointSpring spring = rearWheelCollider.suspensionSpring;
-			spring.spring = springInit * (1f-jumpBuffer);
+			spring.spring = springInit * (1f - jumpBuffer);
 			rearWheelCollider.suspensionSpring = spring;
 		}
 
@@ -385,6 +421,46 @@ public class SteeringScript : MonoBehaviour {
 	private void Jump(float dt) {
 		ApplyJump();
 	}
+	#endregion
+
+	#region Yaw, Pitch
+	
+	
+	private void Yaw(float dt) {
+		float yawAmount = YawSpeed * yawBuffer * dt;
+		// rb.angularVelocity += Vector3.up * yawAmount;
+		rb.AddRelativeTorque(Vector3.up * yawAmount);
+		// rb.AddForceAtPosition(Vector3.up * yawAmount, rb.position + Vector3.forward);
+		
+	}
+
+	private void Pitch(float dt) {
+		float pitchAmount = PitchSpeed * pitchBuffer * dt;	
+		// rb.angularVelocity += Vector3.right * pitchAmount;
+		rb.AddRelativeTorque(Vector3.right * pitchAmount);
+		// rb.AddForceAtPosition(Vector3.right * pitchAmount, rb.position + Vector3.forward);
+	}
+
+	private void SetYaw(CallbackContext c) {
+		float input = c.ReadValue<float>();
+		yawBuffer = SteeringCurve.EvaluateMirrored(input);
+	}
+	private void SetPitch(CallbackContext c) {
+		float input = c.ReadValue<float>();
+		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
+	}
+
+	private void StopYaw(CallbackContext _) {
+		yawBuffer = 0;
+	}
+
+	private void StopPitch(CallbackContext _) {
+		pitchBuffer = 0;
+	}
+
+	#endregion
+
+	#endregion
 
 
 	private void SetDebugUIText(int index, string text = "0.00") {
@@ -392,7 +468,6 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		DebugUIScript.MainInstance.SetText(text, index);
-
 	}
 
 	private void ApplyAnimations() {
@@ -420,7 +495,7 @@ public class SteeringScript : MonoBehaviour {
 		// 	wheelRotationBuffers[frontWheelCount + i] %= 360f;
 
 		// 	float rotBuffer = wheelRotationBuffers[frontWheelCount + i];
-			
+
 		// 	Quaternion rotation = Quaternion.Euler(rotBuffer, 0, 0);
 
 		// 	rearWheelCollider.gameObject.transform.localRotation = rotation;
