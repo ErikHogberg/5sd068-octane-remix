@@ -87,6 +87,8 @@ public class SteeringScript : MonoBehaviour {
 	public float MaxNarrowingSpeed = 100;
 	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
 	public AnimationCurve SteeringNarrowingCurve;
+	[Tooltip("Offsets the car's center of mass by this vector3")]
+	public Vector3 CenterOfMassOffset;
 
 	[Header("Gas")]
 	public float GasSpeed = 100f;
@@ -156,6 +158,8 @@ public class SteeringScript : MonoBehaviour {
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
+
+		rb.centerOfMass += CenterOfMassOffset;
 
 		// TODO: camera that follows car behind position, not locked to car orientation
 		// IDEA: have camera as child, reparent to parent of car on start
