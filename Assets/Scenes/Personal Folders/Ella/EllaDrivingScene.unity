@@ -3440,6 +3440,7 @@ Transform:
   - {fileID: 985512647}
   - {fileID: 2060225116}
   - {fileID: 8794851964177980916}
+  - {fileID: 2091248346}
   - {fileID: 1742553220}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -3954,7 +3955,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1189457959}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 50, z: 0}
 --- !u!1 &1785507630 stripped
 GameObject:
@@ -4559,6 +4560,86 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2060225115}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &2091248345
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1189457959}
+    m_Modifications:
+    - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Name
+      value: Lambo_Erik
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 526
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 31
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 282
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.037775513
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.49952415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.021809703
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8652012
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7c90647cdac3b7b4e8817262c7f59e05, type: 3}
+--- !u!4 &2091248346 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2091248345}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3787755598317308730
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4566,15 +4647,40 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1189457959}
     m_Modifications:
+    - target: {fileID: 3267488896946614657, guid: c04276fa4bea4c1488153bff67298df0,
+        type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3267488897645153501, guid: c04276fa4bea4c1488153bff67298df0,
         type: 3}
       propertyPath: m_Name
       value: Lambo_Ella
       objectReference: {fileID: 0}
-    - target: {fileID: 3267488897645153502, guid: c04276fa4bea4c1488153bff67298df0,
+    - target: {fileID: 3267488897645153501, guid: c04276fa4bea4c1488153bff67298df0,
         type: 3}
-      propertyPath: CenterOfMassOffset.y
-      value: -0.5
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3267488897812922246, guid: c04276fa4bea4c1488153bff67298df0,
+        type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3267488898222878173, guid: c04276fa4bea4c1488153bff67298df0,
+        type: 3}
+      propertyPath: m_FocalLength
+      value: 20.78461
+      objectReference: {fileID: 0}
+    - target: {fileID: 3267488898261956030, guid: c04276fa4bea4c1488153bff67298df0,
+        type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3267488898876713424, guid: c04276fa4bea4c1488153bff67298df0,
+        type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5664781652732860110, guid: c04276fa4bea4c1488153bff67298df0,
         type: 3}
