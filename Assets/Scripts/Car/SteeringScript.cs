@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿﻿using System.Linq;
 
 using Assets.Scripts;
 using System.Collections;
@@ -189,13 +189,13 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
-
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
 		if (CustomCenterOfMass != null) {
 			rb.centerOfMass = CustomCenterOfMass.position - transform.position;
 		}
+		rb.centerOfMass += CenterOfMassOffset;
 
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
@@ -204,7 +204,9 @@ public class SteeringScript : MonoBehaviour {
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
 
-		rb.centerOfMass += CenterOfMassOffset;
+		// TODO: camera that follows car behind position, not locked to car orientation
+		// IDEA: have camera as child, reparent to parent of car on start
+		// IDEA: use physics joints for camera arm
 
 	}
 
@@ -643,7 +645,6 @@ public class SteeringScript : MonoBehaviour {
 	#region Boost
 
 	private void Boost(float dt) {
-
 		if (!BoostNotEmpty) {
 			StopBoost();
 		}
@@ -714,7 +715,7 @@ public class SteeringScript : MonoBehaviour {
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
 
-			// Debug.Log("Reset car to test spot");
+			//Debug.Log("Reset car to test spot");
 		}
 	}
 
