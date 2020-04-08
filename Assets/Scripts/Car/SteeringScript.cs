@@ -571,7 +571,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void SetDebugUIText(int index, string text = "0.00") {
-		if (DebugUIScript.MainInstance == null)
+		if (DebugUIScript.MainInstance == null || DebugUIScript.MainInstance.TextBoxes == null || DebugUIScript.MainInstance.TextBoxes.Count <= index)
 			return;
 
 		DebugUIScript.MainInstance.SetText(text, index);
