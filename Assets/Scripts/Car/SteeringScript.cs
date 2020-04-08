@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 
+
+[RequireComponent(typeof(Rigidbody))]
 public class SteeringScript : MonoBehaviour {
 
 	public enum TractionMode {
@@ -16,8 +18,8 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-	[Header("Required objects")]
 
+	[Header("Required objects")]
 
 	[Tooltip("Front wheels")]
 	public List<WheelCollider> FrontWheelColliders;
@@ -30,23 +32,25 @@ public class SteeringScript : MonoBehaviour {
 	private IEnumerable<GameObject> allWheelModels;
 
 
-
 	[Header("Optional objects")]
-	public TrailRenderer BoostTrail;
-	private bool IsBoostTrailEmitting {
-		get {
-			if (BoostTrail == null) {
-				return false;
-			}
 
-			return BoostTrail.emitting;
-		}
+	[Tooltip("Trail renderers that will be turned on or off with boost")]
+	public List<TrailRenderer> BoostTrails;
+	private bool IsBoostTrailEmitting {
+		// get {
+		// 	if (!BoostTrails.Any())
+		// 		return false;
+
+		// 	return BoostTrails[0].emitting;
+		// }
 		set {
-			if (BoostTrail != null) {
-				BoostTrail.emitting = value;
-			}
+			foreach (TrailRenderer boostTrail in BoostTrails)
+				boostTrail.emitting = value;
 		}
 	}
+
+	[Tooltip("Trail renderers that will be turned on or off with drift")]
+	public List<TrailRenderer> DriftTrails;
 
 	public Transform CustomCenterOfMass;
 
@@ -126,6 +130,7 @@ public class SteeringScript : MonoBehaviour {
 	public AnimationCurve PitchInputCurve;
 
 	[Header("Boost")]
+	private bool boosting = false;
 	public float BoostSpeed = 100f;
 	private double boostAmount = 1;
 	private bool BoostNotEmpty
@@ -151,6 +156,22 @@ public class SteeringScript : MonoBehaviour {
 	public float VelocityCap = 20f;
 	public float BoostVelocityCap = 30f;
 
+	[Header("Drifting")]
+
+	[Tooltip("prerequisite angle at which drifting starts")]
+	[Range(0, 180)]
+	public float DriftStartAngle = 30f;
+
+	[Tooltip("At which angle drifting stops")]
+	[Range(0, 180)]
+	public float DriftStopAngle = 30f;
+
+	[Tooltip("prerequisite velocity at which drifting starts")]
+	public float DriftStartVelocity = 1f;
+	[Tooltip("At which velocity drifting stops")]
+	public float DriftStopVelocity = .5f;
+
+
 	// input buffers
 	private float steeringBuffer = 0f;
 	private float gasBuffer = 0f;
@@ -162,7 +183,6 @@ public class SteeringScript : MonoBehaviour {
 	private float yawBuffer = 0f;
 	private float pitchBuffer = 0f;
 
-	private bool boost = false;
 
 
 	private float[] wheelRotationBuffers;
@@ -262,6 +282,8 @@ public class SteeringScript : MonoBehaviour {
 	void Update() {
 	}
 
+	private bool touchedGroundLastTick = true;//false;
+
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
@@ -279,7 +301,6 @@ public class SteeringScript : MonoBehaviour {
 		Handbrake(dt);
 
 		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
-		// IDEA: use OnTriggerStay with a timer to give some "coyote-time", restart timer every tick that car collides with ground
 		Yaw(dt);
 		Pitch(dt);
 
@@ -291,23 +312,20 @@ public class SteeringScript : MonoBehaviour {
 		CheckDrift();
 
 		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
+
+		// touchedGroundLastTick = false;
 	}
 
-	// check if drifting
-	private void CheckDrift()
-	{
-		Vector3 carDir = transform.forward;
-		Vector3 velocityDir = rb.velocity;
+	// private void OnCollisionStay(Collision other) {
+	// 	// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
+	// 	if (other.gameObject.tag == "Ground")
+	// 		touchedGroundLastTick = true;
 
-		float angle = Vector3.SignedAngle(carDir, velocityDir, transform.up);
+	// }
 
-		SetDebugUIText(11, angle.ToString("F2"));
-	}
-
-	private void ApplyVelocityCap()
-	{
+	private void ApplyVelocityCap() {
 		if (CapVelocity) {
-			if (boost) {
+			if (boosting) {
 				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
 					rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
 			} else {
@@ -316,6 +334,53 @@ public class SteeringScript : MonoBehaviour {
 			}
 		}
 	}
+
+	#region Drifting
+
+	private void StartDrift() {
+		// TODO: enable drifting bool, create drift method in fixed update which uses bool
+		// TODO: only call this method the frame that drifting starts
+		foreach (TrailRenderer driftTrail in DriftTrails)
+			driftTrail.emitting = true;
+
+		SetDebugUIText(11, "true");
+		
+	}
+
+	private void StopDrift() {
+		foreach (TrailRenderer driftTrail in DriftTrails)
+			driftTrail.emitting = false;
+
+		SetDebugUIText(11, "false");
+
+	}
+
+	// check if drifting
+	private void CheckDrift() {
+		Vector3 carDir = transform.forward;
+		Vector3 velocity = rb.velocity;
+
+		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
+		float absAngle = Mathf.Abs(angle);
+
+		if (touchedGroundLastTick
+			&& absAngle > DriftStartAngle
+			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
+		) {
+			StartDrift();
+		}
+
+		if (!touchedGroundLastTick
+			|| absAngle < DriftStopAngle
+			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
+		) {
+			StopDrift();
+		}
+
+		SetDebugUIText(12, angle.ToString("F2"));
+	}
+
+	#endregion
 
 	#region Input callbacks
 	#region Steering
@@ -580,15 +645,12 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
-	private void Boost(float dt)
-	{
-		if (!BoostNotEmpty)
-		{
+	private void Boost(float dt) {
+		if (!BoostNotEmpty) {
 			StopBoost();
 		}
 
-		if (!boost)
-		{
+		if (!boosting) {
 			AddBoost(BoostFillRate * dt);
 			return;
 		}
@@ -599,7 +661,7 @@ public class SteeringScript : MonoBehaviour {
 		if (BoostNotEmpty)
 			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
 		else
-			boost = false;
+			boosting = false;
 
 	}
 
@@ -613,7 +675,11 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < 0)
 			boostAmount = 0;
 
-		BoostBarScript.SetBarPercentage((float)boostAmount);
+		Color barColor = Color.white;
+		if (boostAmount < MinBoostLevel)
+			barColor = Color.grey;
+
+		BoostBarScript.SetBarPercentage((float)boostAmount, barColor);
 
 	}
 
@@ -622,13 +688,13 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			return;
 
-		boost = true;
+		boosting = true;
 	}
 
 	private void StopBoost()
 	{
 		IsBoostTrailEmitting = false;
-		boost = false;
+		boosting = false;
 	}
 
 	private void StopBoost(CallbackContext _)
