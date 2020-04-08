@@ -279,6 +279,8 @@ public class SteeringScript : MonoBehaviour {
 	// void Update() {
 	// }
 
+	private bool touchedGroundLastTick = true;//false;
+
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
@@ -296,7 +298,6 @@ public class SteeringScript : MonoBehaviour {
 		Handbrake(dt);
 
 		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
-		// IDEA: use OnTriggerStay with a timer to give some "coyote-time", restart timer every tick that car collides with ground
 		Yaw(dt);
 		Pitch(dt);
 
@@ -309,7 +310,15 @@ public class SteeringScript : MonoBehaviour {
 
 		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
 
+		// touchedGroundLastTick = false;
 	}
+
+	// private void OnCollisionStay(Collision other) {
+	// 	// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
+	// 	if (other.gameObject.tag == "Ground")
+	// 		touchedGroundLastTick = true;
+
+	// }
 
 	private void ApplyVelocityCap() {
 		if (CapVelocity) {
@@ -330,11 +339,17 @@ public class SteeringScript : MonoBehaviour {
 		// TODO: only call this method the frame that drifting starts
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = true;
+
+		SetDebugUIText(11, "true");
+		
 	}
 
 	private void StopDrift() {
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = false;
+
+		SetDebugUIText(11, "false");
+
 	}
 
 	// check if drifting
@@ -345,15 +360,21 @@ public class SteeringScript : MonoBehaviour {
 		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
 		float absAngle = Mathf.Abs(angle);
 
-		if (absAngle > DriftStartAngle || velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity) {
+		if (touchedGroundLastTick
+			&& absAngle > DriftStartAngle
+			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
+		) {
 			StartDrift();
 		}
 
-		if (absAngle < DriftStopAngle || velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity) {
+		if (!touchedGroundLastTick
+			|| absAngle < DriftStopAngle
+			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
+		) {
 			StopDrift();
 		}
 
-		SetDebugUIText(11, angle.ToString("F2"));
+		SetDebugUIText(12, angle.ToString("F2"));
 	}
 
 	#endregion
