@@ -107,9 +107,11 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Downward force")]
 	public bool EnableDownwardForce = true;
+	[Tooltip("At what speed does DownwardForce switch off by default")]
+	public float MinDownwardsForceSpeed = 1.0f;
 	public float DownwardForce = 10f;
 	public ForceMode DownwardForceMode = ForceMode.Acceleration;
-	[Tooltip("Wether or not the force direction should be relative to the car orientation instead of world.")]
+	[Tooltip("Whether or not the force direction should be relative to the car orientation instead of world.")]
 	public bool UseRelativeDownwardForce = true;
 
 	[Header("In-air controls")]
@@ -231,7 +233,7 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		if (EnableDownwardForce) {
+		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed) {
 			if (UseRelativeDownwardForce) {
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
 			} else {
