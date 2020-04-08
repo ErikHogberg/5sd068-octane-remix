@@ -17,7 +17,7 @@ public class CarCam : MonoBehaviour
 	public AnimationCurve velocityToFOV;
 
 	public float minCameraFOV = 60.0f;
-	public float maxCameraFOV = 75.0f;
+	public float maxCameraFOV = 80.0f;
 
 	[Header("Camera Stickiness")]
 	[Tooltip("The relationship between camera stickiness and the car's velocity")]
