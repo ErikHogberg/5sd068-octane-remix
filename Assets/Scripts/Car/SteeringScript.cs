@@ -158,6 +158,7 @@ public class SteeringScript : MonoBehaviour {
 		if (CustomCenterOfMass != null) {
 			rb.centerOfMass = CustomCenterOfMass.position - transform.position;
 		}
+		rb.centerOfMass += CenterOfMassOffset;
 
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
@@ -165,8 +166,6 @@ public class SteeringScript : MonoBehaviour {
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
-
-		rb.centerOfMass += CenterOfMassOffset;
 
 		// TODO: camera that follows car behind position, not locked to car orientation
 		// IDEA: have camera as child, reparent to parent of car on start
