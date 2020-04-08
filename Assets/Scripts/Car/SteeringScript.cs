@@ -168,10 +168,6 @@ public class SteeringScript : MonoBehaviour {
 
 		rb.centerOfMass += CenterOfMassOffset;
 
-		// TODO: camera that follows car behind position, not locked to car orientation
-		// IDEA: have camera as child, reparent to parent of car on start
-		// IDEA: use physics joints for camera arm
-
 	}
 
 	void Awake() {
@@ -270,6 +266,21 @@ public class SteeringScript : MonoBehaviour {
 
 		ApplyVelocityCap();
 		ApplyAnimations();
+
+		CheckDrift();
+
+		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
+
+	}
+
+	// check if drifting
+	private void CheckDrift() {
+		Vector3 carDir = transform.forward;
+		Vector3 velocityDir = rb.velocity;
+
+		float angle = Vector3.SignedAngle(carDir, velocityDir, transform.up);
+
+		SetDebugUIText(11, angle.ToString("F2"));
 	}
 
 	private void ApplyVelocityCap() {
@@ -586,7 +597,7 @@ public class SteeringScript : MonoBehaviour {
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
 
-			Debug.Log("Reset car to test spot");
+			// Debug.Log("Reset car to test spot");
 		}
 	}
 
