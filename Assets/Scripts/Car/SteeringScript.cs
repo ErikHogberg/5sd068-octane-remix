@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿﻿using System.Linq;
 
 using Assets.Scripts;
 using System.Collections;
@@ -128,7 +128,8 @@ public class SteeringScript : MonoBehaviour {
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
 	private double boostAmount = 1;
-	private bool BoostNotEmpty {
+	private bool BoostNotEmpty
+	{
 		get { return boostAmount > 0; }
 	}
 
@@ -168,7 +169,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private Rigidbody rb;
 	private float springInit;
-
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
@@ -259,8 +259,8 @@ public class SteeringScript : MonoBehaviour {
 		DisableInput();
 	}
 
-	// void Update() {
-	// }
+	void Update() {
+	}
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
@@ -291,11 +291,11 @@ public class SteeringScript : MonoBehaviour {
 		CheckDrift();
 
 		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
-
 	}
 
 	// check if drifting
-	private void CheckDrift() {
+	private void CheckDrift()
+	{
 		Vector3 carDir = transform.forward;
 		Vector3 velocityDir = rb.velocity;
 
@@ -304,7 +304,8 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(11, angle.ToString("F2"));
 	}
 
-	private void ApplyVelocityCap() {
+	private void ApplyVelocityCap()
+	{
 		if (CapVelocity) {
 			if (boost) {
 				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
@@ -579,13 +580,15 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
-	private void Boost(float dt) {
-
-		if (!BoostNotEmpty) {
+	private void Boost(float dt)
+	{
+		if (!BoostNotEmpty)
+		{
 			StopBoost();
 		}
 
-		if (!boost) {
+		if (!boost)
+		{
 			AddBoost(BoostFillRate * dt);
 			return;
 		}
@@ -600,7 +603,8 @@ public class SteeringScript : MonoBehaviour {
 
 	}
 
-	private void AddBoost(double amount) {
+	private void AddBoost(double amount)
+	{
 		boostAmount += amount;
 
 		if (boostAmount > 1)
@@ -613,19 +617,22 @@ public class SteeringScript : MonoBehaviour {
 
 	}
 
-	private void StartBoost(CallbackContext _) {
+	private void StartBoost(CallbackContext _)
+	{
 		if (boostAmount < MinBoostLevel)
 			return;
 
 		boost = true;
 	}
 
-	private void StopBoost() {
+	private void StopBoost()
+	{
 		IsBoostTrailEmitting = false;
 		boost = false;
 	}
 
-	private void StopBoost(CallbackContext _) {
+	private void StopBoost(CallbackContext _)
+	{
 		StopBoost();
 	}
 
@@ -647,7 +654,7 @@ public class SteeringScript : MonoBehaviour {
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
 
-			// Debug.Log("Reset car to test spot");
+			//Debug.Log("Reset car to test spot");
 		}
 	}
 
