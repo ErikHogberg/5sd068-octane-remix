@@ -7,7 +7,7 @@ public class BoostBarScript : MonoBehaviour {
 
 	public static BarScript bar;
 
-	void Start() {
+	void Awake() {
 		bar = GetComponent<BarScript>();
 	}
 
@@ -20,8 +20,6 @@ public class BoostBarScript : MonoBehaviour {
 		if (color.HasValue) 
 			bar.SetColor(color.Value);
 		
-
-
 	}
 
 }
