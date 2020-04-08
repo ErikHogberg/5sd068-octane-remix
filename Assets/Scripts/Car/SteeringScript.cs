@@ -127,11 +127,28 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
+	private double boostAmount = 1;
+	private bool BoostNotEmpty {
+		get { return boostAmount > 0; }
+	}
+
+	[Tooltip("How much % of the boost tank is emptied per second when boosting")]
+	[Range(0, 1)]
+	public double BoostConsumptionRate = .4;
+
+	[Tooltip("How much % of the boost tank is added per second when not boosting")]
+	[Range(0, 1)]
+	public double BoostFillRate = .25;
+
+	[Tooltip("How much boost tank % is required to start boosting")]
+	[Range(0, 1)]
+	public double MinBoostLevel = .2;
 
 
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
-	public float VelocityCap = 30f;
+	public float VelocityCap = 20f;
+	public float BoostVelocityCap = 30f;
 
 	// input buffers
 	private float steeringBuffer = 0f;
@@ -151,6 +168,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private Rigidbody rb;
 	private float springInit;
+
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
@@ -241,8 +259,8 @@ public class SteeringScript : MonoBehaviour {
 		DisableInput();
 	}
 
-	void Update() {
-	}
+	// void Update() {
+	// }
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
@@ -269,13 +287,33 @@ public class SteeringScript : MonoBehaviour {
 
 		ApplyVelocityCap();
 		ApplyAnimations();
+
+		CheckDrift();
+
+		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
+
+	}
+
+	// check if drifting
+	private void CheckDrift() {
+		Vector3 carDir = transform.forward;
+		Vector3 velocityDir = rb.velocity;
+
+		float angle = Vector3.SignedAngle(carDir, velocityDir, transform.up);
+
+		SetDebugUIText(11, angle.ToString("F2"));
 	}
 
 	private void ApplyVelocityCap() {
-		if (CapVelocity)
-			if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
-				rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
-
+		if (CapVelocity) {
+			if (boost) {
+				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
+					rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
+			} else {
+				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
+					rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
+			}
+		}
 	}
 
 	#region Input callbacks
@@ -542,29 +580,53 @@ public class SteeringScript : MonoBehaviour {
 	#region Boost
 
 	private void Boost(float dt) {
+
+		if (!BoostNotEmpty) {
+			StopBoost();
+		}
+
 		if (!boost) {
+			AddBoost(BoostFillRate * dt);
 			return;
 		}
 
-		rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
-		// TODO: cap velocity
-		// TODO: cap velocity differently for boosting and normal driving
+		IsBoostTrailEmitting = true;
+		AddBoost(-BoostConsumptionRate * dt);
+
+		if (BoostNotEmpty)
+			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
+		else
+			boost = false;
+
+	}
+
+	private void AddBoost(double amount) {
+		boostAmount += amount;
+
+		if (boostAmount > 1)
+			boostAmount = 1;
+
+		if (boostAmount < 0)
+			boostAmount = 0;
+
+		BoostBarScript.SetBarPercentage((float)boostAmount);
 
 	}
 
 	private void StartBoost(CallbackContext _) {
-		if (boost == false) {
-			// Started boosting this press
-			// NOTE: might not be needed? input system only calls this when not already pressed?
-			IsBoostTrailEmitting = true;
-		}
+		if (boostAmount < MinBoostLevel)
+			return;
 
 		boost = true;
 	}
 
-	private void StopBoost(CallbackContext _) {
+	private void StopBoost() {
 		IsBoostTrailEmitting = false;
 		boost = false;
+	}
+
+	private void StopBoost(CallbackContext _) {
+		StopBoost();
 	}
 
 	#endregion
@@ -585,7 +647,7 @@ public class SteeringScript : MonoBehaviour {
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
 
-			Debug.Log("Reset car to test spot");
+			// Debug.Log("Reset car to test spot");
 		}
 	}
 
