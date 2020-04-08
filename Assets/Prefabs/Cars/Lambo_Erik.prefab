@@ -5878,6 +5878,7 @@ Transform:
   - {fileID: 4149504325498721305}
   - {fileID: 4149504323624877571}
   - {fileID: 2522862530822669838}
+  - {fileID: 5821789675930936434}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5922,9 +5923,12 @@ MonoBehaviour:
   - {fileID: 4149504324073623660}
   - {fileID: 4149504324050217110}
   BoostTrail: {fileID: 6803615517072498511}
+  CustomCenterOfMass: {fileID: 5821789675930936434}
   SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
@@ -6069,6 +6073,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   EnableDownwardForce: 0
+  MinDownwardsForceSpeed: 1
   DownwardForce: 10
   DownwardForceMode: 5
   UseRelativeDownwardForce: 0
@@ -6247,6 +6252,36 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!1 &4970866471096930708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5821789675930936434}
+  m_Layer: 0
+  m_Name: CenterOfMass
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5821789675930936434
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4970866471096930708}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.494, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 6508593180721907125}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5650095361503791286
 GameObject:
   m_ObjectHideFlags: 0
