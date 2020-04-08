@@ -48,10 +48,13 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	public Transform CustomCenterOfMass;
+
 
 	[Header("Key bindings (Required)")]
 	public InputActionReference SteeringKeyBinding;
 	public InputActionReference GasKeyBinding;
+	public InputActionReference ReverseKeyBinding;
 	public InputActionReference BrakeKeyBinding;
 	public InputActionReference HandbrakeKeyBinding;
 	public InputActionReference JumpKeyBinding;
@@ -152,6 +155,10 @@ public class SteeringScript : MonoBehaviour {
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
+		if (CustomCenterOfMass != null) {
+			rb.centerOfMass = CustomCenterOfMass.position - transform.position;
+		}
+
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
@@ -176,6 +183,7 @@ public class SteeringScript : MonoBehaviour {
 		// adds press actions
 		SteeringKeyBinding.action.performed += SetSteering;
 		GasKeyBinding.action.performed += SetGas;
+		ReverseKeyBinding.action.performed += StartReverse;
 		BrakeKeyBinding.action.performed += SetBraking;
 		HandbrakeKeyBinding.action.performed += SetHandbraking;
 		JumpKeyBinding.action.performed += SetJump;
@@ -188,6 +196,7 @@ public class SteeringScript : MonoBehaviour {
 		// adds release actions
 		SteeringKeyBinding.action.canceled += StopSteering;
 		GasKeyBinding.action.canceled += StopGas;
+		ReverseKeyBinding.action.canceled += StopReverse;
 		BrakeKeyBinding.action.canceled += StopBraking;
 		HandbrakeKeyBinding.action.canceled += StopHandbraking;
 		JumpKeyBinding.action.canceled += ReleaseJump;
@@ -199,6 +208,7 @@ public class SteeringScript : MonoBehaviour {
 	private void EnableInput() {
 		SteeringKeyBinding.action.Enable();
 		GasKeyBinding.action.Enable();
+		ReverseKeyBinding.action.Enable();
 		BrakeKeyBinding.action.Enable();
 		HandbrakeKeyBinding.action.Enable();
 		JumpKeyBinding.action.Enable();
@@ -211,6 +221,7 @@ public class SteeringScript : MonoBehaviour {
 	private void DisableInput() {
 		SteeringKeyBinding.action.Disable();
 		GasKeyBinding.action.Disable();
+		ReverseKeyBinding.action.Disable();
 		BrakeKeyBinding.action.Disable();
 		HandbrakeKeyBinding.action.Disable();
 		JumpKeyBinding.action.Disable();
@@ -237,13 +248,12 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed) {
-			if (UseRelativeDownwardForce) {
+		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
+			if (UseRelativeDownwardForce)
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
-			} else {
+			else
 				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
-			}
-		}
+
 
 		Steer(dt);
 		Gas(dt);
@@ -252,6 +262,7 @@ public class SteeringScript : MonoBehaviour {
 		Handbrake(dt);
 
 		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
+		// IDEA: use OnTriggerStay with a timer to give some "coyote-time", restart timer every tick that car collides with ground
 		Yaw(dt);
 		Pitch(dt);
 
@@ -262,11 +273,10 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void ApplyVelocityCap() {
-		if (CapVelocity) {
-			if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
+		if (CapVelocity)
+			if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
 				rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
-			}
-		}
+
 	}
 
 	#region Input callbacks
@@ -293,9 +303,8 @@ public class SteeringScript : MonoBehaviour {
 			SetDebugUIText(10, "1.00");
 		} else {
 			float speedProgress = 1f;
-			if (sqrVelocity < sqrMaxNarrowingSpeed) {
+			if (sqrVelocity < sqrMaxNarrowingSpeed)
 				speedProgress -= sqrVelocity / sqrMaxNarrowingSpeed;
-			}
 
 			narrowing = SteeringNarrowingCurve.Evaluate(speedProgress);
 			SetDebugUIText(10, speedProgress.ToString("F2"));
@@ -305,9 +314,8 @@ public class SteeringScript : MonoBehaviour {
 
 
 		float steeringAmount = steeringBuffer * SteeringMax * narrowing;
-		foreach (WheelCollider FrontWheelCollider in FrontWheelColliders) {
+		foreach (WheelCollider FrontWheelCollider in FrontWheelColliders)
 			FrontWheelCollider.steerAngle = steeringAmount;
-		}
 
 		SetDebugUIText(0, steeringBuffer.ToString("F2"));
 	}
@@ -329,9 +337,9 @@ public class SteeringScript : MonoBehaviour {
 	#region Gas
 
 	private void Gas(float dt) {
-		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue) {
+		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue)
 			ApplyGasTorque();
-		}
+
 	}
 
 
@@ -346,29 +354,25 @@ public class SteeringScript : MonoBehaviour {
 			case TractionMode.FrontTraction:
 				gasAmount /= FrontWheelColliders.Count;
 
-				foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
+				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
 					frontWheelCollider.motorTorque = gasAmount;
-				}
 
 				break;
 			case TractionMode.RearTraction:
 				gasAmount /= RearWheelColliders.Count;
 
-				foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
+				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
 					rearWheelCollider.motorTorque = GasSpeed * gasBuffer;
-				}
 
 				break;
 			case TractionMode.FourWheelTraction:
 				gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
 
-				foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
+				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
 					rearWheelCollider.motorTorque = GasSpeed * gasBuffer;
-				}
 
-				foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
+				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
 					frontWheelCollider.motorTorque = GasSpeed * gasBuffer;
-				}
 
 				break;
 		}
@@ -390,6 +394,18 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(5);
 	}
+	#endregion
+
+	#region Reverse
+
+	private void StartReverse(CallbackContext _) {
+		gasBuffer = -1;
+	}
+
+	private void StopReverse(CallbackContext _) {
+		gasBuffer = 0;
+	}
+
 	#endregion
 
 	#region Braking
@@ -575,7 +591,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void SetDebugUIText(int index, string text = "0.00") {
-		if (DebugUIScript.MainInstance == null)
+		if (DebugUIScript.MainInstance == null || DebugUIScript.MainInstance.TextBoxes == null || DebugUIScript.MainInstance.TextBoxes.Count <= index)
 			return;
 
 		DebugUIScript.MainInstance.SetText(text, index);
