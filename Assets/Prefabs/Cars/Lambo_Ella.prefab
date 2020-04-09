@@ -1479,7 +1479,8 @@ MonoBehaviour:
   RearWheelModels:
   - {fileID: 3267488898244428567}
   - {fileID: 3267488898217589741}
-  BoostTrail: {fileID: 0}
+  BoostTrails: []
+  DriftTrails: []
   CustomCenterOfMass: {fileID: 0}
   SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
@@ -1650,8 +1651,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   BoostSpeed: 100
+  BoostConsumptionRate: 0.4
+  BoostFillRate: 0.25
+  MinBoostLevel: 0.2
   CapVelocity: 1
   VelocityCap: 30
+  BoostVelocityCap: 30
+  DriftStartAngle: 30
+  DriftStopAngle: 30
+  DriftStartVelocity: 1
+  DriftStopVelocity: 0.5
 --- !u!1 &3267488897714053054
 GameObject:
   m_ObjectHideFlags: 0
@@ -3028,6 +3037,7 @@ MonoBehaviour:
   rotationSpeedThreshold: 7
   rotationThreshold: 25
   cameraRotationSpeed: 5
+  useFOVFluctuation: 1
   velocityToFOV:
     serializedVersion: 2
     m_Curve:
@@ -3054,7 +3064,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   minCameraFOV: 60
   maxCameraFOV: 80
-  velocityToStickiness:
+  velocityToLag:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -3078,8 +3088,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraStickiness: 10
-  maxCameraStickiness: 12
+  minCameraLag: 8
+  maxCameraLag: 15
 --- !u!1 &3267488898244428567
 GameObject:
   m_ObjectHideFlags: 0
