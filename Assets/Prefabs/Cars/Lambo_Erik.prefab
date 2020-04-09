@@ -84,7 +84,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -105,7 +105,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 2
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -266,7 +266,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 4.5
   m_SuspensionSpring:
-    spring: 35000
+    spring: 25000
     damper: 4500
     targetPosition: 0.5
   m_SuspensionDistance: 2
@@ -2447,7 +2447,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 4.5
   m_SuspensionSpring:
-    spring: 35000
+    spring: 25000
     damper: 4500
     targetPosition: 0.5
   m_SuspensionDistance: 2
@@ -4661,7 +4661,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 4.5
   m_SuspensionSpring:
-    spring: 35000
+    spring: 25000
     damper: 4500
     targetPosition: 0.5
   m_SuspensionDistance: 2
@@ -5089,7 +5089,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 4.5
   m_SuspensionSpring:
-    spring: 35000
+    spring: 25000
     damper: 4500
     targetPosition: 0.5
   m_SuspensionDistance: 2
@@ -6103,7 +6103,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4149504325620817830}
   serializedVersion: 2
-  m_Mass: 4500
+  m_Mass: 2500
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -6216,7 +6216,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   CenterOfMassOffset: {x: 0, y: 0, z: 0}
-  GasSpeed: 5000
+  GasSpeed: 15000
   GasPedalCurve:
     serializedVersion: 2
     m_Curve:
@@ -6241,7 +6241,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  BrakeForce: 10000
+  BrakeForce: 50000
   BrakeDistribution: 0.75
   BrakePedalCurve:
     serializedVersion: 2
@@ -6267,7 +6267,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  HandbrakeForce: 5000
+  HandbrakeForce: 50000
   HandbrakePedalCurve:
     serializedVersion: 2
     m_Curve:
@@ -6354,8 +6354,8 @@ MonoBehaviour:
   CapVelocity: 1
   VelocityCap: 25
   BoostVelocityCap: 30
-  DriftStartAngle: 30
-  DriftStopAngle: 30
+  DriftStartAngle: 20
+  DriftStopAngle: 15
   DriftStartVelocity: 1
   DriftStopVelocity: 0.5
 --- !u!1 &4149504325633330783
@@ -6790,7 +6790,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6811,7 +6811,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 2
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -6918,7 +6918,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6939,7 +6939,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 2
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -7046,7 +7046,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7067,7 +7067,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 5
+  m_Time: 2
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
