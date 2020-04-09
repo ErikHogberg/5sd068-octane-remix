@@ -305,6 +305,8 @@ public class SteeringScript : MonoBehaviour {
 
 		Jump(dt);
 
+		UpdateUI();
+
 		ApplyVelocityCap();
 		ApplyAnimations();
 
@@ -321,6 +323,22 @@ public class SteeringScript : MonoBehaviour {
 	// 		touchedGroundLastTick = true;
 
 	// }
+
+	#region UI
+	private void UpdateUI() {
+		// float gasAmount = GasSpeed * gasBuffer;
+			
+		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
+
+		Color color = Color.white;
+		if (percentage >= 1)
+			color = Color.red;
+		if (boosting)
+			color = Color.blue;
+
+		GasNeedleUIScript.SetBarPercentage(percentage, color);
+	}
+	#endregion
 
 	private void ApplyVelocityCap() {
 		if (CapVelocity) {
@@ -343,7 +361,7 @@ public class SteeringScript : MonoBehaviour {
 			driftTrail.emitting = true;
 
 		SetDebugUIText(11, "true");
-		
+
 	}
 
 	private void StopDrift() {
@@ -357,7 +375,7 @@ public class SteeringScript : MonoBehaviour {
 	// check if drifting
 	private void CheckDrift() {
 		Vector3 carDir = transform.forward;
-		Vector3 velocity = rb.velocity;
+		Vector3 velocity = rb.velocity; // IDEA: project velocity onto car plane? should solver every problem ever
 
 		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
 		float absAngle = Mathf.Abs(angle);
@@ -677,7 +695,7 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			barColor = Color.grey;
 
-		BoostBarScript.SetBarPercentage((float)boostAmount, barColor);
+		BoostBarUIScript.SetBarPercentage((float)boostAmount, barColor);
 
 	}
 
