@@ -373,9 +373,23 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	// check if drifting
+
+	private float GetDriftAngle(){
+		Vector3 carDir = transform.forward;
+		Vector3 velocity = rb.velocity;
+
+		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
+
+		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
+
+		return angle;
+	}
+
 	private void CheckDrift() {
 		Vector3 carDir = transform.forward;
-		Vector3 velocity = rb.velocity; // IDEA: project velocity onto car plane? should solver every problem ever
+		Vector3 velocity = rb.velocity;
+
+		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
 
 		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
 		float absAngle = Mathf.Abs(angle);
@@ -403,8 +417,6 @@ public class SteeringScript : MonoBehaviour {
 	#region Steering
 
 	private void Steer(float dt) {
-		// TODO: in-air movement
-
 		ApplySteeringTorque();
 	}
 
@@ -624,7 +636,6 @@ public class SteeringScript : MonoBehaviour {
 	#endregion
 
 	#region Yaw, Pitch
-
 
 	private void Yaw(float dt) {
 		float yawAmount = YawSpeed * yawBuffer * dt;
