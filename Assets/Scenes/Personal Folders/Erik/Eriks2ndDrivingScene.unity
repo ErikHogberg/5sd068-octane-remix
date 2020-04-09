@@ -684,6 +684,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Test_Track_3.0_Upipe
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: e6b2def763207724995a01dc15d5b2ba,
+        type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6b2def763207724995a01dc15d5b2ba, type: 3}
 --- !u!4 &985512647 stripped
@@ -1472,6 +1477,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: test track arena
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: e6844ae19bc3f4845a4f00ecf770d501,
+        type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6844ae19bc3f4845a4f00ecf770d501, type: 3}
 --- !u!1 &1971980131
@@ -1868,31 +1878,81 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1189457959}
     m_Modifications:
+    - target: {fileID: 4149504323586418373, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_SuspensionSpring.spring
+      value: 25000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324171168427, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_SuspensionSpring.spring
+      value: 25000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324960412410, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_SuspensionSpring.spring
+      value: 25000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325251804413, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_SuspensionSpring.spring
+      value: 25000
+      objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817828, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_Mass
-      value: 3500
+      value: 2500
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
-      propertyPath: CapVelocity
-      value: 1
+      propertyPath: DriftStartAngle
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
-      propertyPath: VelocityCap
-      value: 30
+      propertyPath: DriftStopAngle
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
-      propertyPath: SteeringMax
-      value: 60
+      propertyPath: GasSpeed
+      value: 15000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: BrakeForce
+      value: 50000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: HandbrakeForce
+      value: 50000
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_Name
       value: Lambo_Erik
       objectReference: {fileID: 0}
+    - target: {fileID: 4506600581941852965, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Time
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4506600581941852965, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
+    - target: {fileID: 4557303090214767840, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Time
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4557303090214767840, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
     - target: {fileID: 5821789675930936434, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1911,17 +1971,17 @@ PrefabInstance:
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5
+      value: -5.52
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 22.19
+      value: 10.33
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 28.51
+      value: 40.27
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -1963,6 +2023,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8003444701130503926, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Time
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8003444701130503926, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
+    - target: {fileID: 9115013771608624977, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Time
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9115013771608624977, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1746865c93f25f4419de92b7af220183, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c90647cdac3b7b4e8817262c7f59e05, type: 3}
 --- !u!4 &7189199870769111946 stripped
