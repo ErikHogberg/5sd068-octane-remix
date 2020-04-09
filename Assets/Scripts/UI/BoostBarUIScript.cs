@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BarScript))]
-public class BoostBarScript : MonoBehaviour {
+[RequireComponent(typeof(BarUIScript))]
+public class BoostBarUIScript : MonoBehaviour {
 
-	public static BarScript bar;
+	public static BarUIScript bar;
 
 	void Awake() {
-		bar = GetComponent<BarScript>();
+		bar = GetComponent<BarUIScript>();
 	}
 
 	public static void SetBarPercentage(float percentage, Color? color = null) {

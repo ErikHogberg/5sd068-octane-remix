@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 
 [RequireComponent(typeof(Image))]
-public class BarScript : MonoBehaviour {
+public class BarUIScript : MonoBehaviour {
 
 	private Image barFill;
 
@@ -19,7 +19,6 @@ public class BarScript : MonoBehaviour {
 
 		if (percentage < 0)
 			percentage = 0;
-
 
 		Vector3 scale = transform.localScale;
 		scale.x = percentage;
