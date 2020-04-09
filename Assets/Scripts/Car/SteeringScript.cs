@@ -305,16 +305,29 @@ public class SteeringScript : MonoBehaviour {
 
 		Jump(dt);
 
-		UpdateUI();
-
 		ApplyVelocityCap();
 		ApplyAnimations();
 
 		CheckDrift();
 
+		//To keep the velocity needle moving smoothly
+		RefreshUI();
+
 		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
 
 		// touchedGroundLastTick = false;
+	}
+
+	//To avoid jittery number updates on the UI
+	int updateCount = 0;
+	int updateInterval = 5;
+	void LateUpdate()
+    {
+		if (updateCount >= updateInterval) {
+			UpdateUI();
+			updateCount = 0;
+		}
+		updateCount++;
 	}
 
 	// private void OnCollisionStay(Collision other) {
@@ -325,18 +338,24 @@ public class SteeringScript : MonoBehaviour {
 	// }
 
 	#region UI
+	private void RefreshUI()
+    {
+		GasNeedleUIScript.Refresh();
+	}
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 			
 		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
+		float kmph = (float)rb.velocity.magnitude * 3.6f;
 
-		Color color = Color.white;
-		if (percentage >= 1)
-			color = Color.red;
-		if (boosting)
-			color = Color.blue;
-
-		GasNeedleUIScript.SetBarPercentage(percentage, color);
+		if (boosting){
+			if (percentage >= 1f)
+				percentage = Random.Range(1f, 1.05f);
+			GasNeedleUIScript.SetBarPercentage(percentage, true);
+		} else {
+			GasNeedleUIScript.SetBarPercentage(percentage, false);
+		}
+		GasNeedleUIScript.SetKMPH(kmph);
 	}
 	#endregion
 

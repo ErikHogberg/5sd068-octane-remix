@@ -13,21 +13,27 @@ public class CarCam : MonoBehaviour
 	public float cameraRotationSpeed = 5.0f;
 
 	[Header("Camera FOV")]
+	public bool useFOVFluctuation;
+
 	[Tooltip("The relationship between camera FOV and the car's velocity")]
 	public AnimationCurve velocityToFOV;
 
+	[Range(0, 140)]
 	public float minCameraFOV = 60.0f;
+	[Range(0, 140)]
 	public float maxCameraFOV = 80.0f;
 
-	[Header("Camera Stickiness")]
-	[Tooltip("The relationship between camera stickiness and the car's velocity")]
-	public AnimationCurve velocityToStickiness;
-
-	[Tooltip("How closely the camera follows the car's position. This value determines the most it will ever lag behind.")]
-	public float minCameraStickiness = 10.0f;
+	[Header("Camera Lag")]
+	[Tooltip("The relationship between how much the camera lags behind the car and the car's velocity")]
+	public AnimationCurve velocityToLag;
 
 	[Tooltip("How closely the camera follows the car's position. This value determines the least it will ever lag behind.")]
-    public float maxCameraStickiness = 12.0f;
+	[Range(3, 50)]
+	public float minCameraLag = 8.0f;
+
+	[Tooltip("How closely the camera follows the car's position. This value determines the most it will ever lag behind.")]
+	[Range(3, 50)]
+	public float maxCameraLag = 15.0f;
 
 
 	Transform rootNode;
@@ -35,7 +41,7 @@ public class CarCam : MonoBehaviour
 	Rigidbody carPhysics;
 	SteeringScript carControls;
 	float currCamRotationSpeed;
-	float cameraStickiness;
+	float cameraLag;
 
 	void Awake() {		
         rootNode = GetComponent<Transform>();
@@ -59,20 +65,22 @@ public class CarCam : MonoBehaviour
 		float percentOfTopSpeed = carPhysics.velocity.sqrMagnitude / (carControls.VelocityCap * carControls.VelocityCap);
 		percentOfTopSpeed = Mathf.Clamp(percentOfTopSpeed, 0.0f, 1.0f);
 
-		float diffCameraStickiness = maxCameraStickiness - minCameraStickiness;
-		float calcCameraStickiness = diffCameraStickiness * velocityToStickiness.Evaluate(1.0f - percentOfTopSpeed);
-		cameraStickiness = minCameraStickiness + calcCameraStickiness;
+		float diffCameraLag = maxCameraLag - minCameraLag;
+		float calcCameraLag = diffCameraLag * velocityToLag.Evaluate(percentOfTopSpeed);
+		cameraLag = minCameraLag + calcCameraLag;
 
-		float diffFOV = maxCameraFOV - minCameraFOV;
-		float calcFOV = diffFOV * velocityToFOV.Evaluate(percentOfTopSpeed);
-		gameObject.GetComponent<Camera>().fieldOfView = minCameraFOV + calcFOV;
+		if (useFOVFluctuation) {
+			float diffFOV = maxCameraFOV - minCameraFOV;
+			float calcFOV = diffFOV * velocityToFOV.Evaluate(percentOfTopSpeed);
+			gameObject.GetComponent<Camera>().fieldOfView = minCameraFOV + calcFOV;
+		}
 
-		//Debug.Log(cameraStickiness);
+		//Debug.Log(cameraLag);
 		//Debug.Log(minCameraFOV + calcFOV);
 
 		Quaternion look;
         // Moves the camera to match the car's position.
-        rootNode.position = Vector3.Lerp(rootNode.position, cameraLock.position, cameraStickiness * Time.fixedDeltaTime);
+        rootNode.position = Vector3.Lerp(rootNode.position, cameraLock.position, cameraLag * Time.fixedDeltaTime);
 
 
 		float lookAngleComparison = Mathf.Acos(

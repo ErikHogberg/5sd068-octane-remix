@@ -17,8 +17,8 @@ public class BoostBarUIScript : MonoBehaviour {
 
 		bar.SetBarPercentage(percentage);
 
-		if (color.HasValue) 
-			bar.SetColor(color.Value);
+		/*if (color.HasValue) 
+			bar.SetColor(color.Value);*/
 		
 	}
 
