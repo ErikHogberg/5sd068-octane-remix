@@ -59,7 +59,7 @@ public class SteeringScript : MonoBehaviour {
 	public List<TrailRenderer> YawClockwiseTrails;
 	[Tooltip("Trail renderers that will be turned on or off when turning left using the right stick")]
 	public List<TrailRenderer> YawCounterClockwiseTrails;
-	
+
 	/*
 	[Tooltip("Trail renderers that will be turned on or off when pitching up using the right stick")]
 	public List<TrailRenderer> PitchUpTrails;
@@ -88,8 +88,6 @@ public class SteeringScript : MonoBehaviour {
 
 
 	// TODO: reset car position to closest track position
-	// TODO: reverse?
-
 
 
 	[Header("Steering")]
@@ -126,6 +124,16 @@ public class SteeringScript : MonoBehaviour {
 	public float BrakeDistribution = 0.75f;
 
 	public AnimationCurve BrakePedalCurve;
+
+	[Space]
+
+
+	[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
+	public bool DampenRigidBody = true;
+
+	[Tooltip("Velocity that will be lost per second while braking")]
+	// [Range(0,1)]
+	public float BrakeDampeningAmount = 2000f;
 
 	[Header("Handbrake")]
 	public float HandbrakeForce = 100f;
@@ -604,6 +612,9 @@ public class SteeringScript : MonoBehaviour {
 			rearWheelCollider.brakeTorque = rearBrakeAmount;
 		}
 
+		if (DampenRigidBody && brakeBuffer > 0) {
+			rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
+		}
 
 		SetDebugUIText(2, brakeBuffer.ToString("F2"));
 	}
