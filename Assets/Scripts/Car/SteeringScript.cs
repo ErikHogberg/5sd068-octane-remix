@@ -124,8 +124,12 @@ public class SteeringScript : MonoBehaviour {
 	public bool UseRelativeDownwardForce = true;
 
 	[Header("In-air controls")]
-	public float YawSpeed = 100f;
+	public float YawSpeed = 200f;
+
+	[Tooltip("Add the tilt of the joystick as an offset instead of rotation over time, rotating back again when releasing stick")]
 	public AnimationCurve YawInputCurve;
+
+	public bool UseYawOffsetMode = false;
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
 
@@ -180,6 +184,7 @@ public class SteeringScript : MonoBehaviour {
 	private float jumpBuffer = 0f;
 
 	private float yawBuffer = 0f;
+	private float oldYawBuffer = 0f;
 	private float pitchBuffer = 0f;
 
 
@@ -321,8 +326,7 @@ public class SteeringScript : MonoBehaviour {
 	//To avoid jittery number updates on the UI
 	int updateCount = 0;
 	int updateInterval = 5;
-	void LateUpdate()
-    {
+	void LateUpdate() {
 		if (updateCount >= updateInterval) {
 			UpdateUI();
 			updateCount = 0;
@@ -338,17 +342,16 @@ public class SteeringScript : MonoBehaviour {
 	// }
 
 	#region UI
-	private void RefreshUI()
-    {
+	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
-			
+
 		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
 		float kmph = (float)rb.velocity.magnitude * 3.6f;
 
-		if (boosting){
+		if (boosting) {
 			if (percentage >= 1f)
 				percentage = Random.Range(1f, 1.05f);
 			GasNeedleUIScript.SetBarPercentage(percentage, true);
@@ -393,7 +396,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// check if drifting
 
-	private float GetDriftAngle(){
+	private float GetDriftAngle() {
 		Vector3 carDir = transform.forward;
 		Vector3 velocity = rb.velocity;
 
@@ -657,18 +660,24 @@ public class SteeringScript : MonoBehaviour {
 	#region Yaw, Pitch
 
 	private void Yaw(float dt) {
-		float yawAmount = YawSpeed * yawBuffer * dt;
-		// rb.angularVelocity += Vector3.up * yawAmount;
-		rb.AddRelativeTorque(Vector3.up * yawAmount);
-		// rb.AddForceAtPosition(Vector3.up * yawAmount, rb.position + Vector3.forward);
 
+		if (UseYawOffsetMode) {
+			float delta = yawBuffer - oldYawBuffer;
+			// TODO: interpolate joystick input?
+			float yawAmount = YawSpeed * delta;
+			rb.rotation *= Quaternion.Euler(0, yawAmount, 0); 
+		} else {
+			float yawAmount = YawSpeed * yawBuffer * dt;
+			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+		}
+
+		oldYawBuffer = yawBuffer;
 	}
 
 	private void Pitch(float dt) {
 		float pitchAmount = PitchSpeed * pitchBuffer * dt;
-		// rb.angularVelocity += Vector3.right * pitchAmount;
-		rb.AddRelativeTorque(Vector3.right * pitchAmount);
-		// rb.AddForceAtPosition(Vector3.right * pitchAmount, rb.position + Vector3.forward);
+
+		rb.rotation *= Quaternion.Euler(pitchAmount, 0, 0);
 	}
 
 	private void SetYaw(CallbackContext c) {

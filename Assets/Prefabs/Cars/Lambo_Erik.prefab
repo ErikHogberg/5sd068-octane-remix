@@ -2042,6 +2042,7 @@ MonoBehaviour:
   rotationSpeedThreshold: 7
   rotationThreshold: 25
   cameraRotationSpeed: 5
+  useFOVFluctuation: 0
   velocityToFOV:
     serializedVersion: 2
     m_Curve:
@@ -2068,32 +2069,14 @@ MonoBehaviour:
     m_RotationOrder: 4
   minCameraFOV: 60
   maxCameraFOV: 80
-  velocityToStickiness:
+  velocityToLag:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+    m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraStickiness: 9
-  maxCameraStickiness: 12
+  minCameraLag: 8
+  maxCameraLag: 15
 --- !u!1 &4149504324106935302
 GameObject:
   m_ObjectHideFlags: 0
@@ -6157,9 +6140,9 @@ MonoBehaviour:
     type: 3}
   BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  YawKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
+  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  PitchKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
+  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
@@ -6297,7 +6280,7 @@ MonoBehaviour:
   DownwardForce: 10
   DownwardForceMode: 5
   UseRelativeDownwardForce: 0
-  YawSpeed: 1000
+  YawSpeed: 150
   YawInputCurve:
     serializedVersion: 2
     m_Curve:
@@ -6322,7 +6305,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  PitchSpeed: 1000
+  UseYawOffsetMode: 0
+  PitchSpeed: 100
   PitchInputCurve:
     serializedVersion: 2
     m_Curve:
