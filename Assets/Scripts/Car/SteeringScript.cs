@@ -36,22 +36,38 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("Trail renderers that will be turned on or off with boost")]
 	public List<TrailRenderer> BoostTrails;
-	private bool IsBoostTrailEmitting {
-		// get {
-		// 	if (!BoostTrails.Any())
-		// 		return false;
-
-		// 	return BoostTrails[0].emitting;
-		// }
+	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
+		get {
+			if (BoostTrails.Any())
+				return BoostTrails[0].emitting;
+			return false;
+		}
 		set {
 			foreach (TrailRenderer boostTrail in BoostTrails)
 				boostTrail.emitting = value;
 		}
 	}
 
+	[Space]
+
 	[Tooltip("Trail renderers that will be turned on or off with drift")]
 	public List<TrailRenderer> DriftTrails;
 
+	[Space]
+
+	[Tooltip("Trail renderers that will be turned on or off when turning right using the right stick")]
+	public List<TrailRenderer> YawClockwiseTrails;
+	[Tooltip("Trail renderers that will be turned on or off when turning left using the right stick")]
+	public List<TrailRenderer> YawCounterClockwiseTrails;
+	
+	/*
+	[Tooltip("Trail renderers that will be turned on or off when pitching up using the right stick")]
+	public List<TrailRenderer> PitchUpTrails;
+	[Tooltip("Trail renderers that will be turned on or off when pitching down using the right stick")]
+	public List<TrailRenderer> PitchDownTrails;
+	// */
+
+	[Space]
 	public Transform CustomCenterOfMass;
 
 
@@ -87,6 +103,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Adapts the joystick tilt before changing the steering angle")]
 	public AnimationCurve SteeringCurve;
 
+	[Space]
 	[Tooltip("Reduces the max steering angle as the car speeds up")]
 	public bool EnableNarrowing = true;
 	[Tooltip("Reduces the max steering angle as the car speeds up, reaching its narrowest angle at this speed")]
@@ -665,9 +682,28 @@ public class SteeringScript : MonoBehaviour {
 			float delta = yawBuffer - oldYawBuffer;
 			// TODO: interpolate joystick input?
 			float yawAmount = YawSpeed * delta;
-			rb.rotation *= Quaternion.Euler(0, yawAmount, 0); 
+			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 		} else {
 			float yawAmount = YawSpeed * yawBuffer * dt;
+
+			if (yawAmount > 0) {
+				foreach (var item in YawClockwiseTrails)
+					item.emitting = true;
+				foreach (var item in YawCounterClockwiseTrails)
+					item.emitting = false;
+			} else if (yawAmount < 0) {
+				foreach (var item in YawClockwiseTrails)
+					item.emitting = false;
+				foreach (var item in YawCounterClockwiseTrails)
+					item.emitting = true;
+			} else { //if (pitchBuffer == 0) {
+				foreach (var item in YawClockwiseTrails)
+					item.emitting = false;
+				foreach (var item in YawCounterClockwiseTrails)
+					item.emitting = false;
+			}
+
+
 			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 		}
 
@@ -676,6 +712,25 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Pitch(float dt) {
 		float pitchAmount = PitchSpeed * pitchBuffer * dt;
+
+		/*
+		if (pitchAmount > 0) {
+			foreach (var item in PitchUpTrails)
+				item.emitting = true;
+			foreach (var item in PitchDownTrails)
+				item.emitting = false;
+		} else if (pitchAmount < 0) {
+			foreach (var item in PitchUpTrails)
+				item.emitting = false;
+			foreach (var item in PitchDownTrails)
+				item.emitting = true;
+		} else if (yawBuffer == 0) {
+			foreach (var item in PitchUpTrails)
+				item.emitting = false;
+			foreach (var item in PitchDownTrails)
+				item.emitting = false;
+		}
+		// */
 
 		rb.rotation *= Quaternion.Euler(pitchAmount, 0, 0);
 	}
