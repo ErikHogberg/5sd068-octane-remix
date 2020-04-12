@@ -70,15 +70,15 @@ public class SteeringScript : MonoBehaviour {
 	[Space]
 	public Transform CustomCenterOfMass;
 
-	[Space]
-	[Tooltip("Positions and directions of rays for checking if car touches ground, will always be touching ground if no rays are assigned here")]
-	public List<Transform> GroundCheckRays;
-	[Tooltip("Length of all rays")]
-	public float GroundCheckRayLength = 0.5f;
-	[Tooltip("toggle to show rays")]
-	public bool RenderDebugRay = false;
-	[Tooltip("Decides what the rays consider \"ground\", using collision layers, note that these layers are also used for rendering")]
-	public LayerMask GroundCheckLayerMask;
+	// [Space]
+	// [Tooltip("Positions and directions of rays for checking if car touches ground, will always be touching ground if no rays are assigned here")]
+	// public List<Transform> GroundCheckRays;
+	// [Tooltip("Length of all rays")]
+	// public float GroundCheckRayLength = 0.5f;
+	// [Tooltip("toggle to show rays")]
+	// public bool RenderDebugRay = false;
+	// [Tooltip("Decides what the rays consider \"ground\", using collision layers, note that these layers are also used for rendering")]
+	// public LayerMask GroundCheckLayerMask;
 
 
 	[Header("Key bindings (Required)")]
@@ -286,8 +286,8 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
-			touchingGround = CheckIfTouchingGround();
+		// if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
+		touchingGround = CheckIfTouchingGround();
 
 		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
@@ -334,34 +334,9 @@ public class SteeringScript : MonoBehaviour {
 	private bool CheckIfTouchingGround() {
 		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
 
-		foreach (Transform groundCheckRay in GroundCheckRays) {
-			RaycastHit hit;
-
-			bool hitGround = Physics.Raycast(
-				groundCheckRay.position,
-				groundCheckRay.TransformDirection(Vector3.forward),
-				out hit,
-				GroundCheckRayLength,
-				GroundCheckLayerMask
-			);
-
-			if (hitGround) {
-				if (RenderDebugRay)
-					Debug.DrawRay(
-						groundCheckRay.position,
-						groundCheckRay.TransformDirection(Vector3.forward) * hit.distance,
-						Color.green
-					);
-
-				return true; // NOTE: early return on first hit
-			} else {
-				if (RenderDebugRay)
-					Debug.DrawRay(
-						groundCheckRay.position,
-						groundCheckRay.TransformDirection(Vector3.forward) * GroundCheckRayLength,
-						Color.white
-					);
-			}
+		foreach (WheelCollider wheelCollider in allWheelColliders) {
+			if (wheelCollider.isGrounded)
+				return true;
 		}
 
 		return false;
