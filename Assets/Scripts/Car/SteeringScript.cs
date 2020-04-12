@@ -18,7 +18,7 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-
+	#region object refs and input bindings
 	[Header("Required objects")]
 
 	[Tooltip("Front wheels")]
@@ -70,6 +70,16 @@ public class SteeringScript : MonoBehaviour {
 	[Space]
 	public Transform CustomCenterOfMass;
 
+	[Space]
+	[Tooltip("Positions and directions of rays for checking if car touches ground, will always be touching ground if no rays are assigned here")]
+	public List<Transform> GroundCheckRays;
+	[Tooltip("Length of all rays")]
+	public float GroundCheckRayLength = 0.5f;
+	[Tooltip("toggle to show rays")]
+	public bool RenderDebugRay = false;
+	[Tooltip("Decides what the rays consider \"ground\", using collision layers, note that these layers are also used for rendering")]
+	public LayerMask GroundCheckLayerMask;
+
 
 	[Header("Key bindings (Required)")]
 	public InputActionReference SteeringKeyBinding;
@@ -85,6 +95,8 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference PitchKeyBinding;
 
 	public InputActionReference ResetKeyBinding;
+
+	#endregion
 
 
 	// TODO: reset car position to closest track position
@@ -252,59 +264,6 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 	}
 
-	private void InitInput() {
-		// adds press actions
-		SteeringKeyBinding.action.performed += SetSteering;
-		GasKeyBinding.action.performed += SetGas;
-		ReverseKeyBinding.action.performed += StartReverse;
-		BrakeKeyBinding.action.performed += SetBraking;
-		HandbrakeKeyBinding.action.performed += SetHandbraking;
-		JumpKeyBinding.action.performed += SetJump;
-		YawKeyBinding.action.performed += SetYaw;
-		PitchKeyBinding.action.performed += SetPitch;
-		BoostKeyBinding.action.performed += StartBoost;
-
-		ResetKeyBinding.action.performed += Reset;
-
-		// adds release actions
-		SteeringKeyBinding.action.canceled += StopSteering;
-		GasKeyBinding.action.canceled += StopGas;
-		ReverseKeyBinding.action.canceled += StopReverse;
-		BrakeKeyBinding.action.canceled += StopBraking;
-		HandbrakeKeyBinding.action.canceled += StopHandbraking;
-		JumpKeyBinding.action.canceled += ReleaseJump;
-		YawKeyBinding.action.canceled += StopYaw;
-		PitchKeyBinding.action.canceled += StopPitch;
-		BoostKeyBinding.action.canceled += StopBoost;
-	}
-
-	private void EnableInput() {
-		SteeringKeyBinding.action.Enable();
-		GasKeyBinding.action.Enable();
-		ReverseKeyBinding.action.Enable();
-		BrakeKeyBinding.action.Enable();
-		HandbrakeKeyBinding.action.Enable();
-		JumpKeyBinding.action.Enable();
-		YawKeyBinding.action.Enable();
-		PitchKeyBinding.action.Enable();
-		ResetKeyBinding.action.Enable();
-		BoostKeyBinding.action.Enable();
-	}
-
-	private void DisableInput() {
-		SteeringKeyBinding.action.Disable();
-		GasKeyBinding.action.Disable();
-		ReverseKeyBinding.action.Disable();
-		BrakeKeyBinding.action.Disable();
-		HandbrakeKeyBinding.action.Disable();
-		JumpKeyBinding.action.Disable();
-		YawKeyBinding.action.Disable();
-		PitchKeyBinding.action.Disable();
-		ResetKeyBinding.action.Disable();
-		BoostKeyBinding.action.Disable();
-	}
-
-
 	void OnEnable() {
 		EnableInput();
 
@@ -318,10 +277,13 @@ public class SteeringScript : MonoBehaviour {
 	// void Update() {
 	// }
 
-	private bool touchedGroundLastTick = true;//false;
+	private bool touchingGround = true;
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+
+		if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
+			touchingGround = CheckIfTouchingGround();
 
 		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
@@ -350,8 +312,7 @@ public class SteeringScript : MonoBehaviour {
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
 
-		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
-
+		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
 	}
 
@@ -366,12 +327,42 @@ public class SteeringScript : MonoBehaviour {
 		updateCount++;
 	}
 
-	// private void OnCollisionStay(Collision other) {
-	// 	// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
-	// 	if (other.gameObject.tag == "Ground")
-	// 		touchedGroundLastTick = true;
+	private bool CheckIfTouchingGround() {
+		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
 
-	// }
+		foreach (Transform groundCheckRay in GroundCheckRays) {
+			RaycastHit hit;
+
+			bool hitGround = Physics.Raycast(
+				groundCheckRay.position,
+				groundCheckRay.TransformDirection(Vector3.forward),
+				out hit,
+				GroundCheckRayLength,
+				GroundCheckLayerMask
+			);
+
+			if (hitGround) {
+				if (RenderDebugRay)
+					Debug.DrawRay(
+						groundCheckRay.position,
+						groundCheckRay.TransformDirection(Vector3.forward) * hit.distance,
+						Color.green
+					);
+
+				return true; // NOTE: early return on first hit
+			} else {
+				if (RenderDebugRay)
+					Debug.DrawRay(
+						groundCheckRay.position,
+						groundCheckRay.TransformDirection(Vector3.forward) * GroundCheckRayLength,
+						Color.white
+					);
+			}
+		}
+
+		return false;
+	}
+
 
 	#region UI
 	private void RefreshUI() {
@@ -452,14 +443,14 @@ public class SteeringScript : MonoBehaviour {
 		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
 		float absAngle = Mathf.Abs(angle);
 
-		if (touchedGroundLastTick
+		if (touchingGround
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
 			StartDrift();
 		}
 
-		if (!touchedGroundLastTick
+		if (!touchingGround
 			|| absAngle < DriftStopAngle
 			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
 		) {
@@ -482,6 +473,60 @@ public class SteeringScript : MonoBehaviour {
 	#endregion
 
 	#region Input callbacks
+
+	private void InitInput() {
+		// adds press actions
+		SteeringKeyBinding.action.performed += SetSteering;
+		GasKeyBinding.action.performed += SetGas;
+		ReverseKeyBinding.action.performed += StartReverse;
+		BrakeKeyBinding.action.performed += SetBraking;
+		HandbrakeKeyBinding.action.performed += SetHandbraking;
+		JumpKeyBinding.action.performed += SetJump;
+		YawKeyBinding.action.performed += SetYaw;
+		PitchKeyBinding.action.performed += SetPitch;
+		BoostKeyBinding.action.performed += StartBoost;
+
+		ResetKeyBinding.action.performed += Reset;
+
+		// adds release actions
+		SteeringKeyBinding.action.canceled += StopSteering;
+		GasKeyBinding.action.canceled += StopGas;
+		ReverseKeyBinding.action.canceled += StopReverse;
+		BrakeKeyBinding.action.canceled += StopBraking;
+		HandbrakeKeyBinding.action.canceled += StopHandbraking;
+		JumpKeyBinding.action.canceled += ReleaseJump;
+		YawKeyBinding.action.canceled += StopYaw;
+		PitchKeyBinding.action.canceled += StopPitch;
+		BoostKeyBinding.action.canceled += StopBoost;
+	}
+
+	private void EnableInput() {
+		SteeringKeyBinding.action.Enable();
+		GasKeyBinding.action.Enable();
+		ReverseKeyBinding.action.Enable();
+		BrakeKeyBinding.action.Enable();
+		HandbrakeKeyBinding.action.Enable();
+		JumpKeyBinding.action.Enable();
+		YawKeyBinding.action.Enable();
+		PitchKeyBinding.action.Enable();
+		ResetKeyBinding.action.Enable();
+		BoostKeyBinding.action.Enable();
+	}
+
+	private void DisableInput() {
+		SteeringKeyBinding.action.Disable();
+		GasKeyBinding.action.Disable();
+		ReverseKeyBinding.action.Disable();
+		BrakeKeyBinding.action.Disable();
+		HandbrakeKeyBinding.action.Disable();
+		JumpKeyBinding.action.Disable();
+		YawKeyBinding.action.Disable();
+		PitchKeyBinding.action.Disable();
+		ResetKeyBinding.action.Disable();
+		BoostKeyBinding.action.Disable();
+	}
+
+
 	#region Steering
 
 	private void Steer(float dt) {
