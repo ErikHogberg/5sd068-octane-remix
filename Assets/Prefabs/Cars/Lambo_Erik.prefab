@@ -6607,6 +6607,12 @@ MonoBehaviour:
   - {fileID: 3398438290515395913}
   - {fileID: 2444168506440390036}
   CustomCenterOfMass: {fileID: 5821789675930936434}
+  GroundCheckRays: []
+  GroundCheckRayLength: 0.5
+  RenderDebugRay: 0
+  GroundCheckLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
   SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
@@ -6825,6 +6831,8 @@ MonoBehaviour:
   DriftStopAngle: 15
   DriftStartVelocity: 1
   DriftStopVelocity: 0.5
+  DriftCorrectionSpeed: 20
+  DriftSpeedReductionWhenCorrecting: 0
 --- !u!1 &4149504325633330783
 GameObject:
   m_ObjectHideFlags: 0

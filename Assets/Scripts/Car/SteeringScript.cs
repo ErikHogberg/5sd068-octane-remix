@@ -1,9 +1,9 @@
-﻿﻿using System.Linq;
-
-using Assets.Scripts;
+﻿﻿
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
+using Assets.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
@@ -18,7 +18,7 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-
+	#region object refs and input bindings
 	[Header("Required objects")]
 
 	[Tooltip("Front wheels")]
@@ -70,6 +70,16 @@ public class SteeringScript : MonoBehaviour {
 	[Space]
 	public Transform CustomCenterOfMass;
 
+	[Space]
+	[Tooltip("Positions and directions of rays for checking if car touches ground, will always be touching ground if no rays are assigned here")]
+	public List<Transform> GroundCheckRays;
+	[Tooltip("Length of all rays")]
+	public float GroundCheckRayLength = 0.5f;
+	[Tooltip("toggle to show rays")]
+	public bool RenderDebugRay = false;
+	[Tooltip("Decides what the rays consider \"ground\", using collision layers, note that these layers are also used for rendering")]
+	public LayerMask GroundCheckLayerMask;
+
 
 	[Header("Key bindings (Required)")]
 	public InputActionReference SteeringKeyBinding;
@@ -85,6 +95,8 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference PitchKeyBinding;
 
 	public InputActionReference ResetKeyBinding;
+
+	#endregion
 
 
 	// TODO: reset car position to closest track position
@@ -126,7 +138,6 @@ public class SteeringScript : MonoBehaviour {
 	public AnimationCurve BrakePedalCurve;
 
 	[Space]
-
 
 	[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
 	public bool DampenRigidBody = true;
@@ -199,6 +210,14 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("At which velocity drifting stops")]
 	public float DriftStopVelocity = .5f;
 
+	[Tooltip("How much extra the velocity will be altered to point towards the direction of the car, while gassing/throttling, while drifting, in degrees per second")]
+	[Range(0, 180)]
+	public float DriftCorrectionSpeed = 20f;
+
+	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
+	public float DriftSpeedReductionWhenCorrecting = 0f;
+	private bool drifting = false;
+
 
 	// input buffers
 	private float steeringBuffer = 0f;
@@ -244,6 +263,216 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 	}
+
+	void OnEnable() {
+		EnableInput();
+
+		// TODO: enable/disable controls when losing window focus, pausing, etc.
+	}
+
+	void OnDisable() {
+		DisableInput();
+	}
+
+	// void Update() {
+	// }
+
+	private bool touchingGround = true;
+
+	void FixedUpdate() {
+		float dt = Time.deltaTime;
+
+		if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
+			touchingGround = CheckIfTouchingGround();
+
+		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
+			if (UseRelativeDownwardForce)
+				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
+			else
+				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
+
+
+		Steer(dt);
+		Gas(dt);
+		Boost(dt);
+		Brake(dt);
+		Handbrake(dt);
+
+		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
+		Yaw(dt);
+		Pitch(dt);
+
+		Jump(dt);
+
+		ApplyVelocityCap();
+		ApplyAnimations();
+
+		Drift(dt);
+
+		//To keep the velocity needle moving smoothly
+		RefreshUI();
+
+		SetDebugUIText(13, touchingGround.ToString());
+		// touchedGroundLastTick = false;
+	}
+
+	//To avoid jittery number updates on the UI
+	int updateCount = 0;
+	int updateInterval = 5;
+	void LateUpdate() {
+		if (updateCount >= updateInterval) {
+			UpdateUI();
+			updateCount = 0;
+		}
+		updateCount++;
+	}
+
+	private bool CheckIfTouchingGround() {
+		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
+
+		foreach (Transform groundCheckRay in GroundCheckRays) {
+			RaycastHit hit;
+
+			bool hitGround = Physics.Raycast(
+				groundCheckRay.position,
+				groundCheckRay.TransformDirection(Vector3.forward),
+				out hit,
+				GroundCheckRayLength,
+				GroundCheckLayerMask
+			);
+
+			if (hitGround) {
+				if (RenderDebugRay)
+					Debug.DrawRay(
+						groundCheckRay.position,
+						groundCheckRay.TransformDirection(Vector3.forward) * hit.distance,
+						Color.green
+					);
+
+				return true; // NOTE: early return on first hit
+			} else {
+				if (RenderDebugRay)
+					Debug.DrawRay(
+						groundCheckRay.position,
+						groundCheckRay.TransformDirection(Vector3.forward) * GroundCheckRayLength,
+						Color.white
+					);
+			}
+		}
+
+		return false;
+	}
+
+
+	#region UI
+	private void RefreshUI() {
+		GasNeedleUIScript.Refresh();
+	}
+	private void UpdateUI() {
+		// float gasAmount = GasSpeed * gasBuffer;
+
+		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
+		float kmph = (float)rb.velocity.magnitude * 3.6f;
+
+		if (boosting) {
+			if (percentage >= 1f)
+				percentage = Random.Range(1f, 1.05f);
+			GasNeedleUIScript.SetBarPercentage(percentage, true);
+		} else {
+			GasNeedleUIScript.SetBarPercentage(percentage, false);
+		}
+		GasNeedleUIScript.SetKMPH(kmph);
+	}
+	#endregion
+
+	private void ApplyVelocityCap() {
+		if (CapVelocity) {
+			if (boosting) {
+				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
+					rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
+			} else {
+				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
+					rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
+			}
+		}
+	}
+
+	#region Drifting
+
+	private void StartDrift() {
+		drifting = true;
+
+		// TODO: enable drifting bool, create drift method in fixed update which uses bool
+		// TODO: only call this method the frame that drifting starts
+		foreach (TrailRenderer driftTrail in DriftTrails)
+			driftTrail.emitting = true;
+
+		SetDebugUIText(11, "true");
+
+	}
+
+	private void StopDrift() {
+		drifting = false;
+
+		foreach (TrailRenderer driftTrail in DriftTrails)
+			driftTrail.emitting = false;
+
+		SetDebugUIText(11, "false");
+
+	}
+
+	// check if drifting
+
+	private float GetDriftAngle() {
+		Vector3 carDir = transform.forward;
+		Vector3 velocity = rb.velocity;
+
+		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
+
+		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
+
+		return angle;
+	}
+
+	private void CheckDrift() {
+		Vector3 carDir = transform.forward;
+		Vector3 velocity = rb.velocity;
+
+		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
+
+		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
+		float absAngle = Mathf.Abs(angle);
+
+		if (touchingGround
+			&& absAngle > DriftStartAngle
+			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
+		) {
+			StartDrift();
+		}
+
+		if (!touchingGround
+			|| absAngle < DriftStopAngle
+			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
+		) {
+			StopDrift();
+		}
+
+		SetDebugUIText(12, angle.ToString("F2"));
+	}
+
+	private void Drift(float dt) {
+		CheckDrift();
+
+		if (!drifting)
+			return;
+
+		rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward, gasBuffer * DriftCorrectionSpeed * Mathf.Deg2Rad * dt, DriftSpeedReductionWhenCorrecting);
+
+	}
+
+	#endregion
+
+	#region Input callbacks
 
 	private void InitInput() {
 		// adds press actions
@@ -298,169 +527,6 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 
-	void OnEnable() {
-		EnableInput();
-
-		// TODO: enable/disable controls when losing window focus, pausing, etc.
-	}
-
-	void OnDisable() {
-		DisableInput();
-	}
-
-	// void Update() {
-	// }
-
-	private bool touchedGroundLastTick = true;//false;
-
-	void FixedUpdate() {
-		float dt = Time.deltaTime;
-
-		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
-			if (UseRelativeDownwardForce)
-				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
-			else
-				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
-
-
-		Steer(dt);
-		Gas(dt);
-		Boost(dt);
-		Brake(dt);
-		Handbrake(dt);
-
-		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
-		Yaw(dt);
-		Pitch(dt);
-
-		Jump(dt);
-
-		ApplyVelocityCap();
-		ApplyAnimations();
-
-		CheckDrift();
-
-		//To keep the velocity needle moving smoothly
-		RefreshUI();
-
-		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
-
-		// touchedGroundLastTick = false;
-	}
-
-	//To avoid jittery number updates on the UI
-	int updateCount = 0;
-	int updateInterval = 5;
-	void LateUpdate() {
-		if (updateCount >= updateInterval) {
-			UpdateUI();
-			updateCount = 0;
-		}
-		updateCount++;
-	}
-
-	// private void OnCollisionStay(Collision other) {
-	// 	// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
-	// 	if (other.gameObject.tag == "Ground")
-	// 		touchedGroundLastTick = true;
-
-	// }
-
-	#region UI
-	private void RefreshUI() {
-		GasNeedleUIScript.Refresh();
-	}
-	private void UpdateUI() {
-		// float gasAmount = GasSpeed * gasBuffer;
-
-		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
-		float kmph = (float)rb.velocity.magnitude * 3.6f;
-
-		if (boosting) {
-			if (percentage >= 1f)
-				percentage = Random.Range(1f, 1.05f);
-			GasNeedleUIScript.SetBarPercentage(percentage, true);
-		} else {
-			GasNeedleUIScript.SetBarPercentage(percentage, false);
-		}
-		GasNeedleUIScript.SetKMPH(kmph);
-	}
-	#endregion
-
-	private void ApplyVelocityCap() {
-		if (CapVelocity) {
-			if (boosting) {
-				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
-					rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
-			} else {
-				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
-					rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
-			}
-		}
-	}
-
-	#region Drifting
-
-	private void StartDrift() {
-		// TODO: enable drifting bool, create drift method in fixed update which uses bool
-		// TODO: only call this method the frame that drifting starts
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = true;
-
-		SetDebugUIText(11, "true");
-
-	}
-
-	private void StopDrift() {
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = false;
-
-		SetDebugUIText(11, "false");
-
-	}
-
-	// check if drifting
-
-	private float GetDriftAngle() {
-		Vector3 carDir = transform.forward;
-		Vector3 velocity = rb.velocity;
-
-		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
-
-		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
-
-		return angle;
-	}
-
-	private void CheckDrift() {
-		Vector3 carDir = transform.forward;
-		Vector3 velocity = rb.velocity;
-
-		velocity = Vector3.ProjectOnPlane(velocity, transform.up);
-
-		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
-		float absAngle = Mathf.Abs(angle);
-
-		if (touchedGroundLastTick
-			&& absAngle > DriftStartAngle
-			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
-		) {
-			StartDrift();
-		}
-
-		if (!touchedGroundLastTick
-			|| absAngle < DriftStopAngle
-			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
-		) {
-			StopDrift();
-		}
-
-		SetDebugUIText(12, angle.ToString("F2"));
-	}
-
-	#endregion
-
-	#region Input callbacks
 	#region Steering
 
 	private void Steer(float dt) {
