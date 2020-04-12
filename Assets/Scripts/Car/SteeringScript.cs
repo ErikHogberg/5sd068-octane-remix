@@ -18,71 +18,7 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-	#region object refs and input bindings
-	[Header("Required objects")]
 
-	[Tooltip("Front wheels")]
-	public List<WheelCollider> FrontWheelColliders;
-	public List<GameObject> FrontWheelModels;
-	[Tooltip("Rear wheels")]
-	public List<WheelCollider> RearWheelColliders;
-	public List<GameObject> RearWheelModels;
-
-	private IEnumerable<WheelCollider> allWheelColliders;
-	private IEnumerable<GameObject> allWheelModels;
-
-
-	[Header("Optional objects")]
-
-	[Tooltip("Trail renderers that will be turned on or off with boost")]
-	public List<TrailRenderer> BoostTrails;
-	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
-		get {
-			if (BoostTrails.Any())
-				return BoostTrails[0].emitting;
-			return false;
-		}
-		set {
-			foreach (TrailRenderer boostTrail in BoostTrails)
-				boostTrail.emitting = value;
-		}
-	}
-
-	[Space]
-
-	[Tooltip("Trail renderers that will be turned on or off with drift")]
-	public List<TrailRenderer> DriftTrails;
-
-	[Space]
-
-	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
-	public List<ParticleSystem> YawClockwiseParticles;
-	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
-	public List<ParticleSystem> YawCounterClockwiseParticles;
-
-
-	[Space]
-	public Transform CustomCenterOfMass;
-
-	[Header("Key bindings (Required)")]
-	public InputActionReference SteeringKeyBinding;
-	public InputActionReference GasKeyBinding;
-	public InputActionReference ReverseKeyBinding;
-	public InputActionReference BrakeKeyBinding;
-	public InputActionReference HandbrakeKeyBinding;
-	public InputActionReference JumpKeyBinding;
-	public InputActionReference BoostKeyBinding;
-
-	public InputActionReference YawKeyBinding;
-	public InputActionReference PitchKeyBinding;
-
-	// public InputActionReference LeftRotateToggleKeyBinding;
-	// public InputActionReference LeftYawKeyBinding;
-	// public InputActionReference LeftPitchKeyBinding;
-
-	public InputActionReference ResetKeyBinding;
-
-	#endregion
 
 
 	// TODO: reset car position to closest track position
@@ -207,6 +143,73 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
 	public float DriftSpeedReductionWhenCorrecting = 0f;
 	private bool drifting = false;
+
+
+	#region object refs and input bindings
+
+	[Header("Optional objects")]
+
+	public Transform CustomCenterOfMass;
+
+	[Space]
+	
+	[Tooltip("Trail renderers that will be turned on or off with boost")]
+	public List<TrailRenderer> BoostTrails;
+	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
+		get {
+			if (BoostTrails.Any())
+				return BoostTrails[0].emitting;
+			return false;
+		}
+		set {
+			foreach (TrailRenderer boostTrail in BoostTrails)
+				boostTrail.emitting = value;
+		}
+	}
+
+	[Space]
+
+	[Tooltip("Trail renderers that will be turned on or off with drift")]
+	public List<TrailRenderer> DriftTrails;
+
+	[Space]
+
+	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
+	public List<ParticleSystem> YawClockwiseParticles;
+	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
+	public List<ParticleSystem> YawCounterClockwiseParticles;
+
+
+	[Header("Required objects")]
+
+	[Tooltip("Front wheels")]
+	public List<WheelCollider> FrontWheelColliders;
+	public List<GameObject> FrontWheelModels;
+	[Tooltip("Rear wheels")]
+	public List<WheelCollider> RearWheelColliders;
+	public List<GameObject> RearWheelModels;
+
+	private IEnumerable<WheelCollider> allWheelColliders;
+	private IEnumerable<GameObject> allWheelModels;
+
+	[Header("Key bindings")]
+	public InputActionReference SteeringKeyBinding;
+	public InputActionReference GasKeyBinding;
+	public InputActionReference ReverseKeyBinding;
+	public InputActionReference BrakeKeyBinding;
+	public InputActionReference HandbrakeKeyBinding;
+	[Space]
+	public InputActionReference BoostKeyBinding;
+	public InputActionReference ResetKeyBinding;
+	public InputActionReference JumpKeyBinding;
+	[Space]
+	public InputActionReference YawKeyBinding;
+	public InputActionReference PitchKeyBinding;
+	public InputActionReference LeftRotateToggleKeyBinding;
+	public InputActionReference LeftYawKeyBinding;
+	public InputActionReference LeftPitchKeyBinding;
+
+	#endregion
 
 
 	private float[] wheelRotationBuffers;
@@ -432,6 +435,9 @@ public class SteeringScript : MonoBehaviour {
 	float oldYawBuffer = 0f;
 	float pitchBuffer = 0f;
 
+	private bool leftStickRotationEnabled = false;
+
+
 	private void InitInput() {
 		// adds press actions
 		SteeringKeyBinding.action.performed += SetSteering;
@@ -440,22 +446,31 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.performed += SetBraking;
 		HandbrakeKeyBinding.action.performed += SetHandbraking;
 		JumpKeyBinding.action.performed += SetJump;
+		BoostKeyBinding.action.performed += StartBoost;
+
 		YawKeyBinding.action.performed += SetYaw;
 		PitchKeyBinding.action.performed += SetPitch;
-		BoostKeyBinding.action.performed += StartBoost;
+		LeftYawKeyBinding.action.performed += SetLeftYaw;
+		LeftPitchKeyBinding.action.performed += SetLeftPitch;
+		LeftRotateToggleKeyBinding.action.performed += EnableLeftStickRotation;
 
 		ResetKeyBinding.action.performed += Reset;
 
 		// adds release actions
-		SteeringKeyBinding.action.canceled += StopSteering;
-		GasKeyBinding.action.canceled += StopGas;
+		SteeringKeyBinding.action.canceled += SetSteering;
+		GasKeyBinding.action.canceled += SetGas;
 		ReverseKeyBinding.action.canceled += StopReverse;
-		BrakeKeyBinding.action.canceled += StopBraking;
-		HandbrakeKeyBinding.action.canceled += StopHandbraking;
+		BrakeKeyBinding.action.canceled += SetBraking;
+		HandbrakeKeyBinding.action.canceled += SetHandbraking;
 		JumpKeyBinding.action.canceled += ReleaseJump;
+		BoostKeyBinding.action.canceled += StopBoost;
+
 		YawKeyBinding.action.canceled += SetYaw;
 		PitchKeyBinding.action.canceled += SetPitch;
-		BoostKeyBinding.action.canceled += StopBoost;
+		LeftYawKeyBinding.action.canceled += SetLeftYaw;
+		LeftPitchKeyBinding.action.canceled += SetLeftPitch;
+		LeftRotateToggleKeyBinding.action.canceled += DisableLeftStickRotation;
+
 	}
 
 	private void EnableInput() {
@@ -465,10 +480,14 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.Enable();
 		HandbrakeKeyBinding.action.Enable();
 		JumpKeyBinding.action.Enable();
-		YawKeyBinding.action.Enable();
-		PitchKeyBinding.action.Enable();
 		ResetKeyBinding.action.Enable();
 		BoostKeyBinding.action.Enable();
+
+		YawKeyBinding.action.Enable();
+		PitchKeyBinding.action.Enable();
+		LeftYawKeyBinding.action.Enable();
+		LeftPitchKeyBinding.action.Enable();
+		LeftRotateToggleKeyBinding.action.Enable();
 	}
 
 	private void DisableInput() {
@@ -478,10 +497,14 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.Disable();
 		HandbrakeKeyBinding.action.Disable();
 		JumpKeyBinding.action.Disable();
-		YawKeyBinding.action.Disable();
-		PitchKeyBinding.action.Disable();
 		ResetKeyBinding.action.Disable();
 		BoostKeyBinding.action.Disable();
+
+		YawKeyBinding.action.Disable();
+		PitchKeyBinding.action.Disable();
+		LeftYawKeyBinding.action.Disable();
+		LeftPitchKeyBinding.action.Disable();
+		LeftRotateToggleKeyBinding.action.Disable();
 	}
 
 
@@ -524,17 +547,15 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void SetSteering(CallbackContext c) {
+		if (leftStickRotationEnabled)
+			return;
+
 		float input = c.ReadValue<float>();
 		steeringBuffer = SteeringCurve.EvaluateMirrored(input);
 
 		SetDebugUIText(1, input.ToString("F2"));
 	}
 
-	private void StopSteering(CallbackContext _) {
-		steeringBuffer = 0;
-
-		SetDebugUIText(1);
-	}
 	#endregion
 
 	#region Gas
@@ -592,11 +613,6 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(5, input.ToString("F2"));
 	}
 
-	private void StopGas(CallbackContext _) {
-		gasBuffer = 0;
-
-		SetDebugUIText(5);
-	}
 	#endregion
 
 	#region Reverse
@@ -653,17 +669,6 @@ public class SteeringScript : MonoBehaviour {
 		handbrakeBuffer = HandbrakePedalCurve.EvaluateMirrored(input);
 
 		SetDebugUIText(7, input.ToString("F2"));
-	}
-
-	private void StopBraking(CallbackContext _) {
-		brakeBuffer = 0f;
-		SetDebugUIText(3);
-	}
-
-	private void StopHandbraking(CallbackContext _) {
-		handbrakeBuffer = 0;
-
-		SetDebugUIText(7);
 	}
 
 	#endregion
@@ -751,23 +756,31 @@ public class SteeringScript : MonoBehaviour {
 		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
 	}
 
+
 	private void SetLeftYaw(CallbackContext c) {
-		float input = c.ReadValue<float>();
-		yawBuffer = SteeringCurve.EvaluateMirrored(input);
+		if (leftStickRotationEnabled) {
+			float input = c.ReadValue<float>();
+			yawBuffer = SteeringCurve.EvaluateMirrored(input);
+		}
 	}
 	private void SetLeftPitch(CallbackContext c) {
-		float input = c.ReadValue<float>();
-		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
+		if (leftStickRotationEnabled) {
+			float input = c.ReadValue<float>();
+			pitchBuffer = SteeringCurve.EvaluateMirrored(input);
+		}
 	}
 
+	private void EnableLeftStickRotation(CallbackContext _) {
+		leftStickRotationEnabled = true;
+	}
+	private void DisableLeftStickRotation(CallbackContext _) {
+		leftStickRotationEnabled = false;
+		yawBuffer = 0;
+		pitchBuffer = 0;
+		// NOTE: might feel weird if releasing toggle while using right stick, as it will reset the stick to 0 for 1 frame
+		// TODO: fix this by having an additional set of stick buffers
+	}
 
-	// private void StopYaw(CallbackContext _) {
-	// 	yawBuffer = 0;
-	// }
-
-	// private void StopPitch(CallbackContext _) {
-	// 	pitchBuffer = 0;
-	// }
 
 	#endregion
 
@@ -828,12 +841,6 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	#endregion
-
-	private void Reset(CallbackContext _) {
-		Reset();
-	}
-
 	private void Reset() {
 		if (LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
@@ -843,10 +850,14 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
-
-			//Debug.Log("Reset car to test spot");
 		}
 	}
+
+	private void Reset(CallbackContext _) {
+		Reset();
+	}
+
+	#endregion
 
 	private void SetDebugUIText(int index, string text = "0.00") {
 		if (DebugUIScript.MainInstance == null || DebugUIScript.MainInstance.TextBoxes == null || DebugUIScript.MainInstance.TextBoxes.Count <= index)
