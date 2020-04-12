@@ -1,9 +1,9 @@
-﻿﻿using System.Linq;
-
-using Assets.Scripts;
+﻿﻿
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
+using Assets.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
@@ -127,7 +127,6 @@ public class SteeringScript : MonoBehaviour {
 
 	[Space]
 
-
 	[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
 	public bool DampenRigidBody = true;
 
@@ -198,6 +197,14 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftStartVelocity = 1f;
 	[Tooltip("At which velocity drifting stops")]
 	public float DriftStopVelocity = .5f;
+
+	[Tooltip("How much extra the velocity will be altered to point towards the direction of the car, while gassing/throttling, while drifting, in degrees per second")]
+	[Range(0, 180)]
+	public float DriftCorrectionSpeed = 20f;
+
+	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
+	public float DriftSpeedReductionWhenCorrecting = 0f;
+	private bool drifting = false;
 
 
 	// input buffers
@@ -338,7 +345,7 @@ public class SteeringScript : MonoBehaviour {
 		ApplyVelocityCap();
 		ApplyAnimations();
 
-		CheckDrift();
+		Drift(dt);
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -402,6 +409,8 @@ public class SteeringScript : MonoBehaviour {
 	#region Drifting
 
 	private void StartDrift() {
+		drifting = true;
+
 		// TODO: enable drifting bool, create drift method in fixed update which uses bool
 		// TODO: only call this method the frame that drifting starts
 		foreach (TrailRenderer driftTrail in DriftTrails)
@@ -412,6 +421,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopDrift() {
+		drifting = false;
+
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = false;
 
@@ -456,6 +467,16 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		SetDebugUIText(12, angle.ToString("F2"));
+	}
+
+	private void Drift(float dt) {
+		CheckDrift();
+
+		if (!drifting)
+			return;
+
+		rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward, gasBuffer * DriftCorrectionSpeed * Mathf.Deg2Rad * dt, DriftSpeedReductionWhenCorrecting);
+
 	}
 
 	#endregion
