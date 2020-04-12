@@ -129,7 +129,11 @@ public class SteeringScript : MonoBehaviour {
 	public AnimationCurve GasPedalCurve;
 
 	[Header("Brakes")]
+	[Tooltip("How much brake torque is applied to each wheel collider")]
 	public float BrakeForce = 100f;
+
+	[Tooltip("How much the motor torque is reduced per second for each wheel collider")]
+	public float MotorBrakeAmount = 100f;
 
 	[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
 	[Range(0, 1)]
@@ -197,17 +201,17 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Drifting")]
 
-	[Tooltip("prerequisite angle at which drifting starts")]
+	[Tooltip("Prerequisite delta angle at which drifting starts")]
 	[Range(0, 180)]
 	public float DriftStartAngle = 30f;
 
-	[Tooltip("At which angle drifting stops")]
+	[Tooltip("At which delta angle drifting always stops")]
 	[Range(0, 180)]
 	public float DriftStopAngle = 30f;
 
-	[Tooltip("prerequisite velocity at which drifting starts")]
+	[Tooltip("Prerequisite velocity at which drifting starts")]
 	public float DriftStartVelocity = 1f;
-	[Tooltip("At which velocity drifting stops")]
+	[Tooltip("At which velocity drifting always stops")]
 	public float DriftStopVelocity = .5f;
 
 	[Tooltip("How much extra the velocity will be altered to point towards the direction of the car, while gassing/throttling, while drifting, in degrees per second")]
@@ -655,27 +659,18 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Braking
 	private void Brake(float dt) {
-		ApplyBrakeTorque();
-	}
-
-	private void Handbrake(float dt) {
-		ApplyHandbrakeTorque();
-	}
-
-	private void ApplyBrakeTorque() {
-
 		float brakeAmount = BrakeForce * brakeBuffer;
 		float frontBrakeAmount = brakeAmount * BrakeDistribution;
 		float rearBrakeAmount = brakeAmount * (1f - BrakeDistribution);
 
-		// Debug.Log("brake amount, front: " + frontBrakeAmount + ", rear: " + rearBrakeAmount);
-
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = frontBrakeAmount;
+			frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 		}
 
 		foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
 			rearWheelCollider.brakeTorque = rearBrakeAmount;
+			rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 		}
 
 		if (DampenRigidBody && brakeBuffer > 0) {
@@ -684,7 +679,8 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(2, brakeBuffer.ToString("F2"));
 	}
-	private void ApplyHandbrakeTorque() {
+
+	private void Handbrake(float dt) {
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
 		}
