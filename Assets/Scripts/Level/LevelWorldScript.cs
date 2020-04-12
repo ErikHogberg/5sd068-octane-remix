@@ -13,6 +13,4 @@ public class LevelWorldScript : MonoBehaviour {
 		CurrentLevel = this;
 	}
 
-
-
 }

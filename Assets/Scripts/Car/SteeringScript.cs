@@ -55,31 +55,14 @@ public class SteeringScript : MonoBehaviour {
 
 	[Space]
 
-	[Tooltip("Trail renderers that will be turned on or off when turning right using the right stick")]
-	public List<TrailRenderer> YawClockwiseTrails;
-	[Tooltip("Trail renderers that will be turned on or off when turning left using the right stick")]
-	public List<TrailRenderer> YawCounterClockwiseTrails;
+	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
+	public List<ParticleSystem> YawClockwiseParticles;
+	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
+	public List<ParticleSystem> YawCounterClockwiseParticles;
 
-	/*
-	[Tooltip("Trail renderers that will be turned on or off when pitching up using the right stick")]
-	public List<TrailRenderer> PitchUpTrails;
-	[Tooltip("Trail renderers that will be turned on or off when pitching down using the right stick")]
-	public List<TrailRenderer> PitchDownTrails;
-	// */
 
 	[Space]
 	public Transform CustomCenterOfMass;
-
-	// [Space]
-	// [Tooltip("Positions and directions of rays for checking if car touches ground, will always be touching ground if no rays are assigned here")]
-	// public List<Transform> GroundCheckRays;
-	// [Tooltip("Length of all rays")]
-	// public float GroundCheckRayLength = 0.5f;
-	// [Tooltip("toggle to show rays")]
-	// public bool RenderDebugRay = false;
-	// [Tooltip("Decides what the rays consider \"ground\", using collision layers, note that these layers are also used for rendering")]
-	// public LayerMask GroundCheckLayerMask;
-
 
 	[Header("Key bindings (Required)")]
 	public InputActionReference SteeringKeyBinding;
@@ -90,9 +73,12 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference JumpKeyBinding;
 	public InputActionReference BoostKeyBinding;
 
-
 	public InputActionReference YawKeyBinding;
 	public InputActionReference PitchKeyBinding;
+
+	// public InputActionReference LeftRotateToggleKeyBinding;
+	// public InputActionReference LeftYawKeyBinding;
+	// public InputActionReference LeftPitchKeyBinding;
 
 	public InputActionReference ResetKeyBinding;
 
@@ -223,20 +209,6 @@ public class SteeringScript : MonoBehaviour {
 	private bool drifting = false;
 
 
-	// input buffers
-	private float steeringBuffer = 0f;
-	private float gasBuffer = 0f;
-	private float lastAppliedGasValue = 0f;
-	private float brakeBuffer = 0f;
-	private float handbrakeBuffer = 0f;
-	private float jumpBuffer = 0f;
-
-	private float yawBuffer = 0f;
-	private float oldYawBuffer = 0f;
-	private float pitchBuffer = 0f;
-
-
-
 	private float[] wheelRotationBuffers;
 
 	private Rigidbody rb;
@@ -278,8 +250,6 @@ public class SteeringScript : MonoBehaviour {
 		DisableInput();
 	}
 
-	// void Update() {
-	// }
 
 	private bool touchingGround = true;
 
@@ -378,16 +348,14 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Drifting
 
-	private void StartDrift() {
+	private void StartDrift() { // NOTE: called every frame
 		drifting = true;
 
-		// TODO: enable drifting bool, create drift method in fixed update which uses bool
-		// TODO: only call this method the frame that drifting starts
+		// TODO: only enable trails for wheels that touch ground
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = true;
 
 		SetDebugUIText(11, "true");
-
 	}
 
 	private void StopDrift() {
@@ -397,7 +365,6 @@ public class SteeringScript : MonoBehaviour {
 			driftTrail.emitting = false;
 
 		SetDebugUIText(11, "false");
-
 	}
 
 	// check if drifting
@@ -453,6 +420,18 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Input callbacks
 
+	// input buffers
+	float steeringBuffer = 0f;
+	float gasBuffer = 0f;
+	float lastAppliedGasValue = 0f;
+	float brakeBuffer = 0f;
+	float handbrakeBuffer = 0f;
+	float jumpBuffer = 0f;
+
+	float yawBuffer = 0f;
+	float oldYawBuffer = 0f;
+	float pitchBuffer = 0f;
+
 	private void InitInput() {
 		// adds press actions
 		SteeringKeyBinding.action.performed += SetSteering;
@@ -474,8 +453,8 @@ public class SteeringScript : MonoBehaviour {
 		BrakeKeyBinding.action.canceled += StopBraking;
 		HandbrakeKeyBinding.action.canceled += StopHandbraking;
 		JumpKeyBinding.action.canceled += ReleaseJump;
-		YawKeyBinding.action.canceled += StopYaw;
-		PitchKeyBinding.action.canceled += StopPitch;
+		YawKeyBinding.action.canceled += SetYaw;
+		PitchKeyBinding.action.canceled += SetPitch;
 		BoostKeyBinding.action.canceled += StopBoost;
 	}
 
@@ -735,22 +714,21 @@ public class SteeringScript : MonoBehaviour {
 			float yawAmount = YawSpeed * yawBuffer * dt;
 
 			if (yawAmount > 0) {
-				foreach (var item in YawClockwiseTrails)
-					item.emitting = true;
-				foreach (var item in YawCounterClockwiseTrails)
-					item.emitting = false;
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StartEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StopEffect(item);
 			} else if (yawAmount < 0) {
-				foreach (var item in YawClockwiseTrails)
-					item.emitting = false;
-				foreach (var item in YawCounterClockwiseTrails)
-					item.emitting = true;
-			} else { //if (pitchBuffer == 0) {
-				foreach (var item in YawClockwiseTrails)
-					item.emitting = false;
-				foreach (var item in YawCounterClockwiseTrails)
-					item.emitting = false;
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StartEffect(item);
+			} else {
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StopEffect(item);
 			}
-
 
 			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 		}
@@ -760,25 +738,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Pitch(float dt) {
 		float pitchAmount = PitchSpeed * pitchBuffer * dt;
-
-		/*
-		if (pitchAmount > 0) {
-			foreach (var item in PitchUpTrails)
-				item.emitting = true;
-			foreach (var item in PitchDownTrails)
-				item.emitting = false;
-		} else if (pitchAmount < 0) {
-			foreach (var item in PitchUpTrails)
-				item.emitting = false;
-			foreach (var item in PitchDownTrails)
-				item.emitting = true;
-		} else if (yawBuffer == 0) {
-			foreach (var item in PitchUpTrails)
-				item.emitting = false;
-			foreach (var item in PitchDownTrails)
-				item.emitting = false;
-		}
-		// */
 
 		rb.rotation *= Quaternion.Euler(pitchAmount, 0, 0);
 	}
@@ -792,13 +751,23 @@ public class SteeringScript : MonoBehaviour {
 		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
 	}
 
-	private void StopYaw(CallbackContext _) {
-		yawBuffer = 0;
+	private void SetLeftYaw(CallbackContext c) {
+		float input = c.ReadValue<float>();
+		yawBuffer = SteeringCurve.EvaluateMirrored(input);
+	}
+	private void SetLeftPitch(CallbackContext c) {
+		float input = c.ReadValue<float>();
+		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
 	}
 
-	private void StopPitch(CallbackContext _) {
-		pitchBuffer = 0;
-	}
+
+	// private void StopYaw(CallbackContext _) {
+	// 	yawBuffer = 0;
+	// }
+
+	// private void StopPitch(CallbackContext _) {
+	// 	pitchBuffer = 0;
+	// }
 
 	#endregion
 
