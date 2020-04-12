@@ -151,12 +151,6 @@ Transform:
   m_Father: {fileID: 2103010013}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90.00001, z: 0}
---- !u!4 &116982034 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1547076848907667014, guid: 7c90647cdac3b7b4e8817262c7f59e05,
-    type: 3}
-  m_PrefabInstance: {fileID: 785194754}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &343966411 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
@@ -365,7 +359,7 @@ PrefabInstance:
         type: 3}
       propertyPath: GroundCheckRay
       value: 
-      objectReference: {fileID: 116982034}
+      objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_Name
@@ -1926,17 +1920,22 @@ PrefabInstance:
     - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_BoundingSphereOverride.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_BoundingSphereOverride.z
-      value: 0
+      value: 4.54e-43
       objectReference: {fileID: 0}
     - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_BoundingSphereOverride.w
-      value: 1e-45
+      value: 1.4033e-41
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c36b32728996a7249a134a8cf6ef7e39, type: 3}

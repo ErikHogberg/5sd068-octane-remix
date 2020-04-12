@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 
 public class GasNeedleUIScript : MonoBehaviour {
+	
 	public static NeedleMeterUIScript meter;
 	public static TMP_Text kmph;
 
@@ -15,16 +16,17 @@ public class GasNeedleUIScript : MonoBehaviour {
 	public static void Refresh() {
 		if (meter == null)
 			return;
+
 		meter.SetBarPercentage();
 		meter.ApplyColor();
 	}
 
-	public static void SetBarPercentage(float percentage, bool is_boosting) {
+	public static void SetBarPercentage(float percentage, bool isBoosting) {
 		if (meter == null)
 			return;
 
 		meter.SetTargetPercent(percentage);
-		if (is_boosting)
+		if (isBoosting)
 			meter.SetTargetColor(NeedleMeterUIScript.ColorState.BOOST);
 		else {
 			if (percentage > 0.97f)
@@ -32,12 +34,14 @@ public class GasNeedleUIScript : MonoBehaviour {
 			else
 				meter.SetTargetColor(NeedleMeterUIScript.ColorState.NORMAL);
 		}
+		
 		Refresh();
 	}
 
-	public static void SetKMPH (float speed) {
+	public static void SetKMPH(float speed) {
 		if (kmph == null)
 			return;
+
 		kmph.text = speed.ToString("F2") + " km/h";
-    }
+	}
 }
