@@ -7,8 +7,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public class NeedleMeterUIScript : MonoBehaviour {
 
-	public enum ColorState
-	{
+	public enum ColorState {
 		NORMAL = 0,
 		MAX,
 		BOOST
@@ -32,7 +31,7 @@ public class NeedleMeterUIScript : MonoBehaviour {
 	void Start() {
 		needle = GetComponent<Image>();
 		initRotation = transform.rotation.eulerAngles.z;
-		print("init rot: " + initRotation);
+		// print("init rot: " + initRotation);
 	}
 
 	public void SetBarPercentage() {
@@ -47,24 +46,20 @@ public class NeedleMeterUIScript : MonoBehaviour {
 	public void ApplyColor() {
 		if (colorState == ColorState.NORMAL) {
 			needle.color = Color.white;
-		}
-		else if (colorState == ColorState.MAX) {
+		} else if (colorState == ColorState.MAX) {
 			needle.color = Color.red;
-		}
-		else if (colorState == ColorState.BOOST) {
+		} else if (colorState == ColorState.BOOST) {
 			needle.color = new Color(20.0f / 255.0f, 75.0f / 255.0f, 215.0f / 255.0f, 1);
-		}
-		else {
+		} else {
 			needle.color = Color.grey;
 		}
 	}
 
 	public void SetTargetPercent(float target) {
 		targetPercent = target;
-    }
+	}
 
-	public void SetTargetColor(ColorState color)
-    {
+	public void SetTargetColor(ColorState color) {
 		colorState = color;
-    }
+	}
 }

@@ -1,9 +1,9 @@
-﻿﻿using System.Linq;
-
-using Assets.Scripts;
+﻿﻿
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
+using Assets.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
@@ -19,61 +19,9 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 
-	[Header("Required objects")]
-
-	[Tooltip("Front wheels")]
-	public List<WheelCollider> FrontWheelColliders;
-	public List<GameObject> FrontWheelModels;
-	[Tooltip("Rear wheels")]
-	public List<WheelCollider> RearWheelColliders;
-	public List<GameObject> RearWheelModels;
-
-	private IEnumerable<WheelCollider> allWheelColliders;
-	private IEnumerable<GameObject> allWheelModels;
-
-
-	[Header("Optional objects")]
-
-	[Tooltip("Trail renderers that will be turned on or off with boost")]
-	public List<TrailRenderer> BoostTrails;
-	private bool IsBoostTrailEmitting {
-		// get {
-		// 	if (!BoostTrails.Any())
-		// 		return false;
-
-		// 	return BoostTrails[0].emitting;
-		// }
-		set {
-			foreach (TrailRenderer boostTrail in BoostTrails)
-				boostTrail.emitting = value;
-		}
-	}
-
-	[Tooltip("Trail renderers that will be turned on or off with drift")]
-	public List<TrailRenderer> DriftTrails;
-
-	public Transform CustomCenterOfMass;
-
-
-	[Header("Key bindings (Required)")]
-	public InputActionReference SteeringKeyBinding;
-	public InputActionReference GasKeyBinding;
-	public InputActionReference ReverseKeyBinding;
-	public InputActionReference BrakeKeyBinding;
-	public InputActionReference HandbrakeKeyBinding;
-	public InputActionReference JumpKeyBinding;
-	public InputActionReference BoostKeyBinding;
-
-
-	public InputActionReference YawKeyBinding;
-	public InputActionReference PitchKeyBinding;
-
-	public InputActionReference ResetKeyBinding;
 
 
 	// TODO: reset car position to closest track position
-	// TODO: reverse?
-
 
 
 	[Header("Steering")]
@@ -87,6 +35,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Adapts the joystick tilt before changing the steering angle")]
 	public AnimationCurve SteeringCurve;
 
+	[Space]
 	[Tooltip("Reduces the max steering angle as the car speeds up")]
 	public bool EnableNarrowing = true;
 	[Tooltip("Reduces the max steering angle as the car speeds up, reaching its narrowest angle at this speed")]
@@ -102,13 +51,26 @@ public class SteeringScript : MonoBehaviour {
 	public AnimationCurve GasPedalCurve;
 
 	[Header("Brakes")]
+	[Tooltip("How much brake torque is applied to each wheel collider")]
 	public float BrakeForce = 100f;
+
+	[Tooltip("How much the motor torque is reduced per second for each wheel collider")]
+	public float MotorBrakeAmount = 100f;
 
 	[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
 	[Range(0, 1)]
 	public float BrakeDistribution = 0.75f;
 
 	public AnimationCurve BrakePedalCurve;
+
+	[Space]
+
+	[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
+	public bool DampenRigidBody = true;
+
+	[Tooltip("Velocity that will be lost per second while braking")]
+	// [Range(0,1)]
+	public float BrakeDampeningAmount = 2000f;
 
 	[Header("Handbrake")]
 	public float HandbrakeForce = 100f;
@@ -124,8 +86,12 @@ public class SteeringScript : MonoBehaviour {
 	public bool UseRelativeDownwardForce = true;
 
 	[Header("In-air controls")]
-	public float YawSpeed = 100f;
+	public float YawSpeed = 200f;
+
+	[Tooltip("Add the tilt of the joystick as an offset instead of rotation over time, rotating back again when releasing stick")]
 	public AnimationCurve YawInputCurve;
+
+	public bool UseYawOffsetMode = false;
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
 
@@ -157,31 +123,93 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Drifting")]
 
-	[Tooltip("prerequisite angle at which drifting starts")]
+	[Tooltip("Prerequisite delta angle at which drifting starts")]
 	[Range(0, 180)]
 	public float DriftStartAngle = 30f;
 
-	[Tooltip("At which angle drifting stops")]
+	[Tooltip("At which delta angle drifting always stops")]
 	[Range(0, 180)]
 	public float DriftStopAngle = 30f;
 
-	[Tooltip("prerequisite velocity at which drifting starts")]
+	[Tooltip("Prerequisite velocity at which drifting starts")]
 	public float DriftStartVelocity = 1f;
-	[Tooltip("At which velocity drifting stops")]
+	[Tooltip("At which velocity drifting always stops")]
 	public float DriftStopVelocity = .5f;
 
+	[Tooltip("How much extra the velocity will be altered to point towards the direction of the car, while gassing/throttling, while drifting, in degrees per second")]
+	[Range(0, 180)]
+	public float DriftCorrectionSpeed = 20f;
 
-	// input buffers
-	private float steeringBuffer = 0f;
-	private float gasBuffer = 0f;
-	private float lastAppliedGasValue = 0f;
-	private float brakeBuffer = 0f;
-	private float handbrakeBuffer = 0f;
-	private float jumpBuffer = 0f;
+	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
+	public float DriftSpeedReductionWhenCorrecting = 0f;
+	private bool drifting = false;
 
-	private float yawBuffer = 0f;
-	private float pitchBuffer = 0f;
 
+	#region object refs and input bindings
+
+	[Header("Optional objects")]
+
+	public Transform CustomCenterOfMass;
+
+	[Space]
+	
+	[Tooltip("Trail renderers that will be turned on or off with boost")]
+	public List<TrailRenderer> BoostTrails;
+	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
+		get {
+			if (BoostTrails.Any())
+				return BoostTrails[0].emitting;
+			return false;
+		}
+		set {
+			foreach (TrailRenderer boostTrail in BoostTrails)
+				boostTrail.emitting = value;
+		}
+	}
+
+	[Space]
+
+	[Tooltip("Trail renderers that will be turned on or off with drift")]
+	public List<TrailRenderer> DriftTrails;
+
+	[Space]
+
+	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
+	public List<ParticleSystem> YawClockwiseParticles;
+	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
+	public List<ParticleSystem> YawCounterClockwiseParticles;
+
+
+	[Header("Required objects")]
+
+	[Tooltip("Front wheels")]
+	public List<WheelCollider> FrontWheelColliders;
+	public List<GameObject> FrontWheelModels;
+	[Tooltip("Rear wheels")]
+	public List<WheelCollider> RearWheelColliders;
+	public List<GameObject> RearWheelModels;
+
+	private IEnumerable<WheelCollider> allWheelColliders;
+	private IEnumerable<GameObject> allWheelModels;
+
+	[Header("Key bindings")]
+	public InputActionReference SteeringKeyBinding;
+	public InputActionReference GasKeyBinding;
+	public InputActionReference ReverseKeyBinding;
+	public InputActionReference BrakeKeyBinding;
+	public InputActionReference HandbrakeKeyBinding;
+	[Space]
+	public InputActionReference BoostKeyBinding;
+	public InputActionReference ResetKeyBinding;
+	public InputActionReference JumpKeyBinding;
+	[Space]
+	public InputActionReference YawKeyBinding;
+	public InputActionReference PitchKeyBinding;
+	public InputActionReference LeftRotateToggleKeyBinding;
+	public InputActionReference LeftYawKeyBinding;
+	public InputActionReference LeftPitchKeyBinding;
+
+	#endregion
 
 
 	private float[] wheelRotationBuffers;
@@ -215,59 +243,6 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 	}
 
-	private void InitInput() {
-		// adds press actions
-		SteeringKeyBinding.action.performed += SetSteering;
-		GasKeyBinding.action.performed += SetGas;
-		ReverseKeyBinding.action.performed += StartReverse;
-		BrakeKeyBinding.action.performed += SetBraking;
-		HandbrakeKeyBinding.action.performed += SetHandbraking;
-		JumpKeyBinding.action.performed += SetJump;
-		YawKeyBinding.action.performed += SetYaw;
-		PitchKeyBinding.action.performed += SetPitch;
-		BoostKeyBinding.action.performed += StartBoost;
-
-		ResetKeyBinding.action.performed += Reset;
-
-		// adds release actions
-		SteeringKeyBinding.action.canceled += StopSteering;
-		GasKeyBinding.action.canceled += StopGas;
-		ReverseKeyBinding.action.canceled += StopReverse;
-		BrakeKeyBinding.action.canceled += StopBraking;
-		HandbrakeKeyBinding.action.canceled += StopHandbraking;
-		JumpKeyBinding.action.canceled += ReleaseJump;
-		YawKeyBinding.action.canceled += StopYaw;
-		PitchKeyBinding.action.canceled += StopPitch;
-		BoostKeyBinding.action.canceled += StopBoost;
-	}
-
-	private void EnableInput() {
-		SteeringKeyBinding.action.Enable();
-		GasKeyBinding.action.Enable();
-		ReverseKeyBinding.action.Enable();
-		BrakeKeyBinding.action.Enable();
-		HandbrakeKeyBinding.action.Enable();
-		JumpKeyBinding.action.Enable();
-		YawKeyBinding.action.Enable();
-		PitchKeyBinding.action.Enable();
-		ResetKeyBinding.action.Enable();
-		BoostKeyBinding.action.Enable();
-	}
-
-	private void DisableInput() {
-		SteeringKeyBinding.action.Disable();
-		GasKeyBinding.action.Disable();
-		ReverseKeyBinding.action.Disable();
-		BrakeKeyBinding.action.Disable();
-		HandbrakeKeyBinding.action.Disable();
-		JumpKeyBinding.action.Disable();
-		YawKeyBinding.action.Disable();
-		PitchKeyBinding.action.Disable();
-		ResetKeyBinding.action.Disable();
-		BoostKeyBinding.action.Disable();
-	}
-
-
 	void OnEnable() {
 		EnableInput();
 
@@ -278,13 +253,14 @@ public class SteeringScript : MonoBehaviour {
 		DisableInput();
 	}
 
-	// void Update() {
-	// }
 
-	private bool touchedGroundLastTick = true;//false;
+	private bool touchingGround = true;
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+
+		// if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
+		touchingGround = CheckIfTouchingGround();
 
 		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
@@ -308,21 +284,19 @@ public class SteeringScript : MonoBehaviour {
 		ApplyVelocityCap();
 		ApplyAnimations();
 
-		CheckDrift();
+		Drift(dt);
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
 
-		// IDEA: velocity forward correction, alter velocity direction each tick to move towards car forward direction (or wheel direction?), keeping magnitude the same
-
+		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
 	}
 
 	//To avoid jittery number updates on the UI
 	int updateCount = 0;
 	int updateInterval = 5;
-	void LateUpdate()
-    {
+	void LateUpdate() {
 		if (updateCount >= updateInterval) {
 			UpdateUI();
 			updateCount = 0;
@@ -330,25 +304,29 @@ public class SteeringScript : MonoBehaviour {
 		updateCount++;
 	}
 
-	// private void OnCollisionStay(Collision other) {
-	// 	// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
-	// 	if (other.gameObject.tag == "Ground")
-	// 		touchedGroundLastTick = true;
+	private bool CheckIfTouchingGround() {
+		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
 
-	// }
+		foreach (WheelCollider wheelCollider in allWheelColliders) {
+			if (wheelCollider.isGrounded)
+				return true;
+		}
+
+		return false;
+	}
+
 
 	#region UI
-	private void RefreshUI()
-    {
+	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
-			
+
 		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
 		float kmph = (float)rb.velocity.magnitude * 3.6f;
 
-		if (boosting){
+		if (boosting) {
 			if (percentage >= 1f)
 				percentage = Random.Range(1f, 1.05f);
 			GasNeedleUIScript.SetBarPercentage(percentage, true);
@@ -373,27 +351,28 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Drifting
 
-	private void StartDrift() {
-		// TODO: enable drifting bool, create drift method in fixed update which uses bool
-		// TODO: only call this method the frame that drifting starts
+	private void StartDrift() { // NOTE: called every frame
+		drifting = true;
+
+		// TODO: only enable trails for wheels that touch ground
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = true;
 
 		SetDebugUIText(11, "true");
-
 	}
 
 	private void StopDrift() {
+		drifting = false;
+
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = false;
 
 		SetDebugUIText(11, "false");
-
 	}
 
 	// check if drifting
 
-	private float GetDriftAngle(){
+	private float GetDriftAngle() {
 		Vector3 carDir = transform.forward;
 		Vector3 velocity = rb.velocity;
 
@@ -413,14 +392,14 @@ public class SteeringScript : MonoBehaviour {
 		float angle = Vector3.SignedAngle(carDir, velocity, transform.up);
 		float absAngle = Mathf.Abs(angle);
 
-		if (touchedGroundLastTick
+		if (touchingGround
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
 			StartDrift();
 		}
 
-		if (!touchedGroundLastTick
+		if (!touchingGround
 			|| absAngle < DriftStopAngle
 			|| velocity.sqrMagnitude < DriftStopVelocity * DriftStopVelocity
 		) {
@@ -430,9 +409,105 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(12, angle.ToString("F2"));
 	}
 
+	private void Drift(float dt) {
+		CheckDrift();
+
+		if (!drifting)
+			return;
+
+		rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward, gasBuffer * DriftCorrectionSpeed * Mathf.Deg2Rad * dt, DriftSpeedReductionWhenCorrecting);
+
+	}
+
 	#endregion
 
 	#region Input callbacks
+
+	// input buffers
+	float steeringBuffer = 0f;
+	float gasBuffer = 0f;
+	float lastAppliedGasValue = 0f;
+	float brakeBuffer = 0f;
+	float handbrakeBuffer = 0f;
+	float jumpBuffer = 0f;
+
+	float yawBuffer = 0f;
+	float oldYawBuffer = 0f;
+	float pitchBuffer = 0f;
+
+	private bool leftStickRotationEnabled = false;
+
+
+	private void InitInput() {
+		// adds press actions
+		SteeringKeyBinding.action.performed += SetSteering;
+		GasKeyBinding.action.performed += SetGas;
+		ReverseKeyBinding.action.performed += StartReverse;
+		BrakeKeyBinding.action.performed += SetBraking;
+		HandbrakeKeyBinding.action.performed += SetHandbraking;
+		JumpKeyBinding.action.performed += SetJump;
+		BoostKeyBinding.action.performed += StartBoost;
+
+		YawKeyBinding.action.performed += SetYaw;
+		PitchKeyBinding.action.performed += SetPitch;
+		LeftYawKeyBinding.action.performed += SetLeftYaw;
+		LeftPitchKeyBinding.action.performed += SetLeftPitch;
+		LeftRotateToggleKeyBinding.action.performed += EnableLeftStickRotation;
+
+		ResetKeyBinding.action.performed += Reset;
+
+		// adds release actions
+		SteeringKeyBinding.action.canceled += SetSteering;
+		GasKeyBinding.action.canceled += SetGas;
+		ReverseKeyBinding.action.canceled += StopReverse;
+		BrakeKeyBinding.action.canceled += SetBraking;
+		HandbrakeKeyBinding.action.canceled += SetHandbraking;
+		JumpKeyBinding.action.canceled += ReleaseJump;
+		BoostKeyBinding.action.canceled += StopBoost;
+
+		YawKeyBinding.action.canceled += SetYaw;
+		PitchKeyBinding.action.canceled += SetPitch;
+		LeftYawKeyBinding.action.canceled += SetLeftYaw;
+		LeftPitchKeyBinding.action.canceled += SetLeftPitch;
+		LeftRotateToggleKeyBinding.action.canceled += DisableLeftStickRotation;
+
+	}
+
+	private void EnableInput() {
+		SteeringKeyBinding.action.Enable();
+		GasKeyBinding.action.Enable();
+		ReverseKeyBinding.action.Enable();
+		BrakeKeyBinding.action.Enable();
+		HandbrakeKeyBinding.action.Enable();
+		JumpKeyBinding.action.Enable();
+		ResetKeyBinding.action.Enable();
+		BoostKeyBinding.action.Enable();
+
+		YawKeyBinding.action.Enable();
+		PitchKeyBinding.action.Enable();
+		LeftYawKeyBinding.action.Enable();
+		LeftPitchKeyBinding.action.Enable();
+		LeftRotateToggleKeyBinding.action.Enable();
+	}
+
+	private void DisableInput() {
+		SteeringKeyBinding.action.Disable();
+		GasKeyBinding.action.Disable();
+		ReverseKeyBinding.action.Disable();
+		BrakeKeyBinding.action.Disable();
+		HandbrakeKeyBinding.action.Disable();
+		JumpKeyBinding.action.Disable();
+		ResetKeyBinding.action.Disable();
+		BoostKeyBinding.action.Disable();
+
+		YawKeyBinding.action.Disable();
+		PitchKeyBinding.action.Disable();
+		LeftYawKeyBinding.action.Disable();
+		LeftPitchKeyBinding.action.Disable();
+		LeftRotateToggleKeyBinding.action.Disable();
+	}
+
+
 	#region Steering
 
 	private void Steer(float dt) {
@@ -472,17 +547,15 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void SetSteering(CallbackContext c) {
+		if (leftStickRotationEnabled)
+			return;
+
 		float input = c.ReadValue<float>();
 		steeringBuffer = SteeringCurve.EvaluateMirrored(input);
 
 		SetDebugUIText(1, input.ToString("F2"));
 	}
 
-	private void StopSteering(CallbackContext _) {
-		steeringBuffer = 0;
-
-		SetDebugUIText(1);
-	}
 	#endregion
 
 	#region Gas
@@ -540,11 +613,6 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(5, input.ToString("F2"));
 	}
 
-	private void StopGas(CallbackContext _) {
-		gasBuffer = 0;
-
-		SetDebugUIText(5);
-	}
 	#endregion
 
 	#region Reverse
@@ -561,33 +629,28 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Braking
 	private void Brake(float dt) {
-		ApplyBrakeTorque();
-	}
-
-	private void Handbrake(float dt) {
-		ApplyHandbrakeTorque();
-	}
-
-	private void ApplyBrakeTorque() {
-
 		float brakeAmount = BrakeForce * brakeBuffer;
 		float frontBrakeAmount = brakeAmount * BrakeDistribution;
 		float rearBrakeAmount = brakeAmount * (1f - BrakeDistribution);
 
-		// Debug.Log("brake amount, front: " + frontBrakeAmount + ", rear: " + rearBrakeAmount);
-
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = frontBrakeAmount;
+			frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 		}
 
 		foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
 			rearWheelCollider.brakeTorque = rearBrakeAmount;
+			rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 		}
 
+		if (DampenRigidBody && brakeBuffer > 0) {
+			rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
+		}
 
 		SetDebugUIText(2, brakeBuffer.ToString("F2"));
 	}
-	private void ApplyHandbrakeTorque() {
+
+	private void Handbrake(float dt) {
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
 		}
@@ -606,17 +669,6 @@ public class SteeringScript : MonoBehaviour {
 		handbrakeBuffer = HandbrakePedalCurve.EvaluateMirrored(input);
 
 		SetDebugUIText(7, input.ToString("F2"));
-	}
-
-	private void StopBraking(CallbackContext _) {
-		brakeBuffer = 0f;
-		SetDebugUIText(3);
-	}
-
-	private void StopHandbraking(CallbackContext _) {
-		handbrakeBuffer = 0;
-
-		SetDebugUIText(7);
 	}
 
 	#endregion
@@ -657,18 +709,42 @@ public class SteeringScript : MonoBehaviour {
 	#region Yaw, Pitch
 
 	private void Yaw(float dt) {
-		float yawAmount = YawSpeed * yawBuffer * dt;
-		// rb.angularVelocity += Vector3.up * yawAmount;
-		rb.AddRelativeTorque(Vector3.up * yawAmount);
-		// rb.AddForceAtPosition(Vector3.up * yawAmount, rb.position + Vector3.forward);
 
+		if (UseYawOffsetMode) {
+			float delta = yawBuffer - oldYawBuffer;
+			// TODO: interpolate joystick input?
+			float yawAmount = YawSpeed * delta;
+			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+		} else {
+			float yawAmount = YawSpeed * yawBuffer * dt;
+
+			if (yawAmount > 0) {
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StartEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+			} else if (yawAmount < 0) {
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StartEffect(item);
+			} else {
+				foreach (var item in YawClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+				foreach (var item in YawCounterClockwiseParticles)
+					CustomUtilities.StopEffect(item);
+			}
+
+			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+		}
+
+		oldYawBuffer = yawBuffer;
 	}
 
 	private void Pitch(float dt) {
 		float pitchAmount = PitchSpeed * pitchBuffer * dt;
-		// rb.angularVelocity += Vector3.right * pitchAmount;
-		rb.AddRelativeTorque(Vector3.right * pitchAmount);
-		// rb.AddForceAtPosition(Vector3.right * pitchAmount, rb.position + Vector3.forward);
+
+		rb.rotation *= Quaternion.Euler(pitchAmount, 0, 0);
 	}
 
 	private void SetYaw(CallbackContext c) {
@@ -680,13 +756,31 @@ public class SteeringScript : MonoBehaviour {
 		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
 	}
 
-	private void StopYaw(CallbackContext _) {
-		yawBuffer = 0;
+
+	private void SetLeftYaw(CallbackContext c) {
+		if (leftStickRotationEnabled) {
+			float input = c.ReadValue<float>();
+			yawBuffer = SteeringCurve.EvaluateMirrored(input);
+		}
+	}
+	private void SetLeftPitch(CallbackContext c) {
+		if (leftStickRotationEnabled) {
+			float input = c.ReadValue<float>();
+			pitchBuffer = SteeringCurve.EvaluateMirrored(input);
+		}
 	}
 
-	private void StopPitch(CallbackContext _) {
-		pitchBuffer = 0;
+	private void EnableLeftStickRotation(CallbackContext _) {
+		leftStickRotationEnabled = true;
 	}
+	private void DisableLeftStickRotation(CallbackContext _) {
+		leftStickRotationEnabled = false;
+		yawBuffer = 0;
+		pitchBuffer = 0;
+		// NOTE: might feel weird if releasing toggle while using right stick, as it will reset the stick to 0 for 1 frame
+		// TODO: fix this by having an additional set of stick buffers
+	}
+
 
 	#endregion
 
@@ -747,12 +841,6 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	#endregion
-
-	private void Reset(CallbackContext _) {
-		Reset();
-	}
-
 	private void Reset() {
 		if (LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
@@ -762,10 +850,14 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
-
-			//Debug.Log("Reset car to test spot");
 		}
 	}
+
+	private void Reset(CallbackContext _) {
+		Reset();
+	}
+
+	#endregion
 
 	private void SetDebugUIText(int index, string text = "0.00") {
 		if (DebugUIScript.MainInstance == null || DebugUIScript.MainInstance.TextBoxes == null || DebugUIScript.MainInstance.TextBoxes.Count <= index)
