@@ -8,8 +8,9 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: fffd1d48307a02c459d08026a0f80449
+  m_OcclusionCullingData: {fileID: 36300000, guid: f5503161e90654d4ca95553feccd578a,
+    type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -619,11 +620,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2103010013}
     m_Modifications:
-    - target: {fileID: 4149504324086808230, guid: 7c90647cdac3b7b4e8817262c7f59e05,
-        type: 3}
-      propertyPath: far clip plane
-      value: 2000
-      objectReference: {fileID: 0}
     - target: {fileID: 4149504325615526068, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -2396,6 +2392,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 785194755}
     m_Modifications:
+    - target: {fileID: 1106042080829588631, guid: 40a1fab7d14a665449754b1b6e4fad23,
+        type: 3}
+      propertyPath: far clip plane
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 1106042080829588648, guid: 40a1fab7d14a665449754b1b6e4fad23,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2831,6 +2832,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AllowDynamicResolution
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6008003018547975607, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: far clip plane
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 6008003018547975611, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
         type: 3}

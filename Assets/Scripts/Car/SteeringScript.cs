@@ -651,6 +651,9 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void Handbrake(float dt) {
+
+		// IDEA: instead of braking, start drifting by instantly rotating car in steering direction, rotate back to velocity (not previous delta) direction on release.
+
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
 		}
