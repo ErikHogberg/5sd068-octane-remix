@@ -35,5 +35,19 @@ namespace Assets.Scripts {
 				particles.Stop();
 		}
 
+		public static void SetEffect(TrailRenderer trail, bool enable) {
+			if (enable)
+				StartEffect(trail);
+			else
+				StopEffect(trail);
+		}
+
+		public static void SetEffect(ParticleSystem particles, bool enable) {
+			if (enable)
+				StartEffect(particles);
+			else
+				StopEffect(particles);
+		}
+
 	}
 }

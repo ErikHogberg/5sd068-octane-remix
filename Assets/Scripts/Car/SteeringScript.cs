@@ -99,7 +99,7 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
-	
+
 	private double boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
@@ -170,10 +170,16 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	[Tooltip("Particle systems that will be turned on or off with boost")]
+	public List<ParticleSystem> BoostParticles;
+
 	[Space]
 
 	[Tooltip("Trail renderers that will be turned on or off with drift")]
 	public List<TrailRenderer> DriftTrails;
+
+	[Tooltip("Particle systems that will be turned on or off with drift")]
+	public List<ParticleSystem> DriftParticles;
 
 	[Space]
 
@@ -360,6 +366,8 @@ public class SteeringScript : MonoBehaviour {
 		// TODO: only enable trails for wheels that touch ground
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = true;
+		foreach (ParticleSystem driftPS in DriftParticles)
+			CustomUtilities.StartEffect(driftPS);
 
 		SetDebugUIText(11, "true");
 	}
@@ -369,6 +377,8 @@ public class SteeringScript : MonoBehaviour {
 
 		foreach (TrailRenderer driftTrail in DriftTrails)
 			driftTrail.emitting = false;
+		foreach (ParticleSystem driftPS in DriftParticles)
+			CustomUtilities.StopEffect(driftPS);
 
 		SetDebugUIText(11, "false");
 	}
@@ -827,6 +837,9 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		IsBoostTrailEmitting = true;
+		foreach (ParticleSystem boostPS in BoostParticles)
+			CustomUtilities.StartEffect(boostPS);
+
 		AddBoost(-BoostConsumptionRate * dt);
 
 		if (BoostNotEmpty)
@@ -862,6 +875,9 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StopBoost() {
 		IsBoostTrailEmitting = false;
+		foreach (ParticleSystem boostPS in BoostParticles)
+			CustomUtilities.StopEffect(boostPS);
+
 		boosting = false;
 	}
 
