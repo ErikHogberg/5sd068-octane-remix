@@ -1415,7 +1415,7 @@ GameObject:
   - component: {fileID: 3267488897645153502}
   m_Layer: 0
   m_Name: Lambo_Ella
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1467,41 +1467,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07e9cc4c5c7e2904ebb8e1be92fb4dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FrontWheelColliders:
-  - {fileID: 3267488898261956030}
-  - {fileID: 3267488896946614657}
-  FrontWheelModels:
-  - {fileID: 3267488898707139959}
-  - {fileID: 3267488897528033437}
-  RearWheelColliders:
-  - {fileID: 3267488898876713424}
-  - {fileID: 3267488897812922246}
-  RearWheelModels:
-  - {fileID: 3267488898244428567}
-  - {fileID: 3267488898217589741}
-  BoostTrails: []
-  DriftTrails: []
-  CustomCenterOfMass: {fileID: 0}
-  SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  YawKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  PitchKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
   Mode: 2
   SteeringMax: 45
   SteeringCurve:
@@ -1581,6 +1546,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   BrakeForce: 17000
+  MotorBrakeAmount: 100
   BrakeDistribution: 0.75
   BrakePedalCurve:
     serializedVersion: 2
@@ -1606,6 +1572,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  DampenRigidBody: 1
+  BrakeDampeningAmount: 2000
   HandbrakeForce: 5000
   HandbrakePedalCurve:
     serializedVersion: 2
@@ -1643,6 +1611,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  UseYawOffsetMode: 0
   PitchSpeed: 1000
   PitchInputCurve:
     serializedVersion: 2
@@ -1661,6 +1630,51 @@ MonoBehaviour:
   DriftStopAngle: 30
   DriftStartVelocity: 1
   DriftStopVelocity: 0.5
+  DriftCorrectionSpeed: 20
+  DriftSpeedReductionWhenCorrecting: 0
+  CustomCenterOfMass: {fileID: 0}
+  BoostTrails: []
+  DriftTrails: []
+  YawClockwiseParticles: []
+  YawCounterClockwiseParticles: []
+  FrontWheelColliders:
+  - {fileID: 3267488898261956030}
+  - {fileID: 3267488896946614657}
+  FrontWheelModels:
+  - {fileID: 3267488898707139959}
+  - {fileID: 3267488897528033437}
+  RearWheelColliders:
+  - {fileID: 3267488898876713424}
+  - {fileID: 3267488897812922246}
+  RearWheelModels:
+  - {fileID: 3267488898244428567}
+  - {fileID: 3267488898217589741}
+  SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftRotateToggleKeyBinding: {fileID: 5499118576562083176, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftYawKeyBinding: {fileID: 7779412102661382504, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftPitchKeyBinding: {fileID: -4547618856026539353, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
 --- !u!1 &3267488897714053054
 GameObject:
   m_ObjectHideFlags: 0
@@ -1831,7 +1845,7 @@ GameObject:
   - component: {fileID: 3267488897743762636}
   m_Layer: 0
   m_Name: Lamborgini_TestCar_5.0
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
