@@ -6713,7 +6713,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 1500
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -10924,56 +10924,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07e9cc4c5c7e2904ebb8e1be92fb4dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FrontWheelColliders:
-  - {fileID: 4149504323586418373}
-  - {fileID: 4149504324960412410}
-  FrontWheelModels:
-  - {fileID: 4149504324567301644}
-  - {fileID: 4149504325536687078}
-  RearWheelColliders:
-  - {fileID: 4149504324171168427}
-  - {fileID: 4149504325251804413}
-  RearWheelModels:
-  - {fileID: 4149504324073623660}
-  - {fileID: 4149504324050217110}
-  BoostTrails:
-  - {fileID: 6803615517072498511}
-  DriftTrails:
-  - {fileID: 4506600581941852965}
-  - {fileID: 4557303090214767840}
-  - {fileID: 9115013771608624977}
-  - {fileID: 8003444701130503926}
-  YawClockwiseParticles:
-  - {fileID: 8127573870186229930}
-  YawCounterClockwiseParticles:
-  - {fileID: 987692834934165362}
-  CustomCenterOfMass: {fileID: 5821789675930936434}
-  SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  LeftRotateToggleKeyBinding: {fileID: 5499118576562083176, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  LeftYawKeyBinding: {fileID: 7779412102661382504, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  LeftPitchKeyBinding: {fileID: -4547618856026539353, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
   Mode: 2
   SteeringMax: 60
   SteeringCurve:
@@ -11175,6 +11125,56 @@ MonoBehaviour:
   DriftStopVelocity: 0.5
   DriftCorrectionSpeed: 20
   DriftSpeedReductionWhenCorrecting: 0
+  CustomCenterOfMass: {fileID: 5821789675930936434}
+  BoostTrails:
+  - {fileID: 6803615517072498511}
+  DriftTrails:
+  - {fileID: 4506600581941852965}
+  - {fileID: 4557303090214767840}
+  - {fileID: 9115013771608624977}
+  - {fileID: 8003444701130503926}
+  YawClockwiseParticles:
+  - {fileID: 8127573870186229930}
+  YawCounterClockwiseParticles:
+  - {fileID: 987692834934165362}
+  FrontWheelColliders:
+  - {fileID: 4149504323586418373}
+  - {fileID: 4149504324960412410}
+  FrontWheelModels:
+  - {fileID: 4149504324567301644}
+  - {fileID: 4149504325536687078}
+  RearWheelColliders:
+  - {fileID: 4149504324171168427}
+  - {fileID: 4149504325251804413}
+  RearWheelModels:
+  - {fileID: 4149504324073623660}
+  - {fileID: 4149504324050217110}
+  SteeringKeyBinding: {fileID: -4371463263158583125, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftRotateToggleKeyBinding: {fileID: 5499118576562083176, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftYawKeyBinding: {fileID: 7779412102661382504, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  LeftPitchKeyBinding: {fileID: -4547618856026539353, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
 --- !u!1 &4149504325633330783
 GameObject:
   m_ObjectHideFlags: 0
