@@ -76,6 +76,9 @@ public class SteeringScript : MonoBehaviour {
 	public float HandbrakeForce = 100f;
 	public AnimationCurve HandbrakePedalCurve;
 
+	[Range(-180, 180)]
+	public float HandbrakeDriftAngle = 30f;
+
 	[Header("Downward force")]
 	public bool EnableDownwardForce = true;
 	[Tooltip("At what speed does DownwardForce switch off by default")]
@@ -88,17 +91,17 @@ public class SteeringScript : MonoBehaviour {
 	[Header("In-air controls")]
 	public float YawSpeed = 200f;
 
-	[Tooltip("Add the tilt of the joystick as an offset instead of rotation over time, rotating back again when releasing stick")]
 	public AnimationCurve YawInputCurve;
 
-	public bool UseYawOffsetMode = false;
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
 
+
 	[Header("Boost")]
-	private bool boosting = false;
 	public float BoostSpeed = 100f;
+	
 	private double boostAmount = 1;
+	private bool boosting = false;
 	private bool BoostNotEmpty {
 		get { return boostAmount > 0; }
 	}
@@ -152,7 +155,7 @@ public class SteeringScript : MonoBehaviour {
 	public Transform CustomCenterOfMass;
 
 	[Space]
-	
+
 	[Tooltip("Trail renderers that will be turned on or off with boost")]
 	public List<TrailRenderer> BoostTrails;
 	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
@@ -415,6 +418,8 @@ public class SteeringScript : MonoBehaviour {
 		if (!drifting)
 			return;
 
+		// IDEA: increase boost recharge rate while drifting?
+
 		rb.velocity = Vector3.RotateTowards(rb.velocity, transform.forward, gasBuffer * DriftCorrectionSpeed * Mathf.Deg2Rad * dt, DriftSpeedReductionWhenCorrecting);
 
 	}
@@ -432,7 +437,7 @@ public class SteeringScript : MonoBehaviour {
 	float jumpBuffer = 0f;
 
 	float yawBuffer = 0f;
-	float oldYawBuffer = 0f;
+	float oldHandbrakeBuffer = 0f;
 	float pitchBuffer = 0f;
 
 	private bool leftStickRotationEnabled = false;
@@ -444,7 +449,7 @@ public class SteeringScript : MonoBehaviour {
 		GasKeyBinding.action.performed += SetGas;
 		ReverseKeyBinding.action.performed += StartReverse;
 		BrakeKeyBinding.action.performed += SetBraking;
-		HandbrakeKeyBinding.action.performed += SetHandbraking;
+		HandbrakeKeyBinding.action.performed += StartHandbraking;
 		JumpKeyBinding.action.performed += SetJump;
 		BoostKeyBinding.action.performed += StartBoost;
 
@@ -461,7 +466,7 @@ public class SteeringScript : MonoBehaviour {
 		GasKeyBinding.action.canceled += SetGas;
 		ReverseKeyBinding.action.canceled += StopReverse;
 		BrakeKeyBinding.action.canceled += SetBraking;
-		HandbrakeKeyBinding.action.canceled += SetHandbraking;
+		HandbrakeKeyBinding.action.canceled += StopHandbraking;//StartHandbraking;
 		JumpKeyBinding.action.canceled += ReleaseJump;
 		BoostKeyBinding.action.canceled += StopBoost;
 
@@ -654,9 +659,9 @@ public class SteeringScript : MonoBehaviour {
 
 		// IDEA: instead of braking, start drifting by instantly rotating car in steering direction, rotate back to velocity (not previous delta) direction on release.
 
-		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
-			frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
-		}
+		// foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
+		// frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
+		// }
 
 		SetDebugUIText(6, handbrakeBuffer.ToString("F2"));
 	}
@@ -667,11 +672,40 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(3, input.ToString("F2"));
 	}
-	private void SetHandbraking(CallbackContext c) {
+
+	private void StartHandbraking(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		handbrakeBuffer = HandbrakePedalCurve.EvaluateMirrored(input);
 
+		// float delta = handbrakeBuffer - oldHandbrakeBuffer;
+		// TODO: interpolate input?
+		// float driftAmount = HandbrakeDriftAngle * delta;
+
+		// rb.rotation = Quaternion.Euler(rb.velocity) * Quaternion.Euler(0, driftAmount, 0);
+
+		if (drifting)
+			return;
+
+		float dir;
+
+		if (steeringBuffer > 0) {
+			dir = 1;
+		} else if (steeringBuffer < 0) {
+			dir = -1;
+		} else {
+			return;
+		}
+
+		transform.forward = Vector3.RotateTowards(transform.forward, transform.right, handbrakeBuffer * HandbrakeDriftAngle * Mathf.Deg2Rad * dir, 0);
+
 		SetDebugUIText(7, input.ToString("F2"));
+
+		oldHandbrakeBuffer = handbrakeBuffer;
+	}
+
+	private void StopHandbraking(CallbackContext c) {
+		// rb.rotation = Quaternion.Euler(rb.velocity);
+		// transform.forward = rb.velocity;
 	}
 
 	#endregion
@@ -713,35 +747,28 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Yaw(float dt) {
 
-		if (UseYawOffsetMode) {
-			float delta = yawBuffer - oldYawBuffer;
-			// TODO: interpolate joystick input?
-			float yawAmount = YawSpeed * delta;
-			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+
+		float yawAmount = YawSpeed * yawBuffer * dt;
+
+		if (yawAmount > 0) {
+			foreach (var item in YawClockwiseParticles)
+				CustomUtilities.StartEffect(item);
+			foreach (var item in YawCounterClockwiseParticles)
+				CustomUtilities.StopEffect(item);
+		} else if (yawAmount < 0) {
+			foreach (var item in YawClockwiseParticles)
+				CustomUtilities.StopEffect(item);
+			foreach (var item in YawCounterClockwiseParticles)
+				CustomUtilities.StartEffect(item);
 		} else {
-			float yawAmount = YawSpeed * yawBuffer * dt;
-
-			if (yawAmount > 0) {
-				foreach (var item in YawClockwiseParticles)
-					CustomUtilities.StartEffect(item);
-				foreach (var item in YawCounterClockwiseParticles)
-					CustomUtilities.StopEffect(item);
-			} else if (yawAmount < 0) {
-				foreach (var item in YawClockwiseParticles)
-					CustomUtilities.StopEffect(item);
-				foreach (var item in YawCounterClockwiseParticles)
-					CustomUtilities.StartEffect(item);
-			} else {
-				foreach (var item in YawClockwiseParticles)
-					CustomUtilities.StopEffect(item);
-				foreach (var item in YawCounterClockwiseParticles)
-					CustomUtilities.StopEffect(item);
-			}
-
-			rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+			foreach (var item in YawClockwiseParticles)
+				CustomUtilities.StopEffect(item);
+			foreach (var item in YawCounterClockwiseParticles)
+				CustomUtilities.StopEffect(item);
 		}
 
-		oldYawBuffer = yawBuffer;
+		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+
 	}
 
 	private void Pitch(float dt) {
