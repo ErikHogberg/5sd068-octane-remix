@@ -154,39 +154,39 @@ public class SteeringScript : MonoBehaviour {
 
 	public Transform CustomCenterOfMass;
 
-	[Space]
+	// [Space]
 
-	[Tooltip("Trail renderers that will be turned on or off with boost")]
-	public List<TrailRenderer> BoostTrails;
-	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
-		get {
-			if (BoostTrails.Any())
-				return BoostTrails[0].emitting;
-			return false;
-		}
-		set {
-			foreach (TrailRenderer boostTrail in BoostTrails)
-				boostTrail.emitting = value;
-		}
-	}
+	// [Tooltip("Trail renderers that will be turned on or off with boost")]
+	// public List<TrailRenderer> BoostTrails;
+	// private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
+	// 	get {
+	// 		if (BoostTrails.Any())
+	// 			return BoostTrails[0].emitting;
+	// 		return false;
+	// 	}
+	// 	set {
+	// 		foreach (TrailRenderer boostTrail in BoostTrails)
+	// 			boostTrail.emitting = value;
+	// 	}
+	// }
 
-	[Tooltip("Particle systems that will be turned on or off with boost")]
-	public List<ParticleSystem> BoostParticles;
+	// [Tooltip("Particle systems that will be turned on or off with boost")]
+	// public List<ParticleSystem> BoostParticles;
 
-	[Space]
+	// [Space]
 
-	[Tooltip("Trail renderers that will be turned on or off with drift")]
-	public List<TrailRenderer> DriftTrails;
+	// [Tooltip("Trail renderers that will be turned on or off with drift")]
+	// public List<TrailRenderer> DriftTrails;
 
-	[Tooltip("Particle systems that will be turned on or off with drift")]
-	public List<ParticleSystem> DriftParticles;
+	// [Tooltip("Particle systems that will be turned on or off with drift")]
+	// public List<ParticleSystem> DriftParticles;
 
-	[Space]
+	// [Space]
 
-	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
-	public List<ParticleSystem> YawClockwiseParticles;
-	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
-	public List<ParticleSystem> YawCounterClockwiseParticles;
+	// [Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
+	// public List<ParticleSystem> YawClockwiseParticles;
+	// [Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
+	// public List<ParticleSystem> YawCounterClockwiseParticles;
 
 
 	[Header("Required objects")]
@@ -226,6 +226,9 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
+	private SurfaceDetectionScript effects;
+
+
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
@@ -250,6 +253,8 @@ public class SteeringScript : MonoBehaviour {
 	void Awake() {
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
+
+		effects = GetComponent<SurfaceDetectionScript>();
 	}
 
 	void OnEnable() {
@@ -364,10 +369,13 @@ public class SteeringScript : MonoBehaviour {
 		drifting = true;
 
 		// TODO: only enable trails for wheels that touch ground
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = true;
-		foreach (ParticleSystem driftPS in DriftParticles)
-			CustomUtilities.StartEffect(driftPS);
+		// foreach (TrailRenderer driftTrail in DriftTrails)
+		// 	driftTrail.emitting = true;
+		// foreach (ParticleSystem driftPS in DriftParticles)
+		// 	CustomUtilities.StartEffect(driftPS);
+		if (effects)
+			effects.StartDrift();
+
 
 		SetDebugUIText(11, "true");
 	}
@@ -375,10 +383,13 @@ public class SteeringScript : MonoBehaviour {
 	private void StopDrift() {
 		drifting = false;
 
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = false;
-		foreach (ParticleSystem driftPS in DriftParticles)
-			CustomUtilities.StopEffect(driftPS);
+		// foreach (TrailRenderer driftTrail in DriftTrails)
+		// 	driftTrail.emitting = false;
+		// foreach (ParticleSystem driftPS in DriftParticles)
+		// 	CustomUtilities.StopEffect(driftPS);
+
+		if (effects)
+			effects.StopDrift();
 
 		SetDebugUIText(11, "false");
 	}
@@ -759,25 +770,21 @@ public class SteeringScript : MonoBehaviour {
 
 
 		float yawAmount = YawSpeed * yawBuffer * dt;
+		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+
+		if (!effects)
+			return;
 
 		if (yawAmount > 0) {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StartEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StopEffect(item);
+			effects.StartClockwiseYaw();
+			effects.StopCounterClockwiseYaw();
 		} else if (yawAmount < 0) {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StopEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StartEffect(item);
+			effects.StopClockwiseYaw();
+			effects.StartCounterClockwiseYaw();
 		} else {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StopEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StopEffect(item);
+			effects.StopClockwiseYaw();
+			effects.StopCounterClockwiseYaw();
 		}
-
-		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 
 	}
 
@@ -836,9 +843,12 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		IsBoostTrailEmitting = true;
-		foreach (ParticleSystem boostPS in BoostParticles)
-			CustomUtilities.StartEffect(boostPS);
+		// IsBoostTrailEmitting = true;
+		// foreach (ParticleSystem boostPS in BoostParticles)
+		// 	CustomUtilities.StartEffect(boostPS);
+		if (effects) 
+			effects.StartBoost();
+		
 
 		AddBoost(-BoostConsumptionRate * dt);
 
@@ -874,10 +884,13 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopBoost() {
-		IsBoostTrailEmitting = false;
-		foreach (ParticleSystem boostPS in BoostParticles)
-			CustomUtilities.StopEffect(boostPS);
+		// IsBoostTrailEmitting = false;
+		// foreach (ParticleSystem boostPS in BoostParticles)
+			// CustomUtilities.StopEffect(boostPS);
 
+		if (effects)
+			effects.StopBoost();
+			
 		boosting = false;
 	}
 
