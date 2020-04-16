@@ -11,12 +11,6 @@ public class LaserCollision : MonoBehaviour
 
     }
 
-	private void OnTriggerEnter(Collider other)
-    {
-		wheel.LogHit();
-		
-	}
-
 	private void OnTriggerEnter(Collider other) {
 		wheel.LogHit();
 
