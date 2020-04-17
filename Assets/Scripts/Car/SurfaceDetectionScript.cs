@@ -64,7 +64,7 @@ public class SurfaceDetectionScript : MonoBehaviour {
 		}
 	}
 	private void EnableEffect(IEnumerable<EnvironmentEffectCollection> effects, string tag) {
-		EnableEffect(effects.Where(e => e.EnvironmentTag == tag));
+		EnableEffect(effects.Where(e => e.EnvironmentTag == tag || e.EnvironmentTag == ""));
 	}
 
 	private void DisableEffect(IEnumerable<EnvironmentEffectCollection> effects) {
@@ -131,7 +131,7 @@ public class SurfaceDetectionScript : MonoBehaviour {
 	}
 
 	private void DisableAllEffects() {
-		EnableAllEffects(currentTag);
+		DisableAllEffects(currentTag);
 	}
 
 	private void OnTriggerEnter(Collider other) {
@@ -165,61 +165,55 @@ public class SurfaceDetectionScript : MonoBehaviour {
 	}
 
 	public void StartDrift() {
-		if (drifting)
-			return;
-
 		drifting = true;
-
 		EnableEffect(DriftEffects, currentTag);
-
 	}
 
 	public void StopDrift() {
-		// if (!drifting)
-			// return;
-
 		drifting = false;
-
+		DisableEffect(DriftEffects, currentTag);
 	}
 
 	public void StartBoost() {
-
+		boosting = true;
+		EnableEffect(BoostEffects, currentTag);
 	}
 
 	public void StopBoost() {
-
+		boosting = false;
+		DisableEffect(BoostEffects, currentTag);
 	}
 
 
 	public void StartClockwiseYaw() {
-		EnableEffect(ClockwiseYawEffects);
+		EnableEffect(ClockwiseYawEffects, currentTag);
 		StopCounterClockwiseYaw();
 		YawDir = RotationAxisDirection.Clockwise;
 	}
 
 	public void StopClockwiseYaw() {
-		DisableEffect(ClockwiseYawEffects);
+		DisableEffect(ClockwiseYawEffects, currentTag);
 		YawDir = RotationAxisDirection.None;
 	}
 
 	public void StartCounterClockwiseYaw() {
-		EnableEffect(ClockwiseYawEffects);
+		EnableEffect(CounterClockwiseYawEffects, currentTag);
 		StopClockwiseYaw();
 		YawDir = RotationAxisDirection.CounterClockwise;
 	}
 
 	public void StopCounterClockwiseYaw() {
-		DisableEffect(CounterClockwiseYawEffects);
+		DisableEffect(CounterClockwiseYawEffects, currentTag);
 		YawDir = RotationAxisDirection.None;
 	}
 
 	public void UpdateSpeed(float sqrVelocity) {
 		if (sqrVelocity > SpeedEffectThreshold * SpeedEffectThreshold) {
 			drivingFast = true;
-			EnableEffect(SpeedEffects);
+			EnableEffect(SpeedEffects, currentTag);
 		} else {
 			drivingFast = false;
-			DisableEffect(SpeedEffects);
+			DisableEffect(SpeedEffects, currentTag);
 		}
 	}
 
