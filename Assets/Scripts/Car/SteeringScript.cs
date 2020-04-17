@@ -253,8 +253,9 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		// if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
+		bool wasTouchingGround = touchingGround;
 		touchingGround = CheckIfTouchingGround();
+
 
 		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
@@ -279,6 +280,12 @@ public class SteeringScript : MonoBehaviour {
 		ApplyAnimations();
 
 		Drift(dt);
+
+		if (effects) {
+			effects.UpdateSpeed(rb.velocity.sqrMagnitude);
+			if (touchingGround != wasTouchingGround)
+				effects.SetTouchingGround(touchingGround);
+		}
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -357,7 +364,7 @@ public class SteeringScript : MonoBehaviour {
 
 			if (rb.velocity.sqrMagnitude > AbsoluteVelocityCap * AbsoluteVelocityCap)
 				rb.velocity = Vector3.Normalize(rb.velocity) * AbsoluteVelocityCap;
-				
+
 		}
 	}
 
@@ -767,7 +774,6 @@ public class SteeringScript : MonoBehaviour {
 	#region Yaw, Pitch
 
 	private void Yaw(float dt) {
-
 
 		float yawAmount = YawSpeed * yawBuffer * dt;
 		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);

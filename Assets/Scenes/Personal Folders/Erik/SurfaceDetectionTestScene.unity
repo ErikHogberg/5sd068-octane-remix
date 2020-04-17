@@ -15319,30 +15319,33 @@ MonoBehaviour:
   DriftEffects:
   - EnvironmentTag: SnowGround
     particles: []
-    trails: []
+    trails:
+    - {fileID: 2062496839}
+    - {fileID: 2062496838}
+    - {fileID: 2062496837}
+    - {fileID: 2062496836}
   - EnvironmentTag: SandGround
     particles: []
     trails: []
   BoostEffects:
-  - EnvironmentTag: 
+  - EnvironmentTag: SnowGround
     particles: []
-    trails: []
-  - EnvironmentTag: 
-    particles: []
+    trails:
+    - {fileID: 2062496840}
+  - EnvironmentTag: SandGround
+    particles:
+    - {fileID: 1139171846}
+    - {fileID: 426283108}
     trails: []
   ClockwiseYawEffects:
   - EnvironmentTag: 
-    particles: []
-    trails: []
-  - EnvironmentTag: 
-    particles: []
+    particles:
+    - {fileID: 2062496835}
     trails: []
   CounterClockwiseYawEffects:
   - EnvironmentTag: 
-    particles: []
-    trails: []
-  - EnvironmentTag: 
-    particles: []
+    particles:
+    - {fileID: 2062496834}
     trails: []
   SpeedEffectThreshold: 1
   SpeedEffects:
@@ -15353,6 +15356,48 @@ MonoBehaviour:
 --- !u!4 &2062496833 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7555300253568805883, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2062496834 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 987692834934165362, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2062496835 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8127573870186229930, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &2062496836 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 9115013771608624977, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &2062496837 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 4506600581941852965, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &2062496838 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 8003444701130503926, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &2062496839 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 4557303090214767840, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &2062496840 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 6803615517072498511, guid: 7c90647cdac3b7b4e8817262c7f59e05,
     type: 3}
   m_PrefabInstance: {fileID: 2062496830}
   m_PrefabAsset: {fileID: 0}
