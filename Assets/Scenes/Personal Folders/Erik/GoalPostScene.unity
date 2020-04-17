@@ -5502,6 +5502,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2103010013}
     m_Modifications:
+    - target: {fileID: 987692834934165362, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4149504325498721306, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_IsActive
@@ -5540,7 +5545,47 @@ PrefabInstance:
     - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: BoostSpeed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: EnableNarrowing
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: MaxNarrowingSpeed
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: MaxNarrowingAmount
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: LeftStickRotationWhenInAir
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: UseYawControlWhenDrifting
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: YawSpeed
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: VelocityCapCorrectionSpeed
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AbsoluteVelocityCap
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -5610,6 +5655,11 @@ PrefabInstance:
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8127573870186229930, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
