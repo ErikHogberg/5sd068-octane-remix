@@ -7,24 +7,20 @@ public class UpwardsBoostTriggerScript : MonoBehaviour {
 	public float UpwardsForce = 100;
 	public ForceMode Mode = ForceMode.Acceleration;
 
-	// private void OnCollisionEnter(Collision other) {
+	public bool CorrectFacing = false;
 
-	// }
 
 	private void OnTriggerEnter(Collider other) {
 
-		if (other.tag != "Player") {
-			return;
+		// TODO: dont collide with fliptrigger
+
+		other.attachedRigidbody.AddForce(Vector3.up * UpwardsForce, Mode);
+
+		if (CorrectFacing) {
+			// TODO: set car direction (only along world x) to this objects direction
 		}
 
-		Rigidbody rb = other.GetComponent<Rigidbody>();
-
-		if (rb != null) {
-			rb.AddForce(Vector3.up * UpwardsForce, Mode);
-			print("rb up!");
-		}
-
-		print("up!");
+		// print("up! " + other.name);
 
 	}
 
