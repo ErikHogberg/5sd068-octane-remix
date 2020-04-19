@@ -23,6 +23,7 @@ public class SurfaceDetectionScript : MonoBehaviour {
 	public struct EnvironmentEffectCollection {
 
 		public string EnvironmentTag; // object tags that enable these effects
+		public float StartVelocity;
 		public List<ParticleSystem> particles;
 		public List<TrailRenderer> trails;
 
@@ -41,13 +42,15 @@ public class SurfaceDetectionScript : MonoBehaviour {
 
 	[Tooltip("At what speed the effects start and stop")]
 	public float SpeedEffectThreshold = 1f;
-	public List<EnvironmentEffectCollection> SpeedEffects;
+	public List<EnvironmentEffectCollection> AlwaysOnEffects;
 
 	private string currentTag = ""; // NOTE: only latest environment type touched have their effects enabled
 	private bool drifting = false;
 	private bool boosting = false;
 	private bool touchingGround = false;
-	private bool drivingFast = false;
+	// private bool drivingFast = false;
+
+	private float currentSqrVelocity = 0f;
 
 
 	private RotationAxisDirection YawDir = RotationAxisDirection.None;
@@ -64,7 +67,11 @@ public class SurfaceDetectionScript : MonoBehaviour {
 		}
 	}
 	private void EnableEffect(IEnumerable<EnvironmentEffectCollection> effects, string tag) {
-		EnableEffect(effects.Where(e => e.EnvironmentTag == tag || e.EnvironmentTag == ""));
+		EnableEffect(effects.Where(e =>
+			e.StartVelocity * e.StartVelocity > currentSqrVelocity
+			|| e.EnvironmentTag == tag
+			|| e.EnvironmentTag == ""
+		));
 	}
 
 	private void DisableEffect(IEnumerable<EnvironmentEffectCollection> effects) {
@@ -94,27 +101,24 @@ public class SurfaceDetectionScript : MonoBehaviour {
 	}
 
 	private void EnableAllEffects(string tag) {
-		if (drifting)
-			EnableEffect(DriftEffects, currentTag);
+		if (touchingGround && drifting)
+			EnableEffect(DriftEffects, tag);
 
 		if (boosting)
-			EnableEffect(BoostEffects, currentTag);
-
+			EnableEffect(BoostEffects, tag);
 
 		switch (YawDir) {
 			case RotationAxisDirection.Clockwise:
-				EnableEffect(ClockwiseYawEffects, currentTag);
+				EnableEffect(ClockwiseYawEffects, tag);
 				break;
 			case RotationAxisDirection.CounterClockwise:
-				EnableEffect(CounterClockwiseYawEffects, currentTag);
+				EnableEffect(CounterClockwiseYawEffects, tag);
 				break;
 			case RotationAxisDirection.None:
 				break;
 		}
 
-		if (drivingFast) {
-			EnableEffect(SpeedEffects);
-		}
+		EnableEffect(AlwaysOnEffects);
 
 	}
 
@@ -127,7 +131,7 @@ public class SurfaceDetectionScript : MonoBehaviour {
 		DisableEffect(BoostEffects, currentTag);
 		DisableEffect(ClockwiseYawEffects, currentTag);
 		DisableEffect(CounterClockwiseYawEffects, currentTag);
-		DisableEffect(SpeedEffects, currentTag);
+		DisableEffect(AlwaysOnEffects, currentTag);
 	}
 
 	private void DisableAllEffects() {
@@ -139,8 +143,8 @@ public class SurfaceDetectionScript : MonoBehaviour {
 
 		DisableAllEffects();
 		currentTag = other.tag;
-		if (touchingGround)
-			EnableAllEffects();
+		// if (touchingGround)
+		EnableAllEffects();
 
 	}
 
@@ -208,13 +212,20 @@ public class SurfaceDetectionScript : MonoBehaviour {
 	}
 
 	public void UpdateSpeed(float sqrVelocity) {
-		if (sqrVelocity > SpeedEffectThreshold * SpeedEffectThreshold) {
+
+		currentSqrVelocity = sqrVelocity;
+		// TODO: figure out when to update disabled and enabled effects, dont do it too often
+		// EnableEffect(AlwaysOnEffects, currentTag);
+
+		/*
+		if (sqrVelocity > SpeedffectThreshold * SpeedEffectThreshold) {
 			drivingFast = true;
 			EnableEffect(SpeedEffects, currentTag);
 		} else {
 			drivingFast = false;
 			DisableEffect(SpeedEffects, currentTag);
 		}
+		*/
 	}
 
 }
