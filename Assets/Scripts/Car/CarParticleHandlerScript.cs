@@ -111,11 +111,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		switch (YawDir) {
 			case RotationAxisDirection.Clockwise:
 				EnableEffect(ClockwiseYawEffects, tag);
-				// DisableEffect(CounterClockwiseYawEffects, tag);
 				break;
 			case RotationAxisDirection.CounterClockwise:
 				EnableEffect(CounterClockwiseYawEffects, tag);
-				// DisableEffect(ClockwiseYawEffects, tag);
 				break;
 			case RotationAxisDirection.None:
 				break;
@@ -141,6 +139,40 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		DisableAllEffects(currentTag);
 	}
 
+	public void UpdateSpeed(float sqrVelocity) {
+		if (currentSqrVelocity == sqrVelocity)
+			return;
+
+		dirty = true;
+		currentSqrVelocity = sqrVelocity;
+	}
+
+	public void StartTouchingGround() {
+		if (touchingGround)
+			return;
+
+		StopClockwiseYaw();
+		StopCounterClockwiseYaw();
+
+		dirty = true;
+		touchingGround = true;
+	}
+
+	public void StopTouchingGround() {
+		if (!touchingGround)
+			return;
+
+		dirty = true;
+		touchingGround = false;
+	}
+
+	public void SetTouchingGround(bool value) {
+		if (value)
+			StartTouchingGround();
+		else
+			StopTouchingGround();
+	}
+
 	public void UpdateEffects(float sqrVelocity, bool touchingGround) {
 
 		UpdateSpeed(sqrVelocity);
@@ -159,31 +191,6 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		DisableAllEffects();
 		currentTag = other.tag;
 		EnableAllEffects();
-	}
-
-	public void StartTouchingGround() {
-		if (touchingGround)
-			return;
-
-		dirty = true;
-		touchingGround = true;
-		// EnableAllEffects();
-	}
-
-	public void StopTouchingGround() {
-		if (!touchingGround)
-			return;
-
-		dirty = true;
-		touchingGround = false;
-		// DisableAllEffects();
-	}
-
-	public void SetTouchingGround(bool value) {
-		if (value)
-			StartTouchingGround();
-		else
-			StopTouchingGround();
 	}
 
 	public void StartDrift() {
@@ -222,22 +229,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		DisableEffect(BoostEffects, currentTag);
 	}
 
-
-	public void StartClockwiseYaw() {
-		// EnableEffect(ClockwiseYawEffects, currentTag);
-		StopCounterClockwiseYaw();
-		YawDir = RotationAxisDirection.Clockwise;
-	}
-
 	public void StopClockwiseYaw() {
 		DisableEffect(ClockwiseYawEffects, currentTag);
 		YawDir = RotationAxisDirection.None;
-	}
-
-	public void StartCounterClockwiseYaw() {
-		// EnableEffect(CounterClockwiseYawEffects, currentTag);
-		StopClockwiseYaw();
-		YawDir = RotationAxisDirection.CounterClockwise;
 	}
 
 	public void StopCounterClockwiseYaw() {
@@ -245,14 +239,14 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		YawDir = RotationAxisDirection.None;
 	}
 
-	public void UpdateSpeed(float sqrVelocity) {
+	public void StartClockwiseYaw() {
+		StopCounterClockwiseYaw();
+		YawDir = RotationAxisDirection.Clockwise;
+	}
 
-		if (currentSqrVelocity == sqrVelocity)
-			return;
-
-		dirty = true;
-		currentSqrVelocity = sqrVelocity;
-
+	public void StartCounterClockwiseYaw() {
+		StopClockwiseYaw();
+		YawDir = RotationAxisDirection.CounterClockwise;
 	}
 
 }
