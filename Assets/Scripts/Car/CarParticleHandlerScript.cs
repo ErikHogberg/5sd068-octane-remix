@@ -62,7 +62,7 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	}
 
 	// true if data has changed, and effects should be updated
-	public bool dirty = true;
+	private bool dirty = true;
 
 
 	// TODO: check that performance impact is not awful
