@@ -206,7 +206,7 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
-	private SurfaceDetectionScript effects;
+	private CarParticleHandlerScript effects;
 
 
 	void Start() {
@@ -234,7 +234,7 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 
-		effects = GetComponent<SurfaceDetectionScript>();
+		effects = GetComponent<CarParticleHandlerScript>();
 	}
 
 	void OnEnable() {
@@ -253,16 +253,15 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		bool wasTouchingGround = touchingGround;
 		touchingGround = CheckIfTouchingGround();
 
+		float sqrVelocity = rb.velocity.sqrMagnitude;
 
-		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
+		if (EnableDownwardForce && sqrVelocity > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
 			else
 				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
-
 
 		Steer(dt);
 		Gas(dt);
@@ -281,11 +280,8 @@ public class SteeringScript : MonoBehaviour {
 
 		Drift(dt);
 
-		if (effects) {
-			effects.UpdateSpeed(rb.velocity.sqrMagnitude);
-			if (touchingGround != wasTouchingGround)
-				effects.SetTouchingGround(touchingGround);
-		}
+		if (effects)
+			effects.UpdateEffects(sqrVelocity, touchingGround);
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -302,6 +298,7 @@ public class SteeringScript : MonoBehaviour {
 			UpdateUI();
 			updateCount = 0;
 		}
+
 		updateCount++;
 	}
 
@@ -370,36 +367,24 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Drifting
 
-	private void StartDrift() { // NOTE: called every frame
+	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		// TODO: only enable trails for wheels that touch ground
-		// foreach (TrailRenderer driftTrail in DriftTrails)
-		// 	driftTrail.emitting = true;
-		// foreach (ParticleSystem driftPS in DriftParticles)
-		// 	CustomUtilities.StartEffect(driftPS);
+		// TODO: only enable trails for individual wheels that touch ground
 		if (effects)
 			effects.StartDrift();
-
 
 		SetDebugUIText(11, "true");
 	}
 
-	private void StopDrift() {
+	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		drifting = false;
-
-		// foreach (TrailRenderer driftTrail in DriftTrails)
-		// 	driftTrail.emitting = false;
-		// foreach (ParticleSystem driftPS in DriftParticles)
-		// 	CustomUtilities.StopEffect(driftPS);
 
 		if (effects)
 			effects.StopDrift();
 
 		SetDebugUIText(11, "false");
 	}
-
-	// check if drifting
 
 	private float GetDriftAngle() {
 		Vector3 carDir = transform.forward;
