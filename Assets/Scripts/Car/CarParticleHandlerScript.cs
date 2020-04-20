@@ -151,6 +151,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		if (touchingGround)
 			return;
 
+		StopClockwiseYaw();
+		StopCounterClockwiseYaw();
+
 		dirty = true;
 		touchingGround = true;
 	}

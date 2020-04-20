@@ -11,6 +11,10 @@ public class BoostPadScript : MonoBehaviour {
 	[Tooltip("If the car should be rotated to face the direction of the boost pad")]
 	public bool SetDirection = false;
 
+	// TODO: option to either ignore or allow setting or adding speed values that would result in a lower speed
+	// IDEA: if not allowed, interpret value as inverting direction
+	// public bool AllowRemovingSpeed = false;
+
 	private void OnTriggerEnter(Collider other) {
 		var rb = other.attachedRigidbody; //.GetComponent<Rigidbody>();
 
@@ -24,7 +28,7 @@ public class BoostPadScript : MonoBehaviour {
 
 		if (AddSpeed)
 			rb.velocity += Vector3.Normalize(rb.velocity) * Speed;
-		else if (rb.velocity.sqrMagnitude < Speed * Speed)
+		else //if (rb.velocity.sqrMagnitude < Speed * Speed)
 			rb.velocity = Vector3.Normalize(rb.velocity) * Speed;
 
 	}
