@@ -206,7 +206,7 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
-	private SurfaceDetectionScript effects;
+	private CarParticleHandlerScript effects;
 
 
 	void Start() {
@@ -234,7 +234,7 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 
-		effects = GetComponent<SurfaceDetectionScript>();
+		effects = GetComponent<CarParticleHandlerScript>();
 	}
 
 	void OnEnable() {

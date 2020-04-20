@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts;
 
-public class SurfaceDetectionScript : MonoBehaviour {
+public class CarParticleHandlerScript : MonoBehaviour {
 
 	// public static SurfaceDetectionScript MainInstance;
 
