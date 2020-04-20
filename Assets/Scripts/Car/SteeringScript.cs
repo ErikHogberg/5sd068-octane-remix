@@ -725,6 +725,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Jumping, Hopping
 	private void ApplyJump() {
+
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			JointSpring spring = frontWheelCollider.suspensionSpring;
 			spring.spring = springInit * (1f - jumpBuffer);
@@ -736,7 +737,6 @@ public class SteeringScript : MonoBehaviour {
 			spring.spring = springInit * (1f - jumpBuffer);
 			rearWheelCollider.suspensionSpring = spring;
 		}
-
 
 	}
 
@@ -767,8 +767,8 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		if (yawAmount > 0) {
-			effects.StartClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
+			effects.StartClockwiseYaw();
 		} else if (yawAmount < 0) {
 			effects.StopClockwiseYaw();
 			effects.StartCounterClockwiseYaw();
@@ -836,12 +836,8 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		// IsBoostTrailEmitting = true;
-		// foreach (ParticleSystem boostPS in BoostParticles)
-		// 	CustomUtilities.StartEffect(boostPS);
 		if (effects)
 			effects.StartBoost();
-
 
 		AddBoost(-BoostConsumptionRate * dt);
 
@@ -877,9 +873,6 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopBoost() {
-		// IsBoostTrailEmitting = false;
-		// foreach (ParticleSystem boostPS in BoostParticles)
-		// CustomUtilities.StopEffect(boostPS);
 
 		if (effects)
 			effects.StopBoost();

@@ -2479,26 +2479,41 @@ PrefabInstance:
     - target: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: lengthInSec
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
-        type: 3}
-      propertyPath: InitialModule.startLifetime.scalar
       value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
-        type: 3}
-      propertyPath: moveWithTransform
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: ShapeModule.alignToDirection
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: DriftEffects.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[0].particles.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[1].particles.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: BoostEffects.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
@@ -2509,12 +2524,57 @@ PrefabInstance:
     - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: BoostEffects.Array.data[0].EnvironmentTag
-      value: SandGround
+      value: SnowGround
       objectReference: {fileID: 0}
     - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: BoostEffects.Array.data[1].EnvironmentTag
       value: SnowGround
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[1].EnvironmentTag
+      value: SandGround
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[1].particles.Array.data[0]
+      value: 
+      objectReference: {fileID: 2062496832}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[1].particles.Array.data[1]
+      value: 
+      objectReference: {fileID: 2062496831}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[0].particles.Array.data[0]
+      value: 
+      objectReference: {fileID: 2062496833}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[0].StartVelocity
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: AlwaysOnEffects.Array.data[1].StartVelocity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: CounterClockwiseYawEffects.Array.data[0].StartVelocity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3773654361513871976, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: ClockwiseYawEffects.Array.data[0].StartVelocity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504325620817829, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: BoostSpeed
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 4149504325620817830, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -2578,3 +2638,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c90647cdac3b7b4e8817262c7f59e05, type: 3}
+--- !u!198 &2062496831 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2021081878957817884, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2062496832 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3000179550410760841, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2062496833 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3526632819851207546, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+    type: 3}
+  m_PrefabInstance: {fileID: 2062496830}
+  m_PrefabAsset: {fileID: 0}
