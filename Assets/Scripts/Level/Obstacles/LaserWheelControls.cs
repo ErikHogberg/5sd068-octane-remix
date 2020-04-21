@@ -66,11 +66,6 @@ public class LaserWheelControls : MonoBehaviour
 		} else { Debug.Log("LaserWheelControls: No items in either LaserBeams list or LaserColliders list"); }
 	}
 
-	public void LogHit()
-    {
-		Debug.Log("Laser Hit!");
-    }
-
 	public void FixedUpdate()
     {
 		if (rotationActive)
