@@ -8,11 +8,9 @@ public class LaserCollision : MonoBehaviour
 
 	void Start() {
 		wheel = transform.parent.GetComponent<LaserWheelControls>();
-
     }
 
 	private void OnTriggerEnter(Collider other) {
-		wheel.LogHit();
-
+		Debug.Log("Laser hit! " + other.transform.name);
 	}
 }
