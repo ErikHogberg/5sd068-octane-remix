@@ -30,12 +30,6 @@ public class SawControls : MonoBehaviour
 		sawBlade.transform.Rotate(0f, rotate, 0f, Space.Self);
 	}
 
-	public void LogHit()
-    {
-		Debug.Log("Saw hit!");
-    }
-
-
 
 	public void StartRotating() {
 		if (!start_stop_coroutine_running)

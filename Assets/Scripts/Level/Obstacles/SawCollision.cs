@@ -14,7 +14,7 @@ public class SawCollision : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		saw.LogHit();
+		Debug.Log("Saw hit! " + other.transform.name);
 
 	}
 }
