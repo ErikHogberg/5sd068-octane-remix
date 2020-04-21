@@ -41,10 +41,11 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Reduces the max steering angle as the car speeds up, reaching its narrowest angle at this speed")]
 	[Min(0)]
 	public float MaxNarrowingSpeed = 100;
+
+	[Range(0, 1)]
+	public float MaxNarrowingAmount = 0.05f;
 	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
 	public AnimationCurve SteeringNarrowingCurve;
-	[Tooltip("Offsets the car's center of mass by this vector3")]
-	public Vector3 CenterOfMassOffset;
 
 	[Header("Gas")]
 	public float GasSpeed = 100f;
@@ -89,6 +90,9 @@ public class SteeringScript : MonoBehaviour {
 	public bool UseRelativeDownwardForce = true;
 
 	[Header("In-air controls")]
+
+	public bool LeftStickRotationWhenInAir = false;
+
 	public float YawSpeed = 200f;
 
 	public AnimationCurve YawInputCurve;
@@ -123,8 +127,16 @@ public class SteeringScript : MonoBehaviour {
 	public bool CapVelocity = true;
 	public float VelocityCap = 20f;
 	public float BoostVelocityCap = 30f;
+	[Min(0)]
+	public float VelocityCapCorrectionSpeed = 1f;
+
+	[Tooltip("Immediate velocity cap, does not use correction speed, car never goes above this speed (except for the speed gained last frame)")]
+	public float AbsoluteVelocityCap = 200f;
 
 	[Header("Drifting")]
+
+	[Tooltip("Change the left stick to rotate instead of steer when the player drifts, as if holding left bumper")]
+	public bool UseYawControlWhenDrifting = false;
 
 	[Tooltip("Prerequisite delta angle at which drifting starts")]
 	[Range(0, 180)]
@@ -149,45 +161,6 @@ public class SteeringScript : MonoBehaviour {
 
 
 	#region object refs and input bindings
-
-	[Header("Optional objects")]
-
-	public Transform CustomCenterOfMass;
-
-	[Space]
-
-	[Tooltip("Trail renderers that will be turned on or off with boost")]
-	public List<TrailRenderer> BoostTrails;
-	private bool IsBoostTrailEmitting { // NOTE: pretty useless accessor compared to bloat created, but useful as an example of simplifying the API using accessors
-		get {
-			if (BoostTrails.Any())
-				return BoostTrails[0].emitting;
-			return false;
-		}
-		set {
-			foreach (TrailRenderer boostTrail in BoostTrails)
-				boostTrail.emitting = value;
-		}
-	}
-
-	[Tooltip("Particle systems that will be turned on or off with boost")]
-	public List<ParticleSystem> BoostParticles;
-
-	[Space]
-
-	[Tooltip("Trail renderers that will be turned on or off with drift")]
-	public List<TrailRenderer> DriftTrails;
-
-	[Tooltip("Particle systems that will be turned on or off with drift")]
-	public List<ParticleSystem> DriftParticles;
-
-	[Space]
-
-	[Tooltip("Particle systems that will be turned on or off when turning right using the right stick")]
-	public List<ParticleSystem> YawClockwiseParticles;
-	[Tooltip("Particle systems that will be turned on or off when turning left using the right stick")]
-	public List<ParticleSystem> YawCounterClockwiseParticles;
-
 
 	[Header("Required objects")]
 
@@ -226,13 +199,11 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
+	private CarParticleHandlerScript effects;
+
+
 	void Start() {
 		rb = GetComponent<Rigidbody>();
-
-		if (CustomCenterOfMass != null) {
-			rb.centerOfMass = CustomCenterOfMass.position - transform.position;
-		}
-		rb.centerOfMass += CenterOfMassOffset;
 
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
@@ -241,15 +212,13 @@ public class SteeringScript : MonoBehaviour {
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
 
-		// TODO: camera that follows car behind position, not locked to car orientation
-		// IDEA: have camera as child, reparent to parent of car on start
-		// IDEA: use physics joints for camera arm
-
 	}
 
 	void Awake() {
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
+
+		effects = GetComponent<CarParticleHandlerScript>();
 	}
 
 	void OnEnable() {
@@ -268,15 +237,15 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
-		// if (GroundCheckRays.Any()) // NOTE: always touching ground if there are no rays assigned in the editor
 		touchingGround = CheckIfTouchingGround();
 
-		if (EnableDownwardForce && rb.velocity.sqrMagnitude > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
+		float sqrVelocity = rb.velocity.sqrMagnitude;
+
+		if (EnableDownwardForce && sqrVelocity > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
 			else
 				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
-
 
 		Steer(dt);
 		Gas(dt);
@@ -290,10 +259,13 @@ public class SteeringScript : MonoBehaviour {
 
 		Jump(dt);
 
-		ApplyVelocityCap();
+		ApplyVelocityCap(dt);
 		ApplyAnimations();
 
 		Drift(dt);
+
+		if (effects)
+			effects.UpdateEffects(sqrVelocity, touchingGround);
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -310,6 +282,7 @@ public class SteeringScript : MonoBehaviour {
 			UpdateUI();
 			updateCount = 0;
 		}
+
 		updateCount++;
 	}
 
@@ -346,44 +319,56 @@ public class SteeringScript : MonoBehaviour {
 	}
 	#endregion
 
-	private void ApplyVelocityCap() {
+	private void ApplyVelocityCap(float dt) {
 		if (CapVelocity) {
 			if (boosting) {
-				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap)
-					rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
+				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap) {
+					// rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
+					rb.velocity = Vector3.MoveTowards(
+						rb.velocity,
+						Vector3.Normalize(rb.velocity) * BoostVelocityCap,
+						VelocityCapCorrectionSpeed * dt
+					);
+
+				}
+
 			} else {
-				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap)
-					rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
+				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
+					// rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
+					rb.velocity = Vector3.MoveTowards(
+						rb.velocity,
+						Vector3.Normalize(rb.velocity) * VelocityCap,
+						VelocityCapCorrectionSpeed * dt
+					);
+				}
 			}
+
+			if (rb.velocity.sqrMagnitude > AbsoluteVelocityCap * AbsoluteVelocityCap)
+				rb.velocity = Vector3.Normalize(rb.velocity) * AbsoluteVelocityCap;
+
 		}
 	}
 
 	#region Drifting
 
-	private void StartDrift() { // NOTE: called every frame
+	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		// TODO: only enable trails for wheels that touch ground
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = true;
-		foreach (ParticleSystem driftPS in DriftParticles)
-			CustomUtilities.StartEffect(driftPS);
+		// TODO: only enable trails for individual wheels that touch ground
+		if (effects)
+			effects.StartDrift();
 
 		SetDebugUIText(11, "true");
 	}
 
-	private void StopDrift() {
+	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		drifting = false;
 
-		foreach (TrailRenderer driftTrail in DriftTrails)
-			driftTrail.emitting = false;
-		foreach (ParticleSystem driftPS in DriftParticles)
-			CustomUtilities.StopEffect(driftPS);
+		if (effects)
+			effects.StopDrift();
 
 		SetDebugUIText(11, "false");
 	}
-
-	// check if drifting
 
 	private float GetDriftAngle() {
 		Vector3 carDir = transform.forward;
@@ -544,10 +529,12 @@ public class SteeringScript : MonoBehaviour {
 			SetDebugUIText(10, "1.00");
 		} else {
 			float speedProgress = 1f;
-			if (sqrVelocity < sqrMaxNarrowingSpeed)
-				speedProgress -= sqrVelocity / sqrMaxNarrowingSpeed;
+
+			// if (sqrVelocity < sqrMaxNarrowingSpeed)
+			speedProgress -= sqrVelocity / sqrMaxNarrowingSpeed;
 
 			narrowing = SteeringNarrowingCurve.Evaluate(speedProgress);
+			narrowing = MaxNarrowingAmount + narrowing * (1f - MaxNarrowingAmount);
 			SetDebugUIText(10, speedProgress.ToString("F2"));
 		}
 
@@ -722,6 +709,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Jumping, Hopping
 	private void ApplyJump() {
+
 		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 			JointSpring spring = frontWheelCollider.suspensionSpring;
 			spring.spring = springInit * (1f - jumpBuffer);
@@ -733,7 +721,6 @@ public class SteeringScript : MonoBehaviour {
 			spring.spring = springInit * (1f - jumpBuffer);
 			rearWheelCollider.suspensionSpring = spring;
 		}
-
 
 	}
 
@@ -757,27 +744,22 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Yaw(float dt) {
 
-
 		float yawAmount = YawSpeed * yawBuffer * dt;
+		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
+
+		if (!effects)
+			return;
 
 		if (yawAmount > 0) {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StartEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StopEffect(item);
+			effects.StopCounterClockwiseYaw();
+			effects.StartClockwiseYaw();
 		} else if (yawAmount < 0) {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StopEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StartEffect(item);
+			effects.StopClockwiseYaw();
+			effects.StartCounterClockwiseYaw();
 		} else {
-			foreach (var item in YawClockwiseParticles)
-				CustomUtilities.StopEffect(item);
-			foreach (var item in YawCounterClockwiseParticles)
-				CustomUtilities.StopEffect(item);
+			effects.StopClockwiseYaw();
+			effects.StopCounterClockwiseYaw();
 		}
-
-		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 
 	}
 
@@ -798,13 +780,15 @@ public class SteeringScript : MonoBehaviour {
 
 
 	private void SetLeftYaw(CallbackContext c) {
-		if (leftStickRotationEnabled) {
+		if (leftStickRotationEnabled || (LeftStickRotationWhenInAir && !touchingGround) || (UseYawControlWhenDrifting && drifting)) {
 			float input = c.ReadValue<float>();
 			yawBuffer = SteeringCurve.EvaluateMirrored(input);
+			// TODO: reset yaw buffer when touching ground again or drifting
+			// IDEA: separate buffer for left stick? check bools in update?
 		}
 	}
 	private void SetLeftPitch(CallbackContext c) {
-		if (leftStickRotationEnabled) {
+		if (leftStickRotationEnabled || (LeftStickRotationWhenInAir && !touchingGround)) {
 			float input = c.ReadValue<float>();
 			pitchBuffer = SteeringCurve.EvaluateMirrored(input);
 		}
@@ -836,9 +820,8 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		IsBoostTrailEmitting = true;
-		foreach (ParticleSystem boostPS in BoostParticles)
-			CustomUtilities.StartEffect(boostPS);
+		if (effects)
+			effects.StartBoost();
 
 		AddBoost(-BoostConsumptionRate * dt);
 
@@ -874,9 +857,9 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopBoost() {
-		IsBoostTrailEmitting = false;
-		foreach (ParticleSystem boostPS in BoostParticles)
-			CustomUtilities.StopEffect(boostPS);
+
+		if (effects)
+			effects.StopBoost();
 
 		boosting = false;
 	}
