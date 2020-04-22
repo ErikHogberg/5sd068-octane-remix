@@ -143,6 +143,8 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		if (currentSqrVelocity == sqrVelocity)
 			return;
 
+		// IDEA: use its own rigidbody reference, update itself instead, only call action changes from other script instead of every frame
+
 		dirty = true;
 		currentSqrVelocity = sqrVelocity;
 	}
