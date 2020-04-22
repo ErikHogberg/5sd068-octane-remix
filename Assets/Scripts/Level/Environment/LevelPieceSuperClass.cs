@@ -1,0 +1,39 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class LevelPieceSuperClass : MonoBehaviour {
+
+	public static List<LevelPieceSuperClass> Pieces = new List<LevelPieceSuperClass>();
+
+	// TODO: register pieces globally
+	// TODO: manipulate registered pieces in UI
+
+	// TODO: comfortable way to reference obstacles avalable for placement
+	// IDEA: obstacle registry, similar to list of sound effects with settings
+
+	// IDEA: empty level segment type for optional spots for adding roads
+	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
+
+	// IDEA: option to disallow placing obstacles on segment
+
+
+	private void Awake() {
+		Pieces.Add(this);
+	}
+
+	private void OnMouseDown() {
+
+		print("clicked " + gameObject.name);
+
+		if (Input.GetMouseButtonDown(0)) {
+			RemixMapScript.SelectSegment(this);
+		} else if (Input.GetMouseButtonDown(1)) {
+			RemixMapScript.StartRotate();
+		}
+
+
+	}
+
+
+}
