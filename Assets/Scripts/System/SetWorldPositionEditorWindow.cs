@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-class SetWorldEditorWindow : EditorWindow {
+class MoveToObject : EditorWindow {
 
 	Transform target;
 
@@ -12,7 +12,7 @@ class SetWorldEditorWindow : EditorWindow {
 
 	[MenuItem("Window/Set world position to other")]
 	public static void ShowWindow() {
-		EditorWindow.GetWindow(typeof(SetWorldEditorWindow));
+		EditorWindow.GetWindow(typeof(MoveToObject));
 	}
 
 	void OnGUI() {
