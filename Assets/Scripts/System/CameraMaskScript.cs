@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class CameraMaskScript : MonoBehaviour {
 
-	public static CameraMaskScript MainInstance;
+	private static CameraMaskScript mainInstance;
 	// IDEA: camera list for splitscreen, etc.
 
 	[Serializable]
@@ -17,26 +17,38 @@ public class CameraMaskScript : MonoBehaviour {
 
 	public List<CameraMaskTableRow> CameraMaskTable;
 
-    private LayerMask defaultMask;
+	private LayerMask defaultMask;
 
-    private Camera attachedCamera;
+	private Camera attachedCamera;
 
-    private void Awake() {
-        attachedCamera = GetComponent<Camera>();
-        defaultMask = attachedCamera.cullingMask;
-        // IDEA: set event mask too?
-    }
+	private void Awake() {
+		mainInstance = this;
+
+		attachedCamera = GetComponent<Camera>();
+		defaultMask = attachedCamera.cullingMask;
+		// IDEA: set event mask too?
+	}
+
+	private void OnDestroy() {
+		mainInstance = null;
+	}
 
 	public bool SetMask(string key) {
 		foreach (var maskRow in CameraMaskTable) {
 			if (maskRow.ID == key) {
-                
-                return true;
+				attachedCamera.cullingMask = maskRow.CameraMask;
+				return true;
 			}
 		}
 
 		return false;
 	}
 
+	public static bool SetMaskStatic(string key) {
+		if (mainInstance == null)
+			return false;
+
+		return mainInstance.SetMask(key);
+	}
 
 }
