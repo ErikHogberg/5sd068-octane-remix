@@ -16,19 +16,27 @@ class SetWorldEditorWindow : EditorWindow {
 	}
 
 	void OnGUI() {
-		GUILayout.Label("Move", EditorStyles.boldLabel);
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("Target:");
 		target = (Transform)EditorGUILayout.ObjectField(target, typeof(Transform), true);
+		GUILayout.EndHorizontal();
 
 		rotate = EditorGUILayout.Toggle("Also rotate?", rotate);
 		rotationOffset = EditorGUILayout.Vector3Field("Rotation offset", rotationOffset);
 
-		if (GUILayout.Button("Move to selection")) {
-			MoveTransformToSelected();
+		GUILayout.Space(16);
+
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("Move selection to target",GUILayout.Width(165), GUILayout.Height(32))) {
+			MoveSelectedToTarget();
 		}
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 
 	}
 
-	void MoveTransformToSelected() {
+	void MoveSelectedToTarget() {
 		var selected = Selection.activeGameObject;
 
 		if (!selected) {
@@ -41,9 +49,7 @@ class SetWorldEditorWindow : EditorWindow {
 			return;
 		}
 
-
 		Undo.RecordObject(selected.transform, "Moved object using custom tool");
-		// Undo.RegisterCompleteObjectUndo(selected.transform, "Moved object using custom tool");
 		selected.transform.position = target.position;
 		if (rotate)
 			selected.transform.rotation = target.rotation * Quaternion.Euler(rotationOffset);
