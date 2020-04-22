@@ -530,6 +530,7 @@ GameObject:
   - component: {fileID: 703433973}
   - component: {fileID: 703433972}
   - component: {fileID: 703433975}
+  - component: {fileID: 703433976}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -706,6 +707,19 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
+--- !u!114 &703433976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703433971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b85ebb84eebe444bfb6ed5f6e65828, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CameraMaskTable: []
 --- !u!1 &726897887
 GameObject:
   m_ObjectHideFlags: 0
@@ -838,7 +852,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897677248}
   m_LocalRotation: {x: 0.70710677, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 112.4, z: 0}
+  m_LocalPosition: {x: 0, y: 45.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1247186599}
@@ -971,8 +985,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 100
-  far clip plane: 300
+  near clip plane: 1
+  far clip plane: 100
   field of view: 60
   orthographic: 1
   orthographic size: 75
@@ -1118,6 +1132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1247186599}
+  - component: {fileID: 1247186600}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -1143,6 +1158,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1247186600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247186598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89bd5412d4b4e444098d4ef95204fa8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1253960139
 GameObject:
   m_ObjectHideFlags: 0
