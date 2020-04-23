@@ -558,6 +558,8 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(1, input.ToString("F2"));
 	}
 
+	public float GetSteering() { return steeringBuffer; }
+
 	#endregion
 
 	#region Gas
@@ -760,7 +762,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
 		}
-
+		
 	}
 
 	private void Pitch(float dt) {
@@ -773,6 +775,8 @@ public class SteeringScript : MonoBehaviour {
 		float input = c.ReadValue<float>();
 		yawBuffer = SteeringCurve.EvaluateMirrored(input);
 	}
+	public float GetYaw() { return yawBuffer; }
+
 	private void SetPitch(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
