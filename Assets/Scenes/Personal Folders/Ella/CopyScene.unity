@@ -775,6 +775,41 @@ PrefabInstance:
       propertyPath: far clip plane
       value: 2000
       objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: velocityToLag.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: carSteeringAdaptation
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: rotationSpeedThreshold
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: velocityToLag.m_Curve.Array.data[0].inSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: velocityToLag.m_Curve.Array.data[0].outSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: velocityToLag.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4149504324086808233, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: velocityToLag.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4149504324086808235, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_Layer
@@ -1130,20 +1165,25 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 14
       objectReference: {fileID: 0}
+    - target: {fileID: 6497391756726880495, guid: 7c90647cdac3b7b4e8817262c7f59e05,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -19.049072
+      value: -18.84
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.870026
+      value: 6.26
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.2402577
+      value: -12.05
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -1153,7 +1193,7 @@ PrefabInstance:
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.6778988
+      value: 0.70710707
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -1163,7 +1203,7 @@ PrefabInstance:
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7351552
+      value: 0.70710653
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -1178,7 +1218,7 @@ PrefabInstance:
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 85.359
+      value: 90.00001
       objectReference: {fileID: 0}
     - target: {fileID: 6508593180721907125, guid: 7c90647cdac3b7b4e8817262c7f59e05,
         type: 3}
@@ -1695,7 +1735,7 @@ PrefabInstance:
     - target: {fileID: 5160217509827656792, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5160217509827656795, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
