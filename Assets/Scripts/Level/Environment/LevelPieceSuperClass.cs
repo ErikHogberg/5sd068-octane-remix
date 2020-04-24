@@ -28,6 +28,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	private void Awake() {
 		Pieces.Add(this);
 		Obstacles = GetComponent<ObjectSelectorScript>();
+
+		Obstacles.UnhideObject("");
 	}
 
 	private void OnMouseDown() {

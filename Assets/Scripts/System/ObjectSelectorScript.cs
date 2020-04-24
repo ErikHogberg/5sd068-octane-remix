@@ -16,11 +16,17 @@ public class ObjectSelectorScript : MonoBehaviour {
 
 	public GameObject ShownObject { get; private set; }
 
+	private void Awake() {
+		foreach (var item in objects) {
+			item.Value.SetActive(false);
+		}
+	}
+
 	public void UnhideObject(string key) {
 		if (ShownObject)
 			ShownObject.SetActive(false);
 
-		if (key == "") 
+		if (key == "")
 			return;
 
 		foreach (var gameObject in objects) {
