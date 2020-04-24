@@ -5925,6 +5925,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeedThreshold: 7
   rotationThreshold: 25
+  carSteeringAdaptation: 50
   cameraRotationSpeed: 5
   useFOVFluctuation: 0
   velocityToFOV:
@@ -5961,6 +5962,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   minCameraLag: 8
   maxCameraLag: 15
+  car: {fileID: 2722754749848683743}
+  OptionalParent: {fileID: 0}
 --- !u!1 &2722754748317256469
 GameObject:
   m_ObjectHideFlags: 0
@@ -10862,7 +10865,7 @@ MonoBehaviour:
     trails: []
   AlwaysOnEffects:
   - EnvironmentTag: 
-    StartVelocity: 0
+    StartVelocity: 5
     particles:
     - {fileID: 3219571168471775235}
     trails: []

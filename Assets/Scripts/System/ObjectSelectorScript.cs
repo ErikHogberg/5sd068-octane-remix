@@ -6,6 +6,8 @@ using UnityEngine;
 // Hides and unhides objects in list to only show one at a time, decided on string key supplied
 public class ObjectSelectorScript : MonoBehaviour {
 
+	public string DefaultObject;
+
 	[Serializable]
 	public struct ObjectIndex {
 		public string Key;
@@ -17,16 +19,17 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public GameObject ShownObject { get; private set; }
 
 	private void Awake() {
-		foreach (var item in objects) {
+		foreach (var item in objects) 
 			item.Value.SetActive(false);
-		}
+
+		UnhideObject(DefaultObject);		
 	}
 
 	public void UnhideObject(string key) {
 		if (ShownObject)
 			ShownObject.SetActive(false);
 
-		if (key == "")
+		if (key == "" || key == "None")
 			return;
 
 		foreach (var gameObject in objects) {
@@ -36,6 +39,10 @@ public class ObjectSelectorScript : MonoBehaviour {
 				return;
 			}
 		}
+	}
+
+	public void UnhideObject() {
+		UnhideObject("");
 	}
 
 }

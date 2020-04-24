@@ -20,15 +20,21 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 	public override void UpdateUI() {
 		obstacleDropdown.ClearOptions();
 
+		obstacleDropdown.options.Add(new TMP_Dropdown.OptionData("None"));
+
 		foreach (var item in currentSegment.Obstacles.objects)
 			obstacleDropdown.options.Add(new TMP_Dropdown.OptionData(item.Key));
 
 		obstacleDropdown.value = 0;
 		ApplyDropdown();
+
 		obstacleDropdown.RefreshShownValue();
 	}
 
 	public void ApplyDropdown(int i) {
+		// if (i == 0)
+		// currentSegment.Obstacles.UnhideObject("");
+		// else
 		currentSegment.Obstacles.UnhideObject(
 			//currentSegment.Obstacles.objects[i].Key
 			obstacleDropdown.options[i].text
