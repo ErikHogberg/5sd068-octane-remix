@@ -8469,10 +8469,20 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 50
       objectReference: {fileID: 0}
+    - target: {fileID: 7195651630064031157, guid: dccdf3382e51c07478f65674b70d3f9b,
+        type: 3}
+      propertyPath: m_ConnectedAnchor.x
+      value: -9.094947e-12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7195651630064031157, guid: dccdf3382e51c07478f65674b70d3f9b,
+        type: 3}
+      propertyPath: m_ConnectedAnchor.z
+      value: -0.0000030994415
+      objectReference: {fileID: 0}
     - target: {fileID: 8572164920044033207, guid: dccdf3382e51c07478f65674b70d3f9b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2.8
       objectReference: {fileID: 0}
     - target: {fileID: 8572164920044033207, guid: dccdf3382e51c07478f65674b70d3f9b,
         type: 3}
@@ -8963,6 +8973,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4543503281890218119, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: weight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4543503282109406553, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9023,6 +9038,31 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fancy Visuals
       objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_UseContactShadow.m_Level
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_UseContactShadow.m_UseOverride
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_ShadowResolution.m_Level
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_VolumetricDimmer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_VolumetricShadowDimmer
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_BoundingSphereOverride.x
@@ -9042,6 +9082,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_BoundingSphereOverride.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_Intensity
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282658781599, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282854375704, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: weight
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c36b32728996a7249a134a8cf6ef7e39, type: 3}
