@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ObjectSelectorScript))]
 public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static List<LevelPieceSuperClass> Pieces = new List<LevelPieceSuperClass>();
@@ -21,9 +22,14 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// IDEA: ability to group segments together, selecting and altering all segments at the same time
 	// IDEA: when selecting multiple: list all avaliable settings, set them for only the segments that the settings can be applied for
 
+	// [HideInInspector]
+	public ObjectSelectorScript Obstacles { get; private set; }
 
 	private void Awake() {
 		Pieces.Add(this);
+		Obstacles = GetComponent<ObjectSelectorScript>();
+
+		Obstacles.UnhideObject("");
 	}
 
 	private void OnMouseDown() {
