@@ -200,6 +200,7 @@ public class SteeringScript : MonoBehaviour {
 	private float springInit;
 
 	private CarParticleHandlerScript effects;
+	private TemperatureAndIntegrity tempAndInteg;
 
 
 	void Start() {
@@ -219,6 +220,7 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
+		tempAndInteg = GetComponent<TemperatureAndIntegrity>();
 	}
 
 	void OnEnable() {
@@ -762,7 +764,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
 		}
-		
+
 	}
 
 	private void Pitch(float dt) {
@@ -828,6 +830,8 @@ public class SteeringScript : MonoBehaviour {
 			effects.StartBoost();
 
 		AddBoost(-BoostConsumptionRate * dt);
+		if (tempAndInteg)
+			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty)
 			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);

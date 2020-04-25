@@ -90,8 +90,8 @@ public class RemixMapScript : MonoBehaviour {
 			return;
 
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		RemixMenuCameraFocusScript.SetTarget(segment.transform);
 		
-		// TODO: populate menu, assign current segment reference for assignment
 	}
 
 }
