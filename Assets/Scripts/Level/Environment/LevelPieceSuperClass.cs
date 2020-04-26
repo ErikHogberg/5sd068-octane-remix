@@ -1,14 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ObjectSelectorScript))]
 public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static List<LevelPieceSuperClass> Pieces = new List<LevelPieceSuperClass>();
-
-	// TODO: register pieces globally
-	// TODO: manipulate registered pieces in UI
 
 	// TODO: comfortable way to reference obstacles avalable for placement
 	// IDEA: obstacle registry, similar to list of sound effects with settings
@@ -16,7 +14,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// IDEA: empty level segment type for optional spots for adding roads
 	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
 
-	// IDEA: option to disallow placing obstacles on segment
+	// IDEA: option to disallow placing any obstacles on segment
 
 	// IDEA: ability select multiple segments, shift click? show blank/custom message if same setting is different for some objects selected
 	// IDEA: ability to group segments together, selecting and altering all segments at the same time
@@ -32,17 +30,26 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		Obstacles.UnhideObject("");
 	}
 
-	private void OnMouseDown() {
+	private void OnMouseOver() {
 
-		print("clicked " + gameObject.name);
+		if (EventSystem.current.IsPointerOverGameObject()) 	
+			return;
+		
+		// print("clicked " + gameObject.name);
 
 		if (Input.GetMouseButtonDown(0)) {
+			// print("left click");
 			RemixMapScript.SelectSegment(this);
-		} else if (Input.GetMouseButtonDown(1)) {
+		} 
+		if (Input.GetMouseButtonDown(1)) {
+			// print("right click");
 			RemixMapScript.StartRotate();
 		}
-
 	}
 
+	// IDEA: use ontriggerenter here to keep track of track progress (keep track of index of last track?)
+	// IDEA: respawn to above center of last track touched when out of bounds
+	// IDEA: respawn to last valid segment when touching a segment that is not the last of previous track segment (+/- 1 or 2 indices?)
+	// TODO: fade effect when respawning
 
 }
