@@ -47,5 +47,9 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
+	// IDEA: use ontriggerenter here to keep track of track progress (keep track of index of last track?)
+	// IDEA: respawn to above center of last track touched when out of bounds
+	// IDEA: respawn to last valid segment when touching a segment that is not the last of previous track segment (+/- 1 or 2 indices?)
+	// TODO: fade effect when respawning
 
 }

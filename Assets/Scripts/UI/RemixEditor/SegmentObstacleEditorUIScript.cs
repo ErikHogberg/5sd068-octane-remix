@@ -36,6 +36,8 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 		ApplyDropdown();
 
 		obstacleDropdown.RefreshShownValue();
+		obstacleDropdown.interactable = true;
+
 	}
 
 	public void ApplyDropdown(int i) {

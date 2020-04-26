@@ -88,6 +88,8 @@ public class RemixMapScript : MonoBehaviour {
 		if (!mainInstance)
 			return;
 
+		// TODO: deselect
+
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
 		
