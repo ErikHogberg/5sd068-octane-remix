@@ -12,6 +12,8 @@ public class RemixMenuCameraFocusScript : MonoBehaviour {
 
 	public Camera RemixMenuCamera;
 
+	private static Transform lastTarget = null;
+
 	private void Awake() {
 		instances.Add(this);
 		// remixMenuCamera = GetComponent<Camera>();
@@ -41,11 +43,11 @@ public class RemixMenuCameraFocusScript : MonoBehaviour {
 			// transform.localPosition = dir * zoom;
 			// transform.position += transform.forward * zoom;
 			// RemixMenuCamera.transform.localPosition = RemixMenuCamera.transform.localRotation.eulerAngles * zoom;
+			// TODO: perspective zoom
 		}
 
 	}
 
-	private static Transform lastTarget = null;
 	public static void SetTarget(Transform target) {
 		if (lastTarget != null && target == lastTarget) {
 			SetTarget();
@@ -54,6 +56,7 @@ public class RemixMenuCameraFocusScript : MonoBehaviour {
 
 		lastTarget = target;
 
+		// TODO: interpolate movement, and zoom
 		foreach (var item in instances) {
 			item.transform.position = target.position;
 			item.ApplyZoom(item.Zoom);
