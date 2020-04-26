@@ -202,6 +202,9 @@ public class SteeringScript : MonoBehaviour {
 	private CarParticleHandlerScript effects;
 	private TemperatureAndIntegrity tempAndInteg;
 
+	private float leftRumble = 0;
+	private float rightRumble = 0;
+
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
@@ -239,6 +242,9 @@ public class SteeringScript : MonoBehaviour {
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
 
+		leftRumble = 0;
+		rightRumble = 0;
+
 		touchingGround = CheckIfTouchingGround();
 
 		float sqrVelocity = rb.velocity.sqrMagnitude;
@@ -274,6 +280,18 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
+
+		// Rumble
+		// if (leftRumble == 0 && rightRumble == 0) {
+		// Gamepad.current.
+		// }
+		if (leftRumble > 1)
+			leftRumble = 1;
+		if (rightRumble > 1)
+			rightRumble = 1;
+
+		Gamepad.current.SetMotorSpeeds(leftRumble, rightRumble);
+
 	}
 
 	//To avoid jittery number updates on the UI
@@ -356,11 +374,10 @@ public class SteeringScript : MonoBehaviour {
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		// TODO: only enable trails for individual wheels that touch ground
 		if (effects)
 			effects.StartDrift();
 
-		SetDebugUIText(11, "true");
+		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
@@ -369,7 +386,7 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.StopDrift();
 
-		SetDebugUIText(11, "false");
+		SetDebugUIText(11, "False");
 	}
 
 	private float GetDriftAngle() {
@@ -396,6 +413,11 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
+			if (angle > 0) {
+				leftRumble = absAngle / 90f;
+			} else {
+				rightRumble = absAngle / 90f;
+			}
 			StartDrift();
 		}
 
