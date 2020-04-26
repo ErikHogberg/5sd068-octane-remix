@@ -66,7 +66,7 @@ public class RemixMapScript : MonoBehaviour {
 
 			float mouseX = Input.mousePosition.x;
 			float delta = mouseX - mouseXBuffer;
-
+			// print("rotating "+ delta);
 			CameraPivot.transform.Rotate(Vector3.up, delta * CameraMouseSpeed, Space.World);
 
 			mouseXBuffer = mouseX;
@@ -82,7 +82,6 @@ public class RemixMapScript : MonoBehaviour {
 		mainInstance.mouseDown = true;
 		mainInstance.mouseXBuffer = Input.mousePosition.x;
 
-		// TODO: rotate camera
 	}
 
 	public static void SelectSegment(LevelPieceSuperClass segment) {

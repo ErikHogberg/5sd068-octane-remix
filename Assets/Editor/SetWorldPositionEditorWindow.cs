@@ -7,6 +7,7 @@ class MoveToObject : EditorWindow {
 	Transform target;
 
 	bool rotate = true;
+	bool scale = false;
 	Vector3 rotationOffset = Vector3.zero;
 
 
@@ -22,6 +23,7 @@ class MoveToObject : EditorWindow {
 		GUILayout.EndHorizontal();
 
 		rotate = EditorGUILayout.Toggle("Also rotate?", rotate);
+		scale = EditorGUILayout.Toggle("Also scale (locally)?", scale);
 		rotationOffset = EditorGUILayout.Vector3Field("Rotation offset", rotationOffset);
 
 		GUILayout.Space(16);
@@ -53,6 +55,8 @@ class MoveToObject : EditorWindow {
 		selected.transform.position = target.position;
 		if (rotate)
 			selected.transform.rotation = target.rotation * Quaternion.Euler(rotationOffset);
+		if (scale)
+			selected.transform.localScale = target.localScale;
 
 	}
 }
