@@ -764,7 +764,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
 		}
-		
+
 	}
 
 	private void Pitch(float dt) {
@@ -830,7 +830,8 @@ public class SteeringScript : MonoBehaviour {
 			effects.StartBoost();
 
 		AddBoost(-BoostConsumptionRate * dt);
-		tempAndInteg.BoostHeat();
+		if (tempAndInteg)
+			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty)
 			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);

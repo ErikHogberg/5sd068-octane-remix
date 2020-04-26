@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 
-public class CarCam : MonoBehaviour
-{
+public class CarCam : MonoBehaviour {
 	[Header("Camera Rotation")]
 	[Tooltip("If car speed is below this value, then the camera will default to looking forwards.")]
-    public float rotationSpeedThreshold = 3f;
+	public float rotationSpeedThreshold = 3f;
 
 	[Tooltip("If the angle between the car's facing direction and velocity exceeds this number, the camera will default to looking forwards")]
 	public float rotationThreshold = 25.0f;
@@ -42,6 +41,8 @@ public class CarCam : MonoBehaviour
 	[Tooltip("The car that this particular camera will follow, but not necessary at this stage")]
 	public GameObject car;
 
+	public GameObject OptionalParent;
+
 	//The transform of the camera object
 	private Transform rootNode;
 
@@ -70,6 +71,7 @@ public class CarCam : MonoBehaviour
 	//The vector between the camera lock and the car itself, for stability purposes
 	private Vector3 lockToCar;
 
+
 	void Awake() {
 		rootNode = GetComponent<Transform>();
 		//Temporary measure until we all collectively adapt our prefabs and put a car reference in this script
@@ -79,19 +81,23 @@ public class CarCam : MonoBehaviour
 		} else {
 			cameraLock = car.transform.Find("CameraLock");
 		}
+
 		carPhysics = car.transform.GetComponent<Rigidbody>();
 		carControls = car.transform.GetComponent<SteeringScript>();
 		currCamRotationSpeed = cameraRotationSpeed;
 
 	}
 
-    void Start() {
-        // Detach the camera so that it can move freely on its own.
-        rootNode.parent = null;
+	void Start() {
+		if (OptionalParent)
+			rootNode.parent = OptionalParent.transform;
+		else
+			// Detach the camera so that it can move freely on its own.
+			rootNode.parent = null;
 
-    }
+	}
 
-    void FixedUpdate() {
+	void FixedUpdate() {
 
 		//Uses an animation curve to adjust at what rate the camera lags behind the car
 		//by comparing its current speed to its specified top speed
@@ -107,24 +113,23 @@ public class CarCam : MonoBehaviour
 			float calcFOV = diffFOV * velocityToFOV.Evaluate(percentOfTopSpeed);
 			gameObject.GetComponent<Camera>().fieldOfView = minCameraFOV + calcFOV;
 		}
-        // Moves the camera to match the car's position.
-        rootNode.position = Vector3.Lerp(rootNode.position, cameraLock.position, cameraLag * Time.fixedDeltaTime);
+		// Moves the camera to match the car's position.
+		rootNode.position = Vector3.Lerp(rootNode.position, cameraLock.position, cameraLag * Time.fixedDeltaTime);
 
 
 
 		//Gets steering values from car
 		float steer = carControls.GetSteering();
 		float yaw = carControls.GetYaw();
-		if ( steer != 0.0f ) { steeringValue = steer; }
-		else if ( yaw != 0.0f ) { steeringValue = yaw; }
+		if (steer != 0.0f) { steeringValue = steer; } else if (yaw != 0.0f) { steeringValue = yaw; }
 
 		//Lerping steer value to make a smoother transition between the min and max possible values
 		effectiveSteerValue = Mathf.Lerp(effectiveSteerValue, steeringValue, steerValueLerp * Time.fixedDeltaTime);
 		//Debug.Log(steeringValue + " " + effectiveSteerValue );
-		
+
 		float lookAngleComparison = Mathf.Acos(
 		//Dot product
-		((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z))/ 
+		((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z)) /
 		(cameraLock.forward.magnitude * carPhysics.velocity.magnitude)) * Mathf.Rad2Deg;
 
 		Quaternion look;
@@ -162,8 +167,8 @@ public class CarCam : MonoBehaviour
 		currCamRotationSpeed = Mathf.Lerp(currCamRotationSpeed, goalCamRotationSpeed, camRotationSpeedLerp * Time.fixedDeltaTime);
 
 		//Rotate the camera towards the velocity vector.
-		look = Quaternion.Slerp(rootNode.rotation, look, currCamRotationSpeed * Time.fixedDeltaTime);                
-        rootNode.rotation = look;
+		look = Quaternion.Slerp(rootNode.rotation, look, currCamRotationSpeed * Time.fixedDeltaTime);
+		rootNode.rotation = look;
 
-    }
+	}
 }
