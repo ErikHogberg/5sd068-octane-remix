@@ -936,6 +936,9 @@ MonoBehaviour:
   DriftStopVelocity: 0.5
   DriftCorrectionSpeed: 20
   DriftSpeedReductionWhenCorrecting: 0
+  BoostRumbleHiLoHzRatio: 1
+  BoostRumbleAmount: 0.6
+  DriftRumble: 1
   FrontWheelColliders:
   - {fileID: 1527663254593042375}
   - {fileID: 1527663253210657784}
@@ -1015,7 +1018,7 @@ MonoBehaviour:
     trails: []
   AlwaysOnEffects:
   - EnvironmentTag: 
-    StartVelocity: 0
+    StartVelocity: 5
     particles:
     - {fileID: 2041331629603467896}
     trails: []
@@ -1424,6 +1427,7 @@ MonoBehaviour:
   minCameraLag: 8
   maxCameraLag: 15
   car: {fileID: 1527663253640760996}
+  OptionalParent: {fileID: 0}
 --- !u!1 &1527663254240002414
 GameObject:
   m_ObjectHideFlags: 0
