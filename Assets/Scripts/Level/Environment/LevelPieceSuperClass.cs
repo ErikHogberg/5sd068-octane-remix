@@ -15,10 +15,16 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	protected static int currentSegmentIndex = 0;
 
+	// TODO: progress through whole track
+	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
+
 	[Tooltip("In which order this segment is expected, if a segment is too much out of order, then the car will be reset to the last segment")]
 	public int SegmentOrder;
 	[Tooltip("If resetting due to out of order segment should be ignored")]
 	public bool OverrideSegmentOrderReset = false;
+	// public bool OverridePreviousSegment = false;
+	// public int PreviousSegment = 0;
+	
 
 	// IDEA: define an override "previous segment" instead of disabling all skip reset checks
 	// IDEA: apply allowed skip number to previous segment overrides too
@@ -60,9 +66,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
-	// IDEA: use ontriggerenter here to keep track of track progress (keep track of index of last track?)
-	// IDEA: respawn to above center of last track touched when out of bounds
-	// IDEA: respawn to last valid segment when touching a segment that is not the last of previous track segment (+/- 1 or 2 indices?)
 	// TODO: fade effect when respawning
 
 	private void OnTriggerEnter(Collider other) {
