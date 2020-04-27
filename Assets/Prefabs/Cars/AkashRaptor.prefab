@@ -672,6 +672,7 @@ GameObject:
   - component: {fileID: 1800295489931631466}
   - component: {fileID: 3251316043030167833}
   - component: {fileID: 8445953291402973334}
+  - component: {fileID: 7960672228851041281}
   m_Layer: 0
   m_Name: AkashRaptor
   m_TagString: Untagged
@@ -1049,6 +1050,35 @@ CapsuleCollider:
   m_Height: 6.4
   m_Direction: 2
   m_Center: {x: 0, y: 3.04, z: 0}
+--- !u!114 &7960672228851041281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527663253640760996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85693636745d0d74299d693daf386c6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireTempEffect: 10
+  laserTempEffect: 10
+  boostTempEffect: 15
+  tickRate: 1
+  coolingRate: 1
+  boostTempThreshold: 30
+  boostTempMax: 70
+  integrityTempThreshold: 70
+  integrityTempDOT: 3
+  maxIntegrity: 100
+  damageRate: 0.5
+  fireIntegEffect: 10
+  laserIntegEffect: 10
+  sawIntegEffect: 10
+  rockIntegEffect: 10
+  temperatureUI: {fileID: 0}
+  integrityUI: {fileID: 0}
 --- !u!1 &1527663253754463512
 GameObject:
   m_ObjectHideFlags: 0
