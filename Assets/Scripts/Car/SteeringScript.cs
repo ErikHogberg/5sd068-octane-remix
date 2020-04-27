@@ -311,7 +311,7 @@ public class SteeringScript : MonoBehaviour {
 		if (highHzRumble > 1)
 			highHzRumble = 1;
 
-		//Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+		Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 
 	}
 
