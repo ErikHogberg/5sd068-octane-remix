@@ -703,8 +703,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1037293523788767383, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 210
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037293523788767383, guid: 4355d626816851f478b170737f81ff57,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1297376403465773832, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
@@ -1987,7 +1992,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 8b379ff0f42162643a95d88fef647130, type: 2}
+      objectReference: {fileID: 2100000, guid: 562fa42a75367f74181b614bd7be1f12, type: 2}
     - target: {fileID: -927199367670048503, guid: 1dc79fa2863d6004a857146686b56c5e,
         type: 3}
       propertyPath: m_Name
@@ -2704,6 +2709,16 @@ PrefabInstance:
       propertyPath: integrityUI
       value: 
       objectReference: {fileID: 7702962187850950287}
+    - target: {fileID: 1575562338054905556, guid: fd8bb743a57f99c418501456307a3de6,
+        type: 3}
+      propertyPath: boostTempThreshold
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1575562338054905556, guid: fd8bb743a57f99c418501456307a3de6,
+        type: 3}
+      propertyPath: boostTempMax
+      value: 70
+      objectReference: {fileID: 0}
     - target: {fileID: 3191791732721310880, guid: fd8bb743a57f99c418501456307a3de6,
         type: 3}
       propertyPath: m_Name
