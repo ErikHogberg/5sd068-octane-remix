@@ -102,13 +102,22 @@ public class SteeringScript : MonoBehaviour {
 
 
 	[Header("Boost")]
-	public float BoostSpeed = 100f;
-
+	public float BoostSpeed = 100f; 
 	private double boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
 		get { return boostAmount > 0; }
 	}
+
+	//Limits boost based on temperature. 0.0 means no limitation, 1.0 means the maximum limitation is in place
+	private float boostLimiter = 0.0f;
+	//How many percent can the boost resource max be reduced by due to temperature? -30% or -50% or maybe -70%?
+	private float boostLimitMax = 0.5f;
+
+	//Returns between 0.0 and -boostLimitMax
+	private float BoostLimit() { return (0.0f - (boostLimitMax * boostLimiter)); }
+	public void SetBoostLimit(float limit) { boostLimiter = limit; }
+
 
 	[Tooltip("How much % of the boost tank is emptied per second when boosting")]
 	[Range(0, 1)]
@@ -882,8 +891,8 @@ public class SteeringScript : MonoBehaviour {
 	private void AddBoost(double amount) {
 		boostAmount += amount;
 
-		if (boostAmount > 1)
-			boostAmount = 1;
+		if (boostAmount > (1 + BoostLimit()))
+			boostAmount = (1 + BoostLimit());
 
 		if (boostAmount < 0)
 			boostAmount = 0;
@@ -917,7 +926,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	private void Reset() {
+	public void Reset() {
 		if (LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
