@@ -20,10 +20,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	[Tooltip("In which order this segment is expected, if a segment is too much out of order, then the car will be reset to the last segment")]
 	public int SegmentOrder;
-	[Tooltip("If resetting due to out of order segment should be ignored")]
-	public bool OverrideSegmentOrderReset = false;
-	// public bool OverridePreviousSegment = false;
-	// public int PreviousSegment = 0;
+	// [Tooltip("If resetting due to out of order segment should be ignored")]
+	// public bool OverrideSegmentOrderReset = false;
+	public bool OverridePreviousSegment = false;
+	public int PreviousSegment = 0;
 	
 
 	// IDEA: define an override "previous segment" instead of disabling all skip reset checks
@@ -70,7 +70,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	private void OnTriggerEnter(Collider other) {
 		if (
-			OverrideSegmentOrderReset || // if skip mitigation resetting is disabled on this segment
+			// OverrideSegmentOrderReset || // if skip mitigation resetting is disabled on this segment
 			SegmentOrder <= currentSegmentIndex + 1 + allowedSegmentSkip // if on next correct segment in allowed range
 			&& SegmentOrder >= currentSegmentIndex - 1 - allowedSegmentSkip // if on previous correct segment in allowed range
 			|| (currentSegmentIndex == Segments.Count - 1 && SegmentOrder == 0) // loop track
