@@ -6,11 +6,20 @@ using TMPro;
 [RequireComponent(typeof(BarUIScript))]
 public class TemperatureUIScript : MonoBehaviour
 {
+
+	// TODO: List of instances, ordered by player index, for 2+ player split screen
+	public static TemperatureUIScript MainInstance;
+
 	private BarUIScript bar;
 	public TMP_Text temperatureText;
 
 	void Awake() {
+		MainInstance = this;
 		bar = GetComponent<BarUIScript>();
+	}
+
+	void OnDestroy() {
+		MainInstance = null;
 	}
 
 	public void SetTempPercentage(float percentage, float temp)
