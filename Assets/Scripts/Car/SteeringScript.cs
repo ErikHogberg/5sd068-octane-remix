@@ -18,11 +18,8 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-
-
-
-	// TODO: reset car position to closest track position
-
+	// TODO: list of instances for split screen multiplayer, indexed by player order
+	public static SteeringScript MainInstance;
 
 	[Header("Steering")]
 
@@ -250,12 +247,16 @@ public class SteeringScript : MonoBehaviour {
 		// TODO: enable/disable controls when losing window focus, pausing, etc.
 
 		InputSystem.ResumeHaptics();
+
+		MainInstance = this;
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
+
+		// MainInstance = null;		
 	}
 
 	private void OnDestroy() {
@@ -926,8 +927,17 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	public void Reset(Vector3 pos, Quaternion rot){
+			rb.velocity = Vector3.zero;
+			rb.angularVelocity = Vector3.zero;
+
+			rb.MovePosition(pos);
+			rb.MoveRotation(rot);
+	}
+
 	public void Reset() {
-		if (LevelWorldScript.CurrentLevel != null) {
+		
+		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 			rb.velocity = Vector3.zero;
