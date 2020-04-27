@@ -159,6 +159,15 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftSpeedReductionWhenCorrecting = 0f;
 	private bool drifting = false;
 
+	[Header("Rumble")]
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
+	public float BoostRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float BoostRumbleAmount = .5f;
+	public bool DriftRumble = true;
 
 	#region object refs and input bindings
 
@@ -202,6 +211,9 @@ public class SteeringScript : MonoBehaviour {
 	private CarParticleHandlerScript effects;
 	private TemperatureAndIntegrity tempAndInteg;
 
+	private float lowHzRumble = 0;
+	private float highHzRumble = 0;
+
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
@@ -227,17 +239,27 @@ public class SteeringScript : MonoBehaviour {
 		EnableInput();
 
 		// TODO: enable/disable controls when losing window focus, pausing, etc.
+
+		InputSystem.ResumeHaptics();
 	}
 
 	void OnDisable() {
 		DisableInput();
+
+		InputSystem.PauseHaptics();
 	}
 
+	private void OnDestroy() {
+		InputSystem.ResetHaptics();
+	}
 
 	private bool touchingGround = true;
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+
+		lowHzRumble = 0;
+		highHzRumble = 0;
 
 		touchingGround = CheckIfTouchingGround();
 
@@ -255,7 +277,6 @@ public class SteeringScript : MonoBehaviour {
 		Brake(dt);
 		Handbrake(dt);
 
-		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
 		Yaw(dt);
 		Pitch(dt);
 
@@ -274,6 +295,15 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
+
+		// Rumble
+		if (lowHzRumble > 1)
+			lowHzRumble = 1;
+		if (highHzRumble > 1)
+			highHzRumble = 1;
+
+		Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+
 	}
 
 	//To avoid jittery number updates on the UI
@@ -356,11 +386,10 @@ public class SteeringScript : MonoBehaviour {
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		// TODO: only enable trails for individual wheels that touch ground
 		if (effects)
 			effects.StartDrift();
 
-		SetDebugUIText(11, "true");
+		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
@@ -369,7 +398,7 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.StopDrift();
 
-		SetDebugUIText(11, "false");
+		SetDebugUIText(11, "False");
 	}
 
 	private float GetDriftAngle() {
@@ -396,6 +425,13 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
+			if (DriftRumble) {
+				if (angle > 0) {
+					lowHzRumble += absAngle / 90f;
+				} else {
+					highHzRumble += absAngle / 90f;
+				}
+			}
 			StartDrift();
 		}
 
@@ -764,7 +800,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
 		}
-		
+
 	}
 
 	private void Pitch(float dt) {
@@ -830,12 +866,16 @@ public class SteeringScript : MonoBehaviour {
 			effects.StartBoost();
 
 		AddBoost(-BoostConsumptionRate * dt);
-		tempAndInteg.BoostHeat();
+		if (tempAndInteg)
+			tempAndInteg.BoostHeat();
 
-		if (BoostNotEmpty)
+		if (BoostNotEmpty) {
 			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
-		else
+			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
+			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
+		} else {
 			boosting = false;
+		}
 
 	}
 
