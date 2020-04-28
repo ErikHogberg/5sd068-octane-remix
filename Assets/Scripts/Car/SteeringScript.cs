@@ -99,7 +99,7 @@ public class SteeringScript : MonoBehaviour {
 
 
 	[Header("Boost")]
-	public float BoostSpeed = 100f; 
+	public float BoostSpeed = 100f;
 	private double boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
@@ -169,11 +169,27 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
 	[Range(0, 1)]
+	public float EngineRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float EngineRumbleAmount = .5f;
+
+	public Vector2 EngineRumbleSpeedMinMax;
+	public AnimationCurve EngineRumbleCurve;
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
 	public float BoostRumbleHiLoHzRatio = .5f;
 	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
 	[Range(0, 2)]
 	public float BoostRumbleAmount = .5f;
-	public bool DriftRumble = true;
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
+	public float DriftRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float DriftRumbleAmount = .5f;
 
 	#region object refs and input bindings
 
@@ -299,6 +315,12 @@ public class SteeringScript : MonoBehaviour {
 
 		if (effects)
 			effects.UpdateEffects(sqrVelocity, touchingGround);
+
+		// TODO: ambient engine rumble using controller rumble
+		// if (sqrVelocity > EngineRumbleSpeedMinMax.x) {
+		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity );
+		// }
+
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -435,13 +457,8 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
-			if (DriftRumble) {
-				if (angle > 0) {
-					lowHzRumble += absAngle / 90f;
-				} else {
-					highHzRumble += absAngle / 90f;
-				}
-			}
+			lowHzRumble += (1f - DriftRumbleHiLoHzRatio) * DriftRumbleAmount;
+			highHzRumble += DriftRumbleHiLoHzRatio * DriftRumbleAmount;
 			StartDrift();
 		}
 
@@ -927,16 +944,16 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	public void Reset(Vector3 pos, Quaternion rot){
-			rb.velocity = Vector3.zero;
-			rb.angularVelocity = Vector3.zero;
+	public void Reset(Vector3 pos, Quaternion rot) {
+		rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
 
-			rb.MovePosition(pos);
-			rb.MoveRotation(rot);
+		rb.MovePosition(pos);
+		rb.MoveRotation(rot);
 	}
 
 	public void Reset() {
-		
+
 		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
