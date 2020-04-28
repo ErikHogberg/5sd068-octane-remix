@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-class MoveToObject : EditorWindow {
+class DistributeObjects : EditorWindow {
 
 	Transform target;
 
@@ -13,7 +13,7 @@ class MoveToObject : EditorWindow {
 
 	[MenuItem("Window/Set world position to other")]
 	public static void ShowWindow() {
-		EditorWindow.GetWindow(typeof(MoveToObject));
+		EditorWindow.GetWindow(typeof(DistributeObjects));
 	}
 
 	void OnGUI() {
@@ -39,7 +39,7 @@ class MoveToObject : EditorWindow {
 	}
 
 	void MoveSelectedToTarget() {
-		var selected = Selection.activeTransform;
+		var selected = Selection.activeGameObject;
 
 		if (!selected) {
 			Debug.LogWarning("No object to move selected in scene");
