@@ -6,6 +6,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(BarUIScript))]
 public class IntegrityUIScript : MonoBehaviour
 {
+
+	// TODO: List of instances, ordered by player index, for 2+ player split screen
+	public static IntegrityUIScript MainInstance;
+
 	private BarUIScript bar;
 	[Tooltip("A secondary bar with the purpose of more clearly showing how much damage every hit does.")]
 	public Image delayBar;
@@ -18,7 +22,12 @@ public class IntegrityUIScript : MonoBehaviour
 	private IEnumerator currentDrain;
 
 	void Awake() {
+		MainInstance = this;
 		bar = GetComponent<BarUIScript>();
+	}
+
+	void OnDestroy(){
+		MainInstance = null;
 	}
 
 	public void SetIntegPercentage(float percentage) {

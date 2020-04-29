@@ -39,11 +39,11 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	[Tooltip("How much rock obstacles affect the car's integrity level.")]
 	public float rockIntegEffect = 10.0f;
 
-	[Header("UI Scripts")]
-	[Tooltip("This car's associated temperature UI bar")]
-	public TemperatureUIScript temperatureUI;
-	[Tooltip("This car's associated integrity UI bar")]
-	public IntegrityUIScript integrityUI;
+	// [Header("UI Scripts")]
+	// [Tooltip("This car's associated temperature UI bar")]
+	// public TemperatureUIScript temperatureUI;
+	// [Tooltip("This car's associated integrity UI bar")]
+	// public IntegrityUIScript integrityUI;
 
 	private SteeringScript carControls;
 
@@ -72,8 +72,11 @@ public class TemperatureAndIntegrity : MonoBehaviour
 		carControls = GetComponent<SteeringScript>();
 		currIntegrity = maxIntegrity;
 
+		var temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its TemperatureUIScript");
+		
+		var integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its IntegrityUIScript");
 	}
@@ -122,6 +125,7 @@ public class TemperatureAndIntegrity : MonoBehaviour
 
 			if (tooHotInteg) {
 				currIntegrity -= integrityTempDOT;
+				var integrityUI = IntegrityUIScript.MainInstance;
 				if (integrityUI != null)
 					integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 				ValueCheck();
@@ -149,6 +153,7 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	}
 
 	private void SetTempUI() {
+		var temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI != null) {
 			float displayTempPercent = ((standardTemp + currTemp) - zeroTemp) / (highTemp - zeroTemp);
 			temperatureUI.SetTempPercentage(displayTempPercent, (standardTemp + currTemp));
@@ -156,6 +161,7 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	}
 
 	private void SetIntegUI() {
+		var integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI != null)
 			integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 	}
