@@ -18,11 +18,8 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
-
-
-
-	// TODO: reset car position to closest track position
-
+	// TODO: list of instances for split screen multiplayer, indexed by player order
+	public static SteeringScript MainInstance;
 
 	[Header("Steering")]
 
@@ -102,13 +99,22 @@ public class SteeringScript : MonoBehaviour {
 
 
 	[Header("Boost")]
-	public float BoostSpeed = 100f;
-
+	public float BoostSpeed = 100f; 
 	private double boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
 		get { return boostAmount > 0; }
 	}
+
+	//Limits boost based on temperature. 0.0 means no limitation, 1.0 means the maximum limitation is in place
+	private float boostLimiter = 0.0f;
+	//How many percent can the boost resource max be reduced by due to temperature? -30% or -50% or maybe -70%?
+	private float boostLimitMax = 0.5f;
+
+	//Returns between 0.0 and -boostLimitMax
+	private float BoostLimit() { return (0.0f - (boostLimitMax * boostLimiter)); }
+	public void SetBoostLimit(float limit) { boostLimiter = limit; }
+
 
 	[Tooltip("How much % of the boost tank is emptied per second when boosting")]
 	[Range(0, 1)]
@@ -159,6 +165,15 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftSpeedReductionWhenCorrecting = 0f;
 	private bool drifting = false;
 
+	[Header("Rumble")]
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
+	public float BoostRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float BoostRumbleAmount = .5f;
+	public bool DriftRumble = true;
 
 	#region object refs and input bindings
 
@@ -200,6 +215,10 @@ public class SteeringScript : MonoBehaviour {
 	private float springInit;
 
 	private CarParticleHandlerScript effects;
+	private TemperatureAndIntegrity tempAndInteg;
+
+	private float lowHzRumble = 0;
+	private float highHzRumble = 0;
 
 
 	void Start() {
@@ -219,23 +238,38 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
+		tempAndInteg = GetComponent<TemperatureAndIntegrity>();
 	}
 
 	void OnEnable() {
 		EnableInput();
 
 		// TODO: enable/disable controls when losing window focus, pausing, etc.
+
+		InputSystem.ResumeHaptics();
+
+		MainInstance = this;
 	}
 
 	void OnDisable() {
 		DisableInput();
+
+		InputSystem.PauseHaptics();
+
+		// MainInstance = null;		
 	}
 
+	private void OnDestroy() {
+		InputSystem.ResetHaptics();
+	}
 
 	private bool touchingGround = true;
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+
+		lowHzRumble = 0;
+		highHzRumble = 0;
 
 		touchingGround = CheckIfTouchingGround();
 
@@ -253,7 +287,6 @@ public class SteeringScript : MonoBehaviour {
 		Brake(dt);
 		Handbrake(dt);
 
-		// TODO: only allow yaw/pitch controls if in-air (or upside-down?)
 		Yaw(dt);
 		Pitch(dt);
 
@@ -272,6 +305,15 @@ public class SteeringScript : MonoBehaviour {
 
 		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
+
+		// Rumble
+		if (lowHzRumble > 1)
+			lowHzRumble = 1;
+		if (highHzRumble > 1)
+			highHzRumble = 1;
+
+		Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+
 	}
 
 	//To avoid jittery number updates on the UI
@@ -354,11 +396,10 @@ public class SteeringScript : MonoBehaviour {
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		// TODO: only enable trails for individual wheels that touch ground
 		if (effects)
 			effects.StartDrift();
 
-		SetDebugUIText(11, "true");
+		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
@@ -367,7 +408,7 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.StopDrift();
 
-		SetDebugUIText(11, "false");
+		SetDebugUIText(11, "False");
 	}
 
 	private float GetDriftAngle() {
@@ -394,6 +435,13 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
+			if (DriftRumble) {
+				if (angle > 0) {
+					lowHzRumble += absAngle / 90f;
+				} else {
+					highHzRumble += absAngle / 90f;
+				}
+			}
 			StartDrift();
 		}
 
@@ -762,7 +810,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopClockwiseYaw();
 			effects.StopCounterClockwiseYaw();
 		}
-		
+
 	}
 
 	private void Pitch(float dt) {
@@ -828,19 +876,24 @@ public class SteeringScript : MonoBehaviour {
 			effects.StartBoost();
 
 		AddBoost(-BoostConsumptionRate * dt);
+		if (tempAndInteg)
+			tempAndInteg.BoostHeat();
 
-		if (BoostNotEmpty)
+		if (BoostNotEmpty) {
 			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
-		else
+			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
+			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
+		} else {
 			boosting = false;
+		}
 
 	}
 
 	private void AddBoost(double amount) {
 		boostAmount += amount;
 
-		if (boostAmount > 1)
-			boostAmount = 1;
+		if (boostAmount > (1 + BoostLimit()))
+			boostAmount = (1 + BoostLimit());
 
 		if (boostAmount < 0)
 			boostAmount = 0;
@@ -874,8 +927,17 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	private void Reset() {
-		if (LevelWorldScript.CurrentLevel != null) {
+	public void Reset(Vector3 pos, Quaternion rot){
+			rb.velocity = Vector3.zero;
+			rb.angularVelocity = Vector3.zero;
+
+			rb.MovePosition(pos);
+			rb.MoveRotation(rot);
+	}
+
+	public void Reset() {
+		
+		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 			rb.velocity = Vector3.zero;

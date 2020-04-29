@@ -10,12 +10,14 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 
 	// TODO: separate editor super class for editing portals, in-between segments
 
+	protected abstract void ChildAwake();
 
-	private void Awake() {
+	protected void Awake() {
 		segmentEditors.Add(this);
+		ChildAwake();
 	}
 
-	private void OnDestroy() {
+	protected void OnDestroy() {
 		segmentEditors.Remove(this);
 	}
 
@@ -28,7 +30,7 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 	}
 
 	public static void SetSegmentsOnAll(LevelPieceSuperClass segment) {
-		foreach (var editor in segmentEditors) 
+		foreach (var editor in segmentEditors)
 			editor.SetSegment(segment);
 	}
 
