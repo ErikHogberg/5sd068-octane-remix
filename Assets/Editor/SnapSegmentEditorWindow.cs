@@ -30,11 +30,11 @@ class SnapSegmentsEditorWindow : EditorWindow {
 
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Start:");
-		startTransform = (StraightLevelPieceScript)EditorGUILayout.ObjectField(startTransform, typeof(StraightLevelPieceScript), true);
+		StartSegment = (StraightLevelPieceScript)EditorGUILayout.ObjectField(StartSegment, typeof(StraightLevelPieceScript), true);
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("End:");
-		endTransform = (StraightLevelPieceScript)EditorGUILayout.ObjectField(endTransform, typeof(StraightLevelPieceScript), true);
+		EndSegment = (StraightLevelPieceScript)EditorGUILayout.ObjectField(EndSegment, typeof(StraightLevelPieceScript), true);
 		GUILayout.EndHorizontal();
 
 		GUILayout.Space(16);
