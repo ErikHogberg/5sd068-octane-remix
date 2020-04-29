@@ -128,6 +128,13 @@ public class SteeringScript : MonoBehaviour {
 	[Range(0, 1)]
 	public double MinBoostLevel = .2;
 
+	[Tooltip("If the boost direction is affected by steering direction")]
+	public bool BoostAffectedBySteering = false;
+
+	[Tooltip("How many degrees the boost direction is turned at max steering")]
+	[Range(-90, 90)]
+	public float BoostMaxSteering = 45.0f;
+
 
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
@@ -318,7 +325,7 @@ public class SteeringScript : MonoBehaviour {
 
 		// TODO: ambient engine rumble using controller rumble
 		// if (sqrVelocity > EngineRumbleSpeedMinMax.x) {
-		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity );
+		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity ); // not done
 		// }
 
 
@@ -897,7 +904,11 @@ public class SteeringScript : MonoBehaviour {
 			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty) {
-			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
+			Vector3 boostDir = Vector3.forward;
+			if (BoostAffectedBySteering) {
+				boostDir = Quaternion.AngleAxis(steeringBuffer * BoostMaxSteering, Vector3.up) * boostDir;
+			}
+			rb.AddRelativeForce(boostDir * BoostSpeed, ForceMode.Acceleration);
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
