@@ -500,6 +500,8 @@ MonoBehaviour:
   BoostConsumptionRate: 0.4
   BoostFillRate: 0.25
   MinBoostLevel: 0.2
+  BoostAffectedBySteering: 1
+  BoostMaxSteering: 60
   CapVelocity: 1
   VelocityCap: 25
   BoostVelocityCap: 30
@@ -632,7 +634,7 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.75
-  m_Height: 6.4
+  m_Height: 6.1
   m_Direction: 2
   m_Center: {x: 0, y: 2.31, z: 0}
 --- !u!114 &7960672228851041281
