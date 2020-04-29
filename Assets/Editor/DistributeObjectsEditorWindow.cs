@@ -4,59 +4,71 @@ using System.Collections;
 
 class DistributeObjects : EditorWindow {
 
-	Transform target;
-
-	bool rotate = true;
-	bool scale = false;
-	Vector3 rotationOffset = Vector3.zero;
+	Transform startTransform;
+	Transform endTransform;
 
 
-	[MenuItem("Window/Set world position to other")]
+	bool rotate = false;
+
+	[MenuItem("Window/Distribute Objects")]
 	public static void ShowWindow() {
 		EditorWindow.GetWindow(typeof(DistributeObjects));
 	}
 
 	void OnGUI() {
+		GUILayout.Label("Even distribution tool!");
+		GUILayout.Label("Select 1+ objects");
+		// GUILayout.Label("Last 2 objects decide start and end.");
+
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("Target:");
-		target = (Transform)EditorGUILayout.ObjectField(target, typeof(Transform), true);
+		GUILayout.Label("Start:");
+		startTransform = (Transform)EditorGUILayout.ObjectField(startTransform, typeof(Transform), true);
+		GUILayout.EndHorizontal();
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("End:");
+		endTransform = (Transform)EditorGUILayout.ObjectField(endTransform, typeof(Transform), true);
 		GUILayout.EndHorizontal();
 
-		rotate = EditorGUILayout.Toggle("Also rotate?", rotate);
-		scale = EditorGUILayout.Toggle("Also scale (locally)?", scale);
-		rotationOffset = EditorGUILayout.Vector3Field("Rotation offset", rotationOffset);
-
+		// GUILayout.Space(8);
+		// rotate = EditorGUILayout.Toggle("Also rotate?", rotate);
 		GUILayout.Space(16);
 
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
-		if (GUILayout.Button("Move selection to target",GUILayout.Width(165), GUILayout.Height(32))) {
-			MoveSelectedToTarget();
+		if (GUILayout.Button("Distribute!", GUILayout.Width(165), GUILayout.Height(32))) {
+			DistributeSelection();
 		}
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 
 	}
 
-	void MoveSelectedToTarget() {
-		var selected = Selection.activeGameObject;
+	void DistributeSelection() {
+		var selection = Selection.GetTransforms(
+			SelectionMode.TopLevel | SelectionMode.Editable
+		);
 
-		if (!selected) {
-			Debug.LogWarning("No object to move selected in scene");
+		if (selection.Length < 1) {
+			Debug.LogWarning("Too few objects");
 			return;
 		}
 
-		if (!target) {
-			Debug.LogWarning("No target object assigned in window");
-			return;
+
+		// TODO: assign start and end to last 2 selected instead of name order
+		// Transform startTransform = selection[selection.Length - 2];
+		// Transform endTransform = selection[selection.Length - 1];
+
+		for (
+			int i = 0; 
+			i < selection.Length;// - 2; 
+			i++) {
+			Transform currentTransform = selection[i];
+			Undo.RecordObject(currentTransform, "Moved object using custom tool");
+			currentTransform.position = Vector3.Lerp(startTransform.position, endTransform.position, (1f / (selection.Length + 1)) * (i + 1));
+			// TODO: rotate
 		}
 
-		Undo.RecordObject(selected.transform, "Moved object using custom tool");
-		selected.transform.position = target.position;
-		if (rotate)
-			selected.transform.rotation = target.rotation * Quaternion.Euler(rotationOffset);
-		if (scale)
-			selected.transform.localScale = target.localScale;
+		Debug.Log("distributed " + selection.Length + " objects between " + startTransform.name + " and " + endTransform.name);
 
 	}
 }
