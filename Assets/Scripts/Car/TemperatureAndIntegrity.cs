@@ -67,16 +67,19 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	//The timer for damage function calls
 	private float damageTimer = 0.0f;
 
+	TemperatureUIScript temperatureUI;
+	IntegrityUIScript integrityUI;
+
 
 	private void Start() {
 		carControls = GetComponent<SteeringScript>();
 		currIntegrity = maxIntegrity;
 
-		var temperatureUI = TemperatureUIScript.MainInstance;
+		temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its TemperatureUIScript");
 		
-		var integrityUI = IntegrityUIScript.MainInstance;
+		integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its IntegrityUIScript");
 	}
@@ -153,7 +156,6 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	}
 
 	private void SetTempUI() {
-		var temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI != null) {
 			float displayTempPercent = ((standardTemp + currTemp) - zeroTemp) / (highTemp - zeroTemp);
 			temperatureUI.SetTempPercentage(displayTempPercent, (standardTemp + currTemp));
@@ -161,7 +163,6 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	}
 
 	private void SetIntegUI() {
-		var integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI != null)
 			integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 	}
