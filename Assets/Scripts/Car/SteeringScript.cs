@@ -230,7 +230,7 @@ public class SteeringScript : MonoBehaviour {
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
-
+		
 	}
 
 	void Awake() {
@@ -312,7 +312,7 @@ public class SteeringScript : MonoBehaviour {
 		if (highHzRumble > 1)
 			highHzRumble = 1;
 
-		Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+		//Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 
 	}
 
