@@ -188,6 +188,8 @@ public class SteeringScript : MonoBehaviour {
 	#region Rumble fields
 	[Header("Rumble")]
 
+	public bool EnableRumble = false;
+
 	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
 	[Range(0, 1)]
 	public float EngineRumbleHiLoHzRatio = .5f;
@@ -268,7 +270,7 @@ public class SteeringScript : MonoBehaviour {
 		springInit = FrontWheelColliders[0].suspensionSpring.spring;
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
-		
+
 	}
 
 	void Awake() {
@@ -350,13 +352,7 @@ public class SteeringScript : MonoBehaviour {
 		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
 
-		// Rumble
-		if (lowHzRumble > 1)
-			lowHzRumble = 1;
-		if (highHzRumble > 1)
-			highHzRumble = 1;
-
-		//Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+		Rumble();
 
 	}
 
@@ -979,7 +975,6 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void Reset() {
-
 		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
@@ -988,6 +983,17 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+		}
+	}
+
+	private void Rumble() {
+		if (EnableRumble) {
+			if (lowHzRumble > 1)
+				lowHzRumble = 1;
+			if (highHzRumble > 1)
+				highHzRumble = 1;
+
+			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
 	}
 

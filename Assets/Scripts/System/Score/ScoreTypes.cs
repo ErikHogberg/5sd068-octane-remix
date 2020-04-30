@@ -3,22 +3,20 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
-public enum ScoreSkill 
-{
+public enum ScoreSkill {
 	DRIFT = 0,
 	DODGE,
 	AIRTIME
 }
 
-public class Score 
-{
+public class Score {
 	private int score = 0;
 	public void AddScore(int add) { score += add; }
 	public int GetScore() { return score; }
 }
 
-public class SkillScore
-{
+public class SkillScore {
+	
 	private Dictionary<ScoreSkill, Score> skillScoreTypes = new Dictionary<ScoreSkill, Score>();
 
 	public SkillScore() {
@@ -29,7 +27,7 @@ public class SkillScore
 		}
 	}
 
-	public void AddScore(ScoreSkill p_type, int add)  {
+	public void AddScore(ScoreSkill p_type, int add) {
 		skillScoreTypes[p_type].AddScore(add);
 	}
 
@@ -37,8 +35,7 @@ public class SkillScore
 		return skillScoreTypes[p_type].GetScore();
 	}
 
-	public int GetScoreTotal()
-    {
+	public int GetScoreTotal() {
 		int total = 0;
 		foreach (KeyValuePair<ScoreSkill, Score> skill in skillScoreTypes) {
 			total += skill.Value.GetScore();
@@ -46,8 +43,7 @@ public class SkillScore
 		return total;
 	}
 
-	public Dictionary<ScoreSkill, int> GetSkillScores()
-    {
+	public Dictionary<ScoreSkill, int> GetSkillScores() {
 		Dictionary<ScoreSkill, int> all = new Dictionary<ScoreSkill, int>();
 		foreach (KeyValuePair<ScoreSkill, Score> skill in skillScoreTypes) {
 			all.Add(skill.Key, skill.Value.GetScore());
@@ -56,8 +52,8 @@ public class SkillScore
 	}
 }
 
-public class ScoreBoard
-{
+public class ScoreBoard {
+
 	private Score remix = new Score();
 	private Score time = new Score();
 	private SkillScore skill = new SkillScore();
@@ -66,7 +62,7 @@ public class ScoreBoard
 		remix = new Score();
 		time = new Score();
 		skill = new SkillScore();
-    }
+	}
 
 	public void AddRemix(int add) { remix.AddScore(add); }
 	public void AddTime(int add) { time.AddScore(add); }
@@ -86,5 +82,5 @@ public class ScoreBoard
 	}
 	public Dictionary<ScoreSkill, int> GetAllSkillScores() {
 		return skill.GetSkillScores();
-    }
+	}
 }
