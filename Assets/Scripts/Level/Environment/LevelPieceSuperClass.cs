@@ -10,10 +10,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
-	protected static int startSegmentIndex = 0;
-	protected static int EndSegmentIndex = 0;
+	protected static LevelPieceSuperClass startSegment;
+	protected static LevelPieceSuperClass endSegment;
 
-	protected static int currentSegmentIndex = 0;
+	protected static LevelPieceSuperClass currentSegment;
 
 	// TODO: progress through whole track
 	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
@@ -22,6 +22,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	public int SegmentOrder;
 	// [Tooltip("If resetting due to out of order segment should be ignored")]
 	// public bool OverrideSegmentOrderReset = false;
+
+	public bool isStart = false;
 
 	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
 	public bool OverridePreviousSegment = false;
@@ -38,6 +40,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// IDEA: define list of multiple allowed previous segments?
 
 	public Transform RespawnSpot;
+	public Transform GoalSpot;
 
 	// IDEA: empty level segment type for optional spots for adding roads
 	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
@@ -52,9 +55,17 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	private void Awake() {
 		Segments.Add(this);
+		
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		Obstacles.UnhideObject("");
+	}
+
+	private void Start() {
+		if (isStart) {
+			GoalPostScript.SetSegment(this);
+			// UpdateGoalPost();	
+		}
 	}
 
 	private void OnMouseOver() {
@@ -80,47 +91,68 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		int currentSegmentSkip = allowedSegmentSkip;
 
-		if (OverrideSegmentSkip) 
+		if (OverrideSegmentSkip)
 			currentSegmentSkip = CustomSegmentSkip;
 
 		if (
 			// NOTE: possible false positive when using override?
+			!currentSegment
+			||currentSegment == this
+			||
 			(
 				OverridePreviousSegment
-				&& PreviousSegments.Contains(currentSegmentIndex)
+				&& PreviousSegments.Contains(currentSegment.SegmentOrder)
 			)
 			|| (
-				SegmentOrder <= currentSegmentIndex + 1 + currentSegmentSkip // if on next correct segment in allowed range
-				&& SegmentOrder >= currentSegmentIndex - 1 - currentSegmentSkip
-			) // if on previous correct segment in allowed range
-			// || (currentSegmentIndex == Segments.Count - 1 && SegmentOrder == 0) // loop track
+				SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip // if on next correct segment in allowed range
+				&& SegmentOrder >= currentSegment.SegmentOrder - 1 - currentSegmentSkip
+			) 
 		) {
-			currentSegmentIndex = SegmentOrder;
-			print("current segment: " + currentSegmentIndex);
+			currentSegment = this;
+			print("current segment: " + currentSegment.SegmentOrder);
 		} else {
 			ResetToCurrentSegment();
 		}
 	}
 
-	public static bool ResetToCurrentSegment() {
-		LevelPieceSuperClass currentSegment = null;
-		foreach (var segment in Segments) {
-			if (segment.SegmentOrder == currentSegmentIndex) {
-				currentSegment = segment;
-				break;
-			}
-		}
-
+	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck){
 		if (!currentSegment)
+			return true;
+
+		return currentSegment == segmentToCheck;
+	}
+
+	public static bool ResetToCurrentSegment() {
+		// LevelPieceSuperClass currentSegment = null;
+		// foreach (var segment in Segments) {
+		// 	if (segment.SegmentOrder == LevelPieceSuperClass.currentSegment.SegmentOrder) {
+		// 		currentSegment = segment;
+		// 		break;
+		// 	}
+		// }
+
+		if (!currentSegment) {
+			// SteeringScript.MainInstance.Reset();
 			return false;
+		}
 
 		if (currentSegment.RespawnSpot) {
 			SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
 		} else {
-			SteeringScript.MainInstance.Reset(currentSegment.transform.position, currentSegment.transform.rotation);
+			// SteeringScript.MainInstance.Reset(currentSegment.transform.position, currentSegment.transform.rotation);
+			// SteeringScript.MainInstance.Reset();
+			return false;
 		}
 
 		return true;
+	}
+
+	public void UpdateGoalPost() {
+		if (startSegment == endSegment) {
+			GoalPostScript.SetSegment(this);
+		} else {
+			// TODO: spawn portals at ends instead
+		}
 	}
 
 }

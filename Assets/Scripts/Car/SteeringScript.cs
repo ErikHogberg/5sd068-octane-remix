@@ -21,6 +21,7 @@ public class SteeringScript : MonoBehaviour {
 	// TODO: list of instances for split screen multiplayer, indexed by player order
 	public static SteeringScript MainInstance;
 
+	#region Steering fields
 	[Header("Steering")]
 
 	[Tooltip("Sets which wheels are connected to the engine, rear axis, front axis, or both")]
@@ -43,7 +44,9 @@ public class SteeringScript : MonoBehaviour {
 	public float MaxNarrowingAmount = 0.05f;
 	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
 	public AnimationCurve SteeringNarrowingCurve;
+	#endregion
 
+	#region Gas and brake fields
 	[Header("Gas")]
 	public float GasSpeed = 100f;
 	public AnimationCurve GasPedalCurve;
@@ -76,7 +79,9 @@ public class SteeringScript : MonoBehaviour {
 
 	[Range(-180, 180)]
 	public float HandbrakeDriftAngle = 30f;
+	#endregion
 
+	#region Downward force fields
 	[Header("Downward force")]
 	public bool EnableDownwardForce = true;
 	[Tooltip("At what speed does DownwardForce switch off by default")]
@@ -96,8 +101,9 @@ public class SteeringScript : MonoBehaviour {
 
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
+	#endregion
 
-
+	#region Boost fields
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
 	private double boostAmount = 1;
@@ -135,7 +141,10 @@ public class SteeringScript : MonoBehaviour {
 	[Range(-90, 90)]
 	public float BoostMaxSteering = 45.0f;
 
+	// IDEA: option for adding angular velocity on boost while steering
+	#endregion
 
+	#region Velocity cap fields
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
 	public float VelocityCap = 20f;
@@ -145,6 +154,9 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("Immediate velocity cap, does not use correction speed, car never goes above this speed (except for the speed gained last frame)")]
 	public float AbsoluteVelocityCap = 200f;
+	#endregion
+
+	#region Drifting fields
 
 	[Header("Drifting")]
 
@@ -171,7 +183,9 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
 	public float DriftSpeedReductionWhenCorrecting = 0f;
 	private bool drifting = false;
+	#endregion
 
+	#region Rumble fields
 	[Header("Rumble")]
 
 	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
@@ -197,6 +211,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
 	[Range(0, 2)]
 	public float DriftRumbleAmount = .5f;
+	#endregion
 
 	#region object refs and input bindings
 
