@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class PortalScript : MonoBehaviour {
 
-	public interface IPortalObserver {
-		void Notify(PortalScript portal);
-	}
-
 	public Transform Exit;
 
 	[Tooltip("Optional segment that the car needs to have made contact with immediatly before entering")]
@@ -15,7 +11,7 @@ public class PortalScript : MonoBehaviour {
 	// TODO: dynamically set (and unset) exit portals segment to allow entry from the entry portal segment, instead of triggering a reset
 
 	[HideInInspector]
-	public List<IPortalObserver> Observers = new List<IPortalObserver>();
+	public List<IObserver<PortalScript>> Observers = new List<IObserver<PortalScript>>();
 
 	private void OnTriggerEnter(Collider other) {
 

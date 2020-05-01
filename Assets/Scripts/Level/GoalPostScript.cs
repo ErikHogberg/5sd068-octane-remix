@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoalPostScript : MonoBehaviour {
+public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	public static GoalPostScript MainInstance;
 
 	public LevelPieceSuperClass ParentSegment;
 	public GameObject ContainerObject;
 
+	private bool ready = true;
+
 	private void Awake() {
 		MainInstance = this;
 		ContainerObject.SetActive(false);
+		// if (ParentSegment)
+		// 	ParentSegment.LeaveSegmentObservers.Add(this);
 	}
 
 	private void OnDestroy() {
@@ -24,23 +28,42 @@ public class GoalPostScript : MonoBehaviour {
 
 	}
 
-	private void OnCollisionEnter(Collision other) {
-		// TODO: check if lap is valid
-		// TODO: disable until player leaves segment
+	// TODO: set car, ground and obstacle collision layer settings to not count ground fin and flip trigger when entering goal post or portal
+	private void OnTriggerEnter(Collider other) {
+		if (!ready)
+			return;
+
+		SteeringScript.MainInstance.LapsCompleted++;
+		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted);
+
+		ready = false;
 	}
 
-	public static void SetSegment(LevelPieceSuperClass segment) {
+	public void SetSegment(LevelPieceSuperClass segment) {
+
+		if (ParentSegment)
+			ParentSegment.LeaveSegmentObservers.Remove(this);
+
+		ParentSegment = segment;
+		ParentSegment.LeaveSegmentObservers.Add(this);
+
+		ContainerObject.SetActive(true);
+
+		ContainerObject.transform.position = segment.GoalSpot.position;
+		ContainerObject.transform.rotation = segment.GoalSpot.rotation;
+		ContainerObject.transform.localScale = segment.GoalSpot.localScale;
+	}
+
+	public static void SetInstanceSegment(LevelPieceSuperClass segment) {
 		if (!MainInstance)
 			return;
 
-		MainInstance.ParentSegment = segment;
+		MainInstance.SetSegment(segment);
+	}
 
-		MainInstance.ContainerObject.SetActive(true);
-
-		MainInstance.ContainerObject.transform.position = segment.GoalSpot.position;
-		MainInstance.ContainerObject.transform.rotation = segment.GoalSpot.rotation;
-		MainInstance.ContainerObject.transform.localScale = segment.GoalSpot.localScale;
-
+	// called when car leaves parent segment
+	public void Notify(LevelPieceSuperClass segment) {
+		ready = true;
 	}
 
 }

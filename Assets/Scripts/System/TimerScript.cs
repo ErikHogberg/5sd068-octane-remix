@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using UnityEngine;
 using TMPro;
 
 public class TimerScript : MonoBehaviour {
-	
+
 	private static TimerScript instance;
 	public static TimerScript Instance {
 		get {
-			if (instance == null) { instance = Instantiate(Resources.Load<TimerScript>("Timer")); }
+			if (instance == null)
+				instance = Instantiate(Resources.Load<TimerScript>("Timer"));
 			return instance;
 		}
 	}

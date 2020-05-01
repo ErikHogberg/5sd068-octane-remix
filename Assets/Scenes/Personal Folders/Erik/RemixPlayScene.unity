@@ -5837,8 +5837,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 239851747}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -27.2, z: 0}
-  m_LocalScale: {x: 519.0613, y: 4.6123, z: 348.71967}
+  m_LocalPosition: {x: -89.3, y: -27.2, z: 0}
+  m_LocalScale: {x: 1488.4082, y: 4.6123, z: 848.7139}
   m_Children: []
   m_Father: {fileID: 1830539526}
   m_RootOrder: 0
@@ -8470,11 +8470,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
-      propertyPath: isStart
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
       propertyPath: SegmentOrder
       value: 2
       objectReference: {fileID: 0}
@@ -8552,6 +8547,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GoalPost
+      objectReference: {fileID: 0}
+    - target: {fileID: 8289973409266549741, guid: c19579286bab5944f840f2c448842127,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c19579286bab5944f840f2c448842127, type: 3}
@@ -19195,11 +19195,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
-      propertyPath: isStart
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
       propertyPath: SegmentOrder
       value: 4
       objectReference: {fileID: 0}
@@ -19844,53 +19839,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
-      propertyPath: FrontBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RearBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: LeftBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RightBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: isStart
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
       propertyPath: SegmentOrder
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RespawnSpot
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: GoalSpot
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: FrontCenterParent
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RearCenterParent
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8803d9e04ce54544496137091dfd2625, type: 3}
@@ -19969,26 +19919,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
-      propertyPath: FrontBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RearBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: LeftBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RightBones.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
       propertyPath: PreviousSegments.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -19996,26 +19926,6 @@ PrefabInstance:
         type: 3}
       propertyPath: isStart
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RespawnSpot
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: GoalSpot
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: FrontCenterParent
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: RearCenterParent
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7038193850638904026, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
