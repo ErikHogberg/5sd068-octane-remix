@@ -260,6 +260,9 @@ public class SteeringScript : MonoBehaviour {
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
 
+	[HideInInspector]
+	public int LapsCompleted = 0;
+
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();

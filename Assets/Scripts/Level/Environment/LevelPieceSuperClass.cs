@@ -53,9 +53,11 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public ObjectSelectorScript Obstacles { get; private set; }
 
+	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+
 	private void Awake() {
 		Segments.Add(this);
-		
+
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		Obstacles.UnhideObject("");
@@ -63,7 +65,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	private void Start() {
 		if (isStart) {
-			GoalPostScript.SetSegment(this);
+			GoalPostScript.SetInstanceSegment(this);
 			// UpdateGoalPost();	
 		}
 	}
@@ -94,28 +96,31 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		if (OverrideSegmentSkip)
 			currentSegmentSkip = CustomSegmentSkip;
 
-		if (
-			// NOTE: possible false positive when using override?
-			!currentSegment
-			||currentSegment == this
-			||
-			(
-				OverridePreviousSegment
-				&& PreviousSegments.Contains(currentSegment.SegmentOrder)
-			)
-			|| (
-				SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip // if on next correct segment in allowed range
-				&& SegmentOrder >= currentSegment.SegmentOrder - 1 - currentSegmentSkip
-			) 
-		) {
+		if (currentSegment == this)
+			return;
+
+		bool validProgression = !currentSegment;
+		if (OverridePreviousSegment)
+			validProgression = validProgression || PreviousSegments.Contains(currentSegment.SegmentOrder);
+		else
+			validProgression = validProgression
+				|| (SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip
+					&& SegmentOrder > currentSegment.SegmentOrder);
+
+		if (validProgression) {
+			if (currentSegment)
+				foreach (var observer in currentSegment.LeaveSegmentObservers)
+					observer.Notify(currentSegment);
+
 			currentSegment = this;
 			print("current segment: " + currentSegment.SegmentOrder);
 		} else {
 			ResetToCurrentSegment();
 		}
+
 	}
 
-	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck){
+	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
 		if (!currentSegment)
 			return true;
 
@@ -149,7 +154,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public void UpdateGoalPost() {
 		if (startSegment == endSegment) {
-			GoalPostScript.SetSegment(this);
+			GoalPostScript.SetInstanceSegment(this);
 		} else {
 			// TODO: spawn portals at ends instead
 		}
