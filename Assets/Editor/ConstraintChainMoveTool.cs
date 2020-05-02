@@ -41,6 +41,7 @@ public class ConstraintChainMoveTool : EditorTool {
 
 			Undo.RecordObjects(Selection.transforms, "Move Platform");
 
+			// IDEA: restrict to move one selection at a time to simplify tool?
 			foreach (var transform in Selection.transforms){
 				transform.position += delta;
 
