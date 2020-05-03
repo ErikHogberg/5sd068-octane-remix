@@ -1,26 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 
 class SnapSegmentsEditorWindow : EditorWindow {
 
-	// Transform target;
-
-	// bool rotate = true;
-	// bool scale = false;
-	// Vector3 rotationOffset = Vector3.zero;
-
 	Transform startSegmentObject;
 	Transform endSegmentObject;
-
-	Transform debugLeftStart;
-	Transform debugLeftEnd;
-	Transform debugRightStart;
-	Transform debugRightEnd;
-
 
 	private float leftStartBezierMagnitude;
 	private float leftEndBezierMagnitude;
@@ -33,21 +18,13 @@ class SnapSegmentsEditorWindow : EditorWindow {
 	}
 
 	void OnGUI() {
-		// GUILayout.BeginHorizontal();
+
 		GUILayout.Label("Segment snapping tool!");
-		// GUILayout.Label("Select 3 segments:");
-		// GUILayout.Label("	start, end and then middle.");
-		// GUILayout.EndHorizontal();
 
-
-		// GUILayout.BeginHorizontal();
 		GUILayout.Label("Start:");
 		startSegmentObject = (Transform)EditorGUILayout.ObjectField(startSegmentObject, typeof(Transform), true);
-		// GUILayout.EndHorizontal();
-		// GUILayout.BeginHorizontal();
 		GUILayout.Label("End:");
 		endSegmentObject = (Transform)EditorGUILayout.ObjectField(endSegmentObject, typeof(Transform), true);
-		// GUILayout.EndHorizontal();
 
 		GUILayout.BeginHorizontal();
 		GUILayout.Label("Left start magnitude:\t");
@@ -71,10 +48,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 
-		// leftDistance = EditorGUILayout.FloatField("Left distance:", leftDistance);
-		// rightDistance = EditorGUILayout.FloatField("Right distance:", rightDistance);
-
-
 		GUILayout.Space(16);
 
 		GUILayout.BeginHorizontal();
@@ -85,33 +58,9 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 
-		debugLeftStart = (Transform)EditorGUILayout.ObjectField(debugLeftStart, typeof(Transform), true);
-		debugLeftEnd = (Transform)EditorGUILayout.ObjectField(debugLeftEnd, typeof(Transform), true);
-		debugRightStart = (Transform)EditorGUILayout.ObjectField(debugRightStart, typeof(Transform), true);
-		debugRightEnd = (Transform)EditorGUILayout.ObjectField(debugRightEnd, typeof(Transform), true);
-
-
 	}
 
 	void SnapSegments() {
-		// var selection = Selection.GetTransforms(
-		// 	SelectionMode.TopLevel | SelectionMode.Editable
-		// );
-
-		// if (selection.Length != 3) {
-		// 	Debug.LogWarning("Wrong number of segments");
-		// 	return;
-		// }
-
-		// List<StraightLevelPieceScript> straightSegments = selection.Select(s => s.GetComponentInChildren<StraightLevelPieceScript>()).ToList();
-		// if (straightSegments.Any(s => !s)) {
-		// 	Debug.LogWarning("1 or more objects aren't road segments");
-		// 	return;
-		// }
-
-		// var StartSegment = straightSegments[0];
-		// var EndSegment = straightSegments[1];
-		// var MiddleSegment = straightSegments[2];
 
 		if (!Selection.activeTransform) {
 			Debug.LogWarning("No object selected");
@@ -170,11 +119,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 
 		Vector3 centerMidpoint = Vector3.Lerp(startSegment.FrontParent.position, endSegment.RearParent.position, .5f);
 
-		// if (leftDistance < leftEndpointsDistance)
-		// 	leftDistance = leftEndpointsDistance;
-		// if (rightDistance < rightEndpointsDistance)
-		// 	rightDistance = rightEndpointsDistance;
-
 		Undo.RecordObjects(middleSegment.LeftBones.ToArray(), "move left bones");
 		Undo.RecordObjects(middleSegment.RightBones.ToArray(), "move right bones");
 
@@ -218,11 +162,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 			Vector3 leftEnd = endSegment.RearLeftBone.position;
 			Vector3 leftEndDir = leftEnd - endSegment.RearLeftBone.right.normalized * leftEndBezierMagnitude;
 			leftPoints = Bezier.CubicBezierRender(leftStart, leftStartDir, leftEndDir, leftEnd, middleSegment.LeftBones.Count);
-
-			if (debugLeftStart)
-				debugLeftStart.position = leftStartDir;
-			if (debugLeftEnd)
-				debugLeftEnd.position = leftEndDir;
 		}
 
 		List<Vector3> rightPoints;
@@ -232,11 +171,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 			Vector3 rightEnd = endSegment.RearRightBone.position;
 			Vector3 rightEndDir = rightEnd + endSegment.RearRightBone.right.normalized * rightEndBezierMagnitude;
 			rightPoints = Bezier.CubicBezierRender(rightStart, rightStartDir, rightEndDir, rightEnd, middleSegment.RightBones.Count);
-
-			if (debugRightStart)
-				debugRightStart.position = rightStartDir;
-			if (debugRightEnd)
-				debugRightEnd.position = rightEndDir;
 		}
 
 		// IDEA: separate script/fn for updating bone length and rotation according to distance to next bone
@@ -257,21 +191,27 @@ class SnapSegmentsEditorWindow : EditorWindow {
 
 		if (middleSegment.LeftBones.Count == middleSegment.RightBones.Count) {
 			for (int i = 0; i < middleSegment.LeftBones.Count; i++) {
+
+				Transform nextLeftBone;
+				Transform nextRightBone;
+				if (i == middleSegment.LeftBones.Count - 1) {
+					nextLeftBone = middleSegment.RearLeftBone;
+					nextRightBone = middleSegment.RearRightBone;
+				} else {
+					nextLeftBone = middleSegment.LeftBones[i+1];
+					nextRightBone = middleSegment.RightBones[i+1];
+				}
+
 				var leftBone = middleSegment.LeftBones[i];
 				var rightBone = middleSegment.RightBones[i];
 
-				leftBone.LookAt(rightBone);
+				leftBone.LookAt(nextLeftBone, (leftBone.position - rightBone.position).normalized );
+				leftBone.Rotate(Vector3.right * 90, Space.Self);
 				leftBone.Rotate(Vector3.up * -90, Space.Self);
-				leftBone.Rotate(Vector3.right * -90, Space.Self);
-				rightBone.rotation = leftBone.rotation;
 
-				// Quaternion leftBoneDir = Quaternion.FromToRotation(leftBone.forward, leftBone.position - rightBone.position);
-				// Quaternion rightBoneDir = leftBoneDir;//Quaternion.FromToRotation(rightBone.position, leftBone.position) * Quaternion.Euler(0,90,0);
-
-
-
-				// leftBone.rotation = leftBoneDir;
-				// rightBone.rotation = rightBoneDir;
+				rightBone.LookAt(nextRightBone, (leftBone.position - rightBone.position).normalized );
+				rightBone.Rotate(Vector3.right * 90, Space.Self);
+				rightBone.Rotate(Vector3.up * -90, Space.Self);
 
 			}
 		}
