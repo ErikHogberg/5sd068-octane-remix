@@ -6,11 +6,17 @@ public class StraightLevelPieceScript : LevelPieceSuperClass {
 
 	[Header("Bones")]
 
-	public GameObject FrontCenterParent;
-	public GameObject RearCenterParent;
-	public List<GameObject> FrontBones;
-	public List<GameObject> RearBones;
-	public List<GameObject> LeftBones;
-	public List<GameObject> RightBones;
+	public Transform FrontParent;
+	public Transform RearParent;
+
+	public Transform FrontLeftBone;
+	public Transform FrontRightBone;
+
+	public Transform RearLeftBone;
+	public Transform RearRightBone;
+
+	// 0 is front, grows towards rear
+	public List<Transform> LeftBones;
+	public List<Transform> RightBones;
 
 }

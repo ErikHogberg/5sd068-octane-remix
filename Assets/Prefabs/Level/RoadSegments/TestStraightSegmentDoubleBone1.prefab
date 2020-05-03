@@ -288,11 +288,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1544066959318465973}
   m_LocalRotation: {x: 0.00000005960465, y: -0, z: 0.7071068, w: 0.70710677}
-  m_LocalPosition: {x: 0.3499999, y: 0.45025986, z: 0}
+  m_LocalPosition: {x: -1.3929996, y: 0.0022597313, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 6567142737088156946}
-  m_RootOrder: 1
+  m_Father: {fileID: 7260629402705347488}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1596358029669432776
 GameObject:
@@ -414,11 +414,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2561424397445682995}
   m_LocalRotation: {x: -0.00000008940698, y: 0.000000029802326, z: 0.70710665, w: 0.7071069}
-  m_LocalPosition: {x: 0.35000014, y: -0.44999826, z: 0}
+  m_LocalPosition: {x: -1.3929994, y: -0.0019981265, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 6567142737088156946}
-  m_RootOrder: 3
+  m_Father: {fileID: 5526786948325791471}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2803498248065372471
 GameObject:
@@ -508,9 +508,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8255861227605933434}
-  - {fileID: 3020027166877321889}
   - {fileID: 5780598787555197713}
-  - {fileID: 4244998632046222908}
   m_Father: {fileID: 6752896239382566505}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1011,6 +1009,7 @@ Transform:
   - {fileID: 559106044558740331}
   - {fileID: 8444649987819817740}
   - {fileID: 8395796289966880959}
+  - {fileID: 4244998632046222908}
   m_Father: {fileID: 6752896239382566505}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1049,6 +1048,7 @@ Transform:
   - {fileID: 2844902836614731346}
   - {fileID: 5598572429576245636}
   - {fileID: 7646067710881378308}
+  - {fileID: 3020027166877321889}
   m_Father: {fileID: 6752896239382566505}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1226,36 +1226,32 @@ MonoBehaviour:
   CustomSegmentSkip: 0
   RespawnSpot: {fileID: 1363710222987671271}
   GoalSpot: {fileID: 554034881869410389}
-  FrontCenterParent: {fileID: 3593768000992082018}
-  RearCenterParent: {fileID: 3282468201462585803}
-  FrontBones:
-  - {fileID: 7636600822272749297}
-  - {fileID: 7859389892990798826}
-  - {fileID: 5881644647733838258}
-  - {fileID: 345508737213811343}
-  RearBones:
-  - {fileID: 3989659224478290842}
-  - {fileID: 1544066959318465973}
-  - {fileID: 8731740787852497808}
-  - {fileID: 2561424397445682995}
+  FrontParent: {fileID: 8509120744538075047}
+  RearParent: {fileID: 6567142737088156946}
+  FrontLeftBone: {fileID: 8624705834060903199}
+  FrontRightBone: {fileID: 1100730117634913734}
+  RearLeftBone: {fileID: 5780598787555197713}
+  RearRightBone: {fileID: 8255861227605933434}
   LeftBones:
-  - {fileID: 4986932587035471379}
-  - {fileID: 3107220778744997821}
-  - {fileID: 5365845201014364365}
-  - {fileID: 6044485803106472867}
-  - {fileID: 8158560562198525195}
-  - {fileID: 6279379107183220039}
-  - {fileID: 5524178914671401442}
-  - {fileID: 7033489767525882083}
+  - {fileID: 5936791356522106896}
+  - {fileID: 3357594225691494994}
+  - {fileID: 5834940456486419804}
+  - {fileID: 5329097269944389788}
+  - {fileID: 2727266648021033104}
+  - {fileID: 559106044558740331}
+  - {fileID: 8444649987819817740}
+  - {fileID: 8395796289966880959}
+  - {fileID: 4244998632046222908}
   RightBones:
-  - {fileID: 2374507624647835190}
-  - {fileID: 4361787949936964815}
-  - {fileID: 1263514339526877558}
-  - {fileID: 6038184101926927436}
-  - {fileID: 6103922403479552650}
-  - {fileID: 4240275410265000474}
-  - {fileID: 2803498248065372471}
-  - {fileID: 4921881785867698046}
+  - {fileID: 5220950966777481943}
+  - {fileID: 5556484450914494121}
+  - {fileID: 2106281526269862172}
+  - {fileID: 5626906415453289424}
+  - {fileID: 8729179314466286828}
+  - {fileID: 2844902836614731346}
+  - {fileID: 5598572429576245636}
+  - {fileID: 7646067710881378308}
+  - {fileID: 3020027166877321889}
 --- !u!114 &6962827102029836808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1507,7 +1503,7 @@ Transform:
   m_Children:
   - {fileID: 8758515248340870569}
   m_Father: {fileID: 6567142737088156946}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &221673585434711095
 PrefabInstance:

@@ -15,6 +15,9 @@ class SnapSegmentsEditorWindow : EditorWindow {
 	StraightLevelPieceScript StartSegment;
 	StraightLevelPieceScript EndSegment;
 
+	private float leftDistance;
+	private float rightDistance;
+
 	[MenuItem("Window/Snap segments")]
 	public static void ShowWindow() {
 		EditorWindow.GetWindow(typeof(SnapSegmentsEditorWindow));
@@ -28,14 +31,18 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		// GUILayout.EndHorizontal();
 
 
-		GUILayout.BeginHorizontal();
+		// GUILayout.BeginHorizontal();
 		GUILayout.Label("Start:");
 		StartSegment = (StraightLevelPieceScript)EditorGUILayout.ObjectField(StartSegment, typeof(StraightLevelPieceScript), true);
-		GUILayout.EndHorizontal();
-		GUILayout.BeginHorizontal();
+		// GUILayout.EndHorizontal();
+		// GUILayout.BeginHorizontal();
 		GUILayout.Label("End:");
 		EndSegment = (StraightLevelPieceScript)EditorGUILayout.ObjectField(EndSegment, typeof(StraightLevelPieceScript), true);
-		GUILayout.EndHorizontal();
+		// GUILayout.EndHorizontal();
+
+		leftDistance = EditorGUILayout.FloatField("Left distance:", leftDistance);
+		rightDistance = EditorGUILayout.FloatField("Right distance:", rightDistance);
+
 
 		GUILayout.Space(16);
 
@@ -76,51 +83,99 @@ class SnapSegmentsEditorWindow : EditorWindow {
 
 		var middleSegment = Selection.activeTransform.GetComponentInChildren<StraightLevelPieceScript>();
 
-		if (!middleSegment) {
+		if (!middleSegment)
 			middleSegment = Selection.activeTransform.GetComponent<StraightLevelPieceScript>();
-		}
+		if (!middleSegment)
+			middleSegment = Selection.activeTransform.parent.GetComponentInChildren<StraightLevelPieceScript>();
 
 		if (!middleSegment) {
 			Debug.LogWarning("No road segment selected, road segment script not found in object");
 			return;
 		}
 
+		float StartWidth = Vector3.Distance(
+			StartSegment.FrontRightBone.position,
+			StartSegment.FrontLeftBone.transform.position
+		);
+		float EndWidth = Vector3.Distance(
+			EndSegment.RearLeftBone.position,
+			EndSegment.RearRightBone.position
+		);
+
+		float leftEndpointsDistance = Vector3.Distance(
+			middleSegment.FrontLeftBone.position,
+			middleSegment.RearRightBone.position
+		);
+
+		float rightEndpointsDistance = Vector3.Distance(
+			middleSegment.FrontRightBone.position,
+			middleSegment.RearLeftBone.position
+		);
+
+		// FIXME: somehow endpoint distances evaluate to the same?
+		if (leftDistance < leftEndpointsDistance)
+			leftDistance = leftEndpointsDistance;
+		if (rightDistance < rightEndpointsDistance)
+			rightDistance = rightEndpointsDistance;
+
+		Undo.RecordObjects(middleSegment.LeftBones.ToArray(), "move left bones");
+		Undo.RecordObjects(middleSegment.RightBones.ToArray(), "move right bones");
+
+		Undo.RecordObject(middleSegment.FrontRightBone, "front right bone");
+		Undo.RecordObject(middleSegment.FrontLeftBone, "front left bone");
+
+		Undo.RecordObject(middleSegment.RearRightBone, "rear right bone");
+		Undo.RecordObject(middleSegment.RearLeftBone, "rear left bone");
+
+		Undo.RecordObject(middleSegment.FrontParent, "front bone parent");
+		Undo.RecordObject(middleSegment.RearParent, "rear bone parent");
+
 		// TODO: Evenly bend middle segment between start and end segment
 		// TODO: interpolate width between start and end
 
-		// IDEA: add 2 fields for inner and outer length override 
-
-		float leftLength = 0;
-		for (int i = 0; i < middleSegment.LeftBones.Count - 1; i++) {
-			var currentBone = middleSegment.LeftBones[i];
-			var nextBone = middleSegment.LeftBones[i + 1];
-
-			leftLength += Vector3.Distance(currentBone.transform.position, nextBone.transform.position);
-
-		}
-
-		float distributedLeftLength = leftLength/middleSegment.LeftBones.Count;
-		
-
-		float rightLength = 0;
-		for (int i = 0; i < middleSegment.RightBones.Count - 1; i++) {
-			var currentBone = middleSegment.RightBones[i];
-			var nextBone = middleSegment.RightBones[i + 1];
-
-			rightLength += Vector3.Distance(currentBone.transform.position, nextBone.transform.position);
-		}
-
-		float distributedRightLength = rightLength/middleSegment.RightBones.Count;
-
-
-		// TODO: check validity of bone indices
-		float StartWidth = Vector3.Distance(StartSegment.FrontBones[0].transform.position, StartSegment.FrontBones[0].transform.position);
-		float EndWidth = Vector3.Distance(EndSegment.RearBones[0].transform.position, EndSegment.RearBones[0].transform.position);
 
 		// TODO: calculate angle/axis between start and end
 		// IDEA: option to choose if inner and outer angle/axis should be independent or the same (using center?)
 
-		// TODO: rotate bones of each side toward eachother		
+		// TODO: rotate bones of each side toward eachother
+		// TODO: scale
+
+		// TODO: move root transform
+
+		middleSegment.FrontParent.position = EndSegment.RearParent.position;
+		middleSegment.FrontParent.rotation = EndSegment.RearParent.rotation;
+
+		middleSegment.RearParent.position = StartSegment.FrontParent.position;
+		middleSegment.RearParent.rotation = StartSegment.FrontParent.rotation;
+
+
+		float leftSpacing = leftEndpointsDistance / middleSegment.LeftBones.Count;
+		float rightSpacing = rightEndpointsDistance / middleSegment.RightBones.Count;
+
+		Vector3 midpointUp = Quaternion.Slerp(
+			Quaternion.Euler(StartSegment.FrontParent.up),
+			Quaternion.Euler(EndSegment.RearParent.up),
+			.5f
+		).eulerAngles;
+
+
+		float leftMidpointAngle = Mathf.Acos((leftEndpointsDistance * .5f) / leftDistance);
+		float rightMidpointAngle = Mathf.Acos((rightEndpointsDistance * .5f) / rightDistance);
+
+		Vector3 pos =
+			(Quaternion.Euler(EndSegment.RearRightBone.forward)
+			* Quaternion.AngleAxis(180 + leftMidpointAngle * Mathf.Rad2Deg, midpointUp))
+			.eulerAngles
+			* leftDistance;
+
+		// middleSegment.LeftBones[5].position = EndSegment.RearRightBone.position + pos; // borked
+
+		// for (int i = 0; i < middleSegment.RightBones.Count; i++) {
+
+		// }
+		// for (int i = 0; i < middleSegment.LeftBones.Count; i++) {
+
+		// }
 
 	}
 }
