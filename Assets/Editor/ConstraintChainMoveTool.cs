@@ -20,6 +20,8 @@ public class ConstraintChainMoveTool : EditorTool {
 		};
 	}
 
+	// IDEA: remove/disable on play
+
 	public override GUIContent toolbarIcon {
 		get { return m_IconContent; }
 	}
