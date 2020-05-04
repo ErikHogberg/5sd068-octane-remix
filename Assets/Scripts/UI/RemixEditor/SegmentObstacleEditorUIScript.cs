@@ -22,21 +22,26 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 
 		obstacleDropdown.options.Add(new TMP_Dropdown.OptionData("None"));
 
-		foreach (var item in currentSegment.Obstacles.objects)
-			obstacleDropdown.options.Add(new TMP_Dropdown.OptionData(item.Key));
+		var shownObject = currentSegment.Obstacles.ShownObject;
 
-		obstacleDropdown.value = 0;
+		int currentIndex = 0;
+		for (int i = 0; i < currentSegment.Obstacles.objects.Count; i++) {
+			var item = currentSegment.Obstacles.objects[i];
+			obstacleDropdown.options.Add(new TMP_Dropdown.OptionData(item.Key));
+			if (shownObject != null && shownObject.Key == item.Key)
+				currentIndex = i + 1;
+		}
+
+		obstacleDropdown.value = currentIndex;
 		ApplyDropdown();
 
 		obstacleDropdown.RefreshShownValue();
+		obstacleDropdown.interactable = true;
+
 	}
 
 	public void ApplyDropdown(int i) {
-		// if (i == 0)
-		// currentSegment.Obstacles.UnhideObject("");
-		// else
 		currentSegment.Obstacles.UnhideObject(
-			//currentSegment.Obstacles.objects[i].Key
 			obstacleDropdown.options[i].text
 		);
 	}

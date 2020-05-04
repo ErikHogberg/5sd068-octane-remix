@@ -17,7 +17,9 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	[Tooltip("How quickly the car cools down by itself over time. Higher number = quicker cooling.")]
 	public float coolingRate = 1.0f;
 	[Tooltip("How hot does the car need to get before the heat affects its boost capability?")]
-	public float boostTempThreshold = 50.0f;
+	public float boostTempThreshold = 30.0f;
+	[Tooltip("At what temperature has the heat's detrimental influence on boost reached its maximum?")]
+	public float boostTempMax = 70.0f;
 	[Tooltip("How hot does the car need to get before the heat starts damaging it?")]
 	public float integrityTempThreshold = 70.0f;
 	[Tooltip("How much integrity damage the car receives every tick while being too hot.")]
@@ -37,11 +39,11 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	[Tooltip("How much rock obstacles affect the car's integrity level.")]
 	public float rockIntegEffect = 10.0f;
 
-	[Header("UI Scripts")]
-	[Tooltip("This car's associated temperature UI bar")]
-	public TemperatureUIScript temperatureUI;
-	[Tooltip("This car's associated integrity UI bar")]
-	public IntegrityUIScript integrityUI;
+	// [Header("UI Scripts")]
+	// [Tooltip("This car's associated temperature UI bar")]
+	// public TemperatureUIScript temperatureUI;
+	// [Tooltip("This car's associated integrity UI bar")]
+	// public IntegrityUIScript integrityUI;
 
 	private SteeringScript carControls;
 
@@ -65,13 +67,19 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	//The timer for damage function calls
 	private float damageTimer = 0.0f;
 
+	TemperatureUIScript temperatureUI;
+	IntegrityUIScript integrityUI;
+
 
 	private void Start() {
 		carControls = GetComponent<SteeringScript>();
 		currIntegrity = maxIntegrity;
 
+		temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its TemperatureUIScript");
+		
+		integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its IntegrityUIScript");
 	}
@@ -120,6 +128,7 @@ public class TemperatureAndIntegrity : MonoBehaviour
 
 			if (tooHotInteg) {
 				currIntegrity -= integrityTempDOT;
+				var integrityUI = IntegrityUIScript.MainInstance;
 				if (integrityUI != null)
 					integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 				ValueCheck();
@@ -132,34 +141,50 @@ public class TemperatureAndIntegrity : MonoBehaviour
 		}
 		//Do whatever effects we may want temperature to have on boost every frame 
 		//Like maybe updating max boost amount
-		if (tooHotBoost) { }
+		if (tooHotBoost) { carControls.SetBoostLimit((currTemp - boostTempThreshold)/(boostTempMax - boostTempThreshold)); }
 
 		//Lerping temperature fluctuations to make it look more natural
 		currTemp = Mathf.Lerp(currTemp, goalTemp, 5.0f * Time.deltaTime);
 
+		SetTempUI();
+	}
+
+	private void Hit() {
+		SetIntegUI();
+		damageTimer = damageRate;
+		ValueCheck();
+	}
+
+	private void SetTempUI() {
 		if (temperatureUI != null) {
 			float displayTempPercent = ((standardTemp + currTemp) - zeroTemp) / (highTemp - zeroTemp);
 			temperatureUI.SetTempPercentage(displayTempPercent, (standardTemp + currTemp));
 		}
 	}
 
-	private void Hit() {
+	private void SetIntegUI() {
 		if (integrityUI != null)
 			integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
-		damageTimer = damageRate;
-		ValueCheck();
 	}
 
 	private void ValueCheck()
     {
 		if (currIntegrity <= 0.0f) {
-			//Run reset function
-        }
+			Debug.Log("Integrity reached 0!");
+			carControls.Reset();
+			Reset();
+		}
 		if (currTemp >= boostTempThreshold) tooHotBoost = true;
-		else tooHotBoost = false;
+		else { tooHotBoost = false; carControls.SetBoostLimit(0.0f); }
 
 		if (currTemp >= integrityTempThreshold) tooHotInteg = true;
 		else tooHotInteg = false;
     }
+
+	private void Reset() {
+		currIntegrity = maxIntegrity;
+		currTemp = 0.0f; goalTemp = 0.0f;
+		SetTempUI(); SetIntegUI();
+	}
 
 }

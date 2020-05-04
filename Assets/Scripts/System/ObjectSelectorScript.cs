@@ -9,33 +9,34 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public string DefaultObject;
 
 	[Serializable]
-	public struct ObjectIndex {
+	public class ObjectIndex {
 		public string Key;
 		public GameObject Value;
 	}
 
 	public List<ObjectIndex> objects;
 
-	public GameObject ShownObject { get; private set; }
+	[HideInInspector]
+	public ObjectIndex ShownObject = null;
 
 	private void Awake() {
-		foreach (var item in objects) 
+		foreach (var item in objects)
 			item.Value.SetActive(false);
 
-		UnhideObject(DefaultObject);		
+		UnhideObject(DefaultObject);
 	}
 
 	public void UnhideObject(string key) {
-		if (ShownObject)
-			ShownObject.SetActive(false);
+		if (ShownObject != null && ShownObject.Value != null)
+			ShownObject.Value.SetActive(false);
 
 		if (key == "" || key == "None")
 			return;
 
 		foreach (var gameObject in objects) {
 			if (gameObject.Key == key) {
-				ShownObject = gameObject.Value;
-				ShownObject.SetActive(true);
+				ShownObject = gameObject;
+				ShownObject.Value.SetActive(true);
 				return;
 			}
 		}
@@ -43,6 +44,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 
 	public void UnhideObject() {
 		UnhideObject("");
+		ShownObject = null;
 	}
 
 }
