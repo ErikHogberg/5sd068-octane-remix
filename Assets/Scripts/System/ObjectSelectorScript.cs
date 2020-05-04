@@ -26,6 +26,16 @@ public class ObjectSelectorScript : MonoBehaviour {
 		UnhideObject(DefaultObject);
 	}
 
+	public void UnhideObject(int index) {
+		if (ShownObject != null && ShownObject.Value != null)
+			ShownObject.Value.SetActive(false);
+
+		if (index < objects.Count) {
+			ShownObject = objects[index];
+			ShownObject.Value.SetActive(true);
+		}
+	}
+
 	public void UnhideObject(string key) {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
