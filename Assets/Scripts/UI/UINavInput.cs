@@ -13,6 +13,7 @@ public enum UIMode
 
 public class UINavListener
 {
+	//What mode is this listener for?
 	protected UIMode mode;
 	protected bool swipeReady = true;
 
@@ -26,18 +27,22 @@ public class UINavListener
 
     public UINavListener(UIMode p_mode) { mode = p_mode; }
 
+	//Per UI mode, what do each of the UI inputs cause in their respective modes?
+	//UI modes should be singletons
+	//Will need to be updated as we add more modes or inputs
 	protected void ModeSwipe() {
 		if (mode == UIMode.HOME) { }
 		else if (mode == UIMode.REMIX) { }
 		else if (mode == UIMode.CHARSELECT) 
 		{
-			Debug.Log("Swipe: " + lastSwipeValue);
+			//Debug.Log("Swipe: " + lastSwipeValue + " Ready: " + swipeReady);
 			if (swipeReady) {
 				if (lastSwipeValue <= -0.5f) {
-					//CharacterSelection.i.SwapDisplayCar(true);
+					CharacterSelection.i.SwapDisplayCar(true);
 					swipeReady = false;
 				} else if (lastSwipeValue >= 0.5f) {
-					//CharacterSelection.i.SwapDisplayCar(false);
+					CharacterSelection.i.SwapDisplayCar(false);
+					swipeReady = false;
 				}
 			}
 			else { if (lastSwipeValue == 0f) swipeReady = true; }
@@ -47,21 +52,19 @@ public class UINavListener
 		if (mode == UIMode.HOME) { }
 		else if (mode == UIMode.REMIX) { }
 		else if (mode == UIMode.CHARSELECT) {
-			Debug.Log("Confirm: " + lastConfirmValue);
-			if (lastConfirmValue >= 0.5f) CharacterSelection.i.Test();
-				//CharacterSelection.i.MakePick(0, CharacterSelection.i.CurrentIndex());
+			//Debug.Log("Confirm: " + lastConfirmValue);
+			if (lastConfirmValue >= 0.5f) CharacterSelection.i.MakePick(0, CharacterSelection.i.CurrentIndex());
 		}
 	}
 	protected void ModeCancel() {
 		if (mode == UIMode.HOME) { }
 		else if (mode == UIMode.REMIX) { }
 		else if (mode == UIMode.CHARSELECT) {
-			Debug.Log("Cancel: " + lastCancelValue);
+			//Debug.Log("Cancel: " + lastCancelValue);
 			if (lastCancelValue >= 0.5f) CharacterSelection.i.ActivateCharSelect(false);
 		}
 	}
 
-	public void ChangeUIMode(UIMode p_mode) { mode = p_mode; }
 }
 
 public class UINavInput : MonoBehaviour
@@ -74,6 +77,7 @@ public class UINavInput : MonoBehaviour
 		}
 	}
 
+	//Will need to be updated as we add more inputs
 	[Header("Key bindings")]
 	public InputActionReference sideSwipeKeyBind;
 	public InputActionReference confirmKeyBind;
@@ -93,7 +97,6 @@ public class UINavInput : MonoBehaviour
 			listener.Value.SwipePing(swipeBuffer);
         }
 	}
-
 	private void SetConfirm(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		confirmBuffer = input;
@@ -101,7 +104,6 @@ public class UINavInput : MonoBehaviour
 			listener.Value.ConfirmPing(confirmBuffer);
 		}
 	}
-
 	private void SetCancel(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		cancelBuffer = input;
@@ -115,6 +117,10 @@ public class UINavInput : MonoBehaviour
 		confirmKeyBind.action.performed += SetConfirm;
 		cancelKeyBind.action.performed += SetCancel;
 
+		sideSwipeKeyBind.action.canceled += SetSwipe;
+		confirmKeyBind.action.canceled += SetConfirm;
+		cancelKeyBind.action.canceled += SetCancel;
+
 		currentMode = UIMode.HOME;
 		listeners = new Dictionary<UIMode, UINavListener>();
 		Deactivate();
@@ -125,14 +131,17 @@ public class UINavInput : MonoBehaviour
 		confirmKeyBind.action.Enable();
 		cancelKeyBind.action.Enable();
 	}
-
 	public void Deactivate() {
 		sideSwipeKeyBind.action.Disable();
 		confirmKeyBind.action.Disable();
 		cancelKeyBind.action.Disable();
 	}
 
+	//Set what listener the input will go to
 	public void SetUINavMode(UIMode p_mode) { currentMode = p_mode; }
+
+	//One listener per UI mode is the intention
+	//The listener for a mode will let actions have consequences in its associated UI mode
 	public void AddUINavListener(UIMode p_mode) {
 		if (listeners.ContainsKey(p_mode)) {
 			Debug.Log("UINavInput: Listeners list already contains an entry for this UI mode");
