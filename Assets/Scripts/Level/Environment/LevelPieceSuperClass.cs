@@ -10,10 +10,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
-	protected static int startSegmentIndex = 0;
-	protected static int EndSegmentIndex = 0;
+	protected static LevelPieceSuperClass startSegment = null;
+	protected static LevelPieceSuperClass endSegment = null;
 
-	protected static int currentSegmentIndex = 0;
+	protected static LevelPieceSuperClass currentSegment;
 
 	// TODO: progress through whole track
 	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
@@ -23,11 +23,17 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// [Tooltip("If resetting due to out of order segment should be ignored")]
 	// public bool OverrideSegmentOrderReset = false;
 
+	public bool isStart = false;
+	public bool isEnd = false;
+
 	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
 	public bool OverridePreviousSegment = false;
 	[Tooltip("Which segments were before this one, requires the override to be checked to be used")]
 	// public int PreviousSegment = 0;
 	public List<int> PreviousSegments;
+
+	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
+	public LevelPieceSuperClass SegmentOnReset;
 
 	[Tooltip("Override how many segments are allowed to be skipped when entering this segment")]
 	public bool OverrideSegmentSkip = false;
@@ -38,6 +44,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// IDEA: define list of multiple allowed previous segments?
 
 	public Transform RespawnSpot;
+	public Transform GoalSpot;
 
 	// IDEA: empty level segment type for optional spots for adding roads
 	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
@@ -50,11 +57,33 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public ObjectSelectorScript Obstacles { get; private set; }
 
+	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+
 	private void Awake() {
 		Segments.Add(this);
+
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		Obstacles.UnhideObject("");
+
+		if (isStart) {
+			startSegment = this;
+			// endSegment = this;
+			// GoalPostScript.SetInstanceSegment(this);
+			// UpdateGoalPost();
+		}
+
+		if (isEnd) {
+			endSegment = this;
+			// UpdateGoalPost();
+		}
+	}
+
+	private void Start() {
+
+		if (isEnd || isStart) {
+			UpdateGoalPost();
+		}
 	}
 
 	private void OnMouseOver() {
@@ -80,47 +109,68 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		int currentSegmentSkip = allowedSegmentSkip;
 
-		if (OverrideSegmentSkip) 
+		if (OverrideSegmentSkip)
 			currentSegmentSkip = CustomSegmentSkip;
 
-		if (
-			// NOTE: possible false positive when using override?
-			(
-				OverridePreviousSegment
-				&& PreviousSegments.Contains(currentSegmentIndex)
-			)
-			|| (
-				SegmentOrder <= currentSegmentIndex + 1 + currentSegmentSkip // if on next correct segment in allowed range
-				&& SegmentOrder >= currentSegmentIndex - 1 - currentSegmentSkip
-			) // if on previous correct segment in allowed range
-			// || (currentSegmentIndex == Segments.Count - 1 && SegmentOrder == 0) // loop track
-		) {
-			currentSegmentIndex = SegmentOrder;
-			print("current segment: " + currentSegmentIndex);
+		if (currentSegment == this)
+			return;
+
+		bool validProgression = !currentSegment;
+		if (OverridePreviousSegment)
+			validProgression = validProgression || PreviousSegments.Contains(currentSegment.SegmentOrder);
+		else
+			validProgression = validProgression
+				|| (SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip
+					&& SegmentOrder > currentSegment.SegmentOrder);
+
+		if (validProgression) {
+			if (currentSegment)
+				foreach (var observer in currentSegment.LeaveSegmentObservers)
+					observer.Notify(currentSegment);
+
+			currentSegment = this;
+			print("current segment: " + currentSegment.SegmentOrder);
 		} else {
 			ResetToCurrentSegment();
 		}
+
+	}
+
+	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
+		if (!currentSegment)
+			return true;
+
+		return currentSegment == segmentToCheck;
 	}
 
 	public static bool ResetToCurrentSegment() {
-		LevelPieceSuperClass currentSegment = null;
-		foreach (var segment in Segments) {
-			if (segment.SegmentOrder == currentSegmentIndex) {
-				currentSegment = segment;
-				break;
-			}
-		}
-
 		if (!currentSegment)
 			return false;
 
 		if (currentSegment.RespawnSpot) {
+			if (currentSegment.SegmentOnReset)
+				currentSegment = currentSegment.SegmentOnReset;
+
 			SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
 		} else {
-			SteeringScript.MainInstance.Reset(currentSegment.transform.position, currentSegment.transform.rotation);
+			return false;
 		}
 
 		return true;
+	}
+
+	public void UpdateGoalPost() {
+
+		if (!startSegment)
+			startSegment = this;
+		if (!endSegment) 
+			endSegment = this;
+
+		if (startSegment == this && endSegment == this) {
+			GoalPostScript.SetInstanceSegment(this);
+		} else {
+			// TODO: spawn portals at ends instead
+		}
 	}
 
 }

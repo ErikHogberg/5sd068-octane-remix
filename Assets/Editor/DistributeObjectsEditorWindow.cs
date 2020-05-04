@@ -8,7 +8,7 @@ class DistributeObjects : EditorWindow {
 	Transform endTransform;
 
 
-	bool rotate = false;
+	// bool rotate = false;
 
 	[MenuItem("Window/Distribute Objects")]
 	public static void ShowWindow() {

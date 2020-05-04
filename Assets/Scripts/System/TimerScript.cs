@@ -1,22 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using UnityEngine;
 using TMPro;
 
-public class TimerScript : MonoBehaviour
-{
-	private static TimerScript _i;
-	public static TimerScript i {
+public class TimerScript : MonoBehaviour {
+
+	private static TimerScript instance;
+	public static TimerScript Instance {
 		get {
-			if (_i == null) { _i = Instantiate(Resources.Load<TimerScript>("Timer")); }
-			return _i;
+			if (instance == null)
+				instance = Instantiate(Resources.Load<TimerScript>("Timer"));
+			return instance;
 		}
 	}
 
 	private float timer = 0.0f;
 	private bool running = false;
-	
+
 	private GameObject timerUI;
 	private TMP_Text timerText;
 
@@ -26,32 +25,29 @@ public class TimerScript : MonoBehaviour
 	public float GetTime() { return timer; }
 	public TimeSpan GetTimeSpan() { return TimeSpan.FromSeconds(timer); }
 
-	public void DisplayTime()
-    {
+	public void DisplayTime() {
 		if (timerUI == null) {
 			timerUI = Instantiate(Resources.Load<GameObject>("TimerUI"));
 			timerUI.transform.SetParent(CanvasFinder.thisCanvas.transform, false);
 			timerText = timerUI.transform.GetChild(0).GetComponent<TMP_Text>();
 		}
 		timerUI.SetActive(true);
-    }
-	public void HideTime()
-    {
+	}
+	public void HideTime() {
 		if (timerUI == null) {
 			Debug.Log("TimerScript: Timer UI cannot be hidden because it has not yet been instantiated.");
 			return;
-        }
+		}
 		timerUI.SetActive(false);
-    }
+	}
 
 
 	//To avoid jittery number updates on the UI
 	private int updateCount = 0;
 	private int updateInterval = 3;
-	
-	void Update()
-    {
-		if (running) { 
+
+	void Update() {
+		if (running) {
 			timer += Time.deltaTime;
 
 			if (timerUI != null) {
@@ -65,13 +61,11 @@ public class TimerScript : MonoBehaviour
 				}
 			}
 		}
-    }
+	}
 
-	private string TimeCalc(int nr)
-    {
+	private string TimeCalc(int nr) {
 		string ret = "";
-		if (nr <= 9) { ret = "0" + nr.ToString("F0"); }
-		else if (nr >= 99f) ret = "00";
+		if (nr <= 9) { ret = "0" + nr.ToString("F0"); } else if (nr >= 99f) ret = "00";
 		else ret = nr.ToString("F0");
 		return ret;
 	}
