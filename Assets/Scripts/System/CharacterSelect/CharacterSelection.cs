@@ -86,7 +86,7 @@ public class CharacterSelection : MonoBehaviour
 	void Start()
 	{
 		MakePick(0, CharacterSelected.NONE);
-		//ActivateCharSelect(true);
+		ActivateCharSelect(true);
 	}
 
 	//TODO: Make it button-activate
@@ -102,7 +102,7 @@ public class CharacterSelection : MonoBehaviour
 		VisualSetDisplay();
 		AnnouncePick(playerIndex);
 	}
-	public CharacterSelected GetPick(int playerIndex) { return choices[playerIndex]; }
+	public static CharacterSelected GetPick(int playerIndex) { return choices[playerIndex]; }
 
 	public CharacterSelected CurrentIndex() { return charSelectData[currViewIndex].carTag; }
 
