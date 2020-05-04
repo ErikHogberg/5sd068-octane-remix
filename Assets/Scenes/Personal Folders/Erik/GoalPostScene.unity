@@ -231,6 +231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Exit: {fileID: 1921181649}
+  Segment: {fileID: 0}
 --- !u!1 &15442235
 GameObject:
   m_ObjectHideFlags: 0
@@ -6865,6 +6866,9 @@ MonoBehaviour:
     Value: {fileID: 138127591}
   - Key: Old
     Value: {fileID: 1538505045}
+  ShownObject:
+    Key: 
+    Value: {fileID: 0}
 --- !u!1 &967878609
 GameObject:
   m_ObjectHideFlags: 0
@@ -13411,7 +13415,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 8b379ff0f42162643a95d88fef647130, type: 2}
+      objectReference: {fileID: 5561349426305759274, guid: 1dc79fa2863d6004a857146686b56c5e,
+        type: 3}
     - target: {fileID: -927199367670048503, guid: 1dc79fa2863d6004a857146686b56c5e,
         type: 3}
       propertyPath: m_Name
