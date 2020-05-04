@@ -31,6 +31,9 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// public int PreviousSegment = 0;
 	public List<int> PreviousSegments;
 
+	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
+	public LevelPieceSuperClass SegmentOnReset;
+
 	[Tooltip("Override how many segments are allowed to be skipped when entering this segment")]
 	public bool OverrideSegmentSkip = false;
 	[Tooltip("How many segments are allowed to be skipped when entering this segment, 0 means only the exact previous segment is allowed")]
@@ -128,24 +131,15 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	}
 
 	public static bool ResetToCurrentSegment() {
-		// LevelPieceSuperClass currentSegment = null;
-		// foreach (var segment in Segments) {
-		// 	if (segment.SegmentOrder == LevelPieceSuperClass.currentSegment.SegmentOrder) {
-		// 		currentSegment = segment;
-		// 		break;
-		// 	}
-		// }
-
-		if (!currentSegment) {
-			// SteeringScript.MainInstance.Reset();
+		if (!currentSegment) 
 			return false;
-		}
 
 		if (currentSegment.RespawnSpot) {
+			if (currentSegment.SegmentOnReset)
+				currentSegment = currentSegment.SegmentOnReset;
+				
 			SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
 		} else {
-			// SteeringScript.MainInstance.Reset(currentSegment.transform.position, currentSegment.transform.rotation);
-			// SteeringScript.MainInstance.Reset();
 			return false;
 		}
 

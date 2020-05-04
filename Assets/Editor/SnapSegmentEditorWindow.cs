@@ -198,18 +198,18 @@ class SnapSegmentsEditorWindow : EditorWindow {
 					nextLeftBone = middleSegment.RearLeftBone;
 					nextRightBone = middleSegment.RearRightBone;
 				} else {
-					nextLeftBone = middleSegment.LeftBones[i+1];
-					nextRightBone = middleSegment.RightBones[i+1];
+					nextLeftBone = middleSegment.LeftBones[i + 1];
+					nextRightBone = middleSegment.RightBones[i + 1];
 				}
 
 				var leftBone = middleSegment.LeftBones[i];
 				var rightBone = middleSegment.RightBones[i];
 
-				leftBone.LookAt(nextLeftBone, (leftBone.position - rightBone.position).normalized );
+				leftBone.LookAt(nextLeftBone, (leftBone.position - rightBone.position).normalized);
 				leftBone.Rotate(Vector3.right * 90, Space.Self);
 				leftBone.Rotate(Vector3.up * -90, Space.Self);
 
-				rightBone.LookAt(nextRightBone, (leftBone.position - rightBone.position).normalized );
+				rightBone.LookAt(nextRightBone, (leftBone.position - rightBone.position).normalized);
 				rightBone.Rotate(Vector3.right * 90, Space.Self);
 				rightBone.Rotate(Vector3.up * -90, Space.Self);
 
