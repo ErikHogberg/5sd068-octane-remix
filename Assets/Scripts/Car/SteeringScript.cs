@@ -18,12 +18,10 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
+	// TODO: list of instances for split screen multiplayer, indexed by player order
+	public static SteeringScript MainInstance;
 
-
-
-	// TODO: reset car position to closest track position
-
-
+	#region Steering fields
 	[Header("Steering")]
 
 	[Tooltip("Sets which wheels are connected to the engine, rear axis, front axis, or both")]
@@ -46,7 +44,9 @@ public class SteeringScript : MonoBehaviour {
 	public float MaxNarrowingAmount = 0.05f;
 	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
 	public AnimationCurve SteeringNarrowingCurve;
+	#endregion
 
+	#region Gas and brake fields
 	[Header("Gas")]
 	public float GasSpeed = 100f;
 	public AnimationCurve GasPedalCurve;
@@ -79,7 +79,9 @@ public class SteeringScript : MonoBehaviour {
 
 	[Range(-180, 180)]
 	public float HandbrakeDriftAngle = 30f;
+	#endregion
 
+	#region Downward force fields
 	[Header("Downward force")]
 	public bool EnableDownwardForce = true;
 	[Tooltip("At what speed does DownwardForce switch off by default")]
@@ -99,10 +101,11 @@ public class SteeringScript : MonoBehaviour {
 
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
+	#endregion
 
-
+	#region Boost fields
 	[Header("Boost")]
-	public float BoostSpeed = 100f; 
+	public float BoostSpeed = 100f;
 	private double boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
@@ -131,7 +134,17 @@ public class SteeringScript : MonoBehaviour {
 	[Range(0, 1)]
 	public double MinBoostLevel = .2;
 
+	[Tooltip("If the boost direction is affected by steering direction")]
+	public bool BoostAffectedBySteering = false;
 
+	[Tooltip("How many degrees the boost direction is turned at max steering")]
+	[Range(-90, 90)]
+	public float BoostMaxSteering = 45.0f;
+
+	// IDEA: option for adding angular velocity on boost while steering
+	#endregion
+
+	#region Velocity cap fields
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
 	public float VelocityCap = 20f;
@@ -141,6 +154,9 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("Immediate velocity cap, does not use correction speed, car never goes above this speed (except for the speed gained last frame)")]
 	public float AbsoluteVelocityCap = 200f;
+	#endregion
+
+	#region Drifting fields
 
 	[Header("Drifting")]
 
@@ -167,8 +183,22 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How much the magnitude of the velocity is allowed to be reduced when correcting velocity direction by throttling while drifting")]
 	public float DriftSpeedReductionWhenCorrecting = 0f;
 	private bool drifting = false;
+	#endregion
 
+	#region Rumble fields
 	[Header("Rumble")]
+
+	public bool EnableRumble = false;
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
+	public float EngineRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float EngineRumbleAmount = .5f;
+
+	public Vector2 EngineRumbleSpeedMinMax;
+	public AnimationCurve EngineRumbleCurve;
 
 	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
 	[Range(0, 1)]
@@ -176,7 +206,14 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
 	[Range(0, 2)]
 	public float BoostRumbleAmount = .5f;
-	public bool DriftRumble = true;
+
+	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	[Range(0, 1)]
+	public float DriftRumbleHiLoHzRatio = .5f;
+	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	[Range(0, 2)]
+	public float DriftRumbleAmount = .5f;
+	#endregion
 
 	#region object refs and input bindings
 
@@ -223,6 +260,9 @@ public class SteeringScript : MonoBehaviour {
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
 
+	[HideInInspector]
+	public int LapsCompleted = 0;
+
 
 	void Start() {
 		rb = GetComponent<Rigidbody>();
@@ -250,12 +290,16 @@ public class SteeringScript : MonoBehaviour {
 		// TODO: enable/disable controls when losing window focus, pausing, etc.
 
 		InputSystem.ResumeHaptics();
+
+		MainInstance = this;
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
+
+		// MainInstance = null;		
 	}
 
 	private void OnDestroy() {
@@ -299,19 +343,19 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.UpdateEffects(sqrVelocity, touchingGround);
 
+		// TODO: ambient engine rumble using controller rumble
+		// if (sqrVelocity > EngineRumbleSpeedMinMax.x) {
+		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity ); // not done
+		// }
+
+
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
 
 		SetDebugUIText(13, touchingGround.ToString());
 		// touchedGroundLastTick = false;
 
-		// Rumble
-		if (lowHzRumble > 1)
-			lowHzRumble = 1;
-		if (highHzRumble > 1)
-			highHzRumble = 1;
-
-		Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+		Rumble();
 
 	}
 
@@ -434,13 +478,8 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
-			if (DriftRumble) {
-				if (angle > 0) {
-					lowHzRumble += absAngle / 90f;
-				} else {
-					highHzRumble += absAngle / 90f;
-				}
-			}
+			lowHzRumble += (1f - DriftRumbleHiLoHzRatio) * DriftRumbleAmount;
+			highHzRumble += DriftRumbleHiLoHzRatio * DriftRumbleAmount;
 			StartDrift();
 		}
 
@@ -879,7 +918,11 @@ public class SteeringScript : MonoBehaviour {
 			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty) {
-			rb.AddRelativeForce(Vector3.forward * BoostSpeed, ForceMode.Acceleration);
+			Vector3 boostDir = Vector3.forward;
+			if (BoostAffectedBySteering) {
+				boostDir = Quaternion.AngleAxis(steeringBuffer * BoostMaxSteering, Vector3.up) * boostDir;
+			}
+			rb.AddRelativeForce(boostDir * BoostSpeed, ForceMode.Acceleration);
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
@@ -926,8 +969,16 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	public void Reset(Vector3 pos, Quaternion rot) {
+		rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
+
+		rb.MovePosition(pos);
+		rb.MoveRotation(rot);
+	}
+
 	public void Reset() {
-		if (LevelWorldScript.CurrentLevel != null) {
+		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 			rb.velocity = Vector3.zero;
@@ -935,6 +986,17 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+		}
+	}
+
+	private void Rumble() {
+		if (EnableRumble) {
+			if (lowHzRumble > 1)
+				lowHzRumble = 1;
+			if (highHzRumble > 1)
+				highHzRumble = 1;
+
+			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
 	}
 

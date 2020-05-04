@@ -6,50 +6,171 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(ObjectSelectorScript))]
 public abstract class LevelPieceSuperClass : MonoBehaviour {
 
-	public static List<LevelPieceSuperClass> Pieces = new List<LevelPieceSuperClass>();
+	private const int allowedSegmentSkip = 0;
 
-	// TODO: comfortable way to reference obstacles avalable for placement
-	// IDEA: obstacle registry, similar to list of sound effects with settings
+	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
+
+	protected static LevelPieceSuperClass startSegment = null;
+	protected static LevelPieceSuperClass endSegment = null;
+
+	protected static LevelPieceSuperClass currentSegment;
+
+	// TODO: progress through whole track
+	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
+
+	[Tooltip("In which order this segment is expected, if a segment is too much out of order, then the car will be reset to the last segment")]
+	public int SegmentOrder;
+	// [Tooltip("If resetting due to out of order segment should be ignored")]
+	// public bool OverrideSegmentOrderReset = false;
+
+	public bool isStart = false;
+	public bool isEnd = false;
+
+	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
+	public bool OverridePreviousSegment = false;
+	[Tooltip("Which segments were before this one, requires the override to be checked to be used")]
+	// public int PreviousSegment = 0;
+	public List<int> PreviousSegments;
+
+	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
+	public LevelPieceSuperClass SegmentOnReset;
+
+	[Tooltip("Override how many segments are allowed to be skipped when entering this segment")]
+	public bool OverrideSegmentSkip = false;
+	[Tooltip("How many segments are allowed to be skipped when entering this segment, 0 means only the exact previous segment is allowed")]
+	[Min(0)]
+	public int CustomSegmentSkip = 0;
+	// NOTE: will not check overrides of previous segments other than for this segment
+	// IDEA: define list of multiple allowed previous segments?
+
+	public Transform RespawnSpot;
+	public Transform GoalSpot;
 
 	// IDEA: empty level segment type for optional spots for adding roads
 	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
 
-	// IDEA: option to disallow placing any obstacles on segment
+	// IDEA: option to disallow placing any obstacles on segment, just dont add any obstacles to object selector?
 
 	// IDEA: ability select multiple segments, shift click? show blank/custom message if same setting is different for some objects selected
 	// IDEA: ability to group segments together, selecting and altering all segments at the same time
 	// IDEA: when selecting multiple: list all avaliable settings, set them for only the segments that the settings can be applied for
 
-	// [HideInInspector]
 	public ObjectSelectorScript Obstacles { get; private set; }
 
+	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+
 	private void Awake() {
-		Pieces.Add(this);
+		Segments.Add(this);
+
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		Obstacles.UnhideObject("");
+
+		if (isStart) {
+			startSegment = this;
+			// endSegment = this;
+			// GoalPostScript.SetInstanceSegment(this);
+			// UpdateGoalPost();
+		}
+
+		if (isEnd) {
+			endSegment = this;
+			// UpdateGoalPost();
+		}
+	}
+
+	private void Start() {
+
+		if (isEnd || isStart) {
+			UpdateGoalPost();
+		}
 	}
 
 	private void OnMouseOver() {
 
-		if (EventSystem.current.IsPointerOverGameObject()) 	
+		if (EventSystem.current.IsPointerOverGameObject())
 			return;
-		
+
 		// print("clicked " + gameObject.name);
 
 		if (Input.GetMouseButtonDown(0)) {
 			// print("left click");
 			RemixMapScript.SelectSegment(this);
-		} 
+		}
 		if (Input.GetMouseButtonDown(1)) {
 			// print("right click");
 			RemixMapScript.StartRotate();
 		}
 	}
 
-	// IDEA: use ontriggerenter here to keep track of track progress (keep track of index of last track?)
-	// IDEA: respawn to above center of last track touched when out of bounds
-	// IDEA: respawn to last valid segment when touching a segment that is not the last of previous track segment (+/- 1 or 2 indices?)
 	// TODO: fade effect when respawning
+
+	private void OnTriggerEnter(Collider other) {
+
+		int currentSegmentSkip = allowedSegmentSkip;
+
+		if (OverrideSegmentSkip)
+			currentSegmentSkip = CustomSegmentSkip;
+
+		if (currentSegment == this)
+			return;
+
+		bool validProgression = !currentSegment;
+		if (OverridePreviousSegment)
+			validProgression = validProgression || PreviousSegments.Contains(currentSegment.SegmentOrder);
+		else
+			validProgression = validProgression
+				|| (SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip
+					&& SegmentOrder > currentSegment.SegmentOrder);
+
+		if (validProgression) {
+			if (currentSegment)
+				foreach (var observer in currentSegment.LeaveSegmentObservers)
+					observer.Notify(currentSegment);
+
+			currentSegment = this;
+			print("current segment: " + currentSegment.SegmentOrder);
+		} else {
+			ResetToCurrentSegment();
+		}
+
+	}
+
+	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
+		if (!currentSegment)
+			return true;
+
+		return currentSegment == segmentToCheck;
+	}
+
+	public static bool ResetToCurrentSegment() {
+		if (!currentSegment)
+			return false;
+
+		if (currentSegment.RespawnSpot) {
+			if (currentSegment.SegmentOnReset)
+				currentSegment = currentSegment.SegmentOnReset;
+
+			SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
+		} else {
+			return false;
+		}
+
+		return true;
+	}
+
+	public void UpdateGoalPost() {
+
+		if (!startSegment)
+			startSegment = this;
+		if (!endSegment) 
+			endSegment = this;
+
+		if (startSegment == this && endSegment == this) {
+			GoalPostScript.SetInstanceSegment(this);
+		} else {
+			// TODO: spawn portals at ends instead
+		}
+	}
 
 }
