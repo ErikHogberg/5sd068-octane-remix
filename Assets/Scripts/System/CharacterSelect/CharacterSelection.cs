@@ -37,6 +37,9 @@ public class CharacterSelection : MonoBehaviour
 	//Player index + their character choice
 	private static Dictionary<int, CharacterSelected> choices;
 
+	[Tooltip("Start the scene with the character select environment active or not.")]
+	public bool startAsActive = false;
+
 	[Header("Data")]
 	[Tooltip("The data for all character select entries.")]
 	public CharSelectEntry[] charSelectData;
@@ -86,7 +89,8 @@ public class CharacterSelection : MonoBehaviour
 	void Start()
 	{
 		MakePick(0, CharacterSelected.NONE);
-		//ActivateCharSelect(true);
+		if (startAsActive)
+			ActivateCharSelect(true);
 	}
 
 	//TODO: Make it button-activate
@@ -102,7 +106,7 @@ public class CharacterSelection : MonoBehaviour
 		VisualSetDisplay();
 		AnnouncePick(playerIndex);
 	}
-	public CharacterSelected GetPick(int playerIndex) { return choices[playerIndex]; }
+	public static CharacterSelected GetPick(int playerIndex) { return choices[playerIndex]; }
 
 	public CharacterSelected CurrentIndex() { return charSelectData[currViewIndex].carTag; }
 
