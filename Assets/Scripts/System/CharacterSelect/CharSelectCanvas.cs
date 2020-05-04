@@ -17,9 +17,11 @@ public class CharSelectCanvas : MonoBehaviour
 	private TMP_Text carName;
 	private Image checkMark;
 	private GameObject allUI;
+	private GameObject btnNext;
 
 	void Awake() {
 		allUI = transform.GetChild(0).gameObject;
+		btnNext = transform.GetChild(1).gameObject;
 		carName = allUI.transform.GetChild(0).GetComponent<TMP_Text>();
 		checkMark = carName.transform.GetChild(0).GetComponent<Image>();
 	}
@@ -31,6 +33,6 @@ public class CharSelectCanvas : MonoBehaviour
 		}
         else { checkMark.color = new Color(185f/255f, 185f/255f, 185f/255f); }
     }
-	public void Activate(bool toggle) { allUI.SetActive(toggle); }
+	public void Activate(bool toggle) { allUI.SetActive(toggle); btnNext.SetActive(toggle); }
 
 }
