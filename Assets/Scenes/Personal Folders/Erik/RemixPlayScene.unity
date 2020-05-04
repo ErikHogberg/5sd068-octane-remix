@@ -10914,6 +10914,7 @@ GameObject:
   m_Component:
   - component: {fileID: 912297705}
   - component: {fileID: 912297706}
+  - component: {fileID: 912297707}
   m_Layer: 5
   m_Name: Car change buttons
   m_TagString: Untagged
@@ -10964,6 +10965,19 @@ MonoBehaviour:
   ShownObject:
     Key: 
     Value: {fileID: 0}
+--- !u!114 &912297707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912297704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e5eb3e2b4bf5b44e9c9d3d886f5508a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Enable: 1
 --- !u!1 &967878609
 GameObject:
   m_ObjectHideFlags: 0
