@@ -7934,7 +7934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441482e8936e35048a1dffac814e3ef8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Profile: {fileID: 0}
+  m_Profile: {fileID: 11400000, guid: 4324f44b4dd0b5b4ea05941e97a537d4, type: 2}
   m_StaticLightingSkyUniqueID: 0
   m_SkySettings: {fileID: 0}
   m_SkySettingsFromProfile: {fileID: 0}
@@ -8979,6 +8979,54 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 537928825}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &566279978
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 566279979}
+  - component: {fileID: 566279980}
+  m_Layer: 0
+  m_Name: Sky and Fog Volume (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &566279979
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 566279978}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.83918667, y: -1.033751, z: -2.1946049}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1823662119}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &566279980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 566279978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 0.496
+  sharedProfile: {fileID: 11400000, guid: 77b05ed89d16a7b4cb5e9a918372e85a, type: 2}
 --- !u!1 &670660843
 GameObject:
   m_ObjectHideFlags: 0
@@ -19307,6 +19355,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToFollow: {fileID: 1748143916}
+--- !u!4 &1823662119 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4543503282109406553, guid: c36b32728996a7249a134a8cf6ef7e39,
+    type: 3}
+  m_PrefabInstance: {fileID: 4543503283206778899}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1830539525
 GameObject:
   m_ObjectHideFlags: 0
@@ -22167,7 +22221,7 @@ PrefabInstance:
     - target: {fileID: 5325555376196808704, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: m_ConnectedAnchor.y
-      value: 2.003
+      value: 2.0030005
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aa81892c545e3bf48bdc0a147a7cc3ea, type: 3}
@@ -22252,11 +22306,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4543503281890218119, guid: c36b32728996a7249a134a8cf6ef7e39,
-        type: 3}
-      propertyPath: weight
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4543503282109406553, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -22316,6 +22365,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Fancy Visuals
+      objectReference: {fileID: 0}
+    - target: {fileID: 4543503282109406554, guid: c36b32728996a7249a134a8cf6ef7e39,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4543503282658781592, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
@@ -22377,9 +22431,9 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4543503282854375704, guid: c36b32728996a7249a134a8cf6ef7e39,
+    - target: {fileID: 4543503282854375705, guid: c36b32728996a7249a134a8cf6ef7e39,
         type: 3}
-      propertyPath: weight
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
