@@ -403,6 +403,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
+	
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
