@@ -44,6 +44,13 @@ public class SteeringScript : MonoBehaviour {
 	public float MaxNarrowingAmount = 0.05f;
 	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
 	public AnimationCurve SteeringNarrowingCurve;
+
+	[Space]
+	[Tooltip("How much the rigidbody rotates with the steering amount to aid in turning")]
+	public float SteeringRotationHelp = 0;
+	[Tooltip("How much the rigidbody is pushed sidewats with the steering amount to aid in horizontal movement/strafing")]
+	public float SteeringStrafeHelp = 0;
+
 	#endregion
 
 	#region Gas and brake fields
@@ -326,11 +333,18 @@ public class SteeringScript : MonoBehaviour {
 
 		Steer(dt);
 		Gas(dt);
+
 		Boost(dt);
+		// Strafe help
+		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, ForceMode.VelocityChange);
+
 		Brake(dt);
 		Handbrake(dt);
 
-		Yaw(dt);
+		float yawAmount = YawSpeed * yawBuffer * dt;
+		float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
+		Yaw(yawAmount, true);
+		Yaw(steeringYawAmount, false);
 		Pitch(dt);
 
 		Jump(dt);
@@ -830,12 +844,15 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Yaw, Pitch
 
-	private void Yaw(float dt) {
+	private void Yaw(float yawAmount, bool triggerEffects) {
 
-		float yawAmount = YawSpeed * yawBuffer * dt;
+		// float yawAmount = YawSpeed * yawBuffer * dt;
 		rb.rotation *= Quaternion.Euler(0, yawAmount, 0);
 
 		if (!effects)
+			return;
+
+		if (!triggerEffects)
 			return;
 
 		if (yawAmount > 0) {
