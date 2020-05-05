@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum CharacterSelected
-{
+public enum CharacterSelected {
 	NONE = 0,
 	AKASH,
 	MICHISHIGE,
@@ -12,8 +11,7 @@ public enum CharacterSelected
 }
 
 [System.Serializable]
-public class CharSelectEntry
-{
+public class CharSelectEntry {
 	[Tooltip("The name that will show up in the UI for this car.")]
 	public string carName;
 
@@ -24,8 +22,7 @@ public class CharSelectEntry
 	public GameObject carModel;
 }
 
-public class CharacterSelection : MonoBehaviour
-{
+public class CharacterSelection : MonoBehaviour {
 	private static CharacterSelection _i;
 	public static CharacterSelection i {
 		get {
@@ -35,7 +32,7 @@ public class CharacterSelection : MonoBehaviour
 	}
 
 	//Player index + their character choice
-	private static Dictionary<int, CharacterSelected> choices;
+	private static Dictionary<int, CharacterSelected> choices = new Dictionary<int, CharacterSelected>();
 
 	[Tooltip("Start the scene with the character select environment active or not.")]
 	public bool startAsActive = false;
@@ -58,25 +55,21 @@ public class CharacterSelection : MonoBehaviour
 	//To be able to seamlessly return to whatever we were doing before hopping into char select
 	private Dictionary<Camera, bool> cameraStatusMemory;
 
-	void Awake()
-	{
+	void Awake() {
 		if (_i == null) _i = this;
 		if (playerObjects == null)
 			Debug.Log("CharacterSelection: No player object reference set.");
 
 		mainCanvas = CanvasFinder.thisCanvas;
 		cameraStatusMemory = new Dictionary<Camera, bool>();
-		choices = new Dictionary<int, CharacterSelected>();
+		// choices = new Dictionary<int, CharacterSelected>();
 		UINavInput.i.AddUINavListener(UIMode.CHARSELECT);
 
 		if (transform.childCount > 2) {
 			Debug.Log("CharacterSelection: Root object has more than its intended 2 children");
 			return;
-		}
-		else
-		{
-			foreach (Transform child in transform)
-			{
+		} else {
+			foreach (Transform child in transform) {
 				if (child.GetComponent<Camera>() != null)
 					charSelectCamera = child.gameObject.GetComponent<Camera>();
 				else charSelectVisuals = child.gameObject;
@@ -86,8 +79,7 @@ public class CharacterSelection : MonoBehaviour
 			CharSelectCanvas.i.Activate(false);
 		}
 	}
-	void Start()
-	{
+	void Start() {
 		MakePick(0, CharacterSelected.NONE);
 		if (startAsActive)
 			ActivateCharSelect(true);
@@ -95,24 +87,26 @@ public class CharacterSelection : MonoBehaviour
 
 	//TODO: Make it button-activate
 	//Sets the current choice of character for a specified player index
-	public void MakePick(int playerIndex, CharacterSelected pick)
-	{
+	public void MakePick(int playerIndex, CharacterSelected pick) {
 		if (choices.ContainsKey(playerIndex)) {
 			choices[playerIndex] = pick;
-		}
-		else {
+		} else {
 			choices.Add(playerIndex, pick);
 		}
 		VisualSetDisplay();
 		AnnouncePick(playerIndex);
 	}
-	public static CharacterSelected GetPick(int playerIndex) { return choices[playerIndex]; }
+	public static CharacterSelected GetPick(int playerIndex) {
+		if (playerIndex >= choices.Count) 
+			return CharacterSelected.NONE;
+		
+		return choices[playerIndex];
+	}
 
 	public CharacterSelected CurrentIndex() { return charSelectData[currViewIndex].carTag; }
 
 	//Goes either left or right through the array of available cars
-	public void SwapDisplayCar(bool goLeft)
-	{
+	public void SwapDisplayCar(bool goLeft) {
 		charSelectData[currViewIndex].carModel.SetActive(false);
 
 		if (goLeft) currViewIndex -= 1;
@@ -124,15 +118,13 @@ public class CharacterSelection : MonoBehaviour
 		VisualSetDisplay();
 	}
 	//Swaps immediately to the available car at the specified index
-	public void SetDisplayCar(int index)
-	{
+	public void SetDisplayCar(int index) {
 		charSelectData[currViewIndex].carModel.SetActive(false);
 		currViewIndex = index;
 		VisualSetDisplay();
 	}
 
-	private void VisualSetDisplay()
-	{
+	private void VisualSetDisplay() {
 		if (charSelectData[currViewIndex].carTag == choices[0])
 			CharSelectCanvas.i.SetCheck(true);
 		else CharSelectCanvas.i.SetCheck(false);
@@ -140,18 +132,16 @@ public class CharacterSelection : MonoBehaviour
 		CharSelectCanvas.i.SetText(charSelectData[currViewIndex].carName);
 		charSelectData[currViewIndex].carModel.SetActive(true);
 	}
-	private void AnnouncePick(int index)
-    {
+	private void AnnouncePick(int index) {
 		string car_n = "";
 		foreach (CharSelectEntry entry in charSelectData) {
 			if (entry.carTag == choices[index]) { car_n = entry.carName; }
-        }
+		}
 		if (car_n == "") car_n = "no car yet";
 		Debug.Log("CharacterSelection: Player " + index + " picked " + car_n + "!");
 	}
 
-	public void ActivateCharSelect(bool toggle)
-	{
+	public void ActivateCharSelect(bool toggle) {
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
 		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
 		UINavInput.i.SetUINavMode(UIMode.CHARSELECT);
@@ -174,11 +164,9 @@ public class CharacterSelection : MonoBehaviour
 		charSelectCamera.enabled = toggle;
 		CharSelectCanvas.i.Activate(toggle);
 
-		for (int i = 0; i < charSelectData.Length; i++)
-		{
+		for (int i = 0; i < charSelectData.Length; i++) {
 			//Sorts choices dictionary by key and picks out the item with lowest-value key
-			if (charSelectData[i].carTag == choices.OrderBy(j => j.Key).First().Value)
-			{
+			if (charSelectData[i].carTag == choices.OrderBy(j => j.Key).First().Value) {
 				CharSelectCanvas.i.SetText(charSelectData[i].carName);
 				currViewIndex = i;
 			}
