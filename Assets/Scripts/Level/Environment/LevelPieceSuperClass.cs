@@ -10,8 +10,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
-	protected static LevelPieceSuperClass startSegment;
-	protected static LevelPieceSuperClass endSegment;
+	protected static LevelPieceSuperClass startSegment = null;
+	protected static LevelPieceSuperClass endSegment = null;
 
 	protected static LevelPieceSuperClass currentSegment;
 
@@ -24,6 +24,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// public bool OverrideSegmentOrderReset = false;
 
 	public bool isStart = false;
+	public bool isEnd = false;
 
 	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
 	public bool OverridePreviousSegment = false;
@@ -64,12 +65,24 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		Obstacles.UnhideObject("");
+
+		if (isStart) {
+			startSegment = this;
+			// endSegment = this;
+			// GoalPostScript.SetInstanceSegment(this);
+			// UpdateGoalPost();
+		}
+
+		if (isEnd) {
+			endSegment = this;
+			// UpdateGoalPost();
+		}
 	}
 
 	private void Start() {
-		if (isStart) {
-			GoalPostScript.SetInstanceSegment(this);
-			// UpdateGoalPost();	
+
+		if (isEnd || isStart) {
+			UpdateGoalPost();
 		}
 	}
 
@@ -131,13 +144,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	}
 
 	public static bool ResetToCurrentSegment() {
-		if (!currentSegment) 
+		if (!currentSegment)
 			return false;
 
 		if (currentSegment.RespawnSpot) {
 			if (currentSegment.SegmentOnReset)
 				currentSegment = currentSegment.SegmentOnReset;
-				
+
 			SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
 		} else {
 			return false;
@@ -147,7 +160,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	}
 
 	public void UpdateGoalPost() {
-		if (startSegment == endSegment) {
+
+		if (!startSegment)
+			startSegment = this;
+		if (!endSegment) 
+			endSegment = this;
+
+		if (startSegment == this && endSegment == this) {
 			GoalPostScript.SetInstanceSegment(this);
 		} else {
 			// TODO: spawn portals at ends instead
