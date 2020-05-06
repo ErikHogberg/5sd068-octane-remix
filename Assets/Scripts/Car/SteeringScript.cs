@@ -50,6 +50,8 @@ public class SteeringScript : MonoBehaviour {
 	public float SteeringRotationHelp = 0;
 	[Tooltip("How much the rigidbody is pushed sidewats with the steering amount to aid in horizontal movement/strafing")]
 	public float SteeringStrafeHelp = 0;
+	[Tooltip("Which force mode the strafe help uses to push the car sideways")]
+	public ForceMode SteeringStrafeMode = ForceMode.VelocityChange;
 
 	#endregion
 
@@ -336,7 +338,7 @@ public class SteeringScript : MonoBehaviour {
 
 		Boost(dt);
 		// Strafe help
-		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, ForceMode.VelocityChange);
+		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
 
 		Brake(dt);
 		Handbrake(dt);
@@ -401,6 +403,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
+	
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 

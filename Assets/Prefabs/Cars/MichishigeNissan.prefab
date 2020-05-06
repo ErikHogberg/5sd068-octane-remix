@@ -360,6 +360,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  SteeringRotationHelp: 0
+  SteeringStrafeHelp: 0
+  SteeringStrafeMode: 2
   GasSpeed: 15000
   GasPedalCurve:
     serializedVersion: 2
@@ -505,8 +508,8 @@ MonoBehaviour:
   CapVelocity: 1
   VelocityCap: 25
   BoostVelocityCap: 30
-  VelocityCapCorrectionSpeed: 1
-  AbsoluteVelocityCap: 200
+  VelocityCapCorrectionSpeed: 10
+  AbsoluteVelocityCap: 50
   UseYawControlWhenDrifting: 0
   DriftStartAngle: 20
   DriftStopAngle: 15
@@ -514,6 +517,7 @@ MonoBehaviour:
   DriftStopVelocity: 0.5
   DriftCorrectionSpeed: 20
   DriftSpeedReductionWhenCorrecting: 0
+  EnableRumble: 0
   EngineRumbleHiLoHzRatio: 0.5
   EngineRumbleAmount: 0.5
   EngineRumbleSpeedMinMax: {x: 0, y: 0}
@@ -565,6 +569,7 @@ MonoBehaviour:
     type: 3}
   LeftPitchKeyBinding: {fileID: -4547618856026539353, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
+  LapsCompleted: 0
 --- !u!114 &1800295489931631466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1173,7 +1178,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5561349426305759274, guid: 5a21e3876a7b2fa4b8597e4a11329e29, type: 3}
+  - {fileID: 2100000, guid: a93903f73454d9048bdc784f72c29465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1345,7 +1350,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5561349426305759274, guid: 5a21e3876a7b2fa4b8597e4a11329e29, type: 3}
+  - {fileID: 2100000, guid: a93903f73454d9048bdc784f72c29465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6436,7 +6441,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5561349426305759274, guid: 5a21e3876a7b2fa4b8597e4a11329e29, type: 3}
+  - {fileID: 2100000, guid: a93903f73454d9048bdc784f72c29465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11492,7 +11497,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5561349426305759274, guid: 5a21e3876a7b2fa4b8597e4a11329e29, type: 3}
+  - {fileID: 2100000, guid: a93903f73454d9048bdc784f72c29465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11602,7 +11607,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5561349426305759274, guid: 5a21e3876a7b2fa4b8597e4a11329e29, type: 3}
+  - {fileID: 2100000, guid: a93903f73454d9048bdc784f72c29465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
