@@ -13,7 +13,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	protected static LevelPieceSuperClass startSegment = null;
 	protected static LevelPieceSuperClass endSegment = null;
 
-	protected static LevelPieceSuperClass currentSegment;
+	protected static LevelPieceSuperClass currentSegment = null;
 
 	// TODO: progress through whole track
 	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
@@ -171,6 +171,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		} else {
 			// TODO: spawn portals at ends instead
 		}
+	}
+
+	public static void ClearCurrentSegment(){
+		currentSegment = null;
 	}
 
 }

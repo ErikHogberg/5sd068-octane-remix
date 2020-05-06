@@ -301,6 +301,7 @@ public class SteeringScript : MonoBehaviour {
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
+		LevelPieceSuperClass.ClearCurrentSegment();
 	}
 
 	void OnDisable() {
