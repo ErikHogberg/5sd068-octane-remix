@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TemperatureAndIntegrity : MonoBehaviour
-{
+public class TemperatureAndIntegrity : MonoBehaviour {
 	[Header("Temperature")]
 	[Tooltip("How much fire obstacles affects the car's temperature level.")]
 	public float fireTempEffect = 10.0f;
@@ -78,7 +77,7 @@ public class TemperatureAndIntegrity : MonoBehaviour
 		temperatureUI = TemperatureUIScript.MainInstance;
 		if (temperatureUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its TemperatureUIScript");
-		
+
 		integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its IntegrityUIScript");
@@ -87,14 +86,14 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	public void BoostHeat() {
 		goalTemp += boostTempEffect * Time.deltaTime;
 		ValueCheck();
-    }
+	}
 	public void FireHit() {
 		if (damageTimer <= 0.0f) {
 			goalTemp += fireTempEffect;
 			currIntegrity -= fireIntegEffect;
 			Hit();
 		}
-    }
+	}
 	public void LaserHit() {
 		if (damageTimer <= 0.0f) {
 			goalTemp += laserTempEffect;
@@ -116,14 +115,13 @@ public class TemperatureAndIntegrity : MonoBehaviour
 	}
 
 
-	private void Update() 
-	{
+	private void Update() {
 		if (damageTimer > 0.0f)
 			damageTimer -= Time.deltaTime;
 
 		tickTimer += Time.deltaTime;
 		if (tickTimer >= tickRate) {
-			if (currTemp > 0.0f) goalTemp -= coolingRate;
+			if (currTemp > 0.0f) goalTemp = Mathf.MoveTowards(goalTemp, 0f, coolingRate);
 			if (currTemp < 0.0f) goalTemp = 0.0f;
 
 			if (tooHotInteg) {
@@ -133,15 +131,17 @@ public class TemperatureAndIntegrity : MonoBehaviour
 					integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 				ValueCheck();
 			}
+
 			//A bit of randomization for a slightly more "realistic" temperature reading
 			float randFlux = Random.Range(-0.2f, 0.2f);
 			currTemp += randFlux;
 
 			tickTimer = 0.0f;
 		}
+
 		//Do whatever effects we may want temperature to have on boost every frame 
 		//Like maybe updating max boost amount
-		if (tooHotBoost) { carControls.SetBoostLimit((currTemp - boostTempThreshold)/(boostTempMax - boostTempThreshold)); }
+		if (tooHotBoost) { carControls.SetBoostLimit((currTemp - boostTempThreshold) / (boostTempMax - boostTempThreshold)); }
 
 		//Lerping temperature fluctuations to make it look more natural
 		currTemp = Mathf.Lerp(currTemp, goalTemp, 5.0f * Time.deltaTime);
@@ -167,19 +167,27 @@ public class TemperatureAndIntegrity : MonoBehaviour
 			integrityUI.SetIntegPercentage(currIntegrity / maxIntegrity);
 	}
 
-	private void ValueCheck()
-    {
+	private void ValueCheck() {
 		if (currIntegrity <= 0.0f) {
 			Debug.Log("Integrity reached 0!");
 			carControls.Reset();
 			Reset();
 		}
-		if (currTemp >= boostTempThreshold) tooHotBoost = true;
-		else { tooHotBoost = false; carControls.SetBoostLimit(0.0f); }
+		if (currTemp >= boostTempThreshold) {
+			tooHotBoost = true;
+		} else {
+			tooHotBoost = false;
+			carControls.SetBoostLimit(0.0f);
+		}
 
-		if (currTemp >= integrityTempThreshold) tooHotInteg = true;
-		else tooHotInteg = false;
-    }
+		if (currTemp >= integrityTempThreshold) {
+			tooHotInteg = true;
+			TemperatureWarningTextScript.Show();
+		} else {
+			tooHotInteg = false;
+			TemperatureWarningTextScript.Hide();
+		}
+	}
 
 	private void Reset() {
 		currIntegrity = maxIntegrity;
