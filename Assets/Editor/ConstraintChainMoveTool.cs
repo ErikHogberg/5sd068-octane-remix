@@ -8,7 +8,7 @@ using UnityEditor.EditorTools;
 public class ConstraintChainMoveTool : EditorTool {
 	// Serialize this value to set a default value in the Inspector.
 	[SerializeField]
-	Texture2D m_ToolIcon;
+	Texture2D m_ToolIcon = null;
 
 	GUIContent m_IconContent;
 

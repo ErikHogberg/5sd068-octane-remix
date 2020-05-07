@@ -301,6 +301,7 @@ public class SteeringScript : MonoBehaviour {
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
+		LevelPieceSuperClass.ClearCurrentSegment();
 	}
 
 	void OnDisable() {
@@ -403,6 +404,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
+	
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
