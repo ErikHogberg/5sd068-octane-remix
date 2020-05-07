@@ -12,7 +12,7 @@ public class LevelWorldScript : MonoBehaviour {
 	private void Awake() {
 		CurrentLevel = this;
 	}
-	
+
 	private void OnDestroy() {
 		CurrentLevel = null;
 	}
