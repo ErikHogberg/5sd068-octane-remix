@@ -29,7 +29,7 @@ public class GasNeedleUIScript : MonoBehaviour {
 		if (isBoosting)
 			meter.SetTargetColor(NeedleMeterUIScript.ColorState.BOOST);
 		else {
-			if (percentage > 0.97f)
+			if (percentage > 0.85f)
 				meter.SetTargetColor(NeedleMeterUIScript.ColorState.MAX);
 			else
 				meter.SetTargetColor(NeedleMeterUIScript.ColorState.NORMAL);

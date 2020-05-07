@@ -411,9 +411,10 @@ public class SteeringScript : MonoBehaviour {
 
 		if (boosting) {
 			if (percentage >= 1f)
-				percentage = Random.Range(1f, 1.05f);
+				percentage = Random.Range(1.05f, 1.1f);
 			GasNeedleUIScript.SetBarPercentage(percentage, true);
 		} else {
+			percentage = Mathf.Clamp(percentage, 0.0f, 1.05f);
 			GasNeedleUIScript.SetBarPercentage(percentage, false);
 		}
 		GasNeedleUIScript.SetKMPH(kmph);
@@ -1021,6 +1022,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Reset(CallbackContext _) {
 		Reset();
+		CarRBHandler.Instance.FreezeRB(2.0f);
 	}
 
 	#endregion
