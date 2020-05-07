@@ -1008,6 +1008,9 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+
+			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
+			//CarRBHandler.Instance.FreezeRB(2.0f);
 		}
 	}
 
@@ -1024,7 +1027,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Reset(CallbackContext _) {
 		Reset();
-		CarRBHandler.Instance.FreezeRB(2.0f);
 	}
 
 	#endregion
