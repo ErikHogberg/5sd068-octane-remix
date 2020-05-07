@@ -98,7 +98,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 0e245c8b95583c54f8bc32e976ebf31c,
+  m_LightingDataAsset: {fileID: 112000000, guid: 0070e5b318b981349ba5a8f1aeb7608a,
     type: 2}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -10064,11 +10064,6 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1773397736790826570, guid: 8803d9e04ce54544496137091dfd2625,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: ffb9307c39e9a504698b7045707f93e8, type: 2}
     - target: {fileID: 2106281526269862172, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
       propertyPath: m_LocalRotation.x
@@ -16604,7 +16599,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1080735172
 Transform:
   m_ObjectHideFlags: 0
@@ -16612,13 +16607,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1080735171}
-  m_LocalRotation: {x: 0.05576668, y: 0.89936507, z: -0.12039665, w: 0.41657808}
-  m_LocalPosition: {x: 94.2, y: 66.7, z: 108.7}
+  m_LocalRotation: {x: -0.09260541, y: 0.9022877, z: -0.15659311, w: -0.39087036}
+  m_LocalPosition: {x: 146.4, y: 31.5, z: 13.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 670660844}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 15.250001, y: 130.294, z: 0}
+  m_LocalEulerAnglesHint: {x: 20.792002, y: 226.342, z: -2.7400002}
 --- !u!114 &1080735173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16632,6 +16627,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToFollow: {fileID: 1748143916}
+  AllowBuffer: 1
+  Buffer: {x: 5, y: 5, z: 5}
 --- !u!114 &1080735174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23971,7 +23968,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1610860741
 Transform:
   m_ObjectHideFlags: 0
@@ -24754,6 +24751,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToFollow: {fileID: 1748143916}
+  AllowBuffer: 0
+  Buffer: {x: 0, y: 0, z: 0}
 --- !u!4 &1823662119 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4543503282109406553, guid: c36b32728996a7249a134a8cf6ef7e39,
