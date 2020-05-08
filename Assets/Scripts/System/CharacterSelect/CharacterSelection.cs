@@ -41,9 +41,9 @@ public class CharacterSelection : MonoBehaviour {
 	[Tooltip("The data for all character select entries.")]
 	public CharSelectEntry[] charSelectData;
 
-	//These should probably be found with some other method in the future
-	[Tooltip("To make sure the actual player objects don't do anything while in character selection, put their references here.")]
-	public GameObject[] playerObjects;
+	
+	//To make sure the actual player objects don't do anything while in character selection
+	private List<GameObject> playerObjects;
 
 	//Index for easily storing what car we're currently viewing
 	private int currViewIndex = 0;
@@ -57,8 +57,7 @@ public class CharacterSelection : MonoBehaviour {
 
 	void Awake() {
 		if (_i == null) _i = this;
-		if (playerObjects == null)
-			Debug.Log("CharacterSelection: No player object reference set.");
+		playerObjects = new List<GameObject>();
 
 		mainCanvas = CanvasFinder.thisCanvas;
 		cameraStatusMemory = new Dictionary<Camera, bool>();
@@ -142,6 +141,7 @@ public class CharacterSelection : MonoBehaviour {
 	}
 
 	public void ActivateCharSelect(bool toggle) {
+		playerObjects.Add(SteeringScript.MainInstance.gameObject);
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
 		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
 		UINavInput.i.SetUINavMode(UIMode.CHARSELECT);
@@ -153,6 +153,7 @@ public class CharacterSelection : MonoBehaviour {
 				cam.enabled = !toggle;
 			}
 			UINavInput.i.Activate();
+			CanvasFinder.SetThisCanvas(CharSelectCanvas.i.GetComponent<Canvas>());
 		} else {
 			foreach (KeyValuePair<Camera, bool> cam in cameraStatusMemory) {
 				cam.Key.enabled = cam.Value;
