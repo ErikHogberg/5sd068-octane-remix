@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplodeChildrenScript : MonoBehaviour {
+public class ExplodeChildrenScript : ExplodeComponent {
 
 	List<Rigidbody> childRBs = new List<Rigidbody>();
 
@@ -30,7 +30,7 @@ public class ExplodeChildrenScript : MonoBehaviour {
 			Explode();
 	}
 
-	public void Explode() {
+	public override void Explode() {
 		foreach (var item in childRBs) {
 			item.isKinematic = false;
 			item.AddExplosionForce(
@@ -40,6 +40,10 @@ public class ExplodeChildrenScript : MonoBehaviour {
 				ExplosionUpForce
 			);
 		}
+	}
+
+	public override void UndoExplode(){
+
 	}
 
 }
