@@ -18,12 +18,14 @@ public class IntegrityUIScript : MonoBehaviour
 	[Tooltip("Once the delay bar starts draining, how fast should it drain?")]
 	public float delayDrainSpeed = 4.0f;
 
+	private BarUIScript delayBarScript;
 	private bool draining = false;
 	private IEnumerator currentDrain;
 
 	void Awake() {
 		MainInstance = this;
 		bar = GetComponent<BarUIScript>();
+		delayBarScript = delayBar.GetComponent<BarUIScript>();
 	}
 
 	void OnDestroy(){
@@ -48,15 +50,28 @@ public class IntegrityUIScript : MonoBehaviour
 			bar.SetColor(color.Value);*/
 	}
 
+	private float DelayPercent()
+    {
+		if (delayBarScript == null) { return delayBar.fillAmount; }
+		else return delayBarScript.GetFillAmount();
+	}
+
+	private void SetPercent(float percent)
+    {
+		if (delayBarScript == null) delayBar.fillAmount = percent;
+		else delayBarScript.SetBarPercentage(percent);
+	}
+
 	IEnumerator DelayBarDrain()
     {
 		draining = true;
 		yield return new WaitForSeconds(delaySeconds);
-		while (delayBar.fillAmount > (bar.GetFillAmount() + 0.001)) {
-			delayBar.fillAmount = Mathf.Lerp(delayBar.fillAmount, bar.GetFillAmount(), delayDrainSpeed * Time.deltaTime);
+		while (DelayPercent() > (bar.GetFillAmount() + 0.001)) {
+			float percent = Mathf.Lerp(DelayPercent(), bar.GetFillAmount(), delayDrainSpeed * Time.deltaTime);
+			SetPercent(percent);
 			yield return null;
 		}
-		delayBar.fillAmount = bar.GetFillAmount();
+		SetPercent(bar.GetFillAmount());
 		draining = false;
 		yield break;
 	}
