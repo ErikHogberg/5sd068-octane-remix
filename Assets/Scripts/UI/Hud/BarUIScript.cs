@@ -8,9 +8,14 @@ using UnityEngine.UI;
 public class BarUIScript : MonoBehaviour {
 
 	private Image barFill;
+	private MaskedBarFunctionality maskedBar;
+	private Gradient3Colors gradient;
 
 	void Start() {
 		barFill = GetComponent<Image>();
+		maskedBar = GetComponent<MaskedBarFunctionality>();
+		gradient = GetComponent<Gradient3Colors>();
+
 		if (barFill.sprite == null) {
 			Debug.Log("BarUIScript: " + transform.parent.name + " has no assigned bar sprite.");
 		} else {
@@ -20,7 +25,10 @@ public class BarUIScript : MonoBehaviour {
 		}
 	}
 
-	public float GetFillAmount() { return barFill.fillAmount; }
+	public float GetFillAmount() {
+		if (maskedBar == null) return barFill.fillAmount;
+		else return maskedBar.GetPercent();
+	}
 
 	public void SetBarPercentage(float percentage) {
 		if (percentage > 1)
@@ -34,8 +42,10 @@ public class BarUIScript : MonoBehaviour {
 			scale.x = percentage;
 			transform.localScale = scale;
 		} else {
-			barFill.fillAmount = percentage;
+			if (maskedBar == null) barFill.fillAmount = percentage;
+			else maskedBar.SetPos(percentage);
 		}
+		if (gradient != null) SetColor(gradient.ColorFromPercent(percentage));
 	}
 
 	public void SetColor(Color color) {
