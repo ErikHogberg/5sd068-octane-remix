@@ -151,6 +151,12 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostMaxSteering = 45.0f;
 
 	// IDEA: option for adding angular velocity on boost while steering
+
+	[Tooltip("If the car becomes invulnerable while boosting")]
+	public bool BoostInvulnerability = false;
+	public float BoostInvulnerabilityWindup = 1f;
+
+
 	#endregion
 
 	#region Velocity cap fields
@@ -404,7 +410,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
-	
+
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
