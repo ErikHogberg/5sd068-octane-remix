@@ -41,7 +41,13 @@ public class GasNeedleUIScript : MonoBehaviour {
 	public static void SetKMPH(float speed) {
 		if (kmph == null)
 			return;
+		int speedInt = (int)speed;
+		string speedTxt = "";
 
-		kmph.text = speed.ToString("F2") + " km/h";
+		if (speedInt < 10) speedTxt = "00" + speedInt.ToString("F0");
+		else if (speedInt < 100 && speedInt >= 10) speedTxt = "0" + speedInt.ToString("F0");
+		else speedTxt = speedInt.ToString("F0");
+
+		kmph.text = speedTxt;
 	}
 }

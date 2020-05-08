@@ -51,7 +51,7 @@ public class TemperatureAndIntegrity : MonoBehaviour {
 	//Around the standard celsius temperature for running car engines. Only used for display purposes
 	private float standardTemp = 100.0f;
 	//Around where engine celsius temperature would be dangerously high. Only used for display purposes
-	private float highTemp = 150.0f;
+	private float highTemp = 180.0f;
 	//Temperature values used for calculations
 	private float currTemp = 0.0f;
 	private float goalTemp = 0.0f;
