@@ -301,6 +301,7 @@ public class SteeringScript : MonoBehaviour {
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
+		LevelPieceSuperClass.ClearCurrentSegment();
 	}
 
 	void OnDisable() {
@@ -412,9 +413,10 @@ public class SteeringScript : MonoBehaviour {
 
 		if (boosting) {
 			if (percentage >= 1f)
-				percentage = Random.Range(1f, 1.05f);
+				percentage = Random.Range(1.05f, 1.1f);
 			GasNeedleUIScript.SetBarPercentage(percentage, true);
 		} else {
+			percentage = Mathf.Clamp(percentage, 0.0f, 1.05f);
 			GasNeedleUIScript.SetBarPercentage(percentage, false);
 		}
 		GasNeedleUIScript.SetKMPH(kmph);
@@ -1006,6 +1008,9 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+
+			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
+			//CarRBHandler.Instance.FreezeRB(2.0f);
 		}
 	}
 
