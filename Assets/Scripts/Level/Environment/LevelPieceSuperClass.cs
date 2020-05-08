@@ -64,7 +64,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
-		Obstacles.UnhideObject("");
+		// Obstacles.UnhideObject("");
 
 		if (isStart) {
 			startSegment = this;
