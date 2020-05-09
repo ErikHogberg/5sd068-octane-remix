@@ -30,7 +30,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 			return;
 
 		// TODO: if invulnerable
-		// if (car.) 
+		if (car.IsInvulnerable)
+			Explode();
 
 
 	}

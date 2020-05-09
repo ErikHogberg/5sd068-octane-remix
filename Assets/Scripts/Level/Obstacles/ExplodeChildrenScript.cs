@@ -15,6 +15,8 @@ public class ExplodeChildrenScript : ExplodeComponent {
 	[Tooltip("How much the explosion force should be adjusted upwards, regardless of position relative to explosion center")]
 	public float ExplosionUpForce = 1f;
 
+	// IDEA: forward force? push children in direction of (with) collision?
+
 	[Tooltip("Optional explosion center object, will use the center of this object if left empty")]
 	public Transform ExplosionCenter;
 

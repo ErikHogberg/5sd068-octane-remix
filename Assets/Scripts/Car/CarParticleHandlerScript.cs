@@ -33,17 +33,17 @@ public class CarParticleHandlerScript : MonoBehaviour {
 
 	public List<EnvironmentEffectCollection> DriftEffects;
 	public List<EnvironmentEffectCollection> BoostEffects;
-
+	public List<EnvironmentEffectCollection> BoostInvulnerabilityEffects;
 
 	public List<EnvironmentEffectCollection> ClockwiseYawEffects;
 	public List<EnvironmentEffectCollection> CounterClockwiseYawEffects;
-
 
 	public List<EnvironmentEffectCollection> AlwaysOnEffects;
 
 	private string currentTag = ""; // NOTE: only latest environment type touched have their effects enabled
 	private bool drifting = false;
 	private bool boosting = false;
+	private bool invulnerable = false;
 	private bool touchingGround = false;
 	// private bool drivingFast = false;
 
@@ -108,6 +108,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		if (boosting)
 			EnableEffect(BoostEffects, tag);
 
+		if (invulnerable)
+			EnableEffect(BoostInvulnerabilityEffects, tag);
+
 		switch (YawDir) {
 			case RotationAxisDirection.Clockwise:
 				EnableEffect(ClockwiseYawEffects, tag);
@@ -130,6 +133,7 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	private void DisableAllEffects(string tag) {
 		DisableEffect(DriftEffects, currentTag);
 		DisableEffect(BoostEffects, currentTag);
+		DisableEffect(BoostInvulnerabilityEffects, currentTag);
 		DisableEffect(ClockwiseYawEffects, currentTag);
 		DisableEffect(CounterClockwiseYawEffects, currentTag);
 		DisableEffect(AlwaysOnEffects, currentTag);
@@ -196,7 +200,7 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	}
 
 	public void StartDrift() {
-		if (boosting)
+		if (drifting)
 			return;
 
 		dirty = true;
@@ -213,12 +217,13 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		DisableEffect(DriftEffects, currentTag);
 	}
 
-	public void StartBoost() {
-		if (boosting)
+	public void StartBoost(bool invulnerable) {
+		if (boosting && invulnerable == this.invulnerable)
 			return;
 
 		dirty = true;
 		boosting = true;
+		this.invulnerable = invulnerable;
 		// EnableEffect(BoostEffects, currentTag);
 	}
 
@@ -228,7 +233,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 
 		dirty = true;
 		boosting = false;
+		invulnerable = false;
 		DisableEffect(BoostEffects, currentTag);
+		DisableEffect(BoostInvulnerabilityEffects, currentTag);
 	}
 
 	public void StopClockwiseYaw() {
