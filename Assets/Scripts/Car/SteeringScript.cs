@@ -151,6 +151,29 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostMaxSteering = 45.0f;
 
 	// IDEA: option for adding angular velocity on boost while steering
+
+	[Tooltip("If the car becomes invulnerable while boosting")]
+	public bool BoostInvulnerability = false;
+	[Tooltip("How long time the car has to boost to become invulnerable")]
+	public float BoostInvulnerabilityWindup = 1f;
+	private float boostWindupTimer = 0f;
+
+	public float BoostWindupProgress {
+		get {
+			float percentage = boostWindupTimer / BoostInvulnerabilityWindup;
+			if (percentage > 1)
+				percentage = 1;
+			if (percentage < 0)
+				percentage = 0;
+
+			return percentage;
+		}
+	}
+
+	public bool IsInvulnerable {
+		get { return BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup; }
+	}
+
 	#endregion
 
 	#region Velocity cap fields
@@ -263,6 +286,7 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
+	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
 	private TemperatureAndIntegrity tempAndInteg;
 
@@ -301,6 +325,7 @@ public class SteeringScript : MonoBehaviour {
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
+		LevelPieceSuperClass.ClearCurrentSegment();
 	}
 
 	void OnDisable() {
@@ -403,7 +428,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
-	
+
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
@@ -412,9 +437,10 @@ public class SteeringScript : MonoBehaviour {
 
 		if (boosting) {
 			if (percentage >= 1f)
-				percentage = Random.Range(1f, 1.05f);
+				percentage = Random.Range(1.05f, 1.1f);
 			GasNeedleUIScript.SetBarPercentage(percentage, true);
 		} else {
+			percentage = Mathf.Clamp(percentage, 0.0f, 1.05f);
 			GasNeedleUIScript.SetBarPercentage(percentage, false);
 		}
 		GasNeedleUIScript.SetKMPH(kmph);
@@ -930,10 +956,14 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
+		if (boostWindupTimer < BoostInvulnerabilityWindup)
+			boostWindupTimer += Time.deltaTime;
+
 		if (effects)
-			effects.StartBoost();
+			effects.StartBoost(IsInvulnerable);
 
 		AddBoost(-BoostConsumptionRate * dt);
+		
 		if (tempAndInteg)
 			tempAndInteg.BoostHeat();
 
@@ -946,7 +976,8 @@ public class SteeringScript : MonoBehaviour {
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
-			boosting = false;
+			// boosting = false;
+			StopBoost();
 		}
 
 	}
@@ -977,6 +1008,8 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StopBoost() {
 
+		boostWindupTimer = 0f;
+
 		if (effects)
 			effects.StopBoost();
 
@@ -1006,6 +1039,9 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+
+			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
+			//CarRBHandler.Instance.FreezeRB(2.0f);
 		}
 	}
 

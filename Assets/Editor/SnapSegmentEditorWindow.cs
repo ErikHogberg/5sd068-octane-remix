@@ -27,6 +27,9 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		endSegmentObject = (Transform)EditorGUILayout.ObjectField(endSegmentObject, typeof(Transform), true);
 
 		GUILayout.BeginHorizontal();
+		GUILayout.BeginVertical();
+
+		GUILayout.BeginHorizontal();
 		GUILayout.Label("Left start magnitude:\t");
 		leftStartBezierMagnitude = EditorGUILayout.FloatField(leftStartBezierMagnitude, GUILayout.Width(75));
 		GUILayout.FlexibleSpace();
@@ -46,6 +49,32 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		GUILayout.Label("Right end magnitude:\t");
 		rightEndBezierMagnitude = EditorGUILayout.FloatField(rightEndBezierMagnitude, GUILayout.Width(75));
 		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		
+		GUILayout.EndVertical();
+
+		GUILayout.BeginVertical();
+		
+		GUILayout.Space(4);
+
+		if (GUILayout.Button("Reset to 50", GUILayout.Width(100), GUILayout.Height(32))) {
+			leftStartBezierMagnitude = 50;
+			leftEndBezierMagnitude = 50;
+			rightStartBezierMagnitude = 50;
+			rightEndBezierMagnitude = 50;
+		}
+		GUILayout.Space(4);
+
+		if (GUILayout.Button("Reset to 100", GUILayout.Width(100), GUILayout.Height(32))) {
+			leftStartBezierMagnitude = 100;
+			leftEndBezierMagnitude = 100;
+			rightStartBezierMagnitude = 100;
+			rightEndBezierMagnitude = 100;
+		}
+
+		GUILayout.EndVertical();
+		GUILayout.FlexibleSpace();
+
 		GUILayout.EndHorizontal();
 
 		GUILayout.Space(16);
