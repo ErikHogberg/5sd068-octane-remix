@@ -288,7 +288,10 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
-	private TemperatureAndIntegrity tempAndInteg;
+	// private TemperatureAndIntegrity tempAndInteg;
+
+	[HideInInspector]
+	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
 
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
@@ -314,7 +317,7 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
-		tempAndInteg = GetComponent<TemperatureAndIntegrity>();
+		// tempAndInteg = GetComponent<TemperatureAndIntegrity>();
 	}
 
 	void OnEnable() {
@@ -959,13 +962,16 @@ public class SteeringScript : MonoBehaviour {
 		if (boostWindupTimer < BoostInvulnerabilityWindup)
 			boostWindupTimer += Time.deltaTime;
 
-		if (effects)
-			effects.StartBoost(IsInvulnerable);
+		// if (effects)
+			// effects.StartBoost(IsInvulnerable);
+
+		// if (tempAndInteg)
+			// tempAndInteg.BoostHeat();
+		
+		foreach (var item in BoostStartObservers)
+			item.Notify(IsInvulnerable);
 
 		AddBoost(-BoostConsumptionRate * dt);
-		
-		if (tempAndInteg)
-			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty) {
 			Vector3 boostDir = Vector3.forward;
