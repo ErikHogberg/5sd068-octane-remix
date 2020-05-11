@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BarUIScript))]
-public class BoostBarUIScript : MonoBehaviour {
+public class BoostInvulnBarUIScript : MonoBehaviour {
 
 	public static BarUIScript bar;
 
 	void Awake() {
 		bar = GetComponent<BarUIScript>();
+	}
+
+	private void Start() {
+		SetBarPercentage(0);
 	}
 
 	public static void SetBarPercentage(float percentage) {

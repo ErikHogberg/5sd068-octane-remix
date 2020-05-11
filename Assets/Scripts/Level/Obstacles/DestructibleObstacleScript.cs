@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class DestructibleObstacleScript : MonoBehaviour {
 
-	private ExplodeComponent exploderinoThingie;
-
 	public float RespawnTime = 3f;
 	private float timer = -1f;
 
-
-	// public bool ResetToPrefab = false; // TODO: reset to prefab when respawning if this is true
-
 	public Collider[] CollidersToDisable;
+
+	private ExplodeComponent exploderinoThingie;
 	public ExplodeComponent ExplodeComponentOverride;
 
 
@@ -39,10 +36,9 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		if (!car)
 			return;
 
-		// TODO: if invulnerable
+		// NOTE: invuln. check is also done in integrity script to negate damage
 		if (car.IsInvulnerable)
 			Explode();
-
 
 	}
 
