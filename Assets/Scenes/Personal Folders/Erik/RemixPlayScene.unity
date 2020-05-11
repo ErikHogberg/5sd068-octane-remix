@@ -677,12 +677,12 @@ GameObject:
   - component: {fileID: 154682226}
   - component: {fileID: 154682225}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: Restart Intro Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &154682224
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28970,6 +28970,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 221673585498397089, guid: 8803d9e04ce54544496137091dfd2625,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1773397736790826570, guid: 8803d9e04ce54544496137091dfd2625,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -29116,6 +29121,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Intro
+      objectReference: {fileID: 0}
+    - target: {fileID: 1590076719795652142, guid: 6a3342a140e1bd84ca5ca70481c98639,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1590076719795652145, guid: 6a3342a140e1bd84ca5ca70481c98639,
         type: 3}
