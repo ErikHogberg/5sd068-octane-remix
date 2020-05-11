@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 // Component that takes all rigidbodies in its children, makes them non-kinematic, 
@@ -7,6 +9,7 @@ using UnityEngine;
 public class ExplodeChildrenScript : ExplodeComponent {
 
 	List<Rigidbody> childRBs = new List<Rigidbody>();
+	List<(Vector3, Quaternion)> rbInitTransforms;
 
 	[Tooltip("How far around the explosion center the children will be affected by the explosion force")]
 	public float ExplosionRadius = 1f;
@@ -28,6 +31,8 @@ public class ExplodeChildrenScript : ExplodeComponent {
 
 	private void Awake() {
 		GetComponentsInChildren<Rigidbody>(false, childRBs);
+		rbInitTransforms = childRBs.Select(rb => (rb.transform.position, rb.transform.rotation)).ToList();
+
 		if (!ExplosionCenter)
 			ExplosionCenter = transform;
 	}
@@ -54,8 +59,12 @@ public class ExplodeChildrenScript : ExplodeComponent {
 		}
 	}
 
-	public override void UndoExplode(){
-
+	public override void UndoExplode() {
+		foreach ((Rigidbody rb, (Vector3 rbInitPos, Quaternion rbInitRot)) in childRBs.Zip(rbInitTransforms, (rb, rbInitTransform) => (rb, rbInitTransform))) {
+			rb.isKinematic = true;
+			rb.position = rbInitPos;
+			rb.rotation = rbInitRot;
+		}
 	}
 
 }
