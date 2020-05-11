@@ -11,15 +11,11 @@ public class BoostBarUIScript : MonoBehaviour {
 		bar = GetComponent<BarUIScript>();
 	}
 
-	public static void SetBarPercentage(float percentage, Color? color = null) {
+	public static void SetBarPercentage(float percentage) {
 		if (bar == null)
 			return;
 
 		bar.SetBarPercentage(percentage);
-
-		/*if (color.HasValue) 
-			bar.SetColor(color.Value);*/
-		
 	}
 
 }

@@ -201,12 +201,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7232962877fd4fe4892a8892012b3293, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeedThreshold: 7
-  rotationThreshold: 25
-  carSteeringAdaptation: 50
-  cameraRotationSpeed: 5
-  useFOVFluctuation: 0
-  velocityToFOV:
+  RotationSpeedThreshold: 7
+  RotationThreshold: 25
+  CarSteeringAdaptation: 50
+  CameraRotationSpeed: 5
+  UseFOVFluctuation: 0
+  VelocityToFOV:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -230,15 +230,33 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraFOV: 60
-  maxCameraFOV: 80
-  velocityToLag:
+  MinCameraFOV: 60
+  MaxCameraFOV: 80
+  VelocityToLag:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraLag: 8
-  maxCameraLag: 15
-  car: {fileID: 0}
+  MinCameraLag: 8
+  MaxCameraLag: 15
+  Car: {fileID: 0}
   OptionalParent: {fileID: 0}

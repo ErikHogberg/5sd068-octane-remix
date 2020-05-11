@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts;
 
-public class CarParticleHandlerScript : MonoBehaviour {
+public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	// public static SurfaceDetectionScript MainInstance;
 
@@ -64,6 +64,10 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	// true if data has changed, and effects should be updated
 	private bool dirty = true;
 
+
+	private void Awake() {
+		GetComponent<SteeringScript>().BoostStartObservers.Add(this);
+	}
 
 	// TODO: check that performance impact is not awful
 	private void EnableEffect(IEnumerable<EnvironmentEffectCollection> effects, string tag) {
@@ -256,6 +260,10 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	public void StartCounterClockwiseYaw() {
 		StopClockwiseYaw();
 		YawDir = RotationAxisDirection.CounterClockwise;
+	}
+
+	public void Notify(bool carIsInvulnerable) {
+		StartBoost(carIsInvulnerable);
 	}
 
 }
