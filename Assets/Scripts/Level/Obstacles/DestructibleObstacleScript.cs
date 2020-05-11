@@ -6,15 +6,15 @@ public class DestructibleObstacleScript : MonoBehaviour {
 
 	private ExplodeComponent exploderinoThingie;
 
+	public float RespawnTime = 3f;
+	private float timer = -1f;
 
-	public ExplodeComponent ExplodeComponentOverride;
 
-	public bool ResetToPrefab = false; // TODO: reset to prefab when respawning if this is true
+	// public bool ResetToPrefab = false; // TODO: reset to prefab when respawning if this is true
 
 	public Collider[] CollidersToDisable;
+	public ExplodeComponent ExplodeComponentOverride;
 
-	// TODO: respawn timer
-	// private float timer;
 
 	private void Awake() {
 		if (ExplodeComponentOverride) {
@@ -22,6 +22,16 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		} else {
 			exploderinoThingie = GetComponent<ExplodeComponent>();
 		}
+	}
+
+	private void Update() {
+		if (timer < 0)
+			return;
+
+		timer -= Time.deltaTime;
+
+		if (timer < 0)
+			UndoExplode();
 	}
 
 	private void OnTriggerEnter(Collider other) {
@@ -41,6 +51,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 			item.enabled = false;
 
 		exploderinoThingie.Explode();
+
+		timer = RespawnTime;
 	}
 
 	public void UndoExplode() {
