@@ -6,7 +6,9 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	public static GoalPostScript MainInstance;
 
+	[HideInInspector]
 	public LevelPieceSuperClass ParentSegment;
+
 	public GameObject ContainerObject;
 
 	private bool ready = true;

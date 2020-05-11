@@ -9,6 +9,7 @@ using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 
 [RequireComponent(typeof(Rigidbody))]
+[DisallowMultipleComponent]
 public class SteeringScript : MonoBehaviour {
 
 	public enum TractionMode {
@@ -159,11 +160,7 @@ public class SteeringScript : MonoBehaviour {
 
 	public float BoostWindupProgress {
 		get {
-			float percentage = boostWindupTimer / BoostInvulnerabilityWindup;
-			if (percentage > 1)
-				percentage = 1;
-			if (percentage < 0)
-				percentage = 0;
+			float percentage = Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
 
 			return percentage;
 		}
@@ -246,6 +243,11 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftRumbleAmount = .5f;
 	#endregion
 
+	[Header("Misc.")]
+
+	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
+	public bool StartBeforeGoalPost = false;
+
 	#region object refs and input bindings
 
 	[Header("Required objects")]
@@ -291,12 +293,26 @@ public class SteeringScript : MonoBehaviour {
 
 	[HideInInspector]
 	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
+	[HideInInspector]
+	public List<IObserver<int>> LapCompletedObservers = new List<IObserver<int>>();
 
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
 
-	[HideInInspector]
-	public int LapsCompleted = 0;
+	private int lapsCompleted = 0;
+	public int LapsCompleted {
+		get { return lapsCompleted; }
+		set {
+			if (StartBeforeGoalPost) {
+				StartBeforeGoalPost = false;
+				return;
+			}
+
+			lapsCompleted = value;
+			foreach (var item in LapCompletedObservers)
+				item.Notify(lapsCompleted);
+		}
+	}
 
 
 	void Start() {
@@ -364,8 +380,6 @@ public class SteeringScript : MonoBehaviour {
 		Gas(dt);
 
 		Boost(dt);
-		if (BoostInvulnerability)
-			BoostInvulnBarUIScript.SetBarPercentage(boostWindupTimer / BoostInvulnerabilityWindup);
 
 		// Strafe help
 		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
