@@ -367,7 +367,7 @@ RectTransform:
   m_Children:
   - {fileID: 497786809}
   m_Father: {fileID: 1031017147}
-  m_RootOrder: 7
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -13186,6 +13186,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToFollow: {fileID: 1748143916}
+  AllowBuffer: 0
+  Buffer: {x: 0, y: 0, z: 0}
 --- !u!114 &1080735174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19419,7 +19421,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &1315804223
 AudioSource:
   m_ObjectHideFlags: 0
@@ -19767,7 +19769,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!82 &1494088474
 AudioSource:
   m_ObjectHideFlags: 0
@@ -19781,7 +19783,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 74e44694ba6035f4e9a97a191d4a4cbf, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.128
-  m_Pitch: 1
+  m_Pitch: 0.35
   Loop: 1
   Mute: 0
   Spatialize: 0
@@ -20751,6 +20753,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObjectToFollow: {fileID: 1748143916}
+  AllowBuffer: 0
+  Buffer: {x: 0, y: 0, z: 0}
 --- !u!4 &1823662119 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4543503282109406553, guid: c36b32728996a7249a134a8cf6ef7e39,
@@ -24342,7 +24346,7 @@ PrefabInstance:
     - target: {fileID: 6343303310425016293, guid: 895a886dfd1336b479b77c8aea66f803,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6343303310425016293, guid: 895a886dfd1336b479b77c8aea66f803,
         type: 3}
@@ -24476,7 +24480,7 @@ PrefabInstance:
     - target: {fileID: 3616690647489570010, guid: a6d5ea0e3b8be8f48830305c80de5269,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3616690647489570010, guid: a6d5ea0e3b8be8f48830305c80de5269,
         type: 3}
