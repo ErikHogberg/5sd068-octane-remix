@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class DestructibleObstacleScript : MonoBehaviour {
 
-	private ExplodeComponent exploderinoThingie;
-
-
-	public ExplodeComponent ExplodeComponentOverride;
-
-	public bool ResetToPrefab = false; // TODO: reset to prefab when respawning if this is true
+	public float RespawnTime = 3f;
+	private float timer = -1f;
 
 	public Collider[] CollidersToDisable;
 
-	// TODO: respawn timer
-	// private float timer;
+	private ExplodeComponent exploderinoThingie;
+	public ExplodeComponent ExplodeComponentOverride;
+
 
 	private void Awake() {
 		if (ExplodeComponentOverride) {
@@ -24,15 +21,24 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		}
 	}
 
+	private void Update() {
+		if (timer < 0)
+			return;
+
+		timer -= Time.deltaTime;
+
+		if (timer < 0)
+			UndoExplode();
+	}
+
 	private void OnTriggerEnter(Collider other) {
 		var car = other.GetComponent<SteeringScript>();
 		if (!car)
 			return;
 
-		// TODO: if invulnerable
+		// NOTE: invuln. check is also done in integrity script to negate damage
 		if (car.IsInvulnerable)
 			Explode();
-
 
 	}
 
@@ -41,6 +47,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 			item.enabled = false;
 
 		exploderinoThingie.Explode();
+
+		timer = RespawnTime;
 	}
 
 	public void UndoExplode() {

@@ -8,7 +8,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 
-
 [RequireComponent(typeof(Rigidbody))]
 public class SteeringScript : MonoBehaviour {
 
@@ -115,7 +114,7 @@ public class SteeringScript : MonoBehaviour {
 	#region Boost fields
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
-	private double boostAmount = 1;
+	private float boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty {
 		get { return boostAmount > 0; }
@@ -133,15 +132,15 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("How much % of the boost tank is emptied per second when boosting")]
 	[Range(0, 1)]
-	public double BoostConsumptionRate = .4;
+	public float BoostConsumptionRate = .4f;
 
 	[Tooltip("How much % of the boost tank is added per second when not boosting")]
 	[Range(0, 1)]
-	public double BoostFillRate = .25;
+	public float BoostFillRate = .25f;
 
 	[Tooltip("How much boost tank % is required to start boosting")]
 	[Range(0, 1)]
-	public double MinBoostLevel = .2;
+	public float MinBoostLevel = .2f;
 
 	[Tooltip("If the boost direction is affected by steering direction")]
 	public bool BoostAffectedBySteering = false;
@@ -288,7 +287,10 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
-	private TemperatureAndIntegrity tempAndInteg;
+	// private TemperatureAndIntegrity tempAndInteg;
+
+	[HideInInspector]
+	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
 
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
@@ -314,7 +316,7 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
-		tempAndInteg = GetComponent<TemperatureAndIntegrity>();
+		// tempAndInteg = GetComponent<TemperatureAndIntegrity>();
 	}
 
 	void OnEnable() {
@@ -362,6 +364,9 @@ public class SteeringScript : MonoBehaviour {
 		Gas(dt);
 
 		Boost(dt);
+		if (BoostInvulnerability)
+			BoostInvulnBarUIScript.SetBarPercentage(boostWindupTimer / BoostInvulnerabilityWindup);
+
 		// Strafe help
 		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
 
@@ -959,13 +964,16 @@ public class SteeringScript : MonoBehaviour {
 		if (boostWindupTimer < BoostInvulnerabilityWindup)
 			boostWindupTimer += Time.deltaTime;
 
-		if (effects)
-			effects.StartBoost(IsInvulnerable);
+		// if (effects)
+		// effects.StartBoost(IsInvulnerable);
+
+		// if (tempAndInteg)
+		// tempAndInteg.BoostHeat();
+
+		foreach (var item in BoostStartObservers)
+			item.Notify(IsInvulnerable);
 
 		AddBoost(-BoostConsumptionRate * dt);
-		
-		if (tempAndInteg)
-			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty) {
 			Vector3 boostDir = Vector3.forward;
@@ -976,27 +984,16 @@ public class SteeringScript : MonoBehaviour {
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
-			// boosting = false;
 			StopBoost();
 		}
 
 	}
 
-	private void AddBoost(double amount) {
+	private void AddBoost(float amount) {
 		boostAmount += amount;
+		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit());
 
-		if (boostAmount > (1 + BoostLimit()))
-			boostAmount = (1 + BoostLimit());
-
-		if (boostAmount < 0)
-			boostAmount = 0;
-
-		Color barColor = Color.white;
-		if (boostAmount < MinBoostLevel)
-			barColor = Color.grey;
-
-		BoostBarUIScript.SetBarPercentage((float)boostAmount, barColor);
-
+		BoostBarUIScript.SetBarPercentage((float)boostAmount);
 	}
 
 	private void StartBoost(CallbackContext _) {
@@ -1047,10 +1044,8 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Rumble() {
 		if (EnableRumble) {
-			if (lowHzRumble > 1)
-				lowHzRumble = 1;
-			if (highHzRumble > 1)
-				highHzRumble = 1;
+			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
+			highHzRumble = Mathf.Clamp(highHzRumble, 0, 1);
 
 			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
