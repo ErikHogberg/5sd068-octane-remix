@@ -15,6 +15,15 @@ public class BoostInvulnBarUIScript : MonoBehaviour {
 		SetBarPercentage(0);
 	}
 
+	private void LateUpdate() {
+		var car = SteeringScript.MainInstance;
+		if (!car || !car.BoostInvulnerability) {
+			return;
+		}
+		
+		bar.SetBarPercentage(car.BoostWindupProgress);
+	}
+
 	public static void SetBarPercentage(float percentage) {
 		if (bar == null)
 			return;
