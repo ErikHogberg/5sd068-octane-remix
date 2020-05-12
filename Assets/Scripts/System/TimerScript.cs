@@ -5,13 +5,7 @@ using TMPro;
 public class TimerScript : MonoBehaviour {
 
 	private static TimerScript instance;
-	public static TimerScript Instance {
-		get {
-			if (instance == null)
-				instance = Instantiate(Resources.Load<TimerScript>("Timer"));
-			return instance;
-		}
-	}
+	public static TimerScript Instance => instance ?? (instance = Instantiate(Resources.Load<TimerScript>("Timer")));
 
 	private float timer = 0.0f;
 	private bool running = false;
@@ -22,8 +16,8 @@ public class TimerScript : MonoBehaviour {
 	public void StartTimer() { running = true; Debug.Log("Timer Started!"); }
 	public void StopTimer() { running = false; Debug.Log("Timer Stopped: " + timer.ToString("F2")); }
 	public void ResetTimer() { timer = 0.0f; }
-	public float GetTime() { return timer; }
-	public TimeSpan GetTimeSpan() { return TimeSpan.FromSeconds(timer); }
+	public float TimeProgress => timer;
+	public TimeSpan TimeSpanProgress => System.TimeSpan.FromSeconds(timer);
 
 	public void DisplayTime() {
 		if (timerUI == null) {
@@ -48,12 +42,12 @@ public class TimerScript : MonoBehaviour {
 
 	void Update() {
 		if (running) {
-			timer += Time.deltaTime;
+			timer += UnityEngine.Time.deltaTime;
 
 			if (timerUI != null) {
 				updateCount++;
 				if (updateCount >= updateInterval) {
-					TimeSpan t = TimeSpan.FromSeconds(timer);
+					TimeSpan t = System.TimeSpan.FromSeconds(timer);
 					int milli = t.Milliseconds / 10;
 					timerText.text = TimeCalc(t.Hours) + ":" + TimeCalc(t.Minutes) + ":" +
 									 TimeCalc(t.Seconds) + ":" + TimeCalc(milli);

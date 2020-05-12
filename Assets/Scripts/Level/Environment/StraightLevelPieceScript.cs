@@ -15,8 +15,9 @@ public class StraightLevelPieceScript : LevelPieceSuperClass {
 	public Transform RearLeftBone;
 	public Transform RearRightBone;
 
-	// 0 is front, grows towards rear
+	[Tooltip("Bones on the left side, in order. 0 is front, grows towards rear")]
 	public List<Transform> LeftBones;
+	[Tooltip("Bones on the right side, in order. 0 is front, grows towards rear")]
 	public List<Transform> RightBones;
 
 }
