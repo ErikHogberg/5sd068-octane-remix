@@ -10,7 +10,6 @@ public class LoadLastCarSelectionScript : MonoBehaviour {
 	void Start() {
 		var selector = GetComponent<ObjectSelectorScript>();
 
-
 		CharacterSelected selectedCar = CharacterSelection.GetPick(0);
 
 		switch (selectedCar) {

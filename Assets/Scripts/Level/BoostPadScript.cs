@@ -18,7 +18,7 @@ public class BoostPadScript : MonoBehaviour {
 	// public bool AllowRemovingSpeed = false;
 
 	private void OnTriggerEnter(Collider other) {
-		var rb = other.attachedRigidbody; //.GetComponent<Rigidbody>();
+		var rb = other.attachedRigidbody;
 
 		if (!rb)
 			return;
@@ -34,7 +34,6 @@ public class BoostPadScript : MonoBehaviour {
 		if (SetSpeedInDirection) {
 			if (!AddSpeed)
 				rb.velocity = Vector3.zero;
-			// rb.velocity += Vector3.Normalize(rb.velocity) * Speed;
 			rb.AddForce(transform.forward * Speed, ForceMode.VelocityChange);
 
 
