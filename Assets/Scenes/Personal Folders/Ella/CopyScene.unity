@@ -1649,6 +1649,11 @@ PrefabInstance:
       propertyPath: m_textInfo.pageCount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5880603696466653348, guid: 4355d626816851f478b170737f81ff57,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -199.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6713525270436177025, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
       propertyPath: m_textInfo.characterCount
@@ -2664,7 +2669,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

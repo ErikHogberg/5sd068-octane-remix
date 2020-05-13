@@ -344,12 +344,45 @@ public class SteeringScript : MonoBehaviour {
 
 		MainInstance = this;
 		LevelPieceSuperClass.ClearCurrentSegment();
+		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
+
+		switch (selectedCar) {
+			case CharacterSelected.AKASH:
+				SoundManager.PlaySound("akash_engine");
+				break;
+			case CharacterSelected.LUDWIG:
+				SoundManager.PlaySound("ludwig_engine");
+				break;
+			case CharacterSelected.MICHISHIGE:
+				SoundManager.PlaySound("michi_engine");
+				break;
+			case CharacterSelected.NONE:
+				SoundManager.PlaySound("akash_engine");
+				break;
+		}*/
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
+		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
+
+		switch (selectedCar)
+		{
+			case CharacterSelected.AKASH:
+				SoundManager.StopLooping("akash_engine");
+				break;
+			case CharacterSelected.LUDWIG:
+				SoundManager.StopLooping("ludwig_engine");
+				break;
+			case CharacterSelected.MICHISHIGE:
+				SoundManager.StopLooping("michi_engine");
+				break;
+			case CharacterSelected.NONE:
+				SoundManager.StopLooping("akash_engine");
+				break;
+		}*/
 
 		// MainInstance = null;		
 	}
@@ -499,6 +532,10 @@ public class SteeringScript : MonoBehaviour {
 	#region Drifting
 
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
+		if (drifting == false) {
+			if ((rb.velocity.magnitude * 3.6f) > 100f)
+				SoundManager.PlaySound("drift_continuous");
+		}
 		drifting = true;
 
 		if (effects)
@@ -508,6 +545,10 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
+		if (drifting == true) {
+			if ((rb.velocity.magnitude * 3.6f) > 100f)
+				SoundManager.StopLooping("drift_continuous");
+		}
 		drifting = false;
 
 		if (effects)
@@ -815,7 +856,17 @@ public class SteeringScript : MonoBehaviour {
 
 	private void SetBraking(CallbackContext c) {
 		float input = c.ReadValue<float>();
+		float pastBrakeBuffer = brakeBuffer;
 		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
+
+		if (brakeBuffer > pastBrakeBuffer) {
+			if (brakeBuffer > 0.2f)
+				SoundManager.PlaySound("metal_scrape_brake");
+		}
+		else {
+			SoundManager.StopLooping("metal_scrape_brake");
+		}
+	
 
 		SetDebugUIText(3, input.ToString("F2"));
 	}
@@ -1015,6 +1066,8 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		boosting = true;
+		SoundManager.PlaySound("boost_start");
+		SoundManager.PlaySound("boost_continuous");
 	}
 
 	private void StopBoost() {
@@ -1025,6 +1078,8 @@ public class SteeringScript : MonoBehaviour {
 			effects.StopBoost();
 
 		boosting = false;
+		SoundManager.StopLooping("boost_continuous");
+		SoundManager.PlaySound("boost_end");
 	}
 
 	private void StopBoost(CallbackContext _) {
