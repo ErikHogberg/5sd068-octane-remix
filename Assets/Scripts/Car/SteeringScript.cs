@@ -117,9 +117,7 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostSpeed = 100f;
 	private float boostAmount = 1;
 	private bool boosting = false;
-	private bool BoostNotEmpty {
-		get { return boostAmount > 0; }
-	}
+	private bool BoostNotEmpty => boostAmount > 0;
 
 	//Limits boost based on temperature. 0.0 means no limitation, 1.0 means the maximum limitation is in place
 	private float boostLimiter = 0.0f;
@@ -160,14 +158,14 @@ public class SteeringScript : MonoBehaviour {
 
 	public float BoostWindupProgress {
 		get {
-			float percentage = Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
-
-			return percentage;
+			return Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
 		}
 	}
 
 	public bool IsInvulnerable {
-		get { return BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup; }
+		get { 
+			return BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup; 
+		}
 	}
 
 	#endregion
