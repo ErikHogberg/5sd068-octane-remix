@@ -23,13 +23,8 @@ public class CharSelectEntry {
 }
 
 public class CharacterSelection : MonoBehaviour {
-	private static CharacterSelection _i;
-	public static CharacterSelection i {
-		get {
-			if (_i == null) { _i = Instantiate(Resources.Load<CharacterSelection>("CharacterSelectEnvironment")); }
-			return _i;
-		}
-	}
+	private static CharacterSelection instance;
+	public static CharacterSelection Instance => instance ?? (instance = Instantiate(Resources.Load<CharacterSelection>("CharacterSelectEnvironment")));
 
 	//Player index + their character choice
 	private static Dictionary<int, CharacterSelected> choices = new Dictionary<int, CharacterSelected>();
@@ -41,7 +36,7 @@ public class CharacterSelection : MonoBehaviour {
 	[Tooltip("The data for all character select entries.")]
 	public CharSelectEntry[] charSelectData;
 
-	
+
 	//To make sure the actual player objects don't do anything while in character selection
 	private List<GameObject> playerObjects;
 
@@ -56,13 +51,13 @@ public class CharacterSelection : MonoBehaviour {
 	private Dictionary<Camera, bool> cameraStatusMemory;
 
 	void Awake() {
-		if (_i == null) _i = this;
+		if (instance == null) instance = this;
 		playerObjects = new List<GameObject>();
 
 		mainCanvas = CanvasFinder.thisCanvas;
 		cameraStatusMemory = new Dictionary<Camera, bool>();
 		// choices = new Dictionary<int, CharacterSelected>();
-		UINavInput.i.AddUINavListener(UIMode.CHARSELECT);
+		UINavInput.Instance.AddUINavListener(UIMode.CHARSELECT);
 
 		if (transform.childCount > 2) {
 			Debug.Log("CharacterSelection: Root object has more than its intended 2 children");
@@ -75,7 +70,7 @@ public class CharacterSelection : MonoBehaviour {
 			}
 			charSelectCamera.enabled = false;
 			charSelectVisuals.SetActive(false);
-			CharSelectCanvas.i.Activate(false);
+			CharSelectCanvas.Instance.Activate(false);
 		}
 	}
 	void Start() {
@@ -96,9 +91,9 @@ public class CharacterSelection : MonoBehaviour {
 		AnnouncePick(playerIndex);
 	}
 	public static CharacterSelected GetPick(int playerIndex) {
-		if (playerIndex >= choices.Count) 
+		if (playerIndex >= choices.Count)
 			return CharacterSelected.NONE;
-		
+
 		return choices[playerIndex];
 	}
 
@@ -125,10 +120,10 @@ public class CharacterSelection : MonoBehaviour {
 
 	private void VisualSetDisplay() {
 		if (charSelectData[currViewIndex].carTag == choices[0])
-			CharSelectCanvas.i.SetCheck(true);
-		else CharSelectCanvas.i.SetCheck(false);
+			CharSelectCanvas.Instance.SetCheck(true);
+		else CharSelectCanvas.Instance.SetCheck(false);
 
-		CharSelectCanvas.i.SetText(charSelectData[currViewIndex].carName);
+		CharSelectCanvas.Instance.SetText(charSelectData[currViewIndex].carName);
 		charSelectData[currViewIndex].carModel.SetActive(true);
 	}
 	private void AnnouncePick(int index) {
@@ -144,7 +139,7 @@ public class CharacterSelection : MonoBehaviour {
 		playerObjects.Add(SteeringScript.MainInstance.gameObject);
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
 		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
-		UINavInput.i.SetUINavMode(UIMode.CHARSELECT);
+		UINavInput.Instance.SetUINavMode(UIMode.CHARSELECT);
 
 		if (toggle == true) {
 			Camera[] cameraList = Camera.allCameras;
@@ -152,23 +147,23 @@ public class CharacterSelection : MonoBehaviour {
 				cameraStatusMemory.Add(cam, cam.enabled);
 				cam.enabled = !toggle;
 			}
-			UINavInput.i.Activate();
-			CanvasFinder.SetThisCanvas(CharSelectCanvas.i.GetComponent<Canvas>());
+			UINavInput.Instance.Activate();
+			CanvasFinder.SetThisCanvas(CharSelectCanvas.Instance.GetComponent<Canvas>());
 		} else {
 			foreach (KeyValuePair<Camera, bool> cam in cameraStatusMemory) {
 				cam.Key.enabled = cam.Value;
 			}
 			cameraStatusMemory.Clear();
-			UINavInput.i.Deactivate();
+			UINavInput.Instance.Deactivate();
 		}
 		charSelectVisuals.SetActive(toggle);
 		charSelectCamera.enabled = toggle;
-		CharSelectCanvas.i.Activate(toggle);
+		CharSelectCanvas.Instance.Activate(toggle);
 
 		for (int i = 0; i < charSelectData.Length; i++) {
 			//Sorts choices dictionary by key and picks out the item with lowest-value key
 			if (charSelectData[i].carTag == choices.OrderBy(j => j.Key).First().Value) {
-				CharSelectCanvas.i.SetText(charSelectData[i].carName);
+				CharSelectCanvas.Instance.SetText(charSelectData[i].carName);
 				currViewIndex = i;
 			}
 		}

@@ -16,7 +16,7 @@ public class Score {
 }
 
 public class SkillScore {
-	
+
 	private Dictionary<ScoreSkill, Score> skillScoreTypes = new Dictionary<ScoreSkill, Score>();
 
 	public SkillScore() {
