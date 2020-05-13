@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Image))]
+[RequireComponent(typeof(MaskableGraphic))]
 public class GenericFadeImageUIScript : MonoBehaviour {
 
 	public enum FadeMode {
@@ -29,15 +29,16 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 	public Color FadeOutToColor;
 	public AnimationCurve FadeOutCurve;
 
-	[Space]
-	public GameObject OptionalParent;
+	// [Space]
+	// public GameObject OptionalParent;
 
-	Image image;
+	MaskableGraphic image;
 	Color initColor;
 	float timer = -1;
 
 	void Start() {
-		image = GetComponent<Image>();
+		image = GetComponent<MaskableGraphic>();
+		initColor = image.color;
 
 		mode = StartMode;
 
@@ -50,6 +51,7 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 				break;
 		}
 
+		Hide();
 	}
 
 	void Update() {
@@ -64,37 +66,36 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 				timer = -1;
 				return;
 			case FadeMode.FadeIn: {
-					float percentage = timer / FadeInTime;
-					image.color = Color.Lerp(initColor, FadeInFromColor, 1f - percentage);
+					float percentage = FadeInCurve.Evaluate(Mathf.Clamp(timer / FadeInTime, 0, 1));
+					image.color = Color.Lerp(initColor, FadeInFromColor, percentage);
 					break;
 				}
 			case FadeMode.FadeOut: {
-					float percentage = timer / FadeOutTime;
-					image.color = Color.Lerp(FadeOutToColor, initColor, 1f - percentage);
+					float percentage = FadeOutCurve.Evaluate(Mathf.Clamp(timer / FadeOutTime, 0, 1));
+					image.color = Color.Lerp(FadeOutToColor, initColor, percentage);
 					break;
 				}
 		}
-
-
-
-
 	}
 
 	public void FadeIn() {
+		Show();
 		timer = FadeInTime;
 		mode = FadeMode.FadeIn;
 	}
 
 	public void FadeOut() {
+		Show();
 		timer = FadeOutTime;
 		mode = FadeMode.FadeOut;
 	}
 
 	public void SetVisible(bool visible) {
-		if (OptionalParent)
-			OptionalParent.SetActive(visible);
-		else
-			gameObject.SetActive(visible);
+		image.enabled = visible;
+		// if (OptionalParent)
+		// 	OptionalParent.SetActive(visible);
+		// else
+		// 	gameObject.SetActive(visible);
 	}
 
 	public void Show() {
