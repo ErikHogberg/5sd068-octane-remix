@@ -18,7 +18,6 @@ class BezierBendingEditorWindow : EditorWindow {
 
 	void OnGUI() {
 
-
 		startObject = (Transform)EditorGUILayout.ObjectField("Start:",startObject, typeof(Transform), true);
 		endObject = (Transform)EditorGUILayout.ObjectField("End:",endObject, typeof(Transform), true);
 
@@ -33,14 +32,14 @@ class BezierBendingEditorWindow : EditorWindow {
 		GUILayout.FlexibleSpace();
 
 		if (GUILayout.Button("Bend!", GUILayout.Width(128), GUILayout.Height(32)))
-			SnapSegments();
+			BendBones();
 		
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 
 	}
 
-	void SnapSegments() {
+	void BendBones() {
 
 		if (!Selection.activeTransform) {
 			Debug.LogWarning("No object selected");

@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,11 +5,7 @@ public static class Bezier {
 
 	// get 1 point on curve
 	public static Vector3 CubicBezierEval(Vector3 start, Vector3 startDir, Vector3 endDir, Vector3 end, float t) {
-
-		if (t < 0)
-			t = 0;
-		if (t > 1)
-			t = 1;
+		t = Mathf.Clamp(t, 0, 1);
 
 		Vector3 result =
 			Mathf.Pow(1 - t, 3) * start // (1-t)^3*P0
