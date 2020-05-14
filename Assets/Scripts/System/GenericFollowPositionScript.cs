@@ -33,15 +33,15 @@ public class GenericFollowPositionScript : MonoBehaviour {
 		}
 
 		if (delta.y < -Buffer.y) {
-			resultPos.y = targetPos.y + Buffer.x;
+			resultPos.y = targetPos.y + Buffer.y;
 		} else if (delta.y > Buffer.y) {
-			resultPos.y = targetPos.y - Buffer.x;
+			resultPos.y = targetPos.y - Buffer.y;
 		}
 
 		if (delta.z < -Buffer.z) {
-			resultPos.z = targetPos.z + Buffer.x;
+			resultPos.z = targetPos.z + Buffer.z;
 		} else if (delta.z > Buffer.z) {
-			resultPos.z = targetPos.z - Buffer.x;
+			resultPos.z = targetPos.z - Buffer.z;
 		}
 
 		transform.position = resultPos;
