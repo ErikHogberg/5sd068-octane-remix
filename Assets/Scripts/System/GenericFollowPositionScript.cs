@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GenericFollowPositionScript : MonoBehaviour {
+public interface IFollowScript {
+	void SetFollowTarget(Transform target);
+}
 
-	public GameObject ObjectToFollow;
+public class GenericFollowPositionScript : MonoBehaviour, IFollowScript {
+
+	public Transform Target;
 
 	private Vector3 initPos;
 
@@ -12,11 +16,11 @@ public class GenericFollowPositionScript : MonoBehaviour {
 	public Vector3 Buffer;
 
 	private void Start() {
-		initPos = transform.position - ObjectToFollow.transform.position;
+		initPos = transform.position - Target.transform.position;
 	}
 
 	private void LateUpdate() {
-		var targetPos = ObjectToFollow.transform.position + initPos;
+		var targetPos = Target.transform.position + initPos;
 
 		if (!AllowBuffer) {
 			transform.position = targetPos;
@@ -46,6 +50,10 @@ public class GenericFollowPositionScript : MonoBehaviour {
 
 		transform.position = resultPos;
 
+	}
+
+	public void SetFollowTarget(Transform target) {
+		Target = target;
 	}
 
 }
