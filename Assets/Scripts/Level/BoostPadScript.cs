@@ -12,10 +12,13 @@ public class BoostPadScript : MonoBehaviour {
 	public bool SetDirection = false;
 	[Tooltip("If the speed is added in the direction of the boost pad instead of the car")]
 	public bool SetSpeedInDirection = false;
+	[Tooltip("If the angular velocity of the car should be set to 0 when touching the boost pad")]
+	public bool ZeroTheAngularVelocity = false;
 
 	[Space]
 	[Tooltip("Assign an object here to use its forward direction instead of the forward direction of this object. The object position can be anywhere")]
 	public Transform OptionalDirectionOverride;
+
 
 	// TODO: option to either ignore or allow setting or adding speed values that would result in a lower speed
 	// IDEA: if not allowed, interpret value as inverting direction
@@ -27,7 +30,7 @@ public class BoostPadScript : MonoBehaviour {
 		if (!rb)
 			return;
 
-		Transform t =  transform;
+		Transform t = transform;
 		if (OptionalDirectionOverride)
 			t = OptionalDirectionOverride;
 
@@ -49,6 +52,9 @@ public class BoostPadScript : MonoBehaviour {
 			else //if (rb.velocity.sqrMagnitude < Speed * Speed)
 				rb.velocity = Vector3.Normalize(rb.velocity) * Speed;
 		}
+
+		if (ZeroTheAngularVelocity)
+			rb.angularVelocity = Vector3.zero;
 
 	}
 
