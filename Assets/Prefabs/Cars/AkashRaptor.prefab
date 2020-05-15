@@ -518,7 +518,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SteeringRotationHelp: 0
+  SteeringRotationHelp: 10
   SteeringStrafeHelp: 0
   SteeringStrafeMode: 2
   GasSpeed: 15000
@@ -603,7 +603,7 @@ MonoBehaviour:
   HandbrakeDriftAngle: 30
   EnableDownwardForce: 1
   MinDownwardsForceSpeed: 1
-  DownwardForce: 10
+  DownwardForce: 5
   DownwardForceMode: 5
   UseRelativeDownwardForce: 1
   LeftStickRotationWhenInAir: 0
@@ -666,10 +666,10 @@ MonoBehaviour:
   BoostInvulnerability: 1
   BoostInvulnerabilityWindup: 0.7
   CapVelocity: 1
-  VelocityCap: 25
-  BoostVelocityCap: 30
-  VelocityCapCorrectionSpeed: 1
-  AbsoluteVelocityCap: 200
+  VelocityCap: 30
+  BoostVelocityCap: 35
+  VelocityCapCorrectionSpeed: 5
+  AbsoluteVelocityCap: 50
   UseYawControlWhenDrifting: 0
   DriftStartAngle: 20
   DriftStopAngle: 15
