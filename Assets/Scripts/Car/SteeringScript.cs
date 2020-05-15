@@ -8,8 +8,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 
-
 [RequireComponent(typeof(Rigidbody))]
+[DisallowMultipleComponent]
 public class SteeringScript : MonoBehaviour {
 
 	public enum TractionMode {
@@ -115,11 +115,9 @@ public class SteeringScript : MonoBehaviour {
 	#region Boost fields
 	[Header("Boost")]
 	public float BoostSpeed = 100f;
-	private double boostAmount = 1;
+	private float boostAmount = 1;
 	private bool boosting = false;
-	private bool BoostNotEmpty {
-		get { return boostAmount > 0; }
-	}
+	private bool BoostNotEmpty => boostAmount > 0;
 
 	//Limits boost based on temperature. 0.0 means no limitation, 1.0 means the maximum limitation is in place
 	private float boostLimiter = 0.0f;
@@ -133,15 +131,15 @@ public class SteeringScript : MonoBehaviour {
 
 	[Tooltip("How much % of the boost tank is emptied per second when boosting")]
 	[Range(0, 1)]
-	public double BoostConsumptionRate = .4;
+	public float BoostConsumptionRate = .4f;
 
 	[Tooltip("How much % of the boost tank is added per second when not boosting")]
 	[Range(0, 1)]
-	public double BoostFillRate = .25;
+	public float BoostFillRate = .25f;
 
 	[Tooltip("How much boost tank % is required to start boosting")]
 	[Range(0, 1)]
-	public double MinBoostLevel = .2;
+	public float MinBoostLevel = .2f;
 
 	[Tooltip("If the boost direction is affected by steering direction")]
 	public bool BoostAffectedBySteering = false;
@@ -151,6 +149,16 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostMaxSteering = 45.0f;
 
 	// IDEA: option for adding angular velocity on boost while steering
+
+	[Tooltip("If the car becomes invulnerable while boosting")]
+	public bool BoostInvulnerability = false;
+	[Tooltip("How long time the car has to boost to become invulnerable")]
+	public float BoostInvulnerabilityWindup = 1f;
+	private float boostWindupTimer = 0f;
+
+	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
+	public bool IsInvulnerable => BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup;
+
 	#endregion
 
 	#region Velocity cap fields
@@ -224,6 +232,11 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftRumbleAmount = .5f;
 	#endregion
 
+	[Header("Misc.")]
+
+	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
+	public bool StartBeforeGoalPost = false;
+
 	#region object refs and input bindings
 
 	[Header("Required objects")]
@@ -263,14 +276,34 @@ public class SteeringScript : MonoBehaviour {
 	private Rigidbody rb;
 	private float springInit;
 
+	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
-	private TemperatureAndIntegrity tempAndInteg;
+	// private TemperatureAndIntegrity tempAndInteg;
+
+	[HideInInspector]
+	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
+	[HideInInspector]
+	public List<IObserver<int>> LapCompletedObservers = new List<IObserver<int>>();
+	[HideInInspector]
+	public List<IObserver<Camera>> ResetObservers = new List<IObserver<Camera>>();
 
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
 
-	[HideInInspector]
-	public int LapsCompleted = 0;
+	private int lapsCompleted = 0;
+	public int LapsCompleted {
+		get { return lapsCompleted; }
+		set {
+			if (StartBeforeGoalPost) {
+				StartBeforeGoalPost = false;
+				return;
+			}
+
+			lapsCompleted = value;
+			foreach (var item in LapCompletedObservers)
+				item.Notify(lapsCompleted);
+		}
+	}
 
 
 	void Start() {
@@ -290,7 +323,7 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
-		tempAndInteg = GetComponent<TemperatureAndIntegrity>();
+		// tempAndInteg = GetComponent<TemperatureAndIntegrity>();
 	}
 
 	void OnEnable() {
@@ -338,6 +371,7 @@ public class SteeringScript : MonoBehaviour {
 		Gas(dt);
 
 		Boost(dt);
+
 		// Strafe help
 		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
 
@@ -404,7 +438,7 @@ public class SteeringScript : MonoBehaviour {
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
-	
+
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
@@ -932,12 +966,19 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		if (effects)
-			effects.StartBoost();
+		if (boostWindupTimer < BoostInvulnerabilityWindup)
+			boostWindupTimer += Time.deltaTime;
+
+		// if (effects)
+		// effects.StartBoost(IsInvulnerable);
+
+		// if (tempAndInteg)
+		// tempAndInteg.BoostHeat();
+
+		foreach (var item in BoostStartObservers)
+			item.Notify(IsInvulnerable);
 
 		AddBoost(-BoostConsumptionRate * dt);
-		if (tempAndInteg)
-			tempAndInteg.BoostHeat();
 
 		if (BoostNotEmpty) {
 			Vector3 boostDir = Vector3.forward;
@@ -948,26 +989,16 @@ public class SteeringScript : MonoBehaviour {
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
-			boosting = false;
+			StopBoost();
 		}
 
 	}
 
-	private void AddBoost(double amount) {
+	private void AddBoost(float amount) {
 		boostAmount += amount;
+		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit());
 
-		if (boostAmount > (1 + BoostLimit()))
-			boostAmount = (1 + BoostLimit());
-
-		if (boostAmount < 0)
-			boostAmount = 0;
-
-		Color barColor = Color.white;
-		if (boostAmount < MinBoostLevel)
-			barColor = Color.grey;
-
-		BoostBarUIScript.SetBarPercentage((float)boostAmount, barColor);
-
+		BoostBarUIScript.SetBarPercentage((float)boostAmount);
 	}
 
 	private void StartBoost(CallbackContext _) {
@@ -978,6 +1009,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StopBoost() {
+
+		boostWindupTimer = 0f;
 
 		if (effects)
 			effects.StopBoost();
@@ -991,7 +1024,15 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	private void CallResetObservers(){
+		foreach (var observer in ResetObservers)
+			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
+			observer.Notify(Camera.main);
+	}
+
 	public void Reset(Vector3 pos, Quaternion rot) {
+		CallResetObservers();
+
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
@@ -1000,6 +1041,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void Reset() {
+		CallResetObservers();
+
 		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
@@ -1014,19 +1057,17 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	private void Reset(CallbackContext _) {
+		Reset();
+	}
+
 	private void Rumble() {
 		if (EnableRumble) {
-			if (lowHzRumble > 1)
-				lowHzRumble = 1;
-			if (highHzRumble > 1)
-				highHzRumble = 1;
+			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
+			highHzRumble = Mathf.Clamp(highHzRumble, 0, 1);
 
 			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
-	}
-
-	private void Reset(CallbackContext _) {
-		Reset();
 	}
 
 	#endregion

@@ -7,10 +7,10 @@ class SnapSegmentsEditorWindow : EditorWindow {
 	Transform startSegmentObject;
 	Transform endSegmentObject;
 
-	private float leftStartBezierMagnitude;
-	private float leftEndBezierMagnitude;
-	private float rightStartBezierMagnitude;
-	private float rightEndBezierMagnitude;
+	private float leftStartBezierMagnitude = 50;
+	private float leftEndBezierMagnitude = 50;
+	private float rightStartBezierMagnitude = 50;
+	private float rightEndBezierMagnitude = 50;
 
 	[MenuItem("Window/Snap segments")]
 	public static void ShowWindow() {
@@ -20,41 +20,28 @@ class SnapSegmentsEditorWindow : EditorWindow {
 	void OnGUI() {
 
 		GUILayout.Label("Segment snapping tool!");
+		GUILayout.Space(6);
 
-		GUILayout.Label("Start:");
-		startSegmentObject = (Transform)EditorGUILayout.ObjectField(startSegmentObject, typeof(Transform), true);
-		GUILayout.Label("End:");
-		endSegmentObject = (Transform)EditorGUILayout.ObjectField(endSegmentObject, typeof(Transform), true);
+		startSegmentObject = (Transform)EditorGUILayout.ObjectField("Start segment:", startSegmentObject, typeof(Transform), true);
+		endSegmentObject = (Transform)EditorGUILayout.ObjectField("End segment:", endSegmentObject, typeof(Transform), true);
+
+		GUILayout.Space(6);
 
 		GUILayout.BeginHorizontal();
 		GUILayout.BeginVertical();
 
-		GUILayout.BeginHorizontal();
-		GUILayout.Label("Left start magnitude:\t");
-		leftStartBezierMagnitude = EditorGUILayout.FloatField(leftStartBezierMagnitude, GUILayout.Width(75));
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		GUILayout.BeginHorizontal();
-		GUILayout.Label("Left end magnitude:\t");
-		leftEndBezierMagnitude = EditorGUILayout.FloatField(leftEndBezierMagnitude, GUILayout.Width(75));
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
+		leftStartBezierMagnitude = EditorGUILayout.FloatField("Left start magnitude:", leftStartBezierMagnitude);
+		leftEndBezierMagnitude = EditorGUILayout.FloatField("Left end magnitude:", leftEndBezierMagnitude);
 
-		GUILayout.BeginHorizontal();
-		GUILayout.Label("Right start magnitude:\t");
-		rightStartBezierMagnitude = EditorGUILayout.FloatField(rightStartBezierMagnitude, GUILayout.Width(75));
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		GUILayout.BeginHorizontal();
-		GUILayout.Label("Right end magnitude:\t");
-		rightEndBezierMagnitude = EditorGUILayout.FloatField(rightEndBezierMagnitude, GUILayout.Width(75));
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
-		
+		rightStartBezierMagnitude = EditorGUILayout.FloatField("Right start magnitude:", rightStartBezierMagnitude);
+		rightEndBezierMagnitude = EditorGUILayout.FloatField("Right end magnitude:", rightEndBezierMagnitude);
+
 		GUILayout.EndVertical();
 
+		GUILayout.FlexibleSpace();
+
 		GUILayout.BeginVertical();
-		
+
 		GUILayout.Space(4);
 
 		if (GUILayout.Button("Reset to 50", GUILayout.Width(100), GUILayout.Height(32))) {
@@ -125,7 +112,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 			Debug.LogWarning("Road segment script not found in end object");
 			return;
 		}
-
 
 		float StartWidth = Vector3.Distance(
 			startSegment.FrontRightBone.position,
