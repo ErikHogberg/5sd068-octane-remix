@@ -9,10 +9,6 @@ public class GoalPortalScript : MonoBehaviour, IObserver<PortalScript> {
 		GetComponent<PortalScript>().Observers.Add(this);
 	}
 
-	void Update() {
-
-	}
-
 	public void Notify(PortalScript portal){
 		// TODO: add lap
 	}

@@ -11,7 +11,7 @@ public class BarUIScript : MonoBehaviour {
 	private MaskedBarFunctionality maskedBar;
 	private Gradient3Colors gradient;
 
-	void Start() {
+	void Awake() {
 		barFill = GetComponent<Image>();
 		maskedBar = GetComponent<MaskedBarFunctionality>();
 		gradient = GetComponent<Gradient3Colors>();
@@ -31,11 +31,7 @@ public class BarUIScript : MonoBehaviour {
 	}
 
 	public void SetBarPercentage(float percentage) {
-		if (percentage > 1)
-			percentage = 1;
-
-		if (percentage < 0)
-			percentage = 0;
+		percentage = Mathf.Clamp(percentage, 0, 1);
 
 		if (barFill.sprite == null) {
 			Vector3 scale = transform.localScale;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TemperatureAndIntegrity : MonoBehaviour {
+public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Header("Temperature")]
 	[Tooltip("How much fire obstacles affects the car's temperature level.")]
 	public float fireTempEffect = 10.0f;
@@ -72,6 +72,8 @@ public class TemperatureAndIntegrity : MonoBehaviour {
 
 	private void Start() {
 		carControls = GetComponent<SteeringScript>();
+		carControls.BoostStartObservers.Add(this);
+
 		currIntegrity = maxIntegrity;
 
 		temperatureUI = TemperatureUIScript.MainInstance;
@@ -108,7 +110,7 @@ public class TemperatureAndIntegrity : MonoBehaviour {
 		}
 	}
 	public void RockHit() {
-		if (damageTimer <= 0.0f) {
+		if (damageTimer <= 0.0f && !carControls.IsInvulnerable) {
 			currIntegrity -= rockIntegEffect;
 			Hit();
 		}
@@ -193,6 +195,11 @@ public class TemperatureAndIntegrity : MonoBehaviour {
 		currIntegrity = maxIntegrity;
 		currTemp = 0.0f; goalTemp = 0.0f;
 		SetTempUI(); SetIntegUI();
+	}
+
+	// on car boost start
+	public void Notify(bool carIsInvulnerable) {
+		BoostHeat();
 	}
 
 }
