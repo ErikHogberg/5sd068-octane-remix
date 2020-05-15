@@ -7,10 +7,10 @@ class SnapSegmentsEditorWindow : EditorWindow {
 	Transform startSegmentObject;
 	Transform endSegmentObject;
 
-	private float leftStartBezierMagnitude;
-	private float leftEndBezierMagnitude;
-	private float rightStartBezierMagnitude;
-	private float rightEndBezierMagnitude;
+	private float leftStartBezierMagnitude = 50;
+	private float leftEndBezierMagnitude = 50;
+	private float rightStartBezierMagnitude = 50;
+	private float rightEndBezierMagnitude = 50;
 
 	[MenuItem("Window/Snap segments")]
 	public static void ShowWindow() {
@@ -23,7 +23,7 @@ class SnapSegmentsEditorWindow : EditorWindow {
 		GUILayout.Space(6);
 
 		startSegmentObject = (Transform)EditorGUILayout.ObjectField("Start segment:", startSegmentObject, typeof(Transform), true);
-		endSegmentObject = (Transform)EditorGUILayout.ObjectField("End segment:",endSegmentObject, typeof(Transform), true);
+		endSegmentObject = (Transform)EditorGUILayout.ObjectField("End segment:", endSegmentObject, typeof(Transform), true);
 
 		GUILayout.Space(6);
 
@@ -112,7 +112,6 @@ class SnapSegmentsEditorWindow : EditorWindow {
 			Debug.LogWarning("Road segment script not found in end object");
 			return;
 		}
-
 
 		float StartWidth = Vector3.Distance(
 			startSegment.FrontRightBone.position,

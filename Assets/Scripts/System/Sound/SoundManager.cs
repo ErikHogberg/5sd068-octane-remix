@@ -42,7 +42,7 @@ public class SoundManager : MonoBehaviour
 		Sound sound = new Sound();
 		bool found = false;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
-		foreach (Sound item in SoundAssets.i.soundEffects) {
+		foreach (Sound item in SoundAssets.Instance.soundEffects) {	
 			if (item.name == name) {
 				sound = item;
 				found = true;
@@ -75,7 +75,7 @@ public class SoundManager : MonoBehaviour
 		Sound sound = new Sound();
 		bool found = false;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
-		foreach (Sound item in SoundAssets.i.soundEffects) {
+		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
 				sound = item;
 				found = true;

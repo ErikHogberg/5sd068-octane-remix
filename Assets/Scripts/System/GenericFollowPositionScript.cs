@@ -1,10 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class GenericFollowPositionScript : MonoBehaviour {
+public interface IFollowScript {
+	void SetFollowTarget(Transform target);
+}
 
-	public GameObject ObjectToFollow;
+public class GenericFollowPositionScript : MonoBehaviour, IFollowScript {
+
+	public Transform Target;
 
 	private Vector3 initPos;
 
@@ -12,11 +14,11 @@ public class GenericFollowPositionScript : MonoBehaviour {
 	public Vector3 Buffer;
 
 	private void Start() {
-		initPos = transform.position - ObjectToFollow.transform.position;
+		initPos = transform.position - Target.transform.position;
 	}
 
 	private void LateUpdate() {
-		var targetPos = ObjectToFollow.transform.position + initPos;
+		var targetPos = Target.transform.position + initPos;
 
 		if (!AllowBuffer) {
 			transform.position = targetPos;
@@ -33,19 +35,23 @@ public class GenericFollowPositionScript : MonoBehaviour {
 		}
 
 		if (delta.y < -Buffer.y) {
-			resultPos.y = targetPos.y + Buffer.x;
+			resultPos.y = targetPos.y + Buffer.y;
 		} else if (delta.y > Buffer.y) {
-			resultPos.y = targetPos.y - Buffer.x;
+			resultPos.y = targetPos.y - Buffer.y;
 		}
 
 		if (delta.z < -Buffer.z) {
-			resultPos.z = targetPos.z + Buffer.x;
+			resultPos.z = targetPos.z + Buffer.z;
 		} else if (delta.z > Buffer.z) {
-			resultPos.z = targetPos.z - Buffer.x;
+			resultPos.z = targetPos.z - Buffer.z;
 		}
 
 		transform.position = resultPos;
 
+	}
+
+	public void SetFollowTarget(Transform target) {
+		Target = target;
 	}
 
 }

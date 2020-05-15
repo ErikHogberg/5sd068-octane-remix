@@ -117,9 +117,7 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostSpeed = 100f;
 	private float boostAmount = 1;
 	private bool boosting = false;
-	private bool BoostNotEmpty {
-		get { return boostAmount > 0; }
-	}
+	private bool BoostNotEmpty => boostAmount > 0;
 
 	//Limits boost based on temperature. 0.0 means no limitation, 1.0 means the maximum limitation is in place
 	private float boostLimiter = 0.0f;
@@ -158,17 +156,8 @@ public class SteeringScript : MonoBehaviour {
 	public float BoostInvulnerabilityWindup = 1f;
 	private float boostWindupTimer = 0f;
 
-	public float BoostWindupProgress {
-		get {
-			float percentage = Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
-
-			return percentage;
-		}
-	}
-
-	public bool IsInvulnerable {
-		get { return BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup; }
-	}
+	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
+	public bool IsInvulnerable => BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup;
 
 	#endregion
 
@@ -295,6 +284,8 @@ public class SteeringScript : MonoBehaviour {
 	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
 	[HideInInspector]
 	public List<IObserver<int>> LapCompletedObservers = new List<IObserver<int>>();
+	[HideInInspector]
+	public List<IObserver<Camera>> ResetObservers = new List<IObserver<Camera>>();
 
 	private float lowHzRumble = 0;
 	private float highHzRumble = 0;
@@ -1033,7 +1024,15 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
+	private void CallResetObservers(){
+		foreach (var observer in ResetObservers)
+			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
+			observer.Notify(Camera.main);
+	}
+
 	public void Reset(Vector3 pos, Quaternion rot) {
+		CallResetObservers();
+
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
@@ -1042,6 +1041,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void Reset() {
+		CallResetObservers();
+
 		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
@@ -1056,6 +1057,10 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	private void Reset(CallbackContext _) {
+		Reset();
+	}
+
 	private void Rumble() {
 		if (EnableRumble) {
 			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
@@ -1063,10 +1068,6 @@ public class SteeringScript : MonoBehaviour {
 
 			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
-	}
-
-	private void Reset(CallbackContext _) {
-		Reset();
 	}
 
 	#endregion

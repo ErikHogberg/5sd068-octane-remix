@@ -6,13 +6,7 @@ using UnityEngine.UI;
 public class FadeToBlack : MonoBehaviour
 {
 	private static FadeToBlack instance;
-	public static FadeToBlack Instance {
-		get {
-			if (instance == null)
-				instance = Instantiate(Resources.Load<FadeToBlack>("FadeToBlack"));
-			return instance;
-		}
-	}
+	public static FadeToBlack Instance => instance ?? (instance = Instantiate(Resources.Load<FadeToBlack>("FadeToBlack")));
 
 	//A black image that should be large enough to cover the entire screen
 	private Image blackScreen;

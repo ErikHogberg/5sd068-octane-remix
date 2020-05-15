@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(ObjectSelectorScript))]
 public class CameraSelectorScript : MonoBehaviour {
@@ -13,12 +11,14 @@ public class CameraSelectorScript : MonoBehaviour {
 
 	void Update() {
 
-		if (Input.GetKeyDown(KeyCode.Alpha1)) 
+		if (Input.GetKeyDown(KeyCode.Alpha1))
 			selector.UnhideObject(0);
-		else if (Input.GetKeyDown(KeyCode.Alpha2)) 
+		else if (Input.GetKeyDown(KeyCode.Alpha2))
 			selector.UnhideObject(1);
-		else if (Input.GetKeyDown(KeyCode.Alpha3)) 
+		else if (Input.GetKeyDown(KeyCode.Alpha3))
 			selector.UnhideObject(2);
-		
+		else if (Input.GetKeyDown(KeyCode.Alpha4))
+			selector.UnhideObject(3);
+
 	}
 }

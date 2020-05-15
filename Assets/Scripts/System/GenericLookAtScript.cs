@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class GenericLookAtScript : MonoBehaviour {
+public class GenericLookAtScript : MonoBehaviour, IFollowScript {
 
 	public Transform Target;
 	public Vector2 AngleOffset;
@@ -13,4 +11,7 @@ public class GenericLookAtScript : MonoBehaviour {
 		transform.Rotate(Vector2.right, AngleOffset.y, Space.Self);
 	}
 
+	public void SetFollowTarget(Transform target) {
+		Target = target;
+	}
 }

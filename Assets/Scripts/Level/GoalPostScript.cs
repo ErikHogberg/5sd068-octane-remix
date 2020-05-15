@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
@@ -34,6 +32,12 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	private void OnTriggerEnter(Collider other) {
 		if (!ready)
 			return;
+
+		if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)){
+			// Resets if entering from wrong segment
+			LevelPieceSuperClass.ResetToCurrentSegment();
+			return;
+		}
 
 		SteeringScript.MainInstance.LapsCompleted++;
 		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted);
