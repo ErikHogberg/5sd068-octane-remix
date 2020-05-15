@@ -43,6 +43,13 @@ public class CarCam : MonoBehaviour {
 
 	public GameObject OptionalParent;
 
+	public float SteeringMaxOffset = 1f;
+	public float MaxOffsetRotationSpeed = 1f;
+	private float steeringBuffer = 0f;
+
+	// TODO: camera yaw and pitch offset
+	// IDEA: just override lookat target
+
 	//The transform of the camera object
 	private Transform rootNode;
 
@@ -82,22 +89,28 @@ public class CarCam : MonoBehaviour {
 			cameraLock = Car.transform.Find("CameraLock");
 		}
 
-		carPhysics = Car.transform.GetComponent<Rigidbody>();
-		carControls = Car.transform.GetComponent<SteeringScript>();
+		carPhysics = Car.GetComponent<Rigidbody>();
+		carControls = Car.GetComponent<SteeringScript>();
 		currCamRotationSpeed = CameraRotationSpeed;
 
 	}
 
 	void Start() {
+		// Detach the camera so that it can move freely on its own.
 		if (OptionalParent)
 			rootNode.parent = OptionalParent.transform;
 		else
-			// Detach the camera so that it can move freely on its own.
 			rootNode.parent = null;
 
 	}
 
+	private void Update() {
+		
+	}
+
 	void FixedUpdate() {
+
+		// TODO: separate interpolation and camera positon update logic from target position update logic to get camera movement as smooth as framerate, instead of same as physics step
 
 		//Uses an animation curve to adjust at what rate the camera lags behind the car
 		//by comparing its current speed to its specified top speed
@@ -121,7 +134,10 @@ public class CarCam : MonoBehaviour {
 		//Gets steering values from car
 		float steer = carControls.GetSteering();
 		float yaw = carControls.GetYaw();
-		if (steer != 0.0f) { steeringValue = steer; } else if (yaw != 0.0f) { steeringValue = yaw; }
+		if (steer != 0.0f)
+			steeringValue = steer;
+		else if (yaw != 0.0f)
+			steeringValue = yaw;
 
 		//Lerping steer value to make a smoother transition between the min and max possible values
 		effectiveSteerValue = Mathf.Lerp(effectiveSteerValue, steeringValue, steerValueLerp * Time.fixedDeltaTime);
@@ -129,8 +145,9 @@ public class CarCam : MonoBehaviour {
 
 		float lookAngleComparison = Mathf.Acos(
 		//Dot product
-		((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z)) /
-		(cameraLock.forward.magnitude * carPhysics.velocity.magnitude)) * Mathf.Rad2Deg;
+			((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z)) /
+			(cameraLock.forward.magnitude * carPhysics.velocity.magnitude)
+		) * Mathf.Rad2Deg;
 
 		Quaternion look;
 		lockToCar = (Car.transform.position - rootNode.transform.position);
@@ -168,7 +185,12 @@ public class CarCam : MonoBehaviour {
 
 		//Rotate the camera towards the velocity vector.
 		look = Quaternion.Slerp(rootNode.rotation, look, currCamRotationSpeed * Time.fixedDeltaTime);
-		rootNode.rotation = look;
+
+		steeringBuffer = Mathf.MoveTowards(steeringBuffer, steeringValue, MaxOffsetRotationSpeed * Time.deltaTime);
+		var steeringOffset = Quaternion.AngleAxis(steeringBuffer * SteeringMaxOffset, Car.transform.up);
+		
+		rootNode.rotation = steeringOffset * look ;
+		// rootNode.Rotate(Vector3.up, effectiveSteerValue * SteeringMaxOffset, Space.Self);
 
 	}
 }
