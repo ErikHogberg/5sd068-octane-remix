@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Header("Temperature")]
@@ -172,6 +170,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	private void ValueCheck() {
 		if (currIntegrity <= 0.0f) {
 			Debug.Log("Integrity reached 0!");
+			UINotificationSystem.Notify("Your car exploded!", Color.red, 2);
 			carControls.Reset();
 			Reset();
 		}

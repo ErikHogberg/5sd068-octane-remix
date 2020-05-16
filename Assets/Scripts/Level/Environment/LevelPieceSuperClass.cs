@@ -131,6 +131,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			currentSegment = this;
 			print("current segment: " + currentSegment.SegmentOrder);
 		} else {
+			UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
 			ResetToCurrentSegment();
 		}
 

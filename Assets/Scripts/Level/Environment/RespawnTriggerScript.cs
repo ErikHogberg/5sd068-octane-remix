@@ -7,6 +7,7 @@ public class RespawnTriggerScript : MonoBehaviour {
 
 	private void OnTriggerEnter(Collider other) {
 		LevelPieceSuperClass.ResetToCurrentSegment();
+		UINotificationSystem.Notify("You fell off the track!", Color.blue, 1.5f);
 	}
 
 }
