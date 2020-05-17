@@ -35,8 +35,14 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 		if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
 			// Resets if entering from wrong segment
-			LevelPieceSuperClass.ResetToCurrentSegment();
-			return;
+
+			// LevelPieceSuperClass.ResetToCurrentSegment();
+
+			bool transitionSucceeded = ParentSegment.AttemptTransition();
+
+			if (!transitionSucceeded) {
+				return;
+			}
 		}
 
 		SteeringScript.MainInstance.LapsCompleted++;
