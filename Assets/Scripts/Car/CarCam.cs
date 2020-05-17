@@ -104,10 +104,6 @@ public class CarCam : MonoBehaviour {
 
 	}
 
-	private void Update() {
-		
-	}
-
 	void FixedUpdate() {
 
 		// TODO: separate interpolation and camera positon update logic from target position update logic to get camera movement as smooth as framerate, instead of same as physics step

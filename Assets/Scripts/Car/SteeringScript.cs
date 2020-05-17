@@ -274,6 +274,7 @@ public class SteeringScript : MonoBehaviour {
 	private float[] wheelRotationBuffers;
 
 	private Rigidbody rb;
+	public Vector3 Velocity => rb.velocity;
 	private float springInit;
 
 	// IDEA: make observers instead?

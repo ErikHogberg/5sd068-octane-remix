@@ -33,7 +33,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		if (!ready)
 			return;
 
-		if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)){
+		if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
 			// Resets if entering from wrong segment
 			LevelPieceSuperClass.ResetToCurrentSegment();
 			return;
@@ -69,7 +69,15 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	// called when car leaves parent segment
 	public void Notify(LevelPieceSuperClass segment) {
-		ready = true;
+		if (ready) {
+			// Registers lap if the car somehow missed the goal post
+			// IDEA: reset player to goal post segment instead
+			SteeringScript.MainInstance.LapsCompleted++;
+		} else {
+			ready = true;
+		}
+
+
 	}
 
 }
