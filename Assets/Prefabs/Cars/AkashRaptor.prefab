@@ -450,7 +450,7 @@ Rigidbody:
   m_AngularDrag: 0.5
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 1
 --- !u!114 &1527663253640760999
@@ -1097,6 +1097,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1527663254218452904}
+  - {fileID: 1421095133709221209}
+  - {fileID: 8305112826547449848}
   m_Father: {fileID: 8572164920044033207}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1287,6 +1289,36 @@ WheelCollider:
     m_AsymptoteValue: 0.75
     m_Stiffness: 1
   m_Enabled: 1
+--- !u!1 &1695476682023508886
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8305112826547449848}
+  m_Layer: 14
+  m_Name: Camera Lookat
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8305112826547449848
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695476682023508886}
+  m_LocalRotation: {x: -0, y: -0.000000059604638, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.71, z: 12.67}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1527663254562942721}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1790096859256352703
 GameObject:
   m_ObjectHideFlags: 0
@@ -6897,6 +6929,36 @@ Transform:
   - {fileID: 1506622756956617622}
   m_Father: {fileID: 8572164920044033207}
   m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7097083933231880942
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1421095133709221209}
+  m_Layer: 14
+  m_Name: Camera Pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1421095133709221209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7097083933231880942}
+  m_LocalRotation: {x: -0, y: -0.000000059604638, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -3.78, z: 11.300008}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1527663254562942721}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7231270502518478789
 GameObject:
@@ -21578,15 +21640,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 816e21494c856b245b040812dc90055c, type: 3}
---- !u!198 &2382867054967168624 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 8175063227124566364, guid: 816e21494c856b245b040812dc90055c,
-    type: 3}
-  m_PrefabInstance: {fileID: 5792205570695157548}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8270794942406340770 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2496621929451546510, guid: 816e21494c856b245b040812dc90055c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5792205570695157548}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2382867054967168624 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8175063227124566364, guid: 816e21494c856b245b040812dc90055c,
     type: 3}
   m_PrefabInstance: {fileID: 5792205570695157548}
   m_PrefabAsset: {fileID: 0}
@@ -21739,15 +21801,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30907187cd553f9428addd22e3968523, type: 3}
---- !u!4 &3497068538943535325 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7543684698984887790, guid: 30907187cd553f9428addd22e3968523,
-    type: 3}
-  m_PrefabInstance: {fileID: 6356998056413973811}
-  m_PrefabAsset: {fileID: 0}
 --- !u!198 &6660727984423297448 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 312772313192508571, guid: 30907187cd553f9428addd22e3968523,
+    type: 3}
+  m_PrefabInstance: {fileID: 6356998056413973811}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3497068538943535325 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7543684698984887790, guid: 30907187cd553f9428addd22e3968523,
     type: 3}
   m_PrefabInstance: {fileID: 6356998056413973811}
   m_PrefabAsset: {fileID: 0}
@@ -21758,6 +21820,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1527663254562942721}
     m_Modifications:
+    - target: {fileID: 539307937776496031, guid: fa27d0fe783e4d54887e083dd5bde809,
+        type: 3}
+      propertyPath: car
+      value: 
+      objectReference: {fileID: 1527663253640760999}
+    - target: {fileID: 539307937776496031, guid: fa27d0fe783e4d54887e083dd5bde809,
+        type: 3}
+      propertyPath: CameraPivot
+      value: 
+      objectReference: {fileID: 1421095133709221209}
+    - target: {fileID: 539307937776496031, guid: fa27d0fe783e4d54887e083dd5bde809,
+        type: 3}
+      propertyPath: CameraLookat
+      value: 
+      objectReference: {fileID: 8305112826547449848}
+    - target: {fileID: 539307937776496031, guid: fa27d0fe783e4d54887e083dd5bde809,
+        type: 3}
+      propertyPath: Car
+      value: 
+      objectReference: {fileID: 1527663253640760999}
     - target: {fileID: 8135559289499355436, guid: fa27d0fe783e4d54887e083dd5bde809,
         type: 3}
       propertyPath: m_Name
@@ -21823,6 +21905,11 @@ PrefabInstance:
       propertyPath: car
       value: 
       objectReference: {fileID: 1527663253640760996}
+    - target: {fileID: 8135559289499355438, guid: fa27d0fe783e4d54887e083dd5bde809,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa27d0fe783e4d54887e083dd5bde809, type: 3}
 --- !u!4 &1527663254218452904 stripped
