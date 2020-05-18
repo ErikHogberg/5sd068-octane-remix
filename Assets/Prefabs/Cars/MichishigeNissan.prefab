@@ -225,7 +225,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -363,7 +363,7 @@ MonoBehaviour:
   SteeringRotationHelp: 20
   SteeringStrafeHelp: 0.5
   SteeringStrafeMode: 2
-  GasSpeed: 15000
+  GasSpeed: 5000
   GasPedalCurve:
     serializedVersion: 2
     m_Curve:
@@ -505,8 +505,9 @@ MonoBehaviour:
   MinBoostLevel: 0.2
   BoostAffectedBySteering: 1
   BoostMaxSteering: 60
-  BoostInvulnerability: 0
-  BoostInvulnerabilityWindup: 1
+  BoostWindupSkill: 0
+  BoostWindup: 1
+  BoostSloMoTimescale: 1
   CapVelocity: 1
   VelocityCap: 25
   BoostVelocityCap: 30
@@ -641,10 +642,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.75
+  m_Radius: 0.7183156
   m_Height: 6.1
   m_Direction: 2
-  m_Center: {x: 0, y: 2.31, z: 0}
+  m_Center: {x: 0, y: 2.3416843, z: 0}
 --- !u!114 &7960672228851041281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,7 +689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1527663253754463515
 Transform:
   m_ObjectHideFlags: 0
@@ -801,7 +802,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -991,7 +992,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -1117,7 +1118,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
