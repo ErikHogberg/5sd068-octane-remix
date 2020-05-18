@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8135559289499355424}
   - component: {fileID: 8135559289499355439}
   - component: {fileID: 8135559289499355438}
+  - component: {fileID: 539307937776496031}
   m_Layer: 0
   m_Name: Car Camera
   m_TagString: MainCamera
@@ -196,7 +197,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8135559289499355436}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7232962877fd4fe4892a8892012b3293, type: 3}
   m_Name: 
@@ -260,3 +261,29 @@ MonoBehaviour:
   MaxCameraLag: 15
   Car: {fileID: 0}
   OptionalParent: {fileID: 0}
+  SteeringMaxOffset: 1
+  MaxOffsetRotationSpeed: 1
+--- !u!114 &539307937776496031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8135559289499355436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fa7b43fc47b3ae44ae113fd142d47bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FollowSpeed: 10
+  SteeringMax: 10
+  SteeringFollowSpeed: 2
+  MinSteeringFollowMultiplier: 0.2
+  SteeringRelativeToCar: 1
+  HorizontalBuffer: 3
+  VerticalBuffer: {x: -2, y: 4}
+  ZoomBuffer: {x: -1, y: 1}
+  car: {fileID: 0}
+  CameraPivot: {fileID: 0}
+  CameraLookat: {fileID: 0}
+  Parent: {fileID: 0}

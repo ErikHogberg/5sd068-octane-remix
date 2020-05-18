@@ -274,6 +274,7 @@ public class SteeringScript : MonoBehaviour {
 	private float[] wheelRotationBuffers;
 
 	private Rigidbody rb;
+	public Vector3 Velocity => rb.velocity;
 	private float springInit;
 
 	// IDEA: make observers instead?
@@ -361,6 +362,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float sqrVelocity = rb.velocity.sqrMagnitude;
 
+		// TODO: curve for gradual downwards force with velocity
 		if (EnableDownwardForce && sqrVelocity > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
@@ -372,19 +374,24 @@ public class SteeringScript : MonoBehaviour {
 
 		Boost(dt);
 
-		// Strafe help
-		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
+		if (touchingGround && SteeringStrafeHelp > float.Epsilon) {
+			// Strafe help
+			rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
+		}
 
 		Brake(dt);
 		Handbrake(dt);
 
 		float yawAmount = YawSpeed * yawBuffer * dt;
-		float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
 		Yaw(yawAmount, true);
-		Yaw(steeringYawAmount, false);
+		if (touchingGround) {
+			float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
+			Yaw(steeringYawAmount, false);
+		}
+
 		Pitch(dt);
 
-		Jump(dt);
+		// Jump(dt);
 
 		ApplyVelocityCap(dt);
 		ApplyAnimations();
@@ -795,7 +802,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Handbrake(float dt) {
 
-		// IDEA: instead of braking, start drifting by instantly rotating car in steering direction, rotate back to velocity (not previous delta) direction on release.
 
 		// foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 		// frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
@@ -1024,7 +1030,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	private void CallResetObservers(){
+	private void CallResetObservers() {
 		foreach (var observer in ResetObservers)
 			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
 			observer.Notify(Camera.main);
@@ -1032,6 +1038,9 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
+
+		if (effects)
+			effects.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
