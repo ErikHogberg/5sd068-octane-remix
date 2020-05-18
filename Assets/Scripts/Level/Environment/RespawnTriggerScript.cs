@@ -10,4 +10,9 @@ public class RespawnTriggerScript : MonoBehaviour {
 		UINotificationSystem.Notify("You fell off the track!", Color.blue, 1.5f);
 	}
 
+	private void OnCollisionEnter(Collision other) {
+		LevelPieceSuperClass.ResetToCurrentSegment();
+		UINotificationSystem.Notify("You fell off the track!", Color.blue, 1.5f);
+	}
+
 }
