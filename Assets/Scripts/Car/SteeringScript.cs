@@ -517,8 +517,7 @@ public class SteeringScript : MonoBehaviour {
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		drifting = true;
 
-		if (effects)
-			effects.StartDrift();
+		effects?.StartDrift();
 
 		SetDebugUIText(11, "True");
 	}
@@ -526,8 +525,7 @@ public class SteeringScript : MonoBehaviour {
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		drifting = false;
 
-		if (effects)
-			effects.StopDrift();
+		effects?.StopDrift();
 
 		SetDebugUIText(11, "False");
 	}
@@ -1037,8 +1035,7 @@ public class SteeringScript : MonoBehaviour {
 		boostWindupTimer = 0f;
 		Time.timeScale = 1f;
 
-		if (effects)
-			effects.StopBoost();
+		effects?.StopBoost();
 
 		boosting = false;
 	}
@@ -1058,8 +1055,7 @@ public class SteeringScript : MonoBehaviour {
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
 
-		if (effects)
-			effects.ClearAllEffects();
+		effects?.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
