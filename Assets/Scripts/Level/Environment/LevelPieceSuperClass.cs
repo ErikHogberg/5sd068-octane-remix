@@ -103,17 +103,12 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
-	// TODO: fade effect when respawning
-
-	private void OnTriggerEnter(Collider other) {
-
+	// If a transition to this segment is allowed
+	public bool CheckValidProgression(){
 		int currentSegmentSkip = allowedSegmentSkip;
 
 		if (OverrideSegmentSkip)
 			currentSegmentSkip = CustomSegmentSkip;
-
-		if (currentSegment == this)
-			return;
 
 		bool validProgression = !currentSegment;
 		if (OverridePreviousSegment)
@@ -123,6 +118,11 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 				|| (SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip
 					&& SegmentOrder > currentSegment.SegmentOrder);
 
+		return validProgression;
+	}
+
+	public bool AttemptTransition() {
+		bool validProgression = CheckValidProgression();
 		if (validProgression) {
 			if (currentSegment)
 				foreach (var observer in currentSegment.LeaveSegmentObservers)
@@ -135,6 +135,14 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			ResetToCurrentSegment();
 		}
 
+		return validProgression;
+	}
+	
+	private void OnTriggerEnter(Collider other) {
+		if (currentSegment == this)
+			return;
+
+		AttemptTransition();
 	}
 
 	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
