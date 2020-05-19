@@ -40,6 +40,15 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	public List<EnvironmentEffectCollection> AlwaysOnEffects;
 
+	private IEnumerable<EnvironmentEffectCollection> AllEffects =>
+		AlwaysOnEffects
+			.Concat(DriftEffects)
+			.Concat(BoostEffects)
+			.Concat(BoostInvulnerabilityEffects)
+			.Concat(ClockwiseYawEffects)
+			.Concat(CounterClockwiseYawEffects)
+		;
+
 	private string currentTag = ""; // NOTE: only latest environment type touched have their effects enabled
 	private bool drifting = false;
 	private bool boosting = false;
@@ -145,6 +154,23 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	private void DisableAllEffects() {
 		DisableAllEffects(currentTag);
+	}
+
+
+	private void ClearEffects(EnvironmentEffectCollection effects) {
+		foreach (var item in effects.particles)
+			item.Clear();
+		foreach (var item in effects.trails)
+			item.Clear();
+	}
+
+	private void ClearEffects(IEnumerable<EnvironmentEffectCollection> effects) {
+		foreach (var item in effects)
+			ClearEffects(item);
+	}
+
+	public void ClearAllEffects() {
+		ClearEffects(AllEffects);
 	}
 
 	public void UpdateSpeed(float sqrVelocity) {

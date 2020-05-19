@@ -18,6 +18,12 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
+	public enum BoostSkill {
+		None,
+		Invulnerability,
+		SloMo
+	}
+
 	// TODO: list of instances for split screen multiplayer, indexed by player order
 	public static SteeringScript MainInstance;
 
@@ -150,14 +156,25 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: option for adding angular velocity on boost while steering
 
-	[Tooltip("If the car becomes invulnerable while boosting")]
-	public bool BoostInvulnerability = false;
+
+	public BoostSkill BoostWindupSkill = BoostSkill.None;
+	// [Tooltip("If the car becomes invulnerable while boosting")]
+
+	// public bool BoostInvulnerability = false;
 	[Tooltip("How long time the car has to boost to become invulnerable")]
-	public float BoostInvulnerabilityWindup = 1f;
+	[Min(0)]
+	public float BoostWindup = 1f;
+
+	// public bool BoostSloMo = false;
+	[Range(0, 1)]
+	public float BoostSloMoTimescale = 1f;
+
 	private float boostWindupTimer = 0f;
 
-	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
-	public bool IsInvulnerable => BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup;
+	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostWindup, 0, 1);
+	public bool BoostWindupReady => boosting && boostWindupTimer >= BoostWindup;
+	public bool IsInvulnerable => BoostWindupSkill == BoostSkill.Invulnerability && BoostWindupReady;
+	public bool IsInSloMo => BoostWindupSkill == BoostSkill.SloMo && BoostWindupReady;
 
 	#endregion
 
@@ -274,6 +291,7 @@ public class SteeringScript : MonoBehaviour {
 	private float[] wheelRotationBuffers;
 
 	private Rigidbody rb;
+	public Vector3 Velocity => rb.velocity;
 	private float springInit;
 
 	// IDEA: make observers instead?
@@ -386,6 +404,7 @@ public class SteeringScript : MonoBehaviour {
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+		float unscaledDt = Time.unscaledDeltaTime;
 
 		lowHzRumble = 0;
 		highHzRumble = 0;
@@ -394,6 +413,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float sqrVelocity = rb.velocity.sqrMagnitude;
 
+		// TODO: curve for gradual downwards force with velocity
 		if (EnableDownwardForce && sqrVelocity > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
 			if (UseRelativeDownwardForce)
 				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
@@ -403,21 +423,26 @@ public class SteeringScript : MonoBehaviour {
 		Steer(dt);
 		Gas(dt);
 
-		Boost(dt);
+		Boost(dt, unscaledDt);
 
-		// Strafe help
-		rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
+		if (touchingGround && SteeringStrafeHelp > float.Epsilon) {
+			// Strafe help
+			rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
+		}
 
 		Brake(dt);
 		Handbrake(dt);
 
 		float yawAmount = YawSpeed * yawBuffer * dt;
-		float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
 		Yaw(yawAmount, true);
-		Yaw(steeringYawAmount, false);
+		if (touchingGround) {
+			float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
+			Yaw(steeringYawAmount, false);
+		}
+
 		Pitch(dt);
 
-		Jump(dt);
+		// Jump(dt);
 
 		ApplyVelocityCap(dt);
 		ApplyAnimations();
@@ -529,8 +554,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 		drifting = true;
 
-		if (effects)
-			effects.StartDrift();
+		effects?.StartDrift();
 
 		SetDebugUIText(11, "True");
 	}
@@ -542,8 +566,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 		drifting = false;
 
-		if (effects)
-			effects.StopDrift();
+		effects?.StopDrift();
 
 		SetDebugUIText(11, "False");
 	}
@@ -836,7 +859,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Handbrake(float dt) {
 
-		// IDEA: instead of braking, start drifting by instantly rotating car in steering direction, rotate back to velocity (not previous delta) direction on release.
 
 		// foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 		// frontWheelCollider.brakeTorque = HandbrakeForce * handbrakeBuffer;
@@ -1007,7 +1029,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
-	private void Boost(float dt) {
+	private void Boost(float dt, float unscaledDt) {
 		if (!BoostNotEmpty) {
 			StopBoost();
 		}
@@ -1017,19 +1039,19 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		if (boostWindupTimer < BoostInvulnerabilityWindup)
+		if (BoostWindupSkill != BoostSkill.None && boostWindupTimer < BoostWindup)
 			boostWindupTimer += Time.deltaTime;
 
-		// if (effects)
-		// effects.StartBoost(IsInvulnerable);
-
-		// if (tempAndInteg)
-		// tempAndInteg.BoostHeat();
+		if (IsInSloMo) {
+			Time.timeScale = BoostSloMoTimescale;
+		} else {
+			Time.timeScale = 1f;
+		}
 
 		foreach (var item in BoostStartObservers)
 			item.Notify(IsInvulnerable);
 
-		AddBoost(-BoostConsumptionRate * dt);
+		AddBoost(-BoostConsumptionRate * unscaledDt);
 
 		if (BoostNotEmpty) {
 			Vector3 boostDir = Vector3.forward;
@@ -1064,9 +1086,9 @@ public class SteeringScript : MonoBehaviour {
 	private void StopBoost() {
 
 		boostWindupTimer = 0f;
+		Time.timeScale = 1f;
 
-		if (effects)
-			effects.StopBoost();
+		effects?.StopBoost();
 
 		boosting = false;
 		SoundManager.StopLooping("boost_continuous");
@@ -1079,7 +1101,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	private void CallResetObservers(){
+	private void CallResetObservers() {
 		foreach (var observer in ResetObservers)
 			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
 			observer.Notify(Camera.main);
@@ -1087,6 +1109,8 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
+
+		effects?.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
