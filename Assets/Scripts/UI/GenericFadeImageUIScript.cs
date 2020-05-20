@@ -59,7 +59,7 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 		if (timer < 0)
 			return;
 
-		timer -= Time.deltaTime;
+		timer -= Time.unscaledDeltaTime;
 
 		switch (mode) {
 			case FadeMode.None:
