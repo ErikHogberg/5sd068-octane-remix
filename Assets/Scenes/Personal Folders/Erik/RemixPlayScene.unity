@@ -43955,6 +43955,59 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1931113930}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1934057910 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7595710005034884615, guid: 3b614aba3ede48049af0f1695ec924fa,
+    type: 3}
+  m_PrefabInstance: {fileID: 7595710005109818883}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1934057911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1934057910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56d4b8957aab8b4499ee2f20092aefd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartMode: 0
+  FadeInTime: 0.5
+  FadeInFromColor: {r: 0, g: 0, b: 0, a: 0}
+  FadeInCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  FadeOutTime: 0
+  FadeOutToColor: {r: 0, g: 0, b: 0, a: 0}
+  FadeOutCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1944311841
 GameObject:
   m_ObjectHideFlags: 0
@@ -50337,6 +50390,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1515144156}
     m_Modifications:
+    - target: {fileID: 2716591190995308379, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: Buffer.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716591190995308379, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: Buffer.y
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716591190995308379, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: Buffer.z
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6008003018547975604, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -50372,10 +50440,25 @@ PrefabInstance:
       propertyPath: m_LocalRotation.w
       value: 0.9171437
       objectReference: {fileID: 0}
+    - target: {fileID: 6008003018547975604, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6008003018547975605, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6008003018547975607, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
         type: 3}
       propertyPath: m_AllowDynamicResolution
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6008003018547975607, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
+        type: 3}
+      propertyPath: near clip plane
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6008003018547975611, guid: 6ffc8473e262b8b418aeabfc56ea2e17,
         type: 3}
