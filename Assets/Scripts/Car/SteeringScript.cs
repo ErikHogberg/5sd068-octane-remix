@@ -851,6 +851,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		if (DampenRigidBody && brakeBuffer > 0) {
+			// IDEA: minimum velocity for brake help, to disallow slow fall
 			rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
 		}
 
@@ -1170,5 +1171,24 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	private float preFreezeTimescale = 1f;
+	public void Freeze(){
+		enabled = false;
+		preFreezeTimescale = Time.timeScale;
+		Time.timeScale = 0f;
+	}
+
+	public void Unfreeze(){
+		enabled = true;
+		Time.timeScale = preFreezeTimescale;		
+	}
+
+	public static void FreezeCurrentCar(){
+		MainInstance?.Freeze();
+	}
+
+	public static void UnfreezeCurrentCar(){
+		MainInstance?.Unfreeze();
+	}
 
 }
