@@ -11,6 +11,8 @@ class BezierBendingEditorWindow : EditorWindow {
 	private float startBezierMagnitude = 100;
 	private float endBezierMagnitude = 100;
 
+	private bool bendWhenChangingValue = false;
+
 	[MenuItem("Window/Bezier bone bender")]
 	public static void ShowWindow() {
 		EditorWindow.GetWindow(typeof(BezierBendingEditorWindow));
@@ -18,14 +20,89 @@ class BezierBendingEditorWindow : EditorWindow {
 
 	void OnGUI() {
 
-		startObject = (Transform)EditorGUILayout.ObjectField("Start:",startObject, typeof(Transform), true);
-		endObject = (Transform)EditorGUILayout.ObjectField("End:",endObject, typeof(Transform), true);
+		startObject = (Transform)EditorGUILayout.ObjectField("Start:", startObject, typeof(Transform), true);
+		endObject = (Transform)EditorGUILayout.ObjectField("End:", endObject, typeof(Transform), true);
 
 		GUILayout.Space(8);
+		bendWhenChangingValue = EditorGUILayout.Toggle("Bend when changing value: ", bendWhenChangingValue);
 
+		GUILayout.Space(8);
 		startBezierMagnitude = EditorGUILayout.FloatField("Start magnitude: ", startBezierMagnitude);
-		endBezierMagnitude = EditorGUILayout.FloatField("End magnitude: ", endBezierMagnitude);
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
 
+		if (GUILayout.Button("start/2")) {
+			startBezierMagnitude *= .5f;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+		if (GUILayout.Button("start*2")) {
+			startBezierMagnitude *= 2;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+		GUILayout.Space(8);
+		if (GUILayout.Button("start-10")) {
+			startBezierMagnitude -= 10;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+		if (GUILayout.Button("start+10")) {
+			startBezierMagnitude += 10;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+
+		GUILayout.EndHorizontal();
+		endBezierMagnitude = EditorGUILayout.FloatField("End magnitude: ", endBezierMagnitude);
+		GUILayout.BeginHorizontal();
+		GUILayout.FlexibleSpace();
+		if (GUILayout.Button("end/2")) {
+			endBezierMagnitude *= .5f;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+		if (GUILayout.Button("end*2")) {
+			endBezierMagnitude *= 2;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+		GUILayout.Space(8);
+		if (GUILayout.Button("end-10")) {
+			endBezierMagnitude -= 10;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+		if (GUILayout.Button("end+10")) {
+			endBezierMagnitude += 10;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+		GUILayout.EndHorizontal();
+
+		GUILayout.Space(8);
+		GUILayout.BeginHorizontal();
+
+		if (GUILayout.Button("both=50")) {
+			startBezierMagnitude = 50;
+			endBezierMagnitude = 50;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+		if (GUILayout.Button("both=100")) {
+			startBezierMagnitude = 100;
+			endBezierMagnitude = 100;
+			if (bendWhenChangingValue)
+				BendBones();
+		}
+
+
+		GUILayout.EndHorizontal();
 		GUILayout.Space(16);
 
 		GUILayout.BeginHorizontal();
@@ -33,7 +110,7 @@ class BezierBendingEditorWindow : EditorWindow {
 
 		if (GUILayout.Button("Bend!", GUILayout.Width(128), GUILayout.Height(32)))
 			BendBones();
-		
+
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
 
@@ -84,7 +161,7 @@ class BezierBendingEditorWindow : EditorWindow {
 			Vector3 startDir = start - startObject.forward * startBezierMagnitude;
 			Vector3 end = endObject.position;
 			Vector3 endDir = end - endObject.forward * endBezierMagnitude;
-			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount);
+			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount, withEndpoints: true);
 		}
 
 		if (points.Count != boneCount) {

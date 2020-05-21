@@ -1050,7 +1050,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		foreach (var item in BoostStartObservers)
-			item.Notify(IsInvulnerable);
+			item.Notify(BoostWindupReady);
 
 		AddBoost(-BoostConsumptionRate * unscaledDt);
 
