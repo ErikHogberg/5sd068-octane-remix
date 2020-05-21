@@ -22,7 +22,7 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 	public Color FadeInFromColor;
 	public AnimationCurve FadeInCurve;
 
-	[Header("Fade In")]
+	[Header("Fade Out")]
 
 	[Min(0f)]
 	public float FadeOutTime;

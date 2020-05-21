@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
 
 [System.Serializable]
-public class Sound
-{
+public class Sound {
 	[Tooltip("The name of this sound within the game system. It's used as an ID, so it needs to be unique.")]
 	public string name = "Blank";
 	[Tooltip("When played, should this sound effect be looped?")]
@@ -16,8 +16,7 @@ public class Sound
 	public AudioMixerGroup audioMixer;
 }
 
-public class SoundManager : MonoBehaviour
-{
+public class SoundManager : MonoBehaviour {
 	//Dictionary to keep track of looping sound sources that have their own gameobjects
 	private static Dictionary<string, GameObject> loopingSounds;
 
@@ -27,8 +26,7 @@ public class SoundManager : MonoBehaviour
 	//For efficiency's sake, a dedicated game object for playing sounds without a specified location
 	private static GameObject defaultSource;
 
-	void Awake()
-    {
+	void Awake() {
 		loopingSounds = new Dictionary<string, GameObject>();
 		loopingSoundsSources = new Dictionary<string, AudioSource>();
 
@@ -37,21 +35,24 @@ public class SoundManager : MonoBehaviour
 	}
 
 	//Plays a sound without a specified origin location
-	public static void PlaySound(string name)
-	{
+	public static void PlaySound(string name) {
 		Sound sound = new Sound();
 		bool found = false;
+
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
-		foreach (Sound item in SoundAssets.Instance.soundEffects) {	
+		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
 				sound = item;
 				found = true;
 				break;
-			} 
-		} if (!found) {
+			}
+		}
+
+		if (!found) {
 			Debug.Log("SoundManager/PlaySound: Could not find requested sound among SoundAssets.");
 			return;
 		}
+
 		if (sound.loop) {
 			if (loopingSoundsSources.ContainsKey(sound.name)) {
 				Debug.Log("SoundManager/PlaySoundLooping: Loop dictionary already contains an instance for " + sound.name);
@@ -66,12 +67,11 @@ public class SoundManager : MonoBehaviour
 		audioSource.Play();
 
 		if (sound.loop) loopingSoundsSources.Add(sound.name, audioSource);
-		else			Object.Destroy(audioSource, audioSource.clip.length);
+		else Object.Destroy(audioSource, audioSource.clip.length);
 	}
 
 	//Plays a sound at a specified position
-	public static void PlaySound(string name, Vector3 pos)
-	{
+	public static void PlaySound(string name, Vector3 pos) {
 		Sound sound = new Sound();
 		bool found = false;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
@@ -81,7 +81,8 @@ public class SoundManager : MonoBehaviour
 				found = true;
 				break;
 			}
-		} if (!found) {
+		}
+		if (!found) {
 			Debug.Log("SoundManager/PlaySound: Could not find requested sound among SoundAssets.");
 			return;
 		}
@@ -101,25 +102,30 @@ public class SoundManager : MonoBehaviour
 		audioSource.spatialBlend = 1.0f;
 		audioSource.Play();
 
-		if (sound.loop)	loopingSounds.Add(sound.name, soundSource);
-		else			Object.Destroy(soundSource, audioSource.clip.length);
+		if (sound.loop) loopingSounds.Add(sound.name, soundSource);
+		else Object.Destroy(soundSource, audioSource.clip.length);
 
 	}
 
-	public static void StopLooping(string name)
-	{
+	public static void StopLooping(string name, bool printDebug = true) {
 		if (loopingSounds.ContainsKey(name)) {
 			GameObject dest = loopingSounds[name];
 			loopingSounds.Remove(name);
 			Object.Destroy(dest);
-		}
-		else if (loopingSoundsSources.ContainsKey(name)) {
+		} else if (loopingSoundsSources.ContainsKey(name)) {
 			AudioSource dest = loopingSoundsSources[name];
 			loopingSoundsSources.Remove(name);
 			Object.Destroy(dest);
-		} else {
+		} else if (printDebug) {
 			Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
 		}
 	}
+
+	public static void StopSound(string name) {
+		StopLooping(name, printDebug: false);
+		// TODO: stop non-looping sounds
+	}
+
+	// TODO: pause and unpause all sounds
 
 }
