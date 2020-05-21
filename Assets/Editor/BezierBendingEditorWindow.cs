@@ -30,6 +30,7 @@ class BezierBendingEditorWindow : EditorWindow {
 		startBezierMagnitude = EditorGUILayout.FloatField("Start magnitude: ", startBezierMagnitude);
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
+
 		if (GUILayout.Button("start/2")) {
 			startBezierMagnitude *= .5f;
 			if (bendWhenChangingValue)
@@ -160,7 +161,7 @@ class BezierBendingEditorWindow : EditorWindow {
 			Vector3 startDir = start - startObject.forward * startBezierMagnitude;
 			Vector3 end = endObject.position;
 			Vector3 endDir = end - endObject.forward * endBezierMagnitude;
-			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount);
+			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount, withEndpoints: true);
 		}
 
 		if (points.Count != boneCount) {
