@@ -16659,7 +16659,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 2500
   m_Drag: 0
-  m_AngularDrag: 0.5
+  m_AngularDrag: 0.75
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
@@ -16678,7 +16678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mode: 2
-  SteeringMax: 60
+  SteeringMax: 25
   SteeringCurve:
     serializedVersion: 2
     m_Curve:
@@ -16730,10 +16730,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SteeringRotationHelp: 10
-  SteeringStrafeHelp: 0.2
+  SteeringRotationHelp: 0
+  SteeringStrafeHelp: 0
   SteeringStrafeMode: 2
-  GasSpeed: 15000
+  GasSpeed: 10000
   GasPedalCurve:
     serializedVersion: 2
     m_Curve:
