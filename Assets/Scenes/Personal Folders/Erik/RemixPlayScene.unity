@@ -55041,6 +55041,11 @@ PrefabInstance:
       propertyPath: m_SuspensionSpring.spring
       value: 35000
       objectReference: {fileID: 0}
+    - target: {fileID: 9081913893997324574, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9081913894035681752, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -55061,15 +55066,30 @@ PrefabInstance:
       propertyPath: m_SuspensionSpring.spring
       value: 35000
       objectReference: {fileID: 0}
+    - target: {fileID: 9081913894479246704, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9081913895366667553, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_SuspensionSpring.spring
+      value: 35000
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895366667553, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895561552678, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_SuspensionSpring.spring
       value: 35000
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895561552678, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
-      propertyPath: m_SuspensionSpring.spring
-      value: 35000
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
@@ -55095,6 +55115,11 @@ PrefabInstance:
         type: 3}
       propertyPath: StartBeforeGoalPost
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: GasSpeed
+      value: 7000
       objectReference: {fileID: 0}
     - target: {fileID: 9210618085984265551, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
