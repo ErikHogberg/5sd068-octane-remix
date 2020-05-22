@@ -24,6 +24,8 @@ public class TutorialDialogueUIScript : MonoBehaviour {
 	public TMP_Text buttonText;
 
 	private TutorialEntry[] currentEntries;
+	private UnityEvent closeEvents;
+
 	private int currentIndex = 0;
 
 	private void Awake() {
@@ -53,15 +55,21 @@ public class TutorialDialogueUIScript : MonoBehaviour {
 
 	public void NextOrClose() {
 		if (currentIndex == currentEntries.Length - 1) {
+			closeEvents.Invoke();
 			Hide();
 			return;
 		}
 
+		string oldVoiceClip = currentEntries[currentIndex].VoiceClip;
+		if (oldVoiceClip != "") {
+			// TODO: stop currently playing tutorial sound clip, so they dont overlap
+			// SoundManager.
+		}
 		currentIndex++;
 		PopulateUI();
 	}
 
-	public void Show(TutorialEntry[] entries) {
+	public void Show(TutorialEntry[] entries, UnityEvent closeEvents) {
 		if (!entries.Any())
 			return;
 
@@ -69,6 +77,8 @@ public class TutorialDialogueUIScript : MonoBehaviour {
 
 		currentEntries = entries;
 		currentIndex = 0;
+		this.closeEvents = closeEvents;
+
 		PopulateUI();
 	}
 

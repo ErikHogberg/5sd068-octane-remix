@@ -58,7 +58,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 4
   far clip plane: 1500
   field of view: 60
   orthographic: 0
@@ -283,7 +283,7 @@ MonoBehaviour:
   HorizontalBuffer: 3
   VerticalBuffer: {x: -2, y: 4}
   ZoomBuffer: {x: -1, y: 1}
-  car: {fileID: 0}
+  Car: {fileID: 0}
   CameraPivot: {fileID: 0}
   CameraLookat: {fileID: 0}
   Parent: {fileID: 0}
