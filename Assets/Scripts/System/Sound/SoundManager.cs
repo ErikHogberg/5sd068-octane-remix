@@ -158,8 +158,9 @@ public class SoundManager : MonoBehaviour
 		else Object.Destroy(soundSource, audioSource.clip.length);
 
 	}
+		
 
-	{
+	public static void StopLooping(string name, bool printDebug = true) {
 		Sound sound = null;
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
@@ -171,7 +172,6 @@ public class SoundManager : MonoBehaviour
 			return;
 		}
 
-	public static void StopLooping(string name, bool printDebug = true) {
 		if (loopingSounds.ContainsKey(name)) {
 			GameObject dest = loopingSounds[name];
 			loopingSounds.Remove(name);
@@ -184,7 +184,7 @@ public class SoundManager : MonoBehaviour
 			//SoundFader.StartFade(sound);
 			Object.Destroy(dest, sound.fadeOutDuration);
 		} else if (printDebug) {
-			Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
+			UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
 		}
 	}
 
