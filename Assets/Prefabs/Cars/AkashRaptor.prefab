@@ -692,6 +692,11 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
+  EnableSound: 0
+  OverrideGravity: 0
+  GravityOverride: 1
+  InAirStabilization: 0
+  InAirStabilizationAmount: 1
   StartBeforeGoalPost: 0
   FrontWheelColliders:
   - {fileID: 1527663254593042375}
@@ -752,14 +757,24 @@ MonoBehaviour:
     - {fileID: 4878712439226640372}
     - {fileID: 1310530768908970535}
     - {fileID: 5970173501170589267}
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   BoostEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles: []
     trails:
     - {fileID: 8272573567284973133}
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   BoostWindupEffects:
   - EnvironmentTag: 
     StartVelocity: 0
@@ -767,28 +782,48 @@ MonoBehaviour:
     - {fileID: 3210677742463211543}
     trails:
     - {fileID: 4423908171795666203}
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   ClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 6660727984423297448}
     trails: []
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   CounterClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 2382867054967168624}
     trails: []
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   AlwaysOnEffects:
   - EnvironmentTag: 
     StartVelocity: 5
     particles:
     - {fileID: 2041331629603467896}
     trails: []
-    objects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &3251316043030167833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11745,7 +11780,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7519121487419031702}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.494, z: 0}
+  m_LocalPosition: {x: 0, y: 1.22, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8572164920044033207}
