@@ -251,6 +251,14 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Misc.")]
 
+	public bool EnableSound = false;
+
+	[Space]
+	public bool OverrideGravity = false;
+	public float GravityOverride = 1;
+
+	[Space]
+
 	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	public bool StartBeforeGoalPost = false;
 
@@ -327,6 +335,10 @@ public class SteeringScript : MonoBehaviour {
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
+		if (OverrideGravity) {
+			Physics.gravity = Physics.gravity.normalized * GravityOverride;
+		}
+
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
@@ -342,6 +354,7 @@ public class SteeringScript : MonoBehaviour {
 
 		effects = GetComponent<CarParticleHandlerScript>();
 		// tempAndInteg = GetComponent<TemperatureAndIntegrity>();
+
 	}
 
 	void OnEnable() {
@@ -549,7 +562,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		if (drifting == false) {
-			if ((rb.velocity.magnitude * 3.6f) > 100f)
+			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
 				SoundManager.PlaySound("drift_continuous");
 		}
 		drifting = true;
@@ -561,7 +574,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		if (drifting == true) {
-			if ((rb.velocity.magnitude * 3.6f) > 100f)
+			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
 				SoundManager.StopLooping("drift_continuous");
 		}
 		drifting = false;
@@ -873,14 +886,15 @@ public class SteeringScript : MonoBehaviour {
 		float pastBrakeBuffer = brakeBuffer;
 		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
 
-		if (brakeBuffer > pastBrakeBuffer) {
-			if (brakeBuffer > 0.2f)
-				SoundManager.PlaySound("metal_scrape_brake");
+		if (EnableSound) {
+			if (brakeBuffer > pastBrakeBuffer) {
+				if (brakeBuffer > 0.2f)
+					SoundManager.PlaySound("metal_scrape_brake");
+			} else {
+				SoundManager.StopLooping("metal_scrape_brake");
+			}
 		}
-		else {
-			SoundManager.StopLooping("metal_scrape_brake");
-		}
-	
+
 
 		SetDebugUIText(3, input.ToString("F2"));
 	}
@@ -1050,7 +1064,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		foreach (var item in BoostStartObservers)
-			item.Notify(IsInvulnerable);
+			item.Notify(BoostWindupReady);
 
 		AddBoost(-BoostConsumptionRate * unscaledDt);
 
@@ -1080,8 +1094,10 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		boosting = true;
-		SoundManager.PlaySound("boost_start");
-		SoundManager.PlaySound("boost_continuous");
+		if (EnableSound) {
+			SoundManager.PlaySound("boost_start");
+			SoundManager.PlaySound("boost_continuous");
+		}
 	}
 
 	private void StopBoost() {
@@ -1092,8 +1108,10 @@ public class SteeringScript : MonoBehaviour {
 		effects?.StopBoost();
 
 		boosting = false;
-		SoundManager.StopLooping("boost_continuous");
-		SoundManager.PlaySound("boost_end");
+		if (EnableSound) {
+			SoundManager.StopLooping("boost_continuous");
+			SoundManager.PlaySound("boost_end");
+		}
 	}
 
 	private void StopBoost(CallbackContext _) {
@@ -1172,22 +1190,22 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private float preFreezeTimescale = 1f;
-	public void Freeze(){
+	public void Freeze() {
 		enabled = false;
 		preFreezeTimescale = Time.timeScale;
 		Time.timeScale = 0f;
 	}
 
-	public void Unfreeze(){
+	public void Unfreeze() {
 		enabled = true;
-		Time.timeScale = preFreezeTimescale;		
+		Time.timeScale = preFreezeTimescale;
 	}
 
-	public static void FreezeCurrentCar(){
+	public static void FreezeCurrentCar() {
 		MainInstance?.Freeze();
 	}
 
-	public static void UnfreezeCurrentCar(){
+	public static void UnfreezeCurrentCar() {
 		MainInstance?.Unfreeze();
 	}
 

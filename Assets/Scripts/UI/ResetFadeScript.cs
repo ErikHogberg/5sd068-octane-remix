@@ -7,7 +7,7 @@ public abstract class ResetTransition : MonoBehaviour, IObserver<Camera>{
 
 	protected virtual void Start() {
 		// fadeScript = GetComponent<GenericFadeImageUIScript>();
-		SteeringScript.MainInstance.ResetObservers.Add(this);		
+		SteeringScript.MainInstance.ResetObservers.Add(this);
 	}
 
 	public void TakeSnapshot(Camera snapshotCamera) {
