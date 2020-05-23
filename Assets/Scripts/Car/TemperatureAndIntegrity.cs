@@ -27,14 +27,21 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	public float maxIntegrity = 100.0f;
 	[Tooltip("How many seconds between each possible damage function call.")]
 	public float damageRate = 0.5f;
+	[Space]
 	[Tooltip("How much fire obstacles affects the car's integrity level.")]
 	public float fireIntegEffect = 10.0f;
 	[Tooltip("How much laser obstacles affect the car's integrity level.")]
 	public float laserIntegEffect = 10.0f;
 	[Tooltip("How much saw obstacles affect the car's integrity level.")]
 	public float sawIntegEffect = 10.0f;
+	[Space]
 	[Tooltip("How much rock obstacles affect the car's integrity level.")]
 	public float rockIntegEffect = 10.0f;
+	[Tooltip("How high velocity is required for taking any rock collision damage, and at how high velocity max damage is taken.")]
+	[Min(0)]
+	public Vector2 rockVelocityMinMax = Vector2.zero;
+	[Tooltip("How much % of rock collision damage is taken at velocities between min and max velocity thresholds.")]
+	public AnimationCurve rockVelocityDamageCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
 	// [Header("UI Scripts")]
 	// [Tooltip("This car's associated temperature UI bar")]
@@ -108,8 +115,16 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 	public void RockHit() {
-		if (damageTimer <= 0.0f && !carControls.IsInvulnerable) {
-			currIntegrity -= rockIntegEffect;
+		float sqrVelocity = carControls.Velocity.sqrMagnitude;
+		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
+		if (damageTimer <= 0.0f && !carControls.IsInvulnerable && sqrVelocity > sqrMin) {
+			float sqrMax = rockVelocityMinMax.y * rockVelocityMinMax.y;
+
+			float percentage = 1f;
+			if (sqrVelocity < sqrMax && rockVelocityMinMax.x != rockVelocityMinMax.y)
+				percentage = Mathf.Clamp01((sqrVelocity - sqrMin) / (sqrMax - sqrMin));
+
+			currIntegrity -= rockIntegEffect * rockVelocityDamageCurve.Evaluate(percentage);
 			Hit();
 		}
 	}
