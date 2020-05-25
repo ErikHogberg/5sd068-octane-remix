@@ -24,13 +24,12 @@ public class MovingCubeObstacle : MonoBehaviour {
 
 	void Update() {
 		if (attack) {
-			Vector3 pos = Vector3.MoveTowards(Cube.position, currentTarget, AttackSpeed);
+			Vector3 pos = Vector3.MoveTowards(Cube.position, currentTarget, AttackSpeed * Time.deltaTime);
 			Cube.MovePosition(pos);
-			if (Vector3.Distance(pos, Cube.position) == 0) {
+			if (Vector3.Distance(pos, Cube.position) == 0)
 				attack = false;
-			}
 		} else {
-			Vector3 pos = Vector3.MoveTowards(Cube.position, initPos, ResetSpeed);
+			Vector3 pos = Vector3.MoveTowards(Cube.position, initPos, ResetSpeed * Time.deltaTime);
 			Cube.MovePosition(pos);
 		}
 	}
