@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DestructibleObstacleScript : MonoBehaviour {
 
@@ -12,6 +13,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 	private ExplodeComponent exploderinoThingie;
 	public ExplodeComponent ExplodeComponentOverride;
 
+	public UnityEvent OnExplodeEvents;
+	public UnityEvent OnResetEvents;
 
 	private void Awake() {
 		if (ExplodeComponentOverride) {
@@ -46,7 +49,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		foreach (var item in CollidersToDisable)
 			item.enabled = false;
 
-		exploderinoThingie.Explode();
+		exploderinoThingie?.Explode();
+		OnExplodeEvents.Invoke();
 
 		timer = RespawnTime;
 	}
@@ -55,7 +59,8 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		foreach (var item in CollidersToDisable)
 			item.enabled = true;
 
-		exploderinoThingie.UndoExplode();
+		exploderinoThingie?.UndoExplode();
+		OnResetEvents.Invoke();
 	}
 
 }
