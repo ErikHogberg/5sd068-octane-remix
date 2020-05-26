@@ -22579,6 +22579,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: UpBoostSphere (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 3455650768486015448, guid: fcb9816422d70af4db037135c1984049,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3455650768486015449, guid: fcb9816422d70af4db037135c1984049,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -43912,8 +43917,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1472195899}
-  m_LocalRotation: {x: -0, y: 0.032433186, z: -0, w: -0.9994739}
-  m_LocalPosition: {x: 86.8, y: 11.73, z: -4.5}
+  m_LocalRotation: {x: -0, y: -0.64636934, z: -0, w: -0.7630247}
+  m_LocalPosition: {x: 114.45, y: -16.32, z: -4.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 422557927}
@@ -43922,7 +43927,7 @@ Transform:
   - {fileID: 1538505046}
   m_Father: {fileID: 2103010013}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -363.717, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -279.463, z: 0}
 --- !u!1 &1483324446
 GameObject:
   m_ObjectHideFlags: 0
@@ -51211,8 +51216,8 @@ MonoBehaviour:
   AddSpeed: 0
   SetDirection: 0
   SetSpeedInDirection: 1
-  SetAngularVelocity: 0
-  AngularVelocity: {x: 0, y: 0, z: 0}
+  SetAngularVelocity: 3
+  AngularVelocity: {x: 10, y: 0, z: 0}
   OptionalDirectionOverride: {fileID: 0}
 --- !u!4 &1962962395 stripped
 Transform:
