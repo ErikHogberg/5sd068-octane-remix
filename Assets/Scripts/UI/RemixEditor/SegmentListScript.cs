@@ -2,45 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using UnityEngine.EventSystems;
 using System.Diagnostics;
 using System.Dynamic;
-
-public class SegmentListItemClass {
-	private Toggle itemToggle;
-	private TMP_Text itemLabel;
-	private LevelPieceSuperClass segment;
-
-	public SegmentListItemClass(LevelPieceSuperClass p_segment, Toggle p_toggle, TMP_Text p_text) {
-		segment = p_segment; itemToggle = p_toggle; itemLabel = p_text;
-    }
-
-	public void SetText(string txt) { itemLabel.text = txt; }
-	public void SetToggleGroup(ToggleGroup p_group) { itemToggle.group = p_group; }
-	public void SetUpDownNav(Toggle upSelect, Toggle downSelect) {
-		Navigation orgNav = itemToggle.navigation;
-		orgNav.selectOnUp = upSelect;
-		orgNav.selectOnDown = downSelect;
-		itemToggle.navigation = orgNav;
-    }
-	public void SetLeftRightNav(Toggle leftSelect, Toggle rightSelect) {
-		Navigation orgNav = itemToggle.navigation;
-		orgNav.selectOnLeft = leftSelect;
-		orgNav.selectOnRight = rightSelect;
-		itemToggle.navigation = orgNav;
-	}
-
-	public Toggle GetToggle() { return itemToggle; }
-	public TMP_Text GetText() { return itemLabel; }
-	public LevelPieceSuperClass GetSegment() { return segment; }
-}
 
 [RequireComponent(typeof(ScrollRect))]
 [RequireComponent(typeof(ToggleGroup))]
 [RequireComponent(typeof(ScrollToSelected))]
 public class SegmentListScript : SegmentEditorSuperClass
 {
-	private List<SegmentListItemClass> listItems = new List<SegmentListItemClass>();
+	public static List<SegmentListItem> listItems = new List<SegmentListItem>();
+	public static SegmentListItem currentItem;
+
 	private GameObject listContent = null;
 	private ScrollToSelected scrollMaster = null;
 	private ToggleGroup group = null;
@@ -53,11 +26,9 @@ public class SegmentListScript : SegmentEditorSuperClass
 		scrollMaster = GetComponent<ScrollToSelected>();
 		group = GetComponent<ToggleGroup>();
 	}
-
 	void Start() {
 		if (listItems.Count < 1) CreateSegmentList();
 	}
-
 	void OnEnable() { 
 		if (listItems.Count < 1) CreateSegmentList();
 		else {
@@ -68,33 +39,41 @@ public class SegmentListScript : SegmentEditorSuperClass
         }
 	}
 
+	//Sent from SegmentListItems, triggered by event
+	public void ReceiveTogglePing(SegmentListItem p_item, bool is_on) {
+		if (is_on) {
+			RemixMapScript.SelectSegment(p_item.GetSegment());
+			currentItem = p_item;
+		}
+	}
+	//ATM, run by ObstacleListScript in its Start() so that it can register itself as a SegmentEditor before first selection
+	public static void InitializeSegmentSelection(SegmentListItem p_item) {
+		RemixMapScript.SelectSegment(p_item.GetSegment());
+		currentItem = p_item;
+	}
+
 	void CreateSegmentList() {
 		//Creating one list item for every segment currently registered
 		for (int i = 0; i < LevelPieceSuperClass.Segments.Count; i++)
 		{
-			GameObject newItemObj = Instantiate(Resources.Load<GameObject>("SegmentListItem"));
+			//Instantiating a new list item
+			SegmentListItem newItemObj = Instantiate(Resources.Load<SegmentListItem>("SegmentListItem"));
 			newItemObj.transform.SetParent(listContent.transform);
 			newItemObj.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
 
-			Toggle newToggle = newItemObj.GetComponent<Toggle>();
-			TMP_Text newText = newItemObj.transform.GetChild(1).GetComponent<TMP_Text>();
-			LevelPieceSuperClass newSegment = LevelPieceSuperClass.Segments[i];
+			//Giving data to new list item
+			newItemObj.SetSegment(LevelPieceSuperClass.Segments[i]);
+			newItemObj.SetToggleGroup(group);
+			newItemObj.SetListReference(this);
+			//Registering the master script for smooth scrolling in every list item so they can adhere to it
+			newItemObj.GetScrollPinger().RegisterScrollMaster(scrollMaster);
 
-			SegmentListItemClass newItem = new SegmentListItemClass(newSegment, newToggle, newText);
-			newItem.SetText("Segment " + (i + 1));
-			listItems.Add(newItem);
+			newItemObj.SetText("Segment " + (i + 1));
+			listItems.Add(newItemObj);
 		}
 		group.SetAllTogglesOff();
 
-		for (int i = 0; i < listItems.Count; i++) 
-		{
-			//Setting all list items in the same toggle group
-			listItems[i].SetToggleGroup(group);
-
-			//Registering the master script for smooth scrolling in every list item so they can adhere to it
-			if (scrollMaster != null) {
-				listItems[i].GetToggle().gameObject.GetComponent<SegmentListItemScrollPing>().RegisterScrollMaster(scrollMaster);
-			}
+		for (int i = 0; i < listItems.Count; i++) {
 			//Setting intra-list navigation relationships
 			if (i == 0) {
 				listItems[i].SetUpDownNav(listItems[listItems.Count - 1].GetToggle(), listItems[i + 1].GetToggle());
@@ -105,10 +84,10 @@ public class SegmentListScript : SegmentEditorSuperClass
 			else
 				listItems[i].SetUpDownNav(listItems[i - 1].GetToggle(), listItems[i + 1].GetToggle());
 		}
+		EventSystem.current.SetSelectedGameObject(listItems[0].GetToggle().gameObject);
 	}
 
-	void DeleteSegmentList()
-    {
+	void DeleteSegmentList() {
 		if (listItems.Count < 1)
 			UnityEngine.Debug.Log("SegmentListScript/DestroySegmentList: No list items to delete");
 		else {
@@ -119,5 +98,17 @@ public class SegmentListScript : SegmentEditorSuperClass
 		}
     }
 
-	public override void UpdateUI() { }
+	public override void UpdateUI() {
+		if (currentSegment != currentItem.GetSegment()) {
+			foreach (SegmentListItem item in listItems) { 
+				if (item.GetSegment() == currentSegment)
+                {
+					currentItem = item;
+					item.MarkAsSelected();
+					EventSystem.current.SetSelectedGameObject(item.GetToggle().gameObject);
+					break;
+				}
+			}
+		}
+	}
 }

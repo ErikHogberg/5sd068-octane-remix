@@ -22,6 +22,7 @@ public class ScrollToSelected : MonoBehaviour
 
 	public void SnapTo(RectTransform target) {
 		//Canvas.ForceUpdateCanvases(); 
+		UnityEngine.Debug.Log("ScrollSnap " + target.gameObject.name);
 		goalPosition =
 			(Vector2)scrollRect.transform.InverseTransformPoint(contentPanel.position)
 			- (Vector2)scrollRect.transform.InverseTransformPoint(target.position);
