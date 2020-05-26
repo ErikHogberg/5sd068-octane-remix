@@ -85,11 +85,13 @@ public class RemixMapScript : MonoBehaviour {
 	}
 
 	public static void SelectSegment(LevelPieceSuperClass segment) {
-		if (!mainInstance)
+		if (!mainInstance) {
+			UnityEngine.Debug.Log("RemixMap: No main instance");
 			return;
+		}
 
 		// TODO: deselect
-
+		
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
 		
