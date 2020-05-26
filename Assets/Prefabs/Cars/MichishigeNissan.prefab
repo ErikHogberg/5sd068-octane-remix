@@ -534,6 +534,11 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
+  EnableSound: 0
+  OverrideGravity: 0
+  GravityOverride: 1
+  InAirStabilization: 0
+  InAirStabilizationAmount: 1
   StartBeforeGoalPost: 0
   FrontWheelColliders:
   - {fileID: 1527663254593042375}
@@ -594,31 +599,61 @@ MonoBehaviour:
     - {fileID: 4878712439226640372}
     - {fileID: 1310530768908970535}
     - {fileID: 5970173501170589267}
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   BoostEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles: []
     trails:
     - {fileID: 8272573567284973133}
-  BoostInvulnerabilityEffects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
+  BoostWindupEffects: []
   ClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 6660727984423297448}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   CounterClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 2382867054967168624}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   AlwaysOnEffects:
   - EnvironmentTag: 
     StartVelocity: 5
     particles:
     - {fileID: 2041331629603467896}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &3251316043030167833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,6 +708,31 @@ MonoBehaviour:
   laserIntegEffect: 10
   sawIntegEffect: 10
   rockIntegEffect: 10
+  rockVelocityMinMax: {x: 0, y: 0}
+  rockVelocityDamageCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1527663253754463512
 GameObject:
   m_ObjectHideFlags: 0
