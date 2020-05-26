@@ -25,7 +25,6 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 
 	public void SetSegment(LevelPieceSuperClass segment) {
 		currentSegment = segment;
-
 		UpdateUI();
 	}
 
