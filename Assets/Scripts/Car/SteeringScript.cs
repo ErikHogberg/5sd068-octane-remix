@@ -336,7 +336,6 @@ public class SteeringScript : MonoBehaviour {
 
 
 	void Start() {
-		rb = GetComponent<Rigidbody>();
 
 		if (OverrideGravity) {
 			Physics.gravity = Physics.gravity.normalized * GravityOverride;
@@ -352,6 +351,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	void Awake() {
+		rb = GetComponent<Rigidbody>();
+
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 
@@ -1137,6 +1138,7 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
+		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 
 		effects?.ClearAllEffects();
 
@@ -1149,6 +1151,7 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset() {
 		CallResetObservers();
+		// StartCountdownScript.StartPenaltyCountdownStatic(1f);
 
 		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
@@ -1198,16 +1201,18 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
-	private float preFreezeTimescale = 1f;
+	// private float preFreezeTimescale = 1f;
 	public void Freeze() {
 		enabled = false;
-		preFreezeTimescale = Time.timeScale;
+		boostWindupTimer = 0;
+		// preFreezeTimescale = Time.timeScale;
 		Time.timeScale = 0f;
 	}
 
 	public void Unfreeze() {
 		enabled = true;
-		Time.timeScale = preFreezeTimescale;
+		// Time.timeScale = preFreezeTimescale;
+		Time.timeScale = 1.0f;
 	}
 
 	public static void FreezeCurrentCar() {
