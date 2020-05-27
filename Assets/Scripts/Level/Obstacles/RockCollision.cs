@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RockCollision : MonoBehaviour
-{
+public class RockCollision : MonoBehaviour {
 
 	private void OnCollisionEnter(Collision other) {
 		// NOTE: should work as-is with multiplayer too
-		var car = other.gameObject.GetComponent<TemperatureAndIntegrity>();
-		if (!car)
-			return;
+		if (other.gameObject.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity car))
+			car.RockHit(other.relativeVelocity.sqrMagnitude);
 
-		car.RockHit(other.relativeVelocity.sqrMagnitude);
 	}
 
 

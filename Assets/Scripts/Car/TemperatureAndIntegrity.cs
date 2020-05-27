@@ -43,6 +43,10 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Tooltip("How much % of rock collision damage is taken at velocities between min and max velocity thresholds.")]
 	public AnimationCurve rockVelocityDamageCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
+	[Header("Colors")]
+	public Color ExplodeColor = Color.red;
+	public Color InstakillColor = Color.red;
+
 	// [Header("UI Scripts")]
 	// [Tooltip("This car's associated temperature UI bar")]
 	// public TemperatureUIScript temperatureUI;
@@ -129,6 +133,15 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 
+	public void Instakill() {
+		// if (!carControls.IsInvulnerable) {
+			// currIntegrity = 0;
+			UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
+			carControls.Reset();
+			Reset();
+		// }
+	}
+
 
 	private void Update() {
 		if (damageTimer > 0.0f)
@@ -185,7 +198,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	private void ValueCheck() {
 		if (currIntegrity <= 0.0f) {
 			Debug.Log("Integrity reached 0!");
-			UINotificationSystem.Notify("Your car exploded!", Color.red, 2);
+			UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 2);
 			carControls.Reset();
 			Reset();
 		}

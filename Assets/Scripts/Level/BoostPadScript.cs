@@ -20,6 +20,7 @@ public class BoostPadScript : MonoBehaviour {
 	public bool SetDirection = false;
 	[Tooltip("If the speed is added in the direction of the boost pad instead of the car")]
 	public bool SetSpeedInDirection = false;
+	public ForceMode SetSpeedInDirectionForceMode = ForceMode.VelocityChange;
 
 	[Space]
 	[Tooltip("If the angular velocity of the car should be set when touching the boost pad. Has multiple modes of applying angular velocity")]
@@ -57,7 +58,7 @@ public class BoostPadScript : MonoBehaviour {
 		if (SetSpeedInDirection) {
 			if (!AddSpeed)
 				rb.velocity = Vector3.zero;
-			rb.AddForce(directionTransform.forward * Speed, ForceMode.VelocityChange);
+			rb.AddForce(directionTransform.forward * Speed, SetSpeedInDirectionForceMode);
 		} else {
 			if (AddSpeed)
 				rb.velocity += Vector3.Normalize(rb.velocity) * Speed;
