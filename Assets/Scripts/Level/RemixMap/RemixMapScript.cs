@@ -79,6 +79,8 @@ public class RemixMapScript : MonoBehaviour {
 		if (!mainInstance)
 			return;
 
+		RemixCameraRotateScript.StopStatic();
+
 		mainInstance.mouseDown = true;
 		mainInstance.mouseXBuffer = Input.mousePosition.x;
 
@@ -89,6 +91,8 @@ public class RemixMapScript : MonoBehaviour {
 			UnityEngine.Debug.Log("RemixMap: No main instance");
 			return;
 		}
+
+		RemixCameraRotateScript.StopStatic();
 
 		// TODO: deselect
 		
