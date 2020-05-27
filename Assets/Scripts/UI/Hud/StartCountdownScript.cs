@@ -5,12 +5,22 @@ using TMPro;
 
 public class StartCountdownScript : MonoBehaviour {
 
+	private static StartCountdownScript mainInstance;
+
 	public TMP_Text SecondText;
 	public TMP_Text MillisecondText;
 	public TMP_Text NotificationText;
 
 	float timer = 3;
 	bool running = false;
+
+	private void Awake() {
+		mainInstance = this;
+	}
+
+	private void OnDestroy() {
+		mainInstance = null;
+	}
 
 	void Start() {
 		SteeringScript.FreezeCurrentCar();
@@ -44,11 +54,16 @@ public class StartCountdownScript : MonoBehaviour {
 		running = true;
 	}
 
-	public void StartPenaltyCountdown() {
+	public void StartPenaltyCountdown(float time = 3f) {
+		SteeringScript.FreezeCurrentCar();
 		NotificationText.text = "Reset Penalty";
+		timer = time;
 		running = true;
 		gameObject.SetActive(true);
+	}
 
+	public static void StartPenaltyCountdownStatic(float time = 3f) {
+		mainInstance?.StartPenaltyCountdown(time);
 	}
 
 }
