@@ -258,6 +258,9 @@ public class SteeringScript : MonoBehaviour {
 	public float GravityOverride = 1;
 
 	[Space]
+	public bool InAirStabilization = false;
+	public float InAirStabilizationAmount = 1f;
+	[Space]
 
 	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	public bool StartBeforeGoalPost = false;
@@ -360,8 +363,6 @@ public class SteeringScript : MonoBehaviour {
 	void OnEnable() {
 		EnableInput();
 
-		// TODO: enable/disable controls when losing window focus, pausing, etc.
-
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
@@ -456,6 +457,14 @@ public class SteeringScript : MonoBehaviour {
 		Pitch(dt);
 
 		// Jump(dt);
+
+		if (InAirStabilization && !touchingGround) {
+			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
+			var rot = Quaternion.FromToRotation(rb.transform.up, Vector3.up);
+			rb.AddTorque(new Vector3(rot.x, rot.y, rot.z) * InAirStabilizationAmount);
+			// rb.AddTorque(rot * Vector3.up * InAirStabilizationAmount);
+
+		}
 
 		ApplyVelocityCap(dt);
 		ApplyAnimations();
