@@ -225,7 +225,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -289,7 +289,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 2500
   m_Drag: 0
-  m_AngularDrag: 0.5
+  m_AngularDrag: 0.75
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
@@ -360,10 +360,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  SteeringRotationHelp: 20
+  SteeringRotationHelp: 10
   SteeringStrafeHelp: 0.5
   SteeringStrafeMode: 2
-  GasSpeed: 15000
+  GasSpeed: 5000
   GasPedalCurve:
     serializedVersion: 2
     m_Curve:
@@ -505,8 +505,9 @@ MonoBehaviour:
   MinBoostLevel: 0.2
   BoostAffectedBySteering: 1
   BoostMaxSteering: 60
-  BoostInvulnerability: 0
-  BoostInvulnerabilityWindup: 1
+  BoostWindupSkill: 0
+  BoostWindup: 1
+  BoostSloMoTimescale: 1
   CapVelocity: 1
   VelocityCap: 25
   BoostVelocityCap: 30
@@ -533,6 +534,11 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
+  EnableSound: 0
+  OverrideGravity: 0
+  GravityOverride: 1
+  InAirStabilization: 0
+  InAirStabilizationAmount: 1
   StartBeforeGoalPost: 0
   FrontWheelColliders:
   - {fileID: 1527663254593042375}
@@ -593,31 +599,61 @@ MonoBehaviour:
     - {fileID: 4878712439226640372}
     - {fileID: 1310530768908970535}
     - {fileID: 5970173501170589267}
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   BoostEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles: []
     trails:
     - {fileID: 8272573567284973133}
-  BoostInvulnerabilityEffects: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
+  BoostWindupEffects: []
   ClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 6660727984423297448}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   CounterClockwiseYawEffects:
   - EnvironmentTag: 
     StartVelocity: 0
     particles:
     - {fileID: 2382867054967168624}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
   AlwaysOnEffects:
   - EnvironmentTag: 
     StartVelocity: 5
     particles:
     - {fileID: 2041331629603467896}
     trails: []
+    startEvents:
+      m_PersistentCalls:
+        m_Calls: []
+    endEvents:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &3251316043030167833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -641,10 +677,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.75
+  m_Radius: 0.7183156
   m_Height: 6.1
   m_Direction: 2
-  m_Center: {x: 0, y: 2.31, z: 0}
+  m_Center: {x: 0, y: 2.3416843, z: 0}
 --- !u!114 &7960672228851041281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -672,6 +708,31 @@ MonoBehaviour:
   laserIntegEffect: 10
   sawIntegEffect: 10
   rockIntegEffect: 10
+  rockVelocityMinMax: {x: 0, y: 0}
+  rockVelocityDamageCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1527663253754463512
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,7 +749,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1527663253754463515
 Transform:
   m_ObjectHideFlags: 0
@@ -801,7 +862,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -991,7 +1052,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
@@ -1117,7 +1178,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1

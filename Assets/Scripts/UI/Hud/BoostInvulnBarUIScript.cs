@@ -17,7 +17,7 @@ public class BoostInvulnBarUIScript : MonoBehaviour {
 
 	private void LateUpdate() {
 		var car = SteeringScript.MainInstance;
-		if (!car || !car.BoostInvulnerability) {
+		if (!car) {
 			return;
 		}
 		

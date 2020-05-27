@@ -11,7 +11,7 @@ public class RockCollision : MonoBehaviour
 		if (!car)
 			return;
 
-		car.RockHit();
+		car.RockHit(other.relativeVelocity.sqrMagnitude);
 	}
 
 

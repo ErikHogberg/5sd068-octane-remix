@@ -136,7 +136,9 @@ public class CharacterSelection : MonoBehaviour {
 	}
 
 	public void ActivateCharSelect(bool toggle) {
-		playerObjects.Add(SteeringScript.MainInstance.gameObject);
+		if (SteeringScript.MainInstance) {
+			playerObjects.Add(SteeringScript.MainInstance.gameObject);
+		}
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
 		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
 		UINavInput.Instance.SetUINavMode(UIMode.CHARSELECT);

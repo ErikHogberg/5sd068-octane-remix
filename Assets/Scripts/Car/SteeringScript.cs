@@ -18,6 +18,12 @@ public class SteeringScript : MonoBehaviour {
 		FourWheelTraction,
 	}
 
+	public enum BoostSkill {
+		None,
+		Invulnerability,
+		SloMo
+	}
+
 	// TODO: list of instances for split screen multiplayer, indexed by player order
 	public static SteeringScript MainInstance;
 
@@ -150,14 +156,25 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: option for adding angular velocity on boost while steering
 
-	[Tooltip("If the car becomes invulnerable while boosting")]
-	public bool BoostInvulnerability = false;
+
+	public BoostSkill BoostWindupSkill = BoostSkill.None;
+	// [Tooltip("If the car becomes invulnerable while boosting")]
+
+	// public bool BoostInvulnerability = false;
 	[Tooltip("How long time the car has to boost to become invulnerable")]
-	public float BoostInvulnerabilityWindup = 1f;
+	[Min(0)]
+	public float BoostWindup = 1f;
+
+	// public bool BoostSloMo = false;
+	[Range(0, 1)]
+	public float BoostSloMoTimescale = 1f;
+
 	private float boostWindupTimer = 0f;
 
-	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostInvulnerabilityWindup, 0, 1);
-	public bool IsInvulnerable => BoostInvulnerability && boosting && boostWindupTimer >= BoostInvulnerabilityWindup;
+	public float BoostWindupProgress => Mathf.Clamp(boostWindupTimer / BoostWindup, 0, 1);
+	public bool BoostWindupReady => boosting && boostWindupTimer >= BoostWindup;
+	public bool IsInvulnerable => BoostWindupSkill == BoostSkill.Invulnerability && BoostWindupReady;
+	public bool IsInSloMo => BoostWindupSkill == BoostSkill.SloMo && BoostWindupReady;
 
 	#endregion
 
@@ -233,6 +250,17 @@ public class SteeringScript : MonoBehaviour {
 	#endregion
 
 	[Header("Misc.")]
+
+	public bool EnableSound = false;
+
+	[Space]
+	public bool OverrideGravity = false;
+	public float GravityOverride = 1;
+
+	[Space]
+	public bool InAirStabilization = false;
+	public float InAirStabilizationAmount = 1f;
+	[Space]
 
 	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	public bool StartBeforeGoalPost = false;
@@ -310,6 +338,10 @@ public class SteeringScript : MonoBehaviour {
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 
+		if (OverrideGravity) {
+			Physics.gravity = Physics.gravity.normalized * GravityOverride;
+		}
+
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
@@ -325,23 +357,55 @@ public class SteeringScript : MonoBehaviour {
 
 		effects = GetComponent<CarParticleHandlerScript>();
 		// tempAndInteg = GetComponent<TemperatureAndIntegrity>();
+
 	}
 
 	void OnEnable() {
 		EnableInput();
 
-		// TODO: enable/disable controls when losing window focus, pausing, etc.
-
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
 		LevelPieceSuperClass.ClearCurrentSegment();
+		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
+
+		switch (selectedCar) {
+			case CharacterSelected.AKASH:
+				SoundManager.PlaySound("akash_engine");
+				break;
+			case CharacterSelected.LUDWIG:
+				SoundManager.PlaySound("ludwig_engine");
+				break;
+			case CharacterSelected.MICHISHIGE:
+				SoundManager.PlaySound("michi_engine");
+				break;
+			case CharacterSelected.NONE:
+				SoundManager.PlaySound("akash_engine");
+				break;
+		}*/
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
+		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
+
+		switch (selectedCar)
+		{
+			case CharacterSelected.AKASH:
+				SoundManager.StopLooping("akash_engine");
+				break;
+			case CharacterSelected.LUDWIG:
+				SoundManager.StopLooping("ludwig_engine");
+				break;
+			case CharacterSelected.MICHISHIGE:
+				SoundManager.StopLooping("michi_engine");
+				break;
+			case CharacterSelected.NONE:
+				SoundManager.StopLooping("akash_engine");
+				break;
+		}*/
 
 		// MainInstance = null;		
 	}
@@ -354,6 +418,7 @@ public class SteeringScript : MonoBehaviour {
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
+		float unscaledDt = Time.unscaledDeltaTime;
 
 		lowHzRumble = 0;
 		highHzRumble = 0;
@@ -372,7 +437,7 @@ public class SteeringScript : MonoBehaviour {
 		Steer(dt);
 		Gas(dt);
 
-		Boost(dt);
+		Boost(dt, unscaledDt);
 
 		if (touchingGround && SteeringStrafeHelp > float.Epsilon) {
 			// Strafe help
@@ -392,6 +457,14 @@ public class SteeringScript : MonoBehaviour {
 		Pitch(dt);
 
 		// Jump(dt);
+
+		if (InAirStabilization && !touchingGround) {
+			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
+			var rot = Quaternion.FromToRotation(rb.transform.up, Vector3.up);
+			rb.AddTorque(new Vector3(rot.x, rot.y, rot.z) * InAirStabilizationAmount);
+			// rb.AddTorque(rot * Vector3.up * InAirStabilizationAmount);
+
+		}
 
 		ApplyVelocityCap(dt);
 		ApplyAnimations();
@@ -497,19 +570,25 @@ public class SteeringScript : MonoBehaviour {
 	#region Drifting
 
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
+		if (drifting == false) {
+			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
+				SoundManager.PlaySound("drift_continuous");
+		}
 		drifting = true;
 
-		if (effects)
-			effects.StartDrift();
+		effects?.StartDrift();
 
 		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
+		if (drifting == true) {
+			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
+				SoundManager.StopLooping("drift_continuous");
+		}
 		drifting = false;
 
-		if (effects)
-			effects.StopDrift();
+		effects?.StopDrift();
 
 		SetDebugUIText(11, "False");
 	}
@@ -794,6 +873,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 
 		if (DampenRigidBody && brakeBuffer > 0) {
+			// IDEA: minimum velocity for brake help, to disallow slow fall
 			rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
 		}
 
@@ -812,7 +892,18 @@ public class SteeringScript : MonoBehaviour {
 
 	private void SetBraking(CallbackContext c) {
 		float input = c.ReadValue<float>();
+		float pastBrakeBuffer = brakeBuffer;
 		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
+
+		if (EnableSound) {
+			if (brakeBuffer > pastBrakeBuffer) {
+				if (brakeBuffer > 0.2f)
+					SoundManager.PlaySound("metal_scrape_brake");
+			} else {
+				SoundManager.StopLooping("metal_scrape_brake");
+			}
+		}
+
 
 		SetDebugUIText(3, input.ToString("F2"));
 	}
@@ -962,7 +1053,7 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
-	private void Boost(float dt) {
+	private void Boost(float dt, float unscaledDt) {
 		if (!BoostNotEmpty) {
 			StopBoost();
 		}
@@ -972,19 +1063,19 @@ public class SteeringScript : MonoBehaviour {
 			return;
 		}
 
-		if (boostWindupTimer < BoostInvulnerabilityWindup)
+		if (BoostWindupSkill != BoostSkill.None && boostWindupTimer < BoostWindup)
 			boostWindupTimer += Time.deltaTime;
 
-		// if (effects)
-		// effects.StartBoost(IsInvulnerable);
-
-		// if (tempAndInteg)
-		// tempAndInteg.BoostHeat();
+		if (IsInSloMo) {
+			Time.timeScale = BoostSloMoTimescale;
+		} else {
+			Time.timeScale = 1f;
+		}
 
 		foreach (var item in BoostStartObservers)
-			item.Notify(IsInvulnerable);
+			item.Notify(BoostWindupReady);
 
-		AddBoost(-BoostConsumptionRate * dt);
+		AddBoost(-BoostConsumptionRate * unscaledDt);
 
 		if (BoostNotEmpty) {
 			Vector3 boostDir = Vector3.forward;
@@ -1012,16 +1103,24 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		boosting = true;
+		if (EnableSound) {
+			SoundManager.PlaySound("boost_start");
+			SoundManager.PlaySound("boost_continuous");
+		}
 	}
 
 	private void StopBoost() {
 
 		boostWindupTimer = 0f;
+		Time.timeScale = 1f;
 
-		if (effects)
-			effects.StopBoost();
+		effects?.StopBoost();
 
 		boosting = false;
+		if (EnableSound) {
+			SoundManager.StopLooping("boost_continuous");
+			SoundManager.PlaySound("boost_end");
+		}
 	}
 
 	private void StopBoost(CallbackContext _) {
@@ -1039,8 +1138,7 @@ public class SteeringScript : MonoBehaviour {
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
 
-		if (effects)
-			effects.ClearAllEffects();
+		effects?.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
@@ -1100,5 +1198,24 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	private float preFreezeTimescale = 1f;
+	public void Freeze() {
+		enabled = false;
+		preFreezeTimescale = Time.timeScale;
+		Time.timeScale = 0f;
+	}
+
+	public void Unfreeze() {
+		enabled = true;
+		Time.timeScale = preFreezeTimescale;
+	}
+
+	public static void FreezeCurrentCar() {
+		MainInstance?.Freeze();
+	}
+
+	public static void UnfreezeCurrentCar() {
+		MainInstance?.Unfreeze();
+	}
 
 }
