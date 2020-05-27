@@ -86,7 +86,7 @@ public class RemixMapScript : MonoBehaviour {
 
 	public static void SelectSegment(LevelPieceSuperClass segment) {
 		if (!mainInstance) {
-			UnityEngine.Debug.Log("RemixMap: No main instance");
+			//UnityEngine.Debug.Log("RemixMap: No main instance");
 			return;
 		}
 
