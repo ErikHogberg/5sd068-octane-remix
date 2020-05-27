@@ -336,7 +336,6 @@ public class SteeringScript : MonoBehaviour {
 
 
 	void Start() {
-		rb = GetComponent<Rigidbody>();
 
 		if (OverrideGravity) {
 			Physics.gravity = Physics.gravity.normalized * GravityOverride;
@@ -352,6 +351,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	void Awake() {
+		rb = GetComponent<Rigidbody>();
+		
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
 
