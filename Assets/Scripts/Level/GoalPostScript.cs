@@ -4,6 +4,8 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	public static GoalPostScript MainInstance;
 
+	public bool IsMainInstance = false;
+
 	[HideInInspector]
 	public LevelPieceSuperClass ParentSegment;
 
@@ -12,7 +14,9 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	private bool ready = true;
 
 	private void Awake() {
-		MainInstance = this;
+		if (IsMainInstance) {
+			MainInstance = this;
+		}
 		ContainerObject.SetActive(false);
 		// if (ParentSegment)
 		// 	ParentSegment.LeaveSegmentObservers.Add(this);
