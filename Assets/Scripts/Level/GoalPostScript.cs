@@ -23,7 +23,9 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	}
 
 	private void OnDestroy() {
-		MainInstance = null;
+		if (IsMainInstance) {
+			MainInstance = null;
+		}
 	}
 
 	private void Start() {
@@ -71,10 +73,10 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	}
 
 	public static void SetInstanceSegment(LevelPieceSuperClass segment) {
-		if (!MainInstance)
-			return;
+		// if (!MainInstance)
+			// return;
 
-		MainInstance.SetSegment(segment);
+		MainInstance?.SetSegment(segment);
 	}
 
 	// called when car leaves parent segment

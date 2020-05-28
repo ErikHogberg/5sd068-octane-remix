@@ -16768,9 +16768,11 @@ GameObject:
   - component: {fileID: 5029195426838133676}
   - component: {fileID: 2153769462904302115}
   - component: {fileID: 480839635067010740}
+  - component: {fileID: 2544164345813342159}
+  - component: {fileID: 485761981075541428}
   m_Layer: 14
   m_Name: LudwigBugatti
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17229,10 +17231,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.7562159
-  m_Height: 6.6184025
+  m_Radius: 0.7195199
+  m_Height: 6.2519517
   m_Direction: 2
-  m_Center: {x: 7.640211e-18, y: 2.4472387, z: -0.007274866}
+  m_Center: {x: 8.455413e-16, y: 2.6446826, z: -0.19050026}
 --- !u!114 &480839635067010740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17285,6 +17287,36 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  ExplodeColor: {r: 1, g: 0, b: 0, a: 1}
+  InstakillColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!136 &2544164345813342159
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9072199693228831761}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.38215607
+  m_Height: 3.3060155
+  m_Direction: 2
+  m_Center: {x: 1.162156, y: 2.41, z: -0.105480075}
+--- !u!136 &485761981075541428
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9072199693228831761}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.38215607
+  m_Height: 3.3060155
+  m_Direction: 2
+  m_Center: {x: -1.1621559, y: 2.41, z: -0.105480075}
 --- !u!1 &9072199693261866824
 GameObject:
   m_ObjectHideFlags: 0
@@ -17521,15 +17553,15 @@ PrefabInstance:
       objectReference: {fileID: 9072199693228831761}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa27d0fe783e4d54887e083dd5bde809, type: 3}
---- !u!1 &9072199691578938652 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8135559289499355436, guid: fa27d0fe783e4d54887e083dd5bde809,
-    type: 3}
-  m_PrefabInstance: {fileID: 937238676529060912}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9072199691578938653 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8135559289499355437, guid: fa27d0fe783e4d54887e083dd5bde809,
+    type: 3}
+  m_PrefabInstance: {fileID: 937238676529060912}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9072199691578938652 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8135559289499355436, guid: fa27d0fe783e4d54887e083dd5bde809,
     type: 3}
   m_PrefabInstance: {fileID: 937238676529060912}
   m_PrefabAsset: {fileID: 0}

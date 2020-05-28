@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 7960672228851041281}
   m_Layer: 14
   m_Name: MichishigeNissan
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -677,10 +677,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.7183156
-  m_Height: 6.1
+  m_Radius: 0.73963976
+  m_Height: 5.730284
   m_Direction: 2
-  m_Center: {x: 0, y: 2.3416843, z: 0}
+  m_Center: {x: 0, y: 2.6113434, z: -0.04126954}
 --- !u!114 &7960672228851041281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,6 +733,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  ExplodeColor: {r: 1, g: 0, b: 0, a: 1}
+  InstakillColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1527663253754463512
 GameObject:
   m_ObjectHideFlags: 0
