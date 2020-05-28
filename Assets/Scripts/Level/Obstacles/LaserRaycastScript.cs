@@ -16,9 +16,9 @@ public class LaserRaycastScript : MonoBehaviour {
 	[Header("Settings")]
 	public float Range = 100f;
 	public LayerMask LaserLayerMask;
-	public float DamagePerSecond = 100f;
+	// public float DamagePerSecond = 100f;
 	[Tooltip("Show laser even when not hitting anything?")]
-	public bool ShowLaser = true;
+	public bool AlwaysShowLaser = true;
 
 	private Vector3 lastTarget;
 
@@ -40,7 +40,7 @@ public class LaserRaycastScript : MonoBehaviour {
 			if (HitLastFrame) {
 				HitLastFrame = false;
 				LaserParticleSystem.Stop();
-				if (ShowLaser) {
+				if (AlwaysShowLaser) {
 					Vector3 scale = LaserCylinder.transform.localScale;
 					scale.z = Range * .5f;
 					LaserCylinder.transform.localScale = scale;
@@ -54,7 +54,7 @@ public class LaserRaycastScript : MonoBehaviour {
 		if (!HitLastFrame) {
 			HitLastFrame = true;
 			LaserParticleSystem.Play();
-			if (!ShowLaser) {
+			if (!AlwaysShowLaser) {
 				LaserCylinder.SetActive(true);
 			}
 		}
