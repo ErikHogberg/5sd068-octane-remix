@@ -99,12 +99,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
-	private bool awakeCalledAlready = false;
-	private bool startCalledAlready = false;
 
 	private void Awake() {
-		Debug.Log("awake called: " + awakeCalledAlready);
-		awakeCalledAlready = true;
 		Segments.Add(this);
 
 		Obstacles = GetComponent<ObjectSelectorScript>();
@@ -127,9 +123,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	}
 
 	private void Start() {
-		Debug.Log("start called: " + startCalledAlready);
-		startCalledAlready = true;
-		
+
 		if (isEnd || isStart) {
 			UpdateGoalPost();
 		}

@@ -16,6 +16,7 @@ public class AddativeUniqueSceneLoader : MonoBehaviour {
 
 		SceneManager.LoadScene(SceneToAdd, LoadSceneMode.Additive);
 		mainInstance = this;
+		DontDestroyOnLoad(gameObject);
 	}
 
 	private void OnDestroy() {
