@@ -50,6 +50,7 @@ public class ObstacleListItem : MonoBehaviour
 
 	public Toggle GetToggle() { return itemToggle; }
 	public TMP_Text GetText() { return itemLabel; }
+	public string GetName() { return itemName; }
 
 	//Triggered onValueChanged
 	public void TogglePing() {
