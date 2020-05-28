@@ -13,7 +13,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 	private static string obstacleNull = "None";
 	private static string currentObstacleType = "None";
-	
+
 	public static string ReadCurrentObstacleType() {
 		//Only checking for "turned off" obstacles when recording on segment avoids a lot of potential bugs
 		if (group.AnyTogglesOn()) {
@@ -27,6 +27,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	protected override void ChildAwake() {
 		group = GetComponent<ToggleGroup>();
 	}
+
 	void Start() {
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
 		SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
@@ -134,6 +135,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		//UnityEngine.Debug.Log(SegmentListScript.ReadCurrentItem().GetText().text + " ApplyObstacle: " + currentObstacleType);
 		currentSegment.Obstacles.UnhideObject(currentObstacleType);
 	}
+	
 	//Showing a specific obstacle without actually recording it, used to avoid problems with
 	//non-user initiated toggle-offs
 	public void DisplayObstacle(string p_name) {

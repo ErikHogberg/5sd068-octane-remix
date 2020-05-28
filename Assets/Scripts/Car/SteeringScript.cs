@@ -348,6 +348,8 @@ public class SteeringScript : MonoBehaviour {
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
 
+		LevelPieceSuperClass.ResetToStart();
+
 	}
 
 	void Awake() {
