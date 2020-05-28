@@ -23,8 +23,48 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	// [Tooltip("If resetting due to out of order segment should be ignored")]
 	// public bool OverrideSegmentOrderReset = false;
 
-	public bool isStart = false;
-	public bool isEnd = false;
+	[Tooltip("If this is the default start segment, make sure only one is marked, or a random one will be selected")]
+	public bool InitStart = false;
+	[Tooltip("If this is the default end/finish segment, make sure only one is marked, or a random one will be selected")]
+	public bool InitEnd = false;
+
+	[Tooltip("If a start goal post can be placed here")]
+	public bool IsStartable = true;
+	[Tooltip("If an end goal portal can be placed here")]
+	public bool IsEndable = true;
+
+	public bool isStart {
+		get {
+			if (!startSegment) {
+				startSegment = this;
+				GoalPostScript.SetInstanceSegment(startSegment);
+				Debug.Log("start segment is null");
+			}
+			return startSegment == this;
+		}
+		set {
+			if (value) {
+				startSegment = this;
+				GoalPostScript.SetInstanceSegment(startSegment);
+			}
+		}
+	}
+	public bool isEnd {
+		get {
+			if (!endSegment) {
+				endSegment = this;
+				GoalPostScript.SetInstanceSegment(endSegment);
+				Debug.Log("end segment is null");
+			}
+			return endSegment == this;
+		}
+		set {
+			if (value) {
+				endSegment = this;
+				GoalPostScript.SetInstanceSegment(endSegment);
+			}
+		}
+	}
 
 	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
 	public bool OverridePreviousSegment = false;
@@ -59,6 +99,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
+
 	private void Awake() {
 		Segments.Add(this);
 
@@ -66,15 +107,17 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		// Obstacles.UnhideObject("");
 
-		if (isStart) {
-			startSegment = this;
+		if (InitStart) {
+			// startSegment = this;
+			isStart = true;
 			// endSegment = this;
 			// GoalPostScript.SetInstanceSegment(this);
 			// UpdateGoalPost();
 		}
 
-		if (isEnd) {
-			endSegment = this;
+		if (InitEnd) {
+			isEnd = true;
+			// endSegment = this;
 			// UpdateGoalPost();
 		}
 	}
@@ -103,8 +146,19 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
+	public static bool ResetToStart() {
+		if (!startSegment)
+			return false;
+
+		currentSegment = startSegment;
+		ResetToCurrentSegment();
+
+		return true;
+	}
+
+
 	// If a transition to this segment is allowed
-	public bool CheckValidProgression(){
+	public bool CheckValidProgression() {
 		int currentSegmentSkip = allowedSegmentSkip;
 
 		if (OverrideSegmentSkip)
@@ -137,7 +191,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		return validProgression;
 	}
-	
+
 	private void OnTriggerEnter(Collider other) {
 		if (currentSegment == this)
 			return;
@@ -172,7 +226,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 		if (!startSegment)
 			startSegment = this;
-		if (!endSegment) 
+		if (!endSegment)
 			endSegment = this;
 
 		if (startSegment == this && endSegment == this) {
@@ -182,7 +236,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
-	public static void ClearCurrentSegment(){
+	public static void ClearCurrentSegment() {
 		currentSegment = null;
 	}
 

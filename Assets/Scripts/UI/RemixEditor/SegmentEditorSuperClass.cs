@@ -6,9 +6,10 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 
 	private static List<SegmentEditorSuperClass> segmentEditors = new List<SegmentEditorSuperClass>();
 
+	// TODO: make static?
 	protected LevelPieceSuperClass currentSegment;
 
-	// TODO: separate editor super class for editing portals, in-between segments
+	// TODO: separate editor super class for toggling objects without segments, such as ramps
 
 	protected abstract void ChildAwake();
 

@@ -79,6 +79,8 @@ public class RemixMapScript : MonoBehaviour {
 		if (!mainInstance)
 			return;
 
+		RemixCameraRotateScript.StopStatic();
+
 		mainInstance.mouseDown = true;
 		mainInstance.mouseXBuffer = Input.mousePosition.x;
 
@@ -86,9 +88,11 @@ public class RemixMapScript : MonoBehaviour {
 
 	public static void SelectSegment(LevelPieceSuperClass segment) {
 		if (!mainInstance) {
-			UnityEngine.Debug.Log("RemixMap: No main instance");
+			//UnityEngine.Debug.Log("RemixMap: No main instance");
 			return;
 		}
+
+		RemixCameraRotateScript.StopStatic();
 
 		// TODO: deselect
 		
