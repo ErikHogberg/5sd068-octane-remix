@@ -9,8 +9,7 @@ using System.Dynamic;
 [RequireComponent(typeof(ScrollRect))]
 [RequireComponent(typeof(ToggleGroup))]
 [RequireComponent(typeof(ScrollToSelected))]
-public class SegmentListScript : SegmentEditorSuperClass
-{
+public class SegmentListScript : SegmentEditorSuperClass {
 	public Button startButton;
 	public static List<SegmentListItem> listItems = new List<SegmentListItem>();
 	private static SegmentListItem currentItem;
@@ -32,15 +31,34 @@ public class SegmentListScript : SegmentEditorSuperClass
 		if (listItems.Count < 1) CreateSegmentList();
 		ScrollToTop();
 	}
-	void OnEnable() { 
+	void OnEnable() {
+		Init();
+	}
+
+	bool hasBeenInit = false;
+	private void Init() {
+
+		if (hasBeenInit || LevelPieceSuperClass.Segments.Count < 1) {
+			return;
+		}
+
+		hasBeenInit = true;
+
 		if (listItems.Count < 1) CreateSegmentList();
 		else {
 			if (newListOnEnable) {
 				DeleteSegmentList();
 				CreateSegmentList();
 			}
-        }
+		}
+
+		UpdateUI();
 	}
+
+	private void Update() {
+		Init();
+	}
+
 	private void ScrollToTop() {
 		GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
 		EventSystem.current.SetSelectedGameObject(listItems[0].GetToggle().gameObject);
@@ -50,7 +68,7 @@ public class SegmentListScript : SegmentEditorSuperClass
 	//Sent from SegmentListItems, triggered by toggle event
 	public void ReceiveTogglePing(SegmentListItem p_item, bool is_on) {
 		if (is_on) {
-			if (currentSegment != p_item.GetSegment()){
+			if (currentSegment != p_item.GetSegment()) {
 				RemixMapScript.SelectSegment(p_item.GetSegment());
 				currentItem = p_item;
 				UpdateStartButtonNav(currentItem.GetToggle());
@@ -65,8 +83,8 @@ public class SegmentListScript : SegmentEditorSuperClass
 		UpdateLeftNav();
 	}
 
-	public static void UpdateLeftNav(){
-		foreach (SegmentListItem item in listItems){
+	public static void UpdateLeftNav() {
+		foreach (SegmentListItem item in listItems) {
 			Toggle firstObstacle = ObstacleListScript.CurrentFirstItem().GetToggle();
 			item.SetLeftNav(firstObstacle);
 		}
@@ -82,8 +100,7 @@ public class SegmentListScript : SegmentEditorSuperClass
 
 	void CreateSegmentList() {
 		//Creating one list item for every segment currently registered
-		for (int i = 0; i < LevelPieceSuperClass.Segments.Count; i++)
-		{
+		for (int i = 0; i < LevelPieceSuperClass.Segments.Count; i++) {
 			//Instantiating a new list item
 			SegmentListItem newItemObj = Instantiate(Resources.Load<SegmentListItem>("SegmentListItem"));
 			newItemObj.transform.SetParent(listContent.transform);
@@ -93,7 +110,7 @@ public class SegmentListScript : SegmentEditorSuperClass
 			newItemObj.SetSegment(LevelPieceSuperClass.Segments[i]);
 			newItemObj.SetToggleGroup(group);
 			newItemObj.SetListReference(this);
-			
+
 			//Checking if a segment has a visible obstacle on them from before initialization
 			var shownObject = LevelPieceSuperClass.Segments[i].Obstacles.ShownObject;
 			if (shownObject != null && shownObject.Key != "")
@@ -115,8 +132,7 @@ public class SegmentListScript : SegmentEditorSuperClass
 			if (i == 0) {
 				listItems[i].SetUpDownNav(listItems[listItems.Count - 1].GetToggle(), listItems[i + 1].GetToggle());
 				listItems[i].GetToggle().isOn = true;
-			}
-			else if (i == listItems.Count - 1)
+			} else if (i == listItems.Count - 1)
 				listItems[i].SetUpDownNav(listItems[i - 1].GetToggle(), listItems[0].GetToggle());
 			else
 				listItems[i].SetUpDownNav(listItems[i - 1].GetToggle(), listItems[i + 1].GetToggle());
@@ -130,18 +146,22 @@ public class SegmentListScript : SegmentEditorSuperClass
 		else {
 			for (int i = 0; i < listItems.Count; i++) {
 				listItems[i] = null;
-            }
+			}
 			listItems.Clear();
 		}
-    }
+	}
 
 	public override void UpdateUI() {
+
+		if (currentSegment == null) {
+			return;
+		}
+
 		//Way of picking a segment #2
 		//Should only run when a segment is selected through clicking on them in the world
 		if (currentSegment != currentItem.GetSegment()) {
-			foreach (SegmentListItem item in listItems) { 
-				if (item.GetSegment() == currentSegment)
-                {
+			foreach (SegmentListItem item in listItems) {
+				if (item.GetSegment() == currentSegment) {
 					string currentObstacleType = ObstacleListScript.ReadCurrentObstacleType();
 					//Records which obstacle is currently selected for this segment, before switching to the new one
 					currentItem.UpdateObstacle(currentObstacleType);

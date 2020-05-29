@@ -7,7 +7,7 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 	private static List<SegmentEditorSuperClass> segmentEditors = new List<SegmentEditorSuperClass>();
 
 	// TODO: make static?
-	protected LevelPieceSuperClass currentSegment;
+	protected LevelPieceSuperClass currentSegment = null;
 
 	// TODO: separate editor super class for toggling objects without segments, such as ramps
 
