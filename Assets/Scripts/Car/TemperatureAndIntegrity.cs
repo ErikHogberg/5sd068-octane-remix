@@ -127,6 +127,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			Hit();
 		}
 	}
+	
 	public void RockHit(float sqrImpactVelocity) {
 		float sqrVelocity = sqrImpactVelocity;//carControls.Velocity.sqrMagnitude;
 		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
