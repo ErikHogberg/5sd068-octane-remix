@@ -181,6 +181,7 @@ public class SteeringScript : MonoBehaviour {
 	#region Velocity cap fields
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
+	public bool DisableCapInAir = true;
 	public float VelocityCap = 20f;
 	public float BoostVelocityCap = 30f;
 	[Min(0)]
@@ -554,7 +555,7 @@ public class SteeringScript : MonoBehaviour {
 
 				}
 
-			} else {
+			} else if (!DisableCapInAir || touchingGround) {
 				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
 					// rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
 					rb.velocity = Vector3.MoveTowards(

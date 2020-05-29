@@ -18963,8 +18963,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1472195899}
-  m_LocalRotation: {x: -0, y: -0.00511017, z: -0, w: -0.99998695}
-  m_LocalPosition: {x: 82.4, y: 11.6, z: -4.73}
+  m_LocalRotation: {x: -0, y: -0.94475305, z: -0, w: -0.32778302}
+  m_LocalPosition: {x: 1355.69, y: 47.29, z: -425.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 422557927}
@@ -18973,7 +18973,7 @@ Transform:
   - {fileID: 1538505046}
   m_Father: {fileID: 2103010013}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -359.414, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -218.269, z: 0}
 --- !u!1001 &1498409403
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23014,7 +23014,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: VelocityCapCorrectionSpeed
-      value: 20
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -23024,7 +23024,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: AbsoluteVelocityCap
-      value: 70
+      value: 85
       objectReference: {fileID: 0}
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -23035,6 +23035,16 @@ PrefabInstance:
         type: 3}
       propertyPath: SteeringRotationHelp
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: BrakeForce
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: BoostSpeed
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 2710298148350280556, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
