@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class StartCountdownScript : MonoBehaviour {
 
@@ -11,11 +12,29 @@ public class StartCountdownScript : MonoBehaviour {
 	public TMP_Text MillisecondText;
 	public TMP_Text NotificationText;
 
+	[Space]
+	public InputActionReference GasBinding;
+	public float MaxGasSpeed = 1f;
+
+	[Space]
+	public NeedleMeterUIScript GasNeedle;
+
 	float timer = 3;
 	bool running = false;
 
+	float gasBuffer;
+
 	private void Awake() {
 		mainInstance = this;
+		GasBinding.action.performed += c => gasBuffer = c.ReadValue<float>();
+	}
+
+	private void OnEnable() {
+		GasBinding.action.Enable();
+	}
+
+	private void OnDisable() {
+		GasBinding.action.Disable();
 	}
 
 	private void OnDestroy() {
