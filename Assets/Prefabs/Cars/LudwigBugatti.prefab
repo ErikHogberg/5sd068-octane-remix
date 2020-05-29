@@ -17078,8 +17078,6 @@ MonoBehaviour:
     type: 3}
   GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  ReverseKeyBinding: {fileID: -5141949842227674586, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
   BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
@@ -17088,7 +17086,7 @@ MonoBehaviour:
     type: 3}
   ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  JumpKeyBinding: {fileID: -6669503585821705213, guid: a8607000f05afde459be885d75c1936b,
+  PauseKeyBinding: {fileID: 3524943928415761151, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
@@ -17248,7 +17246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireTempEffect: 10
-  laserTempEffect: 10
+  laserTempEffect: 200
   boostTempEffect: 15
   tickRate: 0.8
   coolingRate: 2.2
@@ -17259,7 +17257,7 @@ MonoBehaviour:
   maxIntegrity: 100
   damageRate: 0.5
   fireIntegEffect: 10
-  laserIntegEffect: 10
+  laserIntegEffect: 100
   sawIntegEffect: 10
   rockIntegEffect: 10
   rockVelocityMinMax: {x: 0, y: 0}
