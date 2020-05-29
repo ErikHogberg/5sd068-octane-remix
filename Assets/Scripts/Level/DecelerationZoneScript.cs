@@ -7,6 +7,10 @@ public class DecelerationZoneScript : MonoBehaviour {
 	public float DecelerationSpeed;
 	public float MinSpeed;
 
+	private void OnTriggerEnter(Collider other) {
+		UINotificationSystem.Notify("Slow Zone!",Color.blue, 1);
+	}
+
 	private void OnTriggerStay(Collider other) {
 		var rb = other.attachedRigidbody;
 
