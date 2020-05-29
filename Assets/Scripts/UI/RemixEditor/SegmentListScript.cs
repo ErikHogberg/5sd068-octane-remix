@@ -35,14 +35,14 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		Init();
 	}
 
-	bool hasBeenInit = false;
+	// bool hasBeenInit = false;
 	private void Init() {
 
-		if (hasBeenInit || LevelPieceSuperClass.Segments.Count < 1) {
-			return;
-		}
+		// if (hasBeenInit || LevelPieceSuperClass.Segments.Count < 1) {
+		// 	return;
+		// }
 
-		hasBeenInit = true;
+		// hasBeenInit = true;
 
 		if (listItems.Count < 1) CreateSegmentList();
 		else {
@@ -52,12 +52,12 @@ public class SegmentListScript : SegmentEditorSuperClass {
 			}
 		}
 
-		UpdateUI();
+		// UpdateUI();
 	}
 
-	private void Update() {
-		Init();
-	}
+	// private void Update() {
+	// 	Init();
+	// }
 
 	private void ScrollToTop() {
 		GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
