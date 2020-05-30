@@ -17,7 +17,7 @@ public class LoadLastCarSelectionScript : MonoBehaviour {
 				selector.UnhideObject("Akash");
 				break;
 			case CharacterSelected.LUDWIG:
-				selector.UnhideObject("Old");
+				selector.UnhideObject("Ludwig");
 				break;
 			case CharacterSelected.MICHISHIGE:
 				selector.UnhideObject("Michishige");

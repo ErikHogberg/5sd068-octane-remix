@@ -37,12 +37,15 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		get {
 			if (!startSegment) {
 				startSegment = this;
+				GoalPostScript.SetInstanceSegment(startSegment);
+				Debug.Log("start segment is null");
 			}
 			return startSegment == this;
 		}
 		set {
 			if (value) {
 				startSegment = this;
+				GoalPostScript.SetInstanceSegment(startSegment);
 			}
 		}
 	}
@@ -50,12 +53,15 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		get {
 			if (!endSegment) {
 				endSegment = this;
+				GoalPostScript.SetInstanceSegment(endSegment);
+				Debug.Log("end segment is null");
 			}
 			return endSegment == this;
 		}
 		set {
 			if (value) {
 				endSegment = this;
+				GoalPostScript.SetInstanceSegment(endSegment);
 			}
 		}
 	}
@@ -93,6 +99,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
+
 	private void Awake() {
 		Segments.Add(this);
 
@@ -101,14 +108,16 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		// Obstacles.UnhideObject("");
 
 		if (InitStart) {
-			startSegment = this;
+			// startSegment = this;
+			isStart = true;
 			// endSegment = this;
 			// GoalPostScript.SetInstanceSegment(this);
 			// UpdateGoalPost();
 		}
 
 		if (InitEnd) {
-			endSegment = this;
+			isEnd = true;
+			// endSegment = this;
 			// UpdateGoalPost();
 		}
 	}
@@ -136,6 +145,17 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			RemixMapScript.StartRotate();
 		}
 	}
+
+	public static bool ResetToStart() {
+		if (!startSegment)
+			return false;
+
+		currentSegment = startSegment;
+		ResetToCurrentSegment();
+
+		return true;
+	}
+
 
 	// If a transition to this segment is allowed
 	public bool CheckValidProgression() {

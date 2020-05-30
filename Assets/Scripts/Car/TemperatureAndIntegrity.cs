@@ -105,6 +105,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			Hit();
 		}
 	}
+
 	public void LaserHit() {
 		if (damageTimer <= 0.0f) {
 			goalTemp += laserTempEffect;
@@ -112,12 +113,21 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			Hit();
 		}
 	}
+	public void LaserHit(float dt) {
+		// if (damageTimer <= 0.0f) {
+		goalTemp += laserTempEffect * dt;
+		currIntegrity -= laserIntegEffect * dt;
+		Hit();
+		// }
+	}
+
 	public void SawHit() {
 		if (damageTimer <= 0.0f) {
 			currIntegrity -= sawIntegEffect;
 			Hit();
 		}
 	}
+	
 	public void RockHit(float sqrImpactVelocity) {
 		float sqrVelocity = sqrImpactVelocity;//carControls.Velocity.sqrMagnitude;
 		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
@@ -135,10 +145,10 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 
 	public void Instakill() {
 		// if (!carControls.IsInvulnerable) {
-			// currIntegrity = 0;
-			UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
-			carControls.Reset();
-			Reset();
+		// currIntegrity = 0;
+		UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
+		carControls.Reset();
+		Reset();
 		// }
 	}
 

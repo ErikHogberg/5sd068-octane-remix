@@ -6,14 +6,14 @@ using UnityEngine.UI;
 
 
 [RequireComponent(typeof(ToggleGroup))]
-public class ObstacleListScript : SegmentEditorSuperClass
-{
+public class ObstacleListScript : SegmentEditorSuperClass {
 	public static Dictionary<string, ObstacleListItem> obstacleList = new Dictionary<string, ObstacleListItem>();
 	private static List<string> currentListLayout = new List<string>();
 	private static ToggleGroup group = null;
 
 	private static string obstacleNull = "None";
 	private static string currentObstacleType = "None";
+
 	public static string ReadCurrentObstacleType() {
 		//Only checking for "turned off" obstacles when recording on segment avoids a lot of potential bugs
 		if (group.AnyTogglesOn()) {
@@ -24,9 +24,10 @@ public class ObstacleListScript : SegmentEditorSuperClass
 		}
 	}
 
-	protected override void ChildAwake() { 
-		group = GetComponent<ToggleGroup>(); 
+	protected override void ChildAwake() {
+		group = GetComponent<ToggleGroup>();
 	}
+
 	void Start() {
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
 		SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
@@ -35,7 +36,7 @@ public class ObstacleListScript : SegmentEditorSuperClass
 
 	//Sent from ObstacleListItems, triggered by toggle event 
 	public void ReceiveTogglePing(string p_name, bool is_on) {
-		if (is_on) { 
+		if (is_on) {
 			currentObstacleType = p_name;
 			ApplyObstacleSelection();
 		}
@@ -52,7 +53,7 @@ public class ObstacleListScript : SegmentEditorSuperClass
 
 	public static ObstacleListItem CurrentFirstItem() {
 		return obstacleList[currentListLayout[0]];
-    }
+	}
 
 	//Runs whenever a new segment is selected
 	public override void UpdateUI() {
@@ -80,6 +81,7 @@ public class ObstacleListScript : SegmentEditorSuperClass
 				entry.Value.GetToggle().isOn = false;
 				entry.Value.gameObject.SetActive(false);
 			}
+
 			for (int i = 0; i < currentListLayout.Count; i++) {
 				//Activate all existing list items that represent obstacles available on selected segment
 				string entry = currentListLayout[i];
@@ -101,16 +103,17 @@ public class ObstacleListScript : SegmentEditorSuperClass
 					//Updating navigation bindings so left-right always takes you to current segment list item
 					Toggle currentSegmentItem = SegmentListScript.ReadCurrentItem().GetToggle();
 					obstacleList[entry].SetLeftRightNav(currentSegmentItem, currentSegmentItem);
-					
+
 					if (entry == currentObstacleType)
 						obstacleList[entry].GetToggle().isOn = true;
-				} 
+				}
 				//If any not-previously-encountered obstacles are available, make new list items for them
 				else {
 					NewListItem(entry);
-                }
+				}
 			}
 		}
+
 		ApplyObstacleSelection();
 		SegmentListScript.UpdateLeftNav();
 	}
@@ -132,6 +135,7 @@ public class ObstacleListScript : SegmentEditorSuperClass
 		//UnityEngine.Debug.Log(SegmentListScript.ReadCurrentItem().GetText().text + " ApplyObstacle: " + currentObstacleType);
 		currentSegment.Obstacles.UnhideObject(currentObstacleType);
 	}
+	
 	//Showing a specific obstacle without actually recording it, used to avoid problems with
 	//non-user initiated toggle-offs
 	public void DisplayObstacle(string p_name) {
