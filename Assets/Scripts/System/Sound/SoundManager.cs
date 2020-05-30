@@ -13,10 +13,10 @@ public class Sound {
 	public float volume = 1.0f;
 	[Tooltip("When played, should this sound effect be looped?")]
 	public bool loop = false;
-	[Tooltip("How many seconds should it take to fade this sound in? 0 = no fade in")]
-	public float fadeInDuration;
-	[Tooltip("How many seconds should it take to fade this sound out? 0 = no fade out")]
-	public float fadeOutDuration;
+	//[Tooltip("How many seconds should it take to fade this sound in? 0 = no fade in")]
+	//public float fadeInDuration;
+	//[Tooltip("How many seconds should it take to fade this sound out? 0 = no fade out")]
+	//public float fadeOutDuration;
 	[Tooltip("The sound to be played.")]
 	public AudioClip audioClip;
 	[Tooltip("What mixer this sound should use.")]
@@ -39,11 +39,11 @@ public class SoundFader : MonoBehaviour
 		AudioSource source = null;
 
 		if (source.volume == 0f) {
-			duration = sound.fadeInDuration;
+			//duration = sound.fadeInDuration;
 			fadeIn = true;
 		}
 		if (source.volume > 0f) {
-			duration = sound.fadeOutDuration;
+			//duration = sound.fadeOutDuration;
 			fadeIn = false;
 		}
 
@@ -109,10 +109,10 @@ public class SoundManager : MonoBehaviour
 		audioSource.volume = 0f;
 
 		audioSource.Play();
-		if (sound.fadeInDuration > 0f) {
+		/*if (sound.fadeInDuration > 0f) {
 			//SoundFader.StartFade(sound);
 		}
-		else { audioSource.volume = sound.volume; }
+		else { audioSource.volume = sound.volume; }*/
 
 		if (sound.loop) loopingSoundsSources.Add(sound.name, audioSource);
 		else Object.Destroy(audioSource, audioSource.clip.length);
@@ -150,9 +150,9 @@ public class SoundManager : MonoBehaviour
 		audioSource.volume = 0f;
 
 		audioSource.Play();
-		if (sound.fadeInDuration > 0f) {
+		/*if (sound.fadeInDuration > 0f) {
 			//SoundFader.StartFade(sound);
-		} else { audioSource.volume = sound.volume; }
+		} else { audioSource.volume = sound.volume; }*/
 
 		if (sound.loop) loopingSounds.Add(sound.name, soundSource);
 		else Object.Destroy(soundSource, audioSource.clip.length);
@@ -176,13 +176,13 @@ public class SoundManager : MonoBehaviour
 			GameObject dest = loopingSounds[name];
 			loopingSounds.Remove(name);
 			//SoundFader.StartFade(sound);
-			Object.Destroy(dest, sound.fadeOutDuration);
+			Object.Destroy(dest/*, sound.fadeOutDuration*/);
 		}
 		else if (loopingSoundsSources.ContainsKey(name)) {
 			AudioSource dest = loopingSoundsSources[name];
 			loopingSoundsSources.Remove(name);
 			//SoundFader.StartFade(sound);
-			Object.Destroy(dest, sound.fadeOutDuration);
+			Object.Destroy(dest/*, sound.fadeOutDuration*/);
 		} else if (printDebug) {
 			UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
 		}
