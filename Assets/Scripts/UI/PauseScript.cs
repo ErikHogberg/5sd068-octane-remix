@@ -40,7 +40,8 @@ public class PauseScript : MonoBehaviour {
 		paused = false;
 		HideOnPause?.SetActive(true);
 		ShowOnPause?.SetActive(false);
-		SteeringScript.UnfreezeCurrentCar();
+		if (!StartCountdownScript.IsShown)
+			SteeringScript.UnfreezeCurrentCar();
 	}
 
 	public void Toggle() {

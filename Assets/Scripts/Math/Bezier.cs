@@ -26,7 +26,7 @@ public static class Bezier {
 			float t;
 			if (withEndpoints) {
 				t = ((float)i) / ((float)numPoints - 1);
-				Debug.Log("bezier t: " + t);
+				// Debug.Log("bezier t: " + t);
 			} else {
 				t = ((float)i + 1) / ((float)numPoints + 1);
 			}

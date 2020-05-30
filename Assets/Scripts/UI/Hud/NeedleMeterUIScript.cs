@@ -15,7 +15,7 @@ public class NeedleMeterUIScript : MonoBehaviour {
 
 	private Image needle;
 	private float initRotation;
-	private Quaternion desiredRotation;
+	// private Quaternion desiredRotation;
 
 	private float targetPercent = 0.0f;
 	private ColorState colorState = ColorState.NORMAL;
@@ -39,11 +39,11 @@ public class NeedleMeterUIScript : MonoBehaviour {
 	}
 
 
-	public void SetBarPercentage() {
+	public void UpdateBarPercentage() {
 
 		targetPercent = Mathf.Clamp(targetPercent, 0.0f, 1.1f);
 
-		desiredRotation = Quaternion.Euler(0, 0, initRotation - MaxRotation * targetPercent);
+		Quaternion desiredRotation = Quaternion.Euler(0, 0, initRotation - MaxRotation * targetPercent);
 		transform.localRotation = Quaternion.Slerp(transform.localRotation, desiredRotation, NeedleSpeed * Time.fixedDeltaTime);
 
 	}

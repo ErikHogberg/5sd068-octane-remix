@@ -181,6 +181,7 @@ public class SteeringScript : MonoBehaviour {
 	#region Velocity cap fields
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
+	public bool DisableCapInAir = true;
 	public float VelocityCap = 20f;
 	public float BoostVelocityCap = 30f;
 	[Min(0)]
@@ -529,7 +530,7 @@ public class SteeringScript : MonoBehaviour {
 
 				}
 
-			} else {
+			} else if (!DisableCapInAir || touchingGround) {
 				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
 					// rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
 					rb.velocity = Vector3.MoveTowards(
@@ -675,6 +676,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void EnableInput() {
+		// Debug.Log("Enabled car input");
 		SteeringKeyBinding.action.Enable();
 		GasKeyBinding.action.Enable();
 		BrakeKeyBinding.action.Enable();
@@ -691,8 +693,9 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void DisableInput() {
+		// Debug.Log("Disabled car input");
 		SteeringKeyBinding.action.Disable();
-		GasKeyBinding.action.Disable();
+		// GasKeyBinding.action.Disable();
 		BrakeKeyBinding.action.Disable();
 		HandbrakeKeyBinding.action.Disable();
 		ResetKeyBinding.action.Disable();
@@ -1088,15 +1091,19 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
-		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 
+		effects?.DisableAllEffects();
 		effects?.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
-		rb.MovePosition(pos);
-		rb.MoveRotation(rot);
+		// rb.MovePosition(pos);
+		// rb.MoveRotation(rot);
+		transform.position = pos;
+		transform.rotation = rot;
+
+		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 	}
 
 	public void Reset() {
@@ -1118,7 +1125,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void Reset(CallbackContext _) {
-		Reset();
+		if (!StartCountdownScript.IsShown)
+			Reset();
 	}
 
 	private void Rumble() {
