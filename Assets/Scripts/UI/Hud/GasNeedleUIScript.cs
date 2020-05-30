@@ -17,7 +17,7 @@ public class GasNeedleUIScript : MonoBehaviour {
 		if (meter == null)
 			return;
 
-		meter.SetBarPercentage();
+		meter.UpdateBarPercentage();
 		meter.ApplyColor();
 	}
 
