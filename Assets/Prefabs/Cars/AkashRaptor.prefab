@@ -669,6 +669,7 @@ MonoBehaviour:
   BoostWindup: 0.7
   BoostSloMoTimescale: 1
   CapVelocity: 1
+  DisableCapInAir: 1
   VelocityCap: 30
   BoostVelocityCap: 35
   VelocityCapCorrectionSpeed: 5
@@ -694,7 +695,8 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
-  EnableSound: 0
+  EnableSound: 1
+  EnableCheatMitigation: 1
   OverrideGravity: 0
   GravityOverride: 1
   InAirStabilization: 0
@@ -723,8 +725,6 @@ MonoBehaviour:
   BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  PauseKeyBinding: {fileID: 3524943928415761151, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
@@ -864,6 +864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireTempEffect: 10
+  frostTempEffect: 10
   laserTempEffect: 10
   boostTempEffect: 15
   tickRate: 1
@@ -875,6 +876,7 @@ MonoBehaviour:
   maxIntegrity: 100
   damageRate: 0.5
   fireIntegEffect: 10
+  frostIntegEffect: 10
   laserIntegEffect: 10
   sawIntegEffect: 10
   rockIntegEffect: 10

@@ -55,6 +55,10 @@ public class MovingCubeTriggerObstacle : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter(Collider other) {
+		if (timer > 0) {
+			return;
+		}
+
 		attack = true;
 		timer = AttackTime;
 		if (OptionalTarget) {

@@ -535,7 +535,7 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
-  EnableSound: 0
+  EnableSound: 1
   EnableCheatMitigation: 1
   OverrideGravity: 0
   GravityOverride: 1
@@ -693,6 +693,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireTempEffect: 10
+  frostTempEffect: 10
   laserTempEffect: 10
   boostTempEffect: 15
   tickRate: 0.8
@@ -704,6 +705,7 @@ MonoBehaviour:
   maxIntegrity: 100
   damageRate: 0.5
   fireIntegEffect: 10
+  frostIntegEffect: 10
   laserIntegEffect: 10
   sawIntegEffect: 10
   rockIntegEffect: 10
