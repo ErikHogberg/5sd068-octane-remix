@@ -307,6 +307,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
+	private CarSoundHandler carSound;
 	// private TemperatureAndIntegrity tempAndInteg;
 
 	[HideInInspector]
@@ -357,6 +358,9 @@ public class SteeringScript : MonoBehaviour {
 
 	void Awake() {
 		rb = GetComponent<Rigidbody>();
+		carSound = GetComponent<CarSoundHandler>();
+		if (EnableSound) carSound.enabled = true;
+		else carSound.enabled = false;
 
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
@@ -373,47 +377,14 @@ public class SteeringScript : MonoBehaviour {
 
 		MainInstance = this;
 		LevelPieceSuperClass.ClearCurrentSegment();
-		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
-
-		switch (selectedCar) {
-			case CharacterSelected.AKASH:
-				SoundManager.PlaySound("akash_engine");
-				break;
-			case CharacterSelected.LUDWIG:
-				SoundManager.PlaySound("ludwig_engine");
-				break;
-			case CharacterSelected.MICHISHIGE:
-				SoundManager.PlaySound("michi_engine");
-				break;
-			case CharacterSelected.NONE:
-				SoundManager.PlaySound("akash_engine");
-				break;
-		}*/
+		
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
-		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
-
-		switch (selectedCar)
-		{
-			case CharacterSelected.AKASH:
-				SoundManager.StopLooping("akash_engine");
-				break;
-			case CharacterSelected.LUDWIG:
-				SoundManager.StopLooping("ludwig_engine");
-				break;
-			case CharacterSelected.MICHISHIGE:
-				SoundManager.StopLooping("michi_engine");
-				break;
-			case CharacterSelected.NONE:
-				SoundManager.StopLooping("akash_engine");
-				break;
-		}*/
-
-		// MainInstance = null;		
+			
 	}
 
 	private void OnDestroy() {
@@ -511,10 +482,13 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
 
 		foreach (WheelCollider wheelCollider in allWheelColliders) {
-			if (wheelCollider.isGrounded)
+			if (wheelCollider.isGrounded && EnableSound) {
+				carSound.RecieveGroundedData(true);
 				return true;
+			}
 		}
-
+		if (EnableSound)
+			carSound.RecieveGroundedData(false);
 		return false;
 	}
 
@@ -529,6 +503,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
 		float kmph = (float)rb.velocity.magnitude * 3.6f;
+		if (EnableSound) carSound.RecieveVelocityData(percentage);
 
 		if (boosting) {
 			if (percentage >= 1f)
@@ -792,9 +767,9 @@ public class SteeringScript : MonoBehaviour {
 	#region Gas
 
 	private void Gas(float dt) {
-		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue)
+		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue) {
 			ApplyGasTorque();
-
+		}
 	}
 
 
@@ -907,9 +882,9 @@ public class SteeringScript : MonoBehaviour {
 		if (EnableSound) {
 			if (brakeBuffer > pastBrakeBuffer) {
 				if (brakeBuffer > 0.2f)
-					SoundManager.PlaySound("metal_scrape_brake");
+					SoundManager.PlaySound("wind_brake");
 			} else {
-				SoundManager.StopLooping("metal_scrape_brake");
+				SoundManager.StopLooping("wind_brake");
 			}
 		}
 
@@ -1078,11 +1053,13 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			return;
 
-		boosting = true;
-		if (EnableSound) {
+		if (EnableSound && boosting == false) {
 			SoundManager.PlaySound("boost_start");
 			SoundManager.PlaySound("boost_continuous");
+			//UnityEngine.Debug.Log("Boost sound start");
 		}
+		boosting = true;
+		
 	}
 
 	private void StopBoost() {
@@ -1092,11 +1069,12 @@ public class SteeringScript : MonoBehaviour {
 
 		effects?.StopBoost();
 
-		boosting = false;
-		if (EnableSound) {
+		if (EnableSound && boosting == true) {
 			SoundManager.StopLooping("boost_continuous");
 			SoundManager.PlaySound("boost_end");
+			//UnityEngine.Debug.Log("Boost sound end");
 		}
+		boosting = false;
 	}
 
 	private void StopBoost(CallbackContext _) {

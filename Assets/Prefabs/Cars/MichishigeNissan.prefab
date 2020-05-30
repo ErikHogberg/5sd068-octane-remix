@@ -248,6 +248,8 @@ GameObject:
   - component: {fileID: 3251316043030167833}
   - component: {fileID: 8445953291402973334}
   - component: {fileID: 7960672228851041281}
+  - component: {fileID: 3401213663859152367}
+  - component: {fileID: 8037939571525229861}
   m_Layer: 14
   m_Name: MichishigeNissan
   m_TagString: Player
@@ -564,8 +566,6 @@ MonoBehaviour:
     type: 3}
   ResetKeyBinding: {fileID: 3466623301568323873, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
-  PauseKeyBinding: {fileID: 3524943928415761151, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
   YawKeyBinding: {fileID: 3288461735874737436, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   PitchKeyBinding: {fileID: 5541550407760447407, guid: a8607000f05afde459be885d75c1936b,
@@ -733,6 +733,118 @@ MonoBehaviour:
     m_RotationOrder: 4
   ExplodeColor: {r: 1, g: 0, b: 0, a: 1}
   InstakillColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!82 &3401213663859152367
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527663253640760996}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &8037939571525229861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527663253640760996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0676c58c3f2655142962690d1d4fe098, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundName: michi_engine
+  minPitch: 0.8
+  maxPitch: 1.52
+  fallTimerDuration: 0.7
 --- !u!1 &1527663253754463512
 GameObject:
   m_ObjectHideFlags: 0
@@ -16802,15 +16914,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 816e21494c856b245b040812dc90055c, type: 3}
---- !u!198 &2382867054967168624 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 8175063227124566364, guid: 816e21494c856b245b040812dc90055c,
-    type: 3}
-  m_PrefabInstance: {fileID: 5792205570695157548}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8270794942406340770 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2496621929451546510, guid: 816e21494c856b245b040812dc90055c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5792205570695157548}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2382867054967168624 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8175063227124566364, guid: 816e21494c856b245b040812dc90055c,
     type: 3}
   m_PrefabInstance: {fileID: 5792205570695157548}
   m_PrefabAsset: {fileID: 0}
