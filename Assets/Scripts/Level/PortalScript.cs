@@ -23,9 +23,14 @@ public class PortalScript : MonoBehaviour {
 		foreach (var item in Observers)
 			item.Notify(this);
 
-		other.attachedRigidbody.MovePosition(Exit.position);
-		other.attachedRigidbody.MoveRotation(Exit.rotation);
+		var rb = other.attachedRigidbody;
 
+		rb.MovePosition(Exit.position);
+		rb.MoveRotation(Exit.rotation);
+
+		rb.velocity = Exit.rotation * Vector3.forward * rb.velocity.magnitude;
+
+		ResetTransition.StartTransition();
 
 	}
 

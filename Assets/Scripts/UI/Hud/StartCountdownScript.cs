@@ -33,7 +33,7 @@ public class StartCountdownScript : MonoBehaviour {
 
 	private void Awake() {
 		mainInstance = this;
-		Debug.Log("gas action init");
+		// Debug.Log("gas action init");
 
 		GasBinding.action.performed += Gas;
 		GasBinding.action.canceled += Gas;
@@ -47,14 +47,14 @@ public class StartCountdownScript : MonoBehaviour {
 	}
 
 	private void OnEnable() {
-		Debug.Log("gas action enabled");
+		// Debug.Log("gas action enabled");
 		GasBinding.action.Enable();
 	}
 
-	private void OnDisable() {
-		Debug.Log("gas action disabled");
+	// private void OnDisable() {
+		// Debug.Log("gas action disabled");
 		// GasBinding.action.Disable();
-	}
+	// }
 
 	private void OnDestroy() {
 		mainInstance = null;

@@ -253,6 +253,7 @@ public class SteeringScript : MonoBehaviour {
 	[Header("Misc.")]
 
 	public bool EnableSound = false;
+	public bool EnableCheatMitigation = true;
 
 	[Space]
 	public bool OverrideGravity = false;

@@ -87,7 +87,6 @@ public class LaserRaycastScript : MonoBehaviour {
 		LaserParticleSystem.transform.position = closest.point;
 		LaserParticleSystem.transform.forward = -closest.normal;
 
-		// TODO: reduce getcomponent calls
 		if (closest.collider.CompareTag("Player") && closest.collider.gameObject.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity car)) {
 			car.LaserHit(Time.deltaTime);
 		}
