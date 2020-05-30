@@ -13,6 +13,8 @@ public class Sound {
 	public float volume = 1.0f;
 	[Tooltip("When played, should this sound effect be looped?")]
 	public bool loop = false;
+	[Tooltip("Should more than one instance of this (non-loop) sound be allowed to play simultaneously?")]
+	public bool unique = false;
 	//[Tooltip("How many seconds should it take to fade this sound in? 0 = no fade in")]
 	//public float fadeInDuration;
 	//[Tooltip("How many seconds should it take to fade this sound out? 0 = no fade out")]
@@ -65,9 +67,14 @@ public class SoundManager : MonoBehaviour
 {
 	//Dictionary to keep track of looping sound sources that have their own gameobjects
 	private static Dictionary<string, GameObject> loopingSounds;
-
 	//Dictionary to keep track of looping sound sources without unique gameobjects
 	private static Dictionary<string, AudioSource> loopingSoundsSources;
+
+	//Dictionary to keep track of single sound sources with unique gameobjects, if they are not allowed duplicates
+	private static Dictionary<string, GameObject> singleSounds;
+	//Dictionary to keep track of single sound sources without unique gameobjects, if they are not allowed duplicates
+	private static Dictionary<string, AudioSource> singleSoundSources;
+	
 
 	//For efficiency's sake, a dedicated game object for playing sounds without a specified location
 	private static GameObject defaultSource;
@@ -75,6 +82,8 @@ public class SoundManager : MonoBehaviour
 	void Awake() {
 		loopingSounds = new Dictionary<string, GameObject>();
 		loopingSoundsSources = new Dictionary<string, AudioSource>();
+		singleSounds = new Dictionary<string, GameObject>();
+		singleSoundSources = new Dictionary<string, AudioSource>();
 
 		defaultSource = new GameObject("SoundManagerDefaultSource");
 		defaultSource.transform.parent = gameObject.transform;
@@ -97,8 +106,19 @@ public class SoundManager : MonoBehaviour
 
 		if (sound.loop) {
 			if (loopingSoundsSources.ContainsKey(sound.name)) {
-				UnityEngine.Debug.Log("SoundManager/PlaySoundLooping: Loop dictionary already contains an instance for " + sound.name);
+				//UnityEngine.Debug.Log("SoundManager/PlaySoundLooping: Loop dictionary already contains an instance for " + sound.name);
 				return;
+			}
+		}
+		if (sound.unique) {
+			if (singleSoundSources.ContainsKey(sound.name)) {
+				if (singleSoundSources[sound.name] == null) {
+					singleSoundSources.Remove(sound.name);
+					//UnityEngine.Debug.Log("Source was null " + sound.name);
+				} else {
+					//UnityEngine.Debug.Log("SoundManager/PlaySoundLooping: Sound dictionary already contains an instance for " + sound.name);
+					return;
+				}
 			}
 		}
 
@@ -106,7 +126,7 @@ public class SoundManager : MonoBehaviour
 		audioSource.clip = sound.audioClip;
 		audioSource.outputAudioMixerGroup = sound.audioMixer;
 		audioSource.loop = sound.loop;
-		audioSource.volume = 0f;
+		audioSource.volume = sound.volume; ;
 
 		audioSource.Play();
 		/*if (sound.fadeInDuration > 0f) {
@@ -115,6 +135,10 @@ public class SoundManager : MonoBehaviour
 		else { audioSource.volume = sound.volume; }*/
 
 		if (sound.loop) loopingSoundsSources.Add(sound.name, audioSource);
+		else if (!sound.loop && sound.unique) {
+			singleSoundSources.Add(sound.name, audioSource);
+			Object.Destroy(audioSource, audioSource.clip.length);
+		}
 		else Object.Destroy(audioSource, audioSource.clip.length);
 	}
 
@@ -138,6 +162,17 @@ public class SoundManager : MonoBehaviour
 				UnityEngine.Debug.Log("SoundManager/PlaySoundLooping: Loop dictionary already contains an instance for " + sound.name);
 			}
 		}
+		if (sound.unique) {
+			if (singleSounds.ContainsKey(sound.name)) {
+				if (singleSounds[sound.name] == null) {
+					singleSounds.Remove(sound.name);
+					//UnityEngine.Debug.Log("Source was null " + sound.name);
+				} else {
+					//UnityEngine.Debug.Log("SoundManager/PlaySoundLooping: Sound dictionary already contains an instance for " + sound.name);
+					return;
+				}
+			}
+		}
 
 		GameObject soundSource = new GameObject("SoundSource");
 		AudioSource audioSource = soundSource.AddComponent<AudioSource>();
@@ -147,7 +182,7 @@ public class SoundManager : MonoBehaviour
 		audioSource.outputAudioMixerGroup = sound.audioMixer;
 		audioSource.loop = sound.loop;
 		audioSource.spatialBlend = 1.0f;
-		audioSource.volume = 0f;
+		audioSource.volume = sound.volume; ;
 
 		audioSource.Play();
 		/*if (sound.fadeInDuration > 0f) {
@@ -155,6 +190,10 @@ public class SoundManager : MonoBehaviour
 		} else { audioSource.volume = sound.volume; }*/
 
 		if (sound.loop) loopingSounds.Add(sound.name, soundSource);
+		else if (!sound.loop && sound.unique) {
+			singleSounds.Add(sound.name, soundSource);
+			Object.Destroy(soundSource, audioSource.clip.length);
+		}
 		else Object.Destroy(soundSource, audioSource.clip.length);
 
 	}
@@ -184,7 +223,7 @@ public class SoundManager : MonoBehaviour
 			//SoundFader.StartFade(sound);
 			Object.Destroy(dest/*, sound.fadeOutDuration*/);
 		} else if (printDebug) {
-			UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
+			//UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
 		}
 	}
 

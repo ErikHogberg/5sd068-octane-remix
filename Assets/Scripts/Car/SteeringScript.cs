@@ -1050,12 +1050,13 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			return;
 
-		boosting = true;
-		if (EnableSound) {
+		if (EnableSound && boosting == false) {
 			SoundManager.PlaySound("boost_start");
 			SoundManager.PlaySound("boost_continuous");
-			UnityEngine.Debug.Log("Boost sound start");
+			//UnityEngine.Debug.Log("Boost sound start");
 		}
+		boosting = true;
+		
 	}
 
 	private void StopBoost() {
@@ -1065,12 +1066,12 @@ public class SteeringScript : MonoBehaviour {
 
 		effects?.StopBoost();
 
-		boosting = false;
-		if (EnableSound) {
+		if (EnableSound && boosting == true) {
 			SoundManager.StopLooping("boost_continuous");
 			SoundManager.PlaySound("boost_end");
-			UnityEngine.Debug.Log("Boost sound end");
+			//UnityEngine.Debug.Log("Boost sound end");
 		}
+		boosting = false;
 	}
 
 	private void StopBoost(CallbackContext _) {
