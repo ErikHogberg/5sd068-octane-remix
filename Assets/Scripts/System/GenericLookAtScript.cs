@@ -5,6 +5,10 @@ public class GenericLookAtScript : MonoBehaviour, IFollowScript {
 	public Transform Target;
 	public Vector2 AngleOffset;
 
+	private void Start() {
+		Target = Target ?? SteeringScript.MainInstance?.transform;
+	}
+
 	void Update() {
 		transform.LookAt(Target);
 		transform.Rotate(Vector2.up, AngleOffset.x, Space.Self);

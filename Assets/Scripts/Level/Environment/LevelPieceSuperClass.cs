@@ -159,6 +159,11 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	// If a transition to this segment is allowed
 	public bool CheckValidProgression() {
+
+		if (!(SteeringScript.MainInstance?.EnableCheatMitigation ?? true)) {
+			return true;
+		}
+
 		int currentSegmentSkip = allowedSegmentSkip;
 
 		if (OverrideSegmentSkip)

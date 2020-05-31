@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FlameCollision : MonoBehaviour {
+
 	private void OnTriggerEnter(Collider other) {
 		Debug.Log("Flame hit! " + other.transform.name);
 		TemperatureAndIntegrity handler = other.gameObject.GetComponent<TemperatureAndIntegrity>();
@@ -12,7 +13,14 @@ public class FlameCollision : MonoBehaviour {
 			if (handler == null) Debug.Log("FlameCollision: Unable to find TemperatureAndIntegrity of collided player. Is the collider more than one level down in the hierarchy?");
 			else handler.FireHit();
 			return;
-		}
-		else handler.FireHit();
+		} else handler.FireHit();
 	}
+
+	private void OnTriggerStay(Collider other) {
+		if (other.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity car)) {
+			car.FireHit();
+		}
+	}
+
+
 }
