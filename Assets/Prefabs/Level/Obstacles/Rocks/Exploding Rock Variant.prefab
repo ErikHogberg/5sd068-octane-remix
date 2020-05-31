@@ -252,6 +252,7 @@ MonoBehaviour:
   ExplosionCenter: {fileID: 4981200353294101814}
   OnCollision: 0
   OnTrigger: 0
+  OptionalMoveToRaycast: {fileID: 5790404181500524480}
 --- !u!114 &5790404181500524480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,6 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4ba4893f1a8e964bb0775ac27aaaa7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObjectUp: 0
   Range: 50
   LaserLayerMask:
     serializedVersion: 2
