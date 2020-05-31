@@ -2,8 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ResetTransition : MonoBehaviour, IObserver<Camera>{
+public abstract class ResetTransition : MonoBehaviour, IObserver<Camera> {
+
+	public static ResetTransition MainInstance;
+
 	public RenderTexture renderTexture;
+
+	private void Awake() {
+		MainInstance = this;
+	}
+
+	private void OnDestroy() {
+		MainInstance = null;
+	}
 
 	protected virtual void Start() {
 		// fadeScript = GetComponent<GenericFadeImageUIScript>();
@@ -20,8 +31,12 @@ public abstract class ResetTransition : MonoBehaviour, IObserver<Camera>{
 	}
 
 	public virtual void Notify(Camera snapshotCamera) {
-        TakeSnapshot(snapshotCamera);
-        // fadeScript.FadeOut();
+		TakeSnapshot(snapshotCamera);
+		// fadeScript.FadeOut();
+	}
+
+	public static void StartTransition(){
+		MainInstance?.Notify(Camera.main);
 	}
 }
 
@@ -29,13 +44,13 @@ public abstract class ResetTransition : MonoBehaviour, IObserver<Camera>{
 public class ResetFadeScript : ResetTransition {
 	private GenericFadeImageUIScript fadeScript;
 
-	protected override void Start(){
+	protected override void Start() {
 		fadeScript = GetComponent<GenericFadeImageUIScript>();
 		base.Start();
 	}
 
 	public override void Notify(Camera snapshotCamera) {
-        fadeScript.FadeOut();
+		fadeScript.FadeOut();
 		base.Notify(snapshotCamera);
 	}
 }

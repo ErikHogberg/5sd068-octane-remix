@@ -158,7 +158,7 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 		DisableEffect(AlwaysOnEffects, currentTag);
 	}
 
-	private void DisableAllEffects() {
+	public void DisableAllEffects() {
 		DisableAllEffects(currentTag);
 	}
 
