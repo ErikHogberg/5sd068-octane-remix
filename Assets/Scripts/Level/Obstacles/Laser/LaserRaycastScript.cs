@@ -78,7 +78,7 @@ public class LaserRaycastScript : MonoBehaviour {
 
 		{
 			Vector3 scale = LaserCylinder.transform.localScale;
-			scale.z = min * .5f;
+			scale.z = (min * .5f) / transform.lossyScale.z;
 			LaserCylinder.transform.localScale = scale;
 		}
 
