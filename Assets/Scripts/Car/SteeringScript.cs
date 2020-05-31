@@ -181,6 +181,7 @@ public class SteeringScript : MonoBehaviour {
 	#region Velocity cap fields
 	[Header("Velocity cap")]
 	public bool CapVelocity = true;
+	public bool DisableCapInAir = true;
 	public float VelocityCap = 20f;
 	public float BoostVelocityCap = 30f;
 	[Min(0)]
@@ -252,6 +253,7 @@ public class SteeringScript : MonoBehaviour {
 	[Header("Misc.")]
 
 	public bool EnableSound = false;
+	public bool EnableCheatMitigation = true;
 
 	[Space]
 	public bool OverrideGravity = false;
@@ -282,13 +284,12 @@ public class SteeringScript : MonoBehaviour {
 	[Header("Key bindings")]
 	public InputActionReference SteeringKeyBinding;
 	public InputActionReference GasKeyBinding;
-	public InputActionReference ReverseKeyBinding;
 	public InputActionReference BrakeKeyBinding;
 	public InputActionReference HandbrakeKeyBinding;
 	[Space]
 	public InputActionReference BoostKeyBinding;
 	public InputActionReference ResetKeyBinding;
-	public InputActionReference JumpKeyBinding;
+	// public InputActionReference PauseKeyBinding;
 	[Space]
 	public InputActionReference YawKeyBinding;
 	public InputActionReference PitchKeyBinding;
@@ -307,6 +308,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// IDEA: make observers instead?
 	private CarParticleHandlerScript effects;
+	private CarSoundHandler carSound;
 	// private TemperatureAndIntegrity tempAndInteg;
 
 	[HideInInspector]
@@ -348,10 +350,18 @@ public class SteeringScript : MonoBehaviour {
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
 
+		// TODO: teleport car to start segment reset spot
+		// FIXME: reset triggers penalty popup, prematurely starting game
+		// IDEA: reset fn with option to disable penalty
+		// LevelPieceSuperClass.ResetToStart();
+
 	}
 
 	void Awake() {
 		rb = GetComponent<Rigidbody>();
+		carSound = GetComponent<CarSoundHandler>();
+		if (EnableSound) carSound.enabled = true;
+		else carSound.enabled = false;
 
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
@@ -368,47 +378,14 @@ public class SteeringScript : MonoBehaviour {
 
 		MainInstance = this;
 		LevelPieceSuperClass.ClearCurrentSegment();
-		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
-
-		switch (selectedCar) {
-			case CharacterSelected.AKASH:
-				SoundManager.PlaySound("akash_engine");
-				break;
-			case CharacterSelected.LUDWIG:
-				SoundManager.PlaySound("ludwig_engine");
-				break;
-			case CharacterSelected.MICHISHIGE:
-				SoundManager.PlaySound("michi_engine");
-				break;
-			case CharacterSelected.NONE:
-				SoundManager.PlaySound("akash_engine");
-				break;
-		}*/
+		
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
-		/*CharacterSelected selectedCar = CharacterSelection.GetPick(0);
-
-		switch (selectedCar)
-		{
-			case CharacterSelected.AKASH:
-				SoundManager.StopLooping("akash_engine");
-				break;
-			case CharacterSelected.LUDWIG:
-				SoundManager.StopLooping("ludwig_engine");
-				break;
-			case CharacterSelected.MICHISHIGE:
-				SoundManager.StopLooping("michi_engine");
-				break;
-			case CharacterSelected.NONE:
-				SoundManager.StopLooping("akash_engine");
-				break;
-		}*/
-
-		// MainInstance = null;		
+			
 	}
 
 	private void OnDestroy() {
@@ -457,7 +434,6 @@ public class SteeringScript : MonoBehaviour {
 
 		Pitch(dt);
 
-		// Jump(dt);
 
 		if (InAirStabilization && !touchingGround) {
 			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
@@ -507,10 +483,13 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: use a timer to give some "coyote-time", restart timer every tick that car collides with ground
 
 		foreach (WheelCollider wheelCollider in allWheelColliders) {
-			if (wheelCollider.isGrounded)
+			if (wheelCollider.isGrounded && EnableSound) {
+				carSound.RecieveGroundedData(true);
 				return true;
+			}
 		}
-
+		if (EnableSound)
+			carSound.RecieveGroundedData(false);
 		return false;
 	}
 
@@ -525,6 +504,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
 		float kmph = (float)rb.velocity.magnitude * 3.6f;
+		if (EnableSound) carSound.RecieveVelocityData(percentage);
 
 		if (boosting) {
 			if (percentage >= 1f)
@@ -551,7 +531,7 @@ public class SteeringScript : MonoBehaviour {
 
 				}
 
-			} else {
+			} else if (!DisableCapInAir || touchingGround) {
 				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
 					// rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
 					rb.velocity = Vector3.MoveTowards(
@@ -655,7 +635,6 @@ public class SteeringScript : MonoBehaviour {
 	float lastAppliedGasValue = 0f;
 	float brakeBuffer = 0f;
 	float handbrakeBuffer = 0f;
-	float jumpBuffer = 0f;
 
 	float yawBuffer = 0f;
 	float oldHandbrakeBuffer = 0f;
@@ -668,10 +647,9 @@ public class SteeringScript : MonoBehaviour {
 		// adds press actions
 		SteeringKeyBinding.action.performed += SetSteering;
 		GasKeyBinding.action.performed += SetGas;
-		ReverseKeyBinding.action.performed += StartReverse;
 		BrakeKeyBinding.action.performed += SetBraking;
 		HandbrakeKeyBinding.action.performed += StartHandbraking;
-		JumpKeyBinding.action.performed += SetJump;
+
 		BoostKeyBinding.action.performed += StartBoost;
 
 		YawKeyBinding.action.performed += SetYaw;
@@ -681,14 +659,13 @@ public class SteeringScript : MonoBehaviour {
 		LeftRotateToggleKeyBinding.action.performed += EnableLeftStickRotation;
 
 		ResetKeyBinding.action.performed += Reset;
-
+		// PauseKeyBinding.action.performed += (_) => { PauseScript.ToggleStatic(); };
 		// adds release actions
 		SteeringKeyBinding.action.canceled += SetSteering;
 		GasKeyBinding.action.canceled += SetGas;
-		ReverseKeyBinding.action.canceled += StopReverse;
 		BrakeKeyBinding.action.canceled += SetBraking;
-		HandbrakeKeyBinding.action.canceled += StopHandbraking;//StartHandbraking;
-		JumpKeyBinding.action.canceled += ReleaseJump;
+		HandbrakeKeyBinding.action.canceled += StopHandbraking;
+
 		BoostKeyBinding.action.canceled += StopBoost;
 
 		YawKeyBinding.action.canceled += SetYaw;
@@ -700,13 +677,13 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void EnableInput() {
+		// Debug.Log("Enabled car input");
 		SteeringKeyBinding.action.Enable();
 		GasKeyBinding.action.Enable();
-		ReverseKeyBinding.action.Enable();
 		BrakeKeyBinding.action.Enable();
 		HandbrakeKeyBinding.action.Enable();
-		JumpKeyBinding.action.Enable();
 		ResetKeyBinding.action.Enable();
+		// PauseKeyBinding.action.Enable();
 		BoostKeyBinding.action.Enable();
 
 		YawKeyBinding.action.Enable();
@@ -717,13 +694,13 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void DisableInput() {
+		// Debug.Log("Disabled car input");
 		SteeringKeyBinding.action.Disable();
-		GasKeyBinding.action.Disable();
-		ReverseKeyBinding.action.Disable();
+		// GasKeyBinding.action.Disable();
 		BrakeKeyBinding.action.Disable();
 		HandbrakeKeyBinding.action.Disable();
-		JumpKeyBinding.action.Disable();
 		ResetKeyBinding.action.Disable();
+		// PauseKeyBinding.action.Disable();
 		BoostKeyBinding.action.Disable();
 
 		YawKeyBinding.action.Disable();
@@ -791,9 +768,9 @@ public class SteeringScript : MonoBehaviour {
 	#region Gas
 
 	private void Gas(float dt) {
-		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue)
+		if (brakeBuffer == 0f || gasBuffer < lastAppliedGasValue) {
 			ApplyGasTorque();
-
+		}
 	}
 
 
@@ -845,38 +822,45 @@ public class SteeringScript : MonoBehaviour {
 
 	#endregion
 
-	#region Reverse
-
-	private void StartReverse(CallbackContext _) {
-		gasBuffer = -1;
-	}
-
-	private void StopReverse(CallbackContext _) {
-		gasBuffer = 0;
-	}
-
-	#endregion
-
 	#region Braking
 	private void Brake(float dt) {
-		float brakeAmount = BrakeForce * brakeBuffer;
-		float frontBrakeAmount = brakeAmount * BrakeDistribution;
-		float rearBrakeAmount = brakeAmount * (1f - BrakeDistribution);
+		// if (brakeBuffer < float.Epsilon)
+		// return;
 
-		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
-			frontWheelCollider.brakeTorque = frontBrakeAmount;
-			frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+		float rpm = 0;
+		foreach (var item in allWheelColliders) {
+			if (rpm < item.rpm)
+				rpm = item.rpm;
 		}
 
-		foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
-			rearWheelCollider.brakeTorque = rearBrakeAmount;
-			rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+		if (rpm > float.Epsilon) {
+
+			float brakeAmount = BrakeForce * brakeBuffer;
+			float frontBrakeAmount = brakeAmount * BrakeDistribution;
+			float rearBrakeAmount = brakeAmount * (1f - BrakeDistribution);
+
+			foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
+				frontWheelCollider.brakeTorque = frontBrakeAmount;
+				// frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+			}
+
+			foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
+				rearWheelCollider.brakeTorque = rearBrakeAmount;
+				// rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+			}
+
+			if (DampenRigidBody && brakeBuffer > 0) {
+				// IDEA: minimum velocity for brake help, to disallow slow fall
+				rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
+			}
+
+		} else if (brakeBuffer > float.Epsilon) {
+			foreach (var item in allWheelColliders)
+				item.brakeTorque = 0;
+			gasBuffer = -1;
 		}
 
-		if (DampenRigidBody && brakeBuffer > 0) {
-			// IDEA: minimum velocity for brake help, to disallow slow fall
-			rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
-		}
+		// TODO: reverse instead if rpm is 0
 
 		SetDebugUIText(2, brakeBuffer.ToString("F2"));
 	}
@@ -899,9 +883,9 @@ public class SteeringScript : MonoBehaviour {
 		if (EnableSound) {
 			if (brakeBuffer > pastBrakeBuffer) {
 				if (brakeBuffer > 0.2f)
-					SoundManager.PlaySound("metal_scrape_brake");
+					SoundManager.PlaySound("wind_brake");
 			} else {
-				SoundManager.StopLooping("metal_scrape_brake");
+				SoundManager.StopLooping("wind_brake");
 			}
 		}
 
@@ -944,39 +928,6 @@ public class SteeringScript : MonoBehaviour {
 		// transform.forward = rb.velocity;
 	}
 
-	#endregion
-
-	#region Jumping, Hopping
-	private void ApplyJump() {
-
-		foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
-			JointSpring spring = frontWheelCollider.suspensionSpring;
-			spring.spring = springInit * (1f - jumpBuffer);
-			frontWheelCollider.suspensionSpring = spring;
-		}
-
-		foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
-			JointSpring spring = rearWheelCollider.suspensionSpring;
-			spring.spring = springInit * (1f - jumpBuffer);
-			rearWheelCollider.suspensionSpring = spring;
-		}
-
-	}
-
-	private void SetJump(CallbackContext c) {
-		float input = c.ReadValue<float>();
-		jumpBuffer = input;
-		// ApplyJump();
-	}
-
-	private void ReleaseJump(CallbackContext _) {
-		jumpBuffer = 0;
-		// ApplyJump();
-	}
-
-	private void Jump(float dt) {
-		ApplyJump();
-	}
 	#endregion
 
 	#region Yaw, Pitch
@@ -1103,11 +1054,13 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			return;
 
-		boosting = true;
-		if (EnableSound) {
+		if (EnableSound && boosting == false) {
 			SoundManager.PlaySound("boost_start");
 			SoundManager.PlaySound("boost_continuous");
+			//UnityEngine.Debug.Log("Boost sound start");
 		}
+		boosting = true;
+		
 	}
 
 	private void StopBoost() {
@@ -1117,11 +1070,12 @@ public class SteeringScript : MonoBehaviour {
 
 		effects?.StopBoost();
 
-		boosting = false;
-		if (EnableSound) {
+		if (EnableSound && boosting == true) {
 			SoundManager.StopLooping("boost_continuous");
 			SoundManager.PlaySound("boost_end");
+			//UnityEngine.Debug.Log("Boost sound end");
 		}
+		boosting = false;
 	}
 
 	private void StopBoost(CallbackContext _) {
@@ -1138,15 +1092,19 @@ public class SteeringScript : MonoBehaviour {
 
 	public void Reset(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
-		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 
+		effects?.DisableAllEffects();
 		effects?.ClearAllEffects();
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
-		rb.MovePosition(pos);
-		rb.MoveRotation(rot);
+		// rb.MovePosition(pos);
+		// rb.MoveRotation(rot);
+		transform.position = pos;
+		transform.rotation = rot;
+
+		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 	}
 
 	public void Reset() {
@@ -1168,7 +1126,8 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void Reset(CallbackContext _) {
-		Reset();
+		if (!StartCountdownScript.IsShown)
+			Reset();
 	}
 
 	private void Rumble() {

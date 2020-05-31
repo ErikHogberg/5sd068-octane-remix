@@ -4,6 +4,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Header("Temperature")]
 	[Tooltip("How much fire obstacles affects the car's temperature level.")]
 	public float fireTempEffect = 10.0f;
+	[Tooltip("How much frost obstacles affects the car's temperature level.")]
+	public float frostTempEffect = 10.0f;
 	[Tooltip("How much laser obstacles affect the car's temperature level.")]
 	public float laserTempEffect = 10.0f;
 	[Tooltip("How much using the boost affects the car's temperature level.")]
@@ -30,6 +32,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Space]
 	[Tooltip("How much fire obstacles affects the car's integrity level.")]
 	public float fireIntegEffect = 10.0f;
+	[Tooltip("How much frost obstacles affects the car's integrity level.")]
+	public float frostIntegEffect = 10.0f;
 	[Tooltip("How much laser obstacles affect the car's integrity level.")]
 	public float laserIntegEffect = 10.0f;
 	[Tooltip("How much saw obstacles affect the car's integrity level.")]
@@ -54,6 +58,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	// public IntegrityUIScript integrityUI;
 
 	private SteeringScript carControls;
+
+	// TODO: speed penalty when reaching low temperature
 
 	//Arbitrary bottom of the temperature UI bar. Only used for display purposes
 	private float zeroTemp = 95.0f;
@@ -98,6 +104,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		goalTemp += boostTempEffect * Time.deltaTime;
 		ValueCheck();
 	}
+
 	public void FireHit() {
 		if (damageTimer <= 0.0f) {
 			goalTemp += fireTempEffect;
@@ -105,6 +112,32 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			Hit();
 		}
 	}
+	public void FireHit(float dt) {
+		// if (damageTimer <= 0.0f) {
+		goalTemp += fireTempEffect * dt;
+		currIntegrity -= fireIntegEffect * dt;
+		Hit();
+		// }
+	}
+
+	public void FrostHit(bool safe = false) {
+		if (damageTimer <= 0.0f) {
+			goalTemp -= frostTempEffect; // NOTE: decreases heat
+			if (!safe)
+				currIntegrity -= frostIntegEffect;
+			Hit();
+		}
+	}
+	public void FrostHit(float dt, bool safe = false) {
+		// if (damageTimer <= 0.0f) {
+		goalTemp -= frostTempEffect * dt; // NOTE: decreases heat
+		if (!safe)
+			currIntegrity -= frostIntegEffect * dt;
+		Hit();
+		// }
+	}
+
+
 	public void LaserHit() {
 		if (damageTimer <= 0.0f) {
 			goalTemp += laserTempEffect;
@@ -112,12 +145,21 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			Hit();
 		}
 	}
+	public void LaserHit(float dt) {
+		// if (damageTimer <= 0.0f) {
+		goalTemp += laserTempEffect * dt;
+		currIntegrity -= laserIntegEffect * dt;
+		Hit();
+		// }
+	}
+
 	public void SawHit() {
 		if (damageTimer <= 0.0f) {
 			currIntegrity -= sawIntegEffect;
 			Hit();
 		}
 	}
+
 	public void RockHit(float sqrImpactVelocity) {
 		float sqrVelocity = sqrImpactVelocity;//carControls.Velocity.sqrMagnitude;
 		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
@@ -135,10 +177,10 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 
 	public void Instakill() {
 		// if (!carControls.IsInvulnerable) {
-			// currIntegrity = 0;
-			UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
-			carControls.Reset();
-			Reset();
+		// currIntegrity = 0;
+		UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
+		carControls.Reset();
+		Reset();
 		// }
 	}
 
