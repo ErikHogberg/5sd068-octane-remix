@@ -7,6 +7,7 @@ using UnityEngine;
 public class ObjectSelectorScript : MonoBehaviour {
 
 	public string DefaultObject;
+	public bool UseEnabledAsDefault = false;
 
 	[Serializable]
 	public class ObjectIndex {
@@ -20,8 +21,12 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public ObjectIndex ShownObject = null;
 
 	private void Awake() {
-		foreach (var item in objects)
+		foreach (var item in objects) {
+			if (UseEnabledAsDefault && item.Value.activeInHierarchy)
+				DefaultObject = item.Key;
+			
 			item.Value.SetActive(false);
+		}
 
 		UnhideObject(DefaultObject);
 	}

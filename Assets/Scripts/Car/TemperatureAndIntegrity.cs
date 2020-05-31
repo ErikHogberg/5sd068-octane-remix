@@ -59,6 +59,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 
 	private SteeringScript carControls;
 
+	// TODO: speed penalty when reaching low temperature
+
 	//Arbitrary bottom of the temperature UI bar. Only used for display purposes
 	private float zeroTemp = 95.0f;
 	//Around the standard celsius temperature for running car engines. Only used for display purposes
