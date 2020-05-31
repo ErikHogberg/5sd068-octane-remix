@@ -101,8 +101,11 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 				else nextIndex = i + 1;
 
 				//Updating navigation bindings so up-down takes you to the previous/next active list item
-				Toggle prevItem = obstacleList[currentListLayout[prevIndex]].GetToggle();
-				Toggle nextItem = obstacleList[currentListLayout[nextIndex]].GetToggle();
+				string prevObstacle = currentListLayout[prevIndex];
+				string nextObstacle = currentListLayout[nextIndex];
+
+				Toggle prevItem = obstacleList[prevObstacle].GetToggle();
+				Toggle nextItem = obstacleList[nextObstacle].GetToggle();
 				obstacleList[entry].SetUpDownNav(prevItem, nextItem);
 
 				//Updating navigation bindings so left-right always takes you to current segment list item
