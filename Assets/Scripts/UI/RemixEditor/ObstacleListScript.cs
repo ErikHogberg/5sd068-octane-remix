@@ -87,30 +87,30 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 				string entry = currentListLayout[i];
 				if (obstacleList.ContainsKey(entry)) {
 					obstacleList[entry].gameObject.SetActive(true);
-
-					//Navigation bindings
-					int prevIndex, nextIndex;
-					if (i == 0) prevIndex = currentListLayout.Count - 1;
-					else prevIndex = i - 1;
-					if (i == currentListLayout.Count - 1) nextIndex = 0;
-					else nextIndex = i + 1;
-
-					//Updating navigation bindings so up-down takes you to the previous/next active list item
-					Toggle prevItem = obstacleList[currentListLayout[prevIndex]].GetToggle();
-					Toggle nextItem = obstacleList[currentListLayout[nextIndex]].GetToggle();
-					obstacleList[entry].SetUpDownNav(prevItem, nextItem);
-
-					//Updating navigation bindings so left-right always takes you to current segment list item
-					Toggle currentSegmentItem = SegmentListScript.ReadCurrentItem().GetToggle();
-					obstacleList[entry].SetLeftRightNav(currentSegmentItem, currentSegmentItem);
-
 					if (entry == currentObstacleType)
 						obstacleList[entry].GetToggle().isOn = true;
 				}
 				//If any not-previously-encountered obstacles are available, make new list items for them
-				else {
-					NewListItem(entry);
-				}
+				else { NewListItem(entry); }
+
+				//Navigation bindings
+				int prevIndex, nextIndex;
+				if (i == 0) prevIndex = currentListLayout.Count - 1;
+				else prevIndex = i - 1;
+				if (i == currentListLayout.Count - 1) nextIndex = 0;
+				else nextIndex = i + 1;
+
+				//Updating navigation bindings so up-down takes you to the previous/next active list item
+				string prevObstacle = currentListLayout[prevIndex];
+				string nextObstacle = currentListLayout[nextIndex];
+
+				Toggle prevItem = obstacleList[prevObstacle].GetToggle();
+				Toggle nextItem = obstacleList[nextObstacle].GetToggle();
+				obstacleList[entry].SetUpDownNav(prevItem, nextItem);
+
+				//Updating navigation bindings so left-right always takes you to current segment list item
+				Toggle currentSegmentItem = SegmentListScript.ReadCurrentItem().GetToggle();
+				obstacleList[entry].SetLeftRightNav(currentSegmentItem, currentSegmentItem);
 			}
 		}
 

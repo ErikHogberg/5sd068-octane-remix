@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2754475316532178893
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2754475316532178894}
+  - component: {fileID: 2754475316532178895}
+  m_Layer: 0
+  m_Name: CharacterSelectInput
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2754475316532178894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2754475316532178893}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 640.22095, y: 175.45877, z: 1016.36383}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2754475316532178895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2754475316532178893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2267978755ae4bd4c84be4c7188e7dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NextCarEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  PreviousCarEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  EnterConfirmModeEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  LeaveConfirmModeEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  SelectCarEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  NextSceneEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  CancelEvents:
+    m_PersistentCalls:
+      m_Calls: []
+  UpBinding: {fileID: -5374856301706322407, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  DownBinding: {fileID: 4397818000777696358, guid: 2e880cbe8b6687e409216ae0c3ffc589,
+    type: 3}
+  LeftBinding: {fileID: 1387773908709169913, guid: 2e880cbe8b6687e409216ae0c3ffc589,
+    type: 3}
+  RightBinding: {fileID: 7929931197890247857, guid: 2e880cbe8b6687e409216ae0c3ffc589,
+    type: 3}
+  AcceptBinding: {fileID: 7088821111085119791, guid: 2e880cbe8b6687e409216ae0c3ffc589,
+    type: 3}
+  CancelBinding: {fileID: 1032557749605972234, guid: 2e880cbe8b6687e409216ae0c3ffc589,
+    type: 3}
+  ConfirmMode: 0
+  LeaveConfirmModeOnLeftRight: 0
+  CallLeftRightOnLeaveConfirm: 0
