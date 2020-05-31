@@ -14,16 +14,15 @@ public class FrostCollision : MonoBehaviour {
 		if (handler == null) {
 			other.transform.parent.gameObject.GetComponent<TemperatureAndIntegrity>();
 			if (handler == null) Debug.Log("FrostCollision: Unable to find TemperatureAndIntegrity of collided player. Is the collider more than one level down in the hierarchy?");
-			else handler.FrostHit();
+			else handler.FrostHit(Safe);
 			return;
-		} else handler.FrostHit();
+		} else handler.FrostHit(Safe);
 	}
 
 	private void OnTriggerStay(Collider other) {
 		if (other.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity car)) {
-			car.FrostHit();
+			car.FrostHit(Time.deltaTime, Safe);
 		}
 	}
-
 
 }
