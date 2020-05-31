@@ -22233,6 +22233,16 @@ PrefabInstance:
       propertyPath: EnableCheatMitigation
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: BrakeForce
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: GasSpeed
+      value: 8000
+      objectReference: {fileID: 0}
     - target: {fileID: 4541707378622925341, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -22960,7 +22970,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: VelocityCapCorrectionSpeed
-      value: 27
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -22985,7 +22995,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: BrakeForce
-      value: 20000
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -22996,6 +23006,11 @@ PrefabInstance:
         type: 3}
       propertyPath: EnableCheatMitigation
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: GasSpeed
+      value: 15000
       objectReference: {fileID: 0}
     - target: {fileID: 2710298148350280556, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -24045,6 +24060,16 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 7.06
       objectReference: {fileID: 0}
+    - target: {fileID: 9081913894479246704, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895561552678, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: VelocityCap
@@ -24073,7 +24098,7 @@ PrefabInstance:
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: GasSpeed
-      value: 7000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
@@ -24094,6 +24119,11 @@ PrefabInstance:
         type: 3}
       propertyPath: EnableCheatMitigation
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: BrakeForce
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 9210618085984265551, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
