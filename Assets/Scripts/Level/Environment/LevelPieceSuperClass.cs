@@ -151,7 +151,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			return false;
 
 		currentSegment = startSegment;
-		ResetToCurrentSegment();
+		//ResetToCurrentSegment();
 
 		return true;
 	}
