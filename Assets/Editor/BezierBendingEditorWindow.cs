@@ -161,7 +161,7 @@ class BezierBendingEditorWindow : EditorWindow {
 			Vector3 startDir = start - startObject.forward * startBezierMagnitude;
 			Vector3 end = endObject.position;
 			Vector3 endDir = end - endObject.forward * endBezierMagnitude;
-			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount, withEndpoints: true);
+			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount, 1,3);
 		}
 
 		if (points.Count != boneCount) {
