@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class FrostCollision : MonoBehaviour {
 
+	[Tooltip("If the spray only cools, causing no integrity damage")]
+	public bool Safe = true;
+
 	private void OnTriggerEnter(Collider other) {
 		Debug.Log("Flame hit! " + other.transform.name);
 		TemperatureAndIntegrity handler = other.gameObject.GetComponent<TemperatureAndIntegrity>();
