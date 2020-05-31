@@ -118,17 +118,19 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		// }
 	}
 
-	public void FrostHit() {
+	public void FrostHit(bool safe = false) {
 		if (damageTimer <= 0.0f) {
 			goalTemp -= frostTempEffect; // NOTE: decreases heat
-			currIntegrity -= frostIntegEffect;
+			if (!safe)
+				currIntegrity -= frostIntegEffect;
 			Hit();
 		}
 	}
-	public void FrostHit(float dt) {
+	public void FrostHit(float dt, bool safe = false) {
 		// if (damageTimer <= 0.0f) {
 		goalTemp -= frostTempEffect * dt; // NOTE: decreases heat
-		currIntegrity -= frostIntegEffect * dt;
+		if (!safe)
+			currIntegrity -= frostIntegEffect * dt;
 		Hit();
 		// }
 	}
