@@ -555,22 +555,17 @@ public class SteeringScript : MonoBehaviour {
 			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
 				SoundManager.PlaySound("drift_continuous");
 		}
-		drifting = true;
-
-		effects?.StartDrift();
-
+		drifting = true; 
+		effects?.StartDrift(); 
 		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		if (drifting == true) {
-			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
-				SoundManager.StopLooping("drift_continuous");
+			SoundManager.StopLooping("drift_continuous");
 		}
-		drifting = false;
-
-		effects?.StopDrift();
-
+		drifting = false; 
+		effects?.StopDrift(); 
 		SetDebugUIText(11, "False");
 	}
 
@@ -882,10 +877,11 @@ public class SteeringScript : MonoBehaviour {
 
 		if (EnableSound) {
 			if (brakeBuffer > pastBrakeBuffer) {
-				if (brakeBuffer > 0.2f)
-					SoundManager.PlaySound("wind_brake");
+				if (brakeBuffer > 0.2f) {
+					SoundManager.PlaySound("dry_ice_brake");
+				}
 			} else {
-				SoundManager.StopLooping("wind_brake");
+				SoundManager.StopLooping("dry_ice_brake");
 			}
 		}
 
