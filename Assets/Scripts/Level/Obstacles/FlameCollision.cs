@@ -18,7 +18,7 @@ public class FlameCollision : MonoBehaviour {
 
 	private void OnTriggerStay(Collider other) {
 		if (other.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity car)) {
-			car.FireHit();
+			car.FireHit(Time.deltaTime);
 		}
 	}
 
