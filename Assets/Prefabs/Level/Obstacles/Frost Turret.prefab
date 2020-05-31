@@ -4915,11 +4915,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2259995866166744337}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4ba4893f1a8e964bb0775ac27aaaa7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObjectUp: 3
   Range: 30
   LaserLayerMask:
     serializedVersion: 2
@@ -5104,7 +5105,7 @@ GameObject:
   - component: {fileID: 8596830923580092697}
   - component: {fileID: 1083344765286946934}
   - component: {fileID: 566762106142027706}
-  - component: {fileID: 3601950299320937047}
+  - component: {fileID: 4881627964478329282}
   m_Layer: 12
   m_Name: Muzzle (1)
   m_TagString: Untagged
@@ -5215,7 +5216,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 3.12
   m_Center: {x: 0.03, y: 6.33, z: 0}
---- !u!114 &3601950299320937047
+--- !u!114 &4881627964478329282
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5224,9 +5225,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8732335241699164673}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c043a9468dd9b7c4fbf47c6a16b148aa, type: 3}
+  m_Script: {fileID: 11500000, guid: e91200139317a7b4093e00319a03b22f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Safe: 1
 --- !u!1001 &938305705281992291
 PrefabInstance:
   m_ObjectHideFlags: 0
