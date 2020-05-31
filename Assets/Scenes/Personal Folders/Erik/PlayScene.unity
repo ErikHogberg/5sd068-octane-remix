@@ -10476,7 +10476,7 @@ PrefabInstance:
     - target: {fileID: 1297376403465773836, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2927411076413702400, guid: 4355d626816851f478b170737f81ff57,
         type: 3}
@@ -18133,7 +18133,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1391405961}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 058cba836c1846c3aa1c5fd2e28aea77, type: 3}
   m_Name: 
@@ -22122,6 +22122,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1472195900}
     m_Modifications:
+    - target: {fileID: 362454695476408410, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1463063908106672525, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: m_RootOrder
@@ -22219,6 +22224,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
+      propertyPath: EnableSound
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
       propertyPath: EnableCheatMitigation
       value: 0
       objectReference: {fileID: 0}
@@ -22241,6 +22251,11 @@ PrefabInstance:
         type: 3}
       propertyPath: laserTempEffect
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5023840265247242384, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5325555376196808704, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -22986,6 +23001,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2777382679114905181, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3546847363165743570, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: m_Name
@@ -23050,6 +23070,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5763308449870352189, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5973173791242568063, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -23376,7 +23401,7 @@ PrefabInstance:
     - target: {fileID: 4084793839193862387, guid: 91559f98cc78a754caf47ea69824d6f6,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5703087774878482196, guid: 91559f98cc78a754caf47ea69824d6f6,
         type: 3}
@@ -23759,6 +23784,11 @@ PrefabInstance:
       propertyPath: m_Parameters.colorGradient.key0.g
       value: 0.41553438
       objectReference: {fileID: 0}
+    - target: {fileID: 4961822177650881788, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5166956252526249678, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: VelocityModule.z.scalar
@@ -23994,6 +24024,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 2.64
       objectReference: {fileID: 0}
+    - target: {fileID: 7653510608433365219, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9081913894035681752, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -24048,6 +24083,11 @@ PrefabInstance:
         type: 3}
       propertyPath: InAirStabilizationAmount
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EnableSound
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
