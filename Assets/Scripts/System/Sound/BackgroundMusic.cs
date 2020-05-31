@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BackgroundMusic : MonoBehaviour
 {
+	[Tooltip("Is the scene that this gameobject is part of one of the menu scenes or not? " +
+			"The only exception should be the PlayScene.")]
 	public bool isMenu;
 
 	void OnEnable() {

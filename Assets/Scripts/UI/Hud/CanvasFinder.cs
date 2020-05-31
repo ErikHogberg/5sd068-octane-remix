@@ -11,12 +11,10 @@ public class CanvasFinder : MonoBehaviour
 
 	void Awake() { thisCanvas = GetComponent<Canvas>(); }
 
-	void OnEnable()
-    {
+	void OnEnable() {
 		AssignCanvas();
     }
-	void OnDisable()
-    {
+	void OnDisable() {
 		thisCanvas = null;
 		Debug.Log("CanvasFinder: " + gameObject.name + " is not thisCanvas anymore, thisCanvas is now null.");
 	}
