@@ -100,6 +100,7 @@ public class CharacterSelection : MonoBehaviour {
 	public CharacterSelected CurrentIndex() { return charSelectData[currViewIndex].carTag; }
 
 	//Goes either left or right through the array of available cars
+	//AKA updates index according to user input
 	public void SwapDisplayCar(bool goLeft) {
 		charSelectData[currViewIndex].carModel.SetActive(false);
 
@@ -109,6 +110,7 @@ public class CharacterSelection : MonoBehaviour {
 		if (currViewIndex < 0) currViewIndex = charSelectData.Length - 1;
 		else if (currViewIndex >= charSelectData.Length) currViewIndex = 0;
 
+		MakePick(0, charSelectData[currViewIndex].carTag);
 		VisualSetDisplay();
 	}
 	//Swaps immediately to the available car at the specified index
@@ -118,6 +120,7 @@ public class CharacterSelection : MonoBehaviour {
 		VisualSetDisplay();
 	}
 
+	//Update char select visuals to match current index
 	private void VisualSetDisplay() {
 		if (charSelectData[currViewIndex].carTag == choices[0])
 			CharSelectCanvas.Instance.SetCheck(true);
@@ -140,7 +143,6 @@ public class CharacterSelection : MonoBehaviour {
 			playerObjects.Add(SteeringScript.MainInstance.gameObject);
 		}
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
-		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
 		UINavInput.Instance.SetUINavMode(UIMode.CHARSELECT);
 
 		if (toggle == true) {
