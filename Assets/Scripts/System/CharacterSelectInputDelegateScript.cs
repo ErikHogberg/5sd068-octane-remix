@@ -86,13 +86,13 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 
 
 	private void Awake() {
-		UpBinding.action.performed += _ => ToggleConfirmMode();
-		DownBinding.action.performed += _ => ToggleConfirmMode();
-		LeftBinding.action.performed += _ => Previous();
-		RightBinding.action.performed += _ => Next();
+		UpBinding.action.started += _ => ToggleConfirmMode();
+		DownBinding.action.started += _ => ToggleConfirmMode();
+		LeftBinding.action.started += _ => Previous();
+		RightBinding.action.started += _ => Next();
 
-		AcceptBinding.action.performed += _ => Accept();
-		CancelBinding.action.performed += _ => CancelEvents.Invoke();
+		AcceptBinding.action.started += _ => Accept();
+		CancelBinding.action.started += _ => CancelEvents.Invoke();
 
 
 		UpBinding.action.Enable();

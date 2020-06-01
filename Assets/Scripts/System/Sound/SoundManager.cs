@@ -92,6 +92,7 @@ public class SoundManager : MonoBehaviour
 	//Plays a sound without a specified origin location
 	public static void PlaySound(string name)
 	{
+		UnityEngine.Debug.Log("SoundManager/PlaySound: " + name);
 		Sound sound = null;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {
@@ -200,6 +201,7 @@ public class SoundManager : MonoBehaviour
 		
 
 	public static void StopLooping(string name, bool printDebug = true) {
+		UnityEngine.Debug.Log("SoundManager/StopLooping: " + name);
 		Sound sound = null;
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
@@ -223,7 +225,7 @@ public class SoundManager : MonoBehaviour
 			//SoundFader.StartFade(sound);
 			Object.Destroy(dest/*, sound.fadeOutDuration*/);
 		} else if (printDebug) {
-			//UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
+			UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
 		}
 	}
 
