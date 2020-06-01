@@ -92,7 +92,7 @@ public class SoundManager : MonoBehaviour
 	//Plays a sound without a specified origin location
 	public static void PlaySound(string name)
 	{
-		UnityEngine.Debug.Log("SoundManager/PlaySound: " + name);
+		//UnityEngine.Debug.Log("SoundManager/PlaySound: " + name);
 		Sound sound = null;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {

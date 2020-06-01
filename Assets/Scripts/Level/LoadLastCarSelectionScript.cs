@@ -26,6 +26,10 @@ public class LoadLastCarSelectionScript : MonoBehaviour {
 				break;
 		}
 
+		Debug.LogWarning("current car: "+SteeringScript.MainInstance.gameObject.name);
+		LapCounterUIScript.SetCar();
+		GameOverPanel.SetCar();
+
 	}
 
 }
