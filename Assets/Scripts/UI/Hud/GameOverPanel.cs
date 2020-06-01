@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameOverPanel : MonoBehaviour, IObserver<int> {
 
@@ -14,6 +15,7 @@ public class GameOverPanel : MonoBehaviour, IObserver<int> {
 		if (lapsCompleted >= MaxLaps) {
 			// TODO: disable car controls
 			gameObject.SetActive(true);
+			EventSystem.current.SetSelectedGameObject(gameObject.transform.GetChild(2).gameObject);
 		}
 	}
 
