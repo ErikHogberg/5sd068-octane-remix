@@ -62,6 +62,7 @@ public class StartCountdownScript : MonoBehaviour {
 
 	void Start() {
 		SteeringScript.FreezeCurrentCar();
+		TimerScript.Instance.DisplayTime();
 		UpdateUI();
 	}
 
@@ -101,11 +102,14 @@ public class StartCountdownScript : MonoBehaviour {
 		if (timer < 0) {
 			running = false;
 
+			if (firstStart) {
+				UINotificationSystem.Notify("Go!", Color.green, 2);
+				TimerScript.Instance.StartTimer();
+			}
 			firstStart = false;
 			GasNeedle?.transform.parent.gameObject.SetActive(false);
 			StartButton?.gameObject.SetActive(false);
 
-			UINotificationSystem.Notify("Go!", Color.green, 2);
 			gameObject.SetActive(false);
 			SteeringScript.UnfreezeCurrentCar();
 		}
@@ -130,6 +134,7 @@ public class StartCountdownScript : MonoBehaviour {
 		NotificationText.text = "Reset Penalty";
 		timer = time;
 		running = true;
+		TimerScript.Instance.AddTime(time);
 		gameObject.SetActive(true);
 	}
 

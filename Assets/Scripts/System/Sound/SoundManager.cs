@@ -201,7 +201,6 @@ public class SoundManager : MonoBehaviour
 		
 
 	public static void StopLooping(string name, bool printDebug = true) {
-		UnityEngine.Debug.Log("SoundManager/StopLooping: " + name);
 		Sound sound = null;
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
