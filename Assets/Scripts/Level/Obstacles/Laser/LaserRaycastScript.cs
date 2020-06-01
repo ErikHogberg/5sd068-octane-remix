@@ -34,10 +34,23 @@ public class LaserRaycastScript : MonoBehaviour {
 			LaserLayerMask = SettingsOverride.LaserLayerMask;
 			AlwaysShowLaser = SettingsOverride.AlwaysShowLaser;
 		}
+
 	}
 
+	bool visible = true;
+
+	private void OnBecameVisible() {
+		visible = true;
+	}
+
+	private void OnBecameInvisible() {
+		visible = false;
+	}
 
 	void Update() {
+
+		if (!visible)
+			return;
 
 		RaycastHit[] hits = Physics.RaycastAll(
 			transform.position,
