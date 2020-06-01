@@ -36,6 +36,10 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		Init();
 	}
 
+	private void OnDisable() {
+		DeleteSegmentList();
+	}
+
 	// bool hasBeenInit = false;
 	private void Init() {
 
