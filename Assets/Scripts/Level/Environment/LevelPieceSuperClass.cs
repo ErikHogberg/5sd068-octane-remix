@@ -151,7 +151,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			return false;
 
 		currentSegment = startSegment;
-		//ResetToCurrentSegment();
+		ResetToCurrentSegment();
 
 		return true;
 	}
@@ -219,7 +219,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 			if (currentSegment.SegmentOnReset)
 				currentSegment = currentSegment.SegmentOnReset;
 
-			//SteeringScript.MainInstance.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
+			SteeringScript.MainInstance?.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
 		} else {
 			return false;
 		}

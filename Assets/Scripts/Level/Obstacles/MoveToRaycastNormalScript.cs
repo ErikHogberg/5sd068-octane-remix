@@ -21,6 +21,9 @@ public class MoveToRaycastNormalScript : MonoBehaviour {
 
 	// TODO: choose ray direction, relative to self?
 
+	[HideInInspector]
+	public List<IObserver<Transform>> Observers = new List<IObserver<Transform>>();
+
 	void Start() {
 
 		Vector3 up = -transform.up;
@@ -88,6 +91,9 @@ public class MoveToRaycastNormalScript : MonoBehaviour {
 		}
 		// Debug.Log("Rock " + gameObject.name + " successfully moved to ground");
 
+		foreach (var item in Observers) {
+			item.Notify(transform);
+		}
 
 	}
 

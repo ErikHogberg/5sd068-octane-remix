@@ -227,6 +227,33 @@ public class SoundManager : MonoBehaviour
 		}
 	}
 
+	public static void StopAll() {
+		foreach (KeyValuePair<string, GameObject> entry in loopingSounds) {
+			GameObject dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, AudioSource> entry in loopingSoundsSources) {
+			AudioSource dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, GameObject> entry in singleSounds) {
+			GameObject dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, AudioSource> entry in singleSoundSources) {
+			AudioSource dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		AudioSource[] localSources = defaultSource.GetComponents<AudioSource>();
+		foreach (AudioSource source in localSources) {
+			Object.Destroy(source);
+		}
+	}
+
 	public static void StopSound(string name) {
 		StopLooping(name, printDebug: false);
 		// TODO: stop non-looping sounds
