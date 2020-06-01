@@ -21,6 +21,11 @@ public class TimerScript : MonoBehaviour {
 	public float TimeProgress => timer;
 	public TimeSpan TimeSpanProgress => System.TimeSpan.FromSeconds(timer);
 
+	private void Awake() {
+		Debug.LogWarning("Created new Timer!");
+		
+	}
+
 	public void DisplayTime() {
 		if (timerUI == null) {
 			timerUI = Instantiate(Resources.Load<GameObject>("TimerUI"));
@@ -57,9 +62,11 @@ public class TimerScript : MonoBehaviour {
 									 TimeCalc(t.Seconds) + ":" + TimeCalc(milli);
 					timeTxt = timerText.text;
 					updateCount = 0;
+				// Debug.LogWarning("has timer UI!");
 				}
 			}
-		}
+			
+		} 
 	}
 
 	private string TimeCalc(int nr) {
