@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Button))]
 public class ButtonAnimations : MonoBehaviour
 {
 	public bool active = true;
 	public float dimensionLerpSpeed = 10f;
 	private float colorLerpSpeed = 9f;
 
-	private Button thisButton;
 	private Image thisBtnImage;
 	private RectTransform thisTransform;
 
@@ -25,7 +23,6 @@ public class ButtonAnimations : MonoBehaviour
 
 
 	void Awake() { 
-		thisButton = GetComponent<Button>();
 		thisBtnImage = GetComponent<Image>();
 		thisTransform = GetComponent<RectTransform>();
 		originalDimensions = thisTransform.sizeDelta;
@@ -53,7 +50,7 @@ public class ButtonAnimations : MonoBehaviour
 		widthLerp = true;
 		while (thisTransform.sizeDelta.x < (originalDimensions.x * goalPercent) - 1f || thisTransform.sizeDelta.x > (originalDimensions.x * goalPercent) + 1f)
 		{
-			float newX = Mathf.Lerp(thisTransform.sizeDelta.x, originalDimensions.x * goalPercent, dimensionLerpSpeed * Time.deltaTime);
+			float newX = Mathf.Lerp(thisTransform.sizeDelta.x, originalDimensions.x * goalPercent, dimensionLerpSpeed * Time.unscaledDeltaTime);
 			thisTransform.sizeDelta = new Vector2(newX, originalDimensions.y);
 			yield return null;
 		}
@@ -67,7 +64,7 @@ public class ButtonAnimations : MonoBehaviour
 		alphaLerp = true;
 		while (thisBtnImage.color.a < (goalPercent - 0.005f) || thisBtnImage.color.a < (goalPercent + 0.005f))
 		{
-			float newA = Mathf.Lerp(thisBtnImage.color.a, goalPercent, colorLerpSpeed * Time.deltaTime);
+			float newA = Mathf.Lerp(thisBtnImage.color.a, goalPercent, colorLerpSpeed * Time.unscaledDeltaTime);
 			thisBtnImage.color = new Color(thisBtnImage.color.r, thisBtnImage.color.g, thisBtnImage.color.b, newA);
 			yield return null;
 		}
