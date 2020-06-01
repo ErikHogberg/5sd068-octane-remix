@@ -6,7 +6,8 @@ using UnityEngine;
 public enum ScoreSkill {
 	DRIFT = 0,
 	DODGE,
-	AIRTIME
+	AIRTIME,
+	BOOST
 }
 
 public class Score {
