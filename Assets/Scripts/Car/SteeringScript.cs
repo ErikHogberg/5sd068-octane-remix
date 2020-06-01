@@ -250,6 +250,21 @@ public class SteeringScript : MonoBehaviour {
 	public float DriftRumbleAmount = .5f;
 	#endregion
 
+	[Header("Score")]
+	public float DriftScorePerSec = 200f;
+	[Header("How long you need to drift continously to gain drift score")]
+	float DriftTimeThreshold = .1f;
+	[Space]
+	public float BoostScorePerSec = 200f;
+	[Header("How long you need to Boost continously to gain boost score")]
+	public float BoostTimeThreshold = .1f;
+	[Space]
+	public float AirTimeScorePerSec = 200f;
+	[Header("How long you need to stay in air to gain air time score")]
+	public float AirTimeTimeThreshold = .1f;
+	[Space]
+	public int DestructionScore = 1000;
+
 	[Header("Misc.")]
 
 	public bool EnableSound = false;
@@ -378,14 +393,14 @@ public class SteeringScript : MonoBehaviour {
 
 		MainInstance = this;
 		LevelPieceSuperClass.ClearCurrentSegment();
-		
+
 	}
 
 	void OnDisable() {
 		DisableInput();
 
 		InputSystem.PauseHaptics();
-			
+
 	}
 
 	private void OnDestroy() {
@@ -393,6 +408,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private bool touchingGround = true;
+	float airTimeTimer = 0f;
 
 	void FixedUpdate() {
 		float dt = Time.deltaTime;
@@ -401,7 +417,23 @@ public class SteeringScript : MonoBehaviour {
 		lowHzRumble = 0;
 		highHzRumble = 0;
 
+		bool wasTouchingGround = touchingGround;
 		touchingGround = CheckIfTouchingGround();
+
+		if (touchingGround) {
+			if (!wasTouchingGround) {
+				if (airTimeTimer > AirTimeTimeThreshold) {
+					// IDEA: make async call?
+					ScoreBoard boardOne = ScoreManager.Board(0);
+					if (boardOne != null) {
+						boardOne.AddSkill(ScoreSkill.AIRTIME, (int)(airTimeTimer * AirTimeScorePerSec));
+					}
+				}
+				airTimeTimer = 0f;
+			}
+		} else {
+			airTimeTimer += Time.deltaTime;
+		}
 
 		float sqrVelocity = rb.velocity.sqrMagnitude;
 
@@ -550,22 +582,36 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Drifting
 
+	float driftTimer = 0f;
+
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		if (drifting == false) {
 			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
 				SoundManager.PlaySound("drift_continuous");
 		}
-		drifting = true; 
-		effects?.StartDrift(); 
+
+		driftTimer += Time.deltaTime;
+
+		drifting = true;
+		effects?.StartDrift();
 		SetDebugUIText(11, "True");
 	}
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		if (drifting == true) {
 			SoundManager.StopLooping("drift_continuous");
+
+			if (driftTimer > DriftTimeThreshold) {
+				// IDEA: make async call?
+				ScoreBoard boardOne = ScoreManager.Board(0);
+				if (boardOne != null) {
+					boardOne.AddSkill(ScoreSkill.DRIFT, (int)(DriftScorePerSec * driftTimer));
+				}
+			}
+			driftTimer = 0f;
 		}
-		drifting = false; 
-		effects?.StopDrift(); 
+		drifting = false;
+		effects?.StopDrift();
 		SetDebugUIText(11, "False");
 	}
 
@@ -1001,6 +1047,8 @@ public class SteeringScript : MonoBehaviour {
 
 	#region Boost
 
+	float boostTimer = 0f;
+
 	private void Boost(float dt, float unscaledDt) {
 		if (!BoostNotEmpty) {
 			StopBoost();
@@ -1013,6 +1061,8 @@ public class SteeringScript : MonoBehaviour {
 
 		if (BoostWindupSkill != BoostSkill.None && boostWindupTimer < BoostWindup)
 			boostWindupTimer += Time.deltaTime;
+
+		boostTimer += Time.deltaTime;
 
 		if (IsInSloMo) {
 			Time.timeScale = BoostSloMoTimescale;
@@ -1056,10 +1106,19 @@ public class SteeringScript : MonoBehaviour {
 			//UnityEngine.Debug.Log("Boost sound start");
 		}
 		boosting = true;
-		
+
 	}
 
 	private void StopBoost() {
+
+		if (boostTimer > BoostTimeThreshold) {
+			// IDEA: make async call?
+			ScoreBoard boardOne = ScoreManager.Board(0);
+			if (boardOne != null) {
+				boardOne.AddSkill(ScoreSkill.BOOST, (int)(BoostScorePerSec * boostTimer));
+			}
+		}
+		boostTimer = 0f;
 
 		boostWindupTimer = 0f;
 		Time.timeScale = 1f;
