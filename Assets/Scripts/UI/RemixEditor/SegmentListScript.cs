@@ -26,6 +26,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		listContent = GetComponent<ScrollRect>().content.gameObject;
 		scrollMaster = GetComponent<ScrollToSelected>();
 		group = GetComponent<ToggleGroup>();
+		TimerScript.Instance.ResetTimer();
 	}
 	void Start() {
 		if (listItems.Count < 1) CreateSegmentList();
@@ -33,6 +34,10 @@ public class SegmentListScript : SegmentEditorSuperClass {
 	}
 	void OnEnable() {
 		Init();
+	}
+
+	private void OnDisable() {
+		DeleteSegmentList();
 	}
 
 	// bool hasBeenInit = false;

@@ -22,7 +22,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 
 	private void Awake() {
 		foreach (var item in objects) {
-			if (UseEnabledAsDefault && item.Value.activeInHierarchy)
+			if (UseEnabledAsDefault && (item?.Value.activeInHierarchy ?? false))
 				DefaultObject = item.Key;
 			
 			item.Value.SetActive(false);

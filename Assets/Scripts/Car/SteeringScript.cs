@@ -375,8 +375,11 @@ public class SteeringScript : MonoBehaviour {
 	void Awake() {
 		rb = GetComponent<Rigidbody>();
 		carSound = GetComponent<CarSoundHandler>();
-		if (EnableSound) carSound.enabled = true;
-		else carSound.enabled = false;
+		
+		if (EnableSound)
+			carSound.enabled = true;
+		else
+			carSound.enabled = false;
 
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
@@ -599,7 +602,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StopDrift() { // NOTE: called every frame while not drifting, not just on drift status change
 		if (drifting == true) {
-			SoundManager.StopLooping("drift_continuous");
+			SoundManager.StopLooping("drift_continuous", false);
 
 			if (driftTimer > DriftTimeThreshold) {
 				// IDEA: make async call?
@@ -927,7 +930,7 @@ public class SteeringScript : MonoBehaviour {
 					SoundManager.PlaySound("dry_ice_brake");
 				}
 			} else {
-				SoundManager.StopLooping("dry_ice_brake");
+				SoundManager.StopLooping("dry_ice_brake", false);
 			}
 		}
 
@@ -1126,7 +1129,7 @@ public class SteeringScript : MonoBehaviour {
 		effects?.StopBoost();
 
 		if (EnableSound && boosting == true) {
-			SoundManager.StopLooping("boost_continuous");
+			SoundManager.StopLooping("boost_continuous", false);
 			SoundManager.PlaySound("boost_end");
 			//UnityEngine.Debug.Log("Boost sound end");
 		}
