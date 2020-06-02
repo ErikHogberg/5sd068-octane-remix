@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class PauseScript : MonoBehaviour {
 	private static PauseScript mainInstance;
@@ -34,6 +35,7 @@ public class PauseScript : MonoBehaviour {
 		HideOnPause?.SetActive(false);
 		ShowOnPause?.SetActive(true);
 		SteeringScript.FreezeCurrentCar();
+		EventSystem.current.SetSelectedGameObject(ShowOnPause.transform.GetChild(0).gameObject);
 	}
 
 	public void Resume() {

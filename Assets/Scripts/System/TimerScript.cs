@@ -8,6 +8,7 @@ public class TimerScript : MonoBehaviour {
 	public static TimerScript Instance => instance ?? (instance = Instantiate(Resources.Load<TimerScript>("Timer")));
 
 	private float timer = 0.0f;
+	private string timeTxt = "";
 	private bool running = false;
 
 	private GameObject timerUI;
@@ -15,9 +16,15 @@ public class TimerScript : MonoBehaviour {
 
 	public void StartTimer() { running = true; Debug.Log("Timer Started!"); }
 	public void StopTimer() { running = false; Debug.Log("Timer Stopped: " + timer.ToString("F2")); }
-	public void ResetTimer() { timer = 0.0f; }
+	public void ResetTimer() { timer = 0.0f; UnityEngine.Debug.Log("Timer Reset!"); }
+	public void AddTime(float penalty) { timer += penalty; }
 	public float TimeProgress => timer;
 	public TimeSpan TimeSpanProgress => System.TimeSpan.FromSeconds(timer);
+
+	private void Awake() {
+		Debug.LogWarning("Created new Timer!");
+		
+	}
 
 	public void DisplayTime() {
 		if (timerUI == null) {
@@ -34,6 +41,8 @@ public class TimerScript : MonoBehaviour {
 		}
 		timerUI.SetActive(false);
 	}
+	public float GetTimeNr() { return timer; }
+	public string GetTimeTxt() { return timeTxt; }
 
 
 	//To avoid jittery number updates on the UI
@@ -51,10 +60,13 @@ public class TimerScript : MonoBehaviour {
 					int milli = t.Milliseconds / 10;
 					timerText.text = TimeCalc(t.Hours) + ":" + TimeCalc(t.Minutes) + ":" +
 									 TimeCalc(t.Seconds) + ":" + TimeCalc(milli);
+					timeTxt = timerText.text;
 					updateCount = 0;
+				// Debug.LogWarning("has timer UI!");
 				}
 			}
-		}
+			
+		} 
 	}
 
 	private string TimeCalc(int nr) {

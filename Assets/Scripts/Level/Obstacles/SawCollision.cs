@@ -10,7 +10,7 @@ public class SawCollision : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter(Collider other) {
-		Debug.Log("Saw hit! " + other.transform.name);
+		//Debug.Log("Saw hit! " + other.transform.name);
 		TemperatureAndIntegrity handler = other.gameObject.GetComponent<TemperatureAndIntegrity>();
 		//To not break code if collider is attached to a child of the car object's child or lower
 		if (handler == null) {
