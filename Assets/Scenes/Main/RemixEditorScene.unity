@@ -1551,6 +1551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea96a3f2fd8dbcb44b9cd06df98636f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentScene: 
 --- !u!1 &209156448
 GameObject:
   m_ObjectHideFlags: 0
@@ -10595,7 +10596,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821705874}
-        m_MethodName: StartScene
+        m_MethodName: SwapCurrentScene
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10654,6 +10655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea96a3f2fd8dbcb44b9cd06df98636f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentScene: RemixEditorScene
 --- !u!1 &1858425611
 GameObject:
   m_ObjectHideFlags: 0

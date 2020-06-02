@@ -17091,6 +17091,12 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
+  DriftScorePerSec: 200
+  BoostScorePerSec: 200
+  BoostTimeThreshold: 0.1
+  AirTimeScorePerSec: 200
+  AirTimeTimeThreshold: 0.1
+  DestructionScore: 1000
   EnableSound: 1
   EnableCheatMitigation: 1
   OverrideGravity: 0
@@ -17555,12 +17561,12 @@ PrefabInstance:
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].time
-      value: 0.015822902
+      value: 0.15941192
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].value
-      value: 1
+      value: 0.9871807
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17570,17 +17576,17 @@ PrefabInstance:
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].inSlope
-      value: 81.683464
+      value: 6.425526
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outSlope
-      value: 81.683464
+      value: 6.425526
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outWeight
-      value: 0.38990036
+      value: 0.48254284
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17631,6 +17637,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Parameters.colorGradient.key0.g
       value: 0.44920307
+      objectReference: {fileID: 0}
+    - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
+        type: 3}
+      propertyPath: m_Time
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7351954533988268460, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17795,15 +17806,15 @@ PrefabInstance:
       objectReference: {fileID: 9072199693228831761}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa27d0fe783e4d54887e083dd5bde809, type: 3}
---- !u!1 &9072199691578938652 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8135559289499355436, guid: fa27d0fe783e4d54887e083dd5bde809,
-    type: 3}
-  m_PrefabInstance: {fileID: 937238676529060912}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9072199691578938653 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8135559289499355437, guid: fa27d0fe783e4d54887e083dd5bde809,
+    type: 3}
+  m_PrefabInstance: {fileID: 937238676529060912}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9072199691578938652 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8135559289499355436, guid: fa27d0fe783e4d54887e083dd5bde809,
     type: 3}
   m_PrefabInstance: {fileID: 937238676529060912}
   m_PrefabAsset: {fileID: 0}
@@ -17837,12 +17848,12 @@ PrefabInstance:
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].time
-      value: 0.015822902
+      value: 0.15941192
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[1].value
-      value: 1
+      value: 0.9871807
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17852,17 +17863,17 @@ PrefabInstance:
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].inSlope
-      value: 81.683464
+      value: 6.425526
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outSlope
-      value: 81.683464
+      value: 6.425526
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].outWeight
-      value: 0.38990036
+      value: 0.48254284
       objectReference: {fileID: 0}
     - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17913,6 +17924,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Parameters.colorGradient.key0.g
       value: 0.44920307
+      objectReference: {fileID: 0}
+    - target: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
+        type: 3}
+      propertyPath: m_Time
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7351954533988268460, guid: 367ba29c42a1809409e61eed11750080,
         type: 3}
@@ -17971,15 +17987,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 367ba29c42a1809409e61eed11750080, type: 3}
---- !u!96 &3834415917142882574 stripped
-TrailRenderer:
-  m_CorrespondingSourceObject: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
-    type: 3}
-  m_PrefabInstance: {fileID: 3339904122692557283}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5214845837452157007 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7351954533988268460, guid: 367ba29c42a1809409e61eed11750080,
+    type: 3}
+  m_PrefabInstance: {fileID: 3339904122692557283}
+  m_PrefabAsset: {fileID: 0}
+--- !u!96 &3834415917142882574 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 1976849255869210861, guid: 367ba29c42a1809409e61eed11750080,
     type: 3}
   m_PrefabInstance: {fileID: 3339904122692557283}
   m_PrefabAsset: {fileID: 0}
@@ -18052,15 +18068,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30907187cd553f9428addd22e3968523, type: 3}
---- !u!198 &3799380986705140509 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 312772313192508571, guid: 30907187cd553f9428addd22e3968523,
-    type: 3}
-  m_PrefabInstance: {fileID: 3525522609477547910}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6367422888790671976 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7543684698984887790, guid: 30907187cd553f9428addd22e3968523,
+    type: 3}
+  m_PrefabInstance: {fileID: 3525522609477547910}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &3799380986705140509 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 312772313192508571, guid: 30907187cd553f9428addd22e3968523,
     type: 3}
   m_PrefabInstance: {fileID: 3525522609477547910}
   m_PrefabAsset: {fileID: 0}
