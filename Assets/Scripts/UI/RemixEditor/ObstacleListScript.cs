@@ -103,12 +103,26 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 				else nextIndex = i + 1;
 
 				//Updating navigation bindings so up-down takes you to the previous/next active list item
-				string prevObstacle = currentListLayout[prevIndex];
-				string nextObstacle = currentListLayout[nextIndex];
+				string prevObstacleKey = currentListLayout[prevIndex];
+				string nextObstacleKey = currentListLayout[nextIndex];
 
-				Toggle prevItem = obstacleList[prevObstacle].GetToggle();
-				Toggle nextItem = obstacleList[nextObstacle].GetToggle();
-				obstacleList[entry].SetUpDownNav(prevItem, nextItem);
+				if (obstacleList.TryGetValue(prevObstacleKey, out ObstacleListItem prevValue)
+				 && obstacleList.TryGetValue(nextObstacleKey, out ObstacleListItem nextValue)) {
+					Toggle prevItem = prevValue.GetToggle();
+					Toggle nextItem = nextValue.GetToggle();
+					obstacleList[entry].SetUpDownNav(prevItem, nextItem);
+					Debug.LogWarning("Found obstacles " + prevObstacleKey + " and " + nextObstacleKey);
+
+				} else {
+					Debug.LogWarning(
+						" missing obstacle " + prevObstacleKey + " or " + nextObstacleKey + " on segment \""
+						+ currentSegment.gameObject.name + "\""
+						+ " in " + currentSegment.transform.parent.parent.parent.gameObject.name
+						+ " in " + currentSegment.transform.parent.parent.parent.parent.gameObject.name
+					);
+					return;
+				}
+
 
 				//Updating navigation bindings so left-right always takes you to current segment list item
 				Toggle currentSegmentItem = SegmentListScript.ReadCurrentItem().GetToggle();
@@ -137,7 +151,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		//UnityEngine.Debug.Log(SegmentListScript.ReadCurrentItem().GetText().text + " ApplyObstacle: " + currentObstacleType);
 		currentSegment.Obstacles.UnhideObject(currentObstacleType);
 	}
-	
+
 	//Showing a specific obstacle without actually recording it, used to avoid problems with
 	//non-user initiated toggle-offs
 	public void DisplayObstacle(string p_name) {
