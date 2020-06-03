@@ -9,8 +9,9 @@ public class ChangeSceneUIScript : MonoBehaviour {
 
 	private void Awake() {
 		if (!SceneManager.GetSceneByName(CurrentScene).IsValid()) {
+			string oldCurrentScene = CurrentScene;
 			CurrentScene = SceneManager.GetActiveScene().name;
-			Debug.LogWarning("Current scene not found, using \"" + CurrentScene + "\" instead");
+			Debug.LogWarning("Current scene (" + oldCurrentScene + ") not found, using \"" + CurrentScene + "\" instead");
 		}
 		// if (DebugOutput) {
 		// 	Debug.Log("Current scene: " + currentScene);
