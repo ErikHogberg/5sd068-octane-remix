@@ -240,7 +240,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	private void ValueCheck() {
 		if (currIntegrity <= 0.0f) {
 			Debug.Log("Integrity reached 0!");
-			UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 2);
+			UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 5);
+			// TODO: time and/or score penalty
 			carControls.Reset();
 			Reset();
 		}

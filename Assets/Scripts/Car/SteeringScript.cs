@@ -271,6 +271,10 @@ public class SteeringScript : MonoBehaviour {
 	public bool EnableCheatMitigation = true;
 
 	[Space]
+	[Tooltip("How many physics/fixed update frames that should be skipped between UI updates")]
+	public int UIUpdateInterval = 3;
+
+	[Space]
 	public bool OverrideGravity = false;
 	public float GravityOverride = 1;
 
@@ -493,9 +497,8 @@ public class SteeringScript : MonoBehaviour {
 
 	//To avoid jittery number updates on the UI
 	int updateCount = 0;
-	int updateInterval = 5;
 	void LateUpdate() {
-		if (updateCount >= updateInterval) {
+		if (updateCount >= UIUpdateInterval) {
 			UpdateUI();
 			updateCount = 0;
 		}
