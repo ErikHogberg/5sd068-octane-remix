@@ -66,10 +66,9 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		}
 	}
 
-	[Tooltip("Override which segment was before this one, instead of assuming segment order - 1")]
+	[Tooltip("Override which segment was before this one, instead of assuming (segment order - 1)")]
 	public bool OverridePreviousSegment = false;
 	[Tooltip("Which segments were before this one, requires the override to be checked to be used")]
-	// public int PreviousSegment = 0;
 	public List<int> PreviousSegments;
 
 	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
@@ -156,7 +155,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 		return true;
 	}
 
-
 	// If a transition to this segment is allowed
 	public bool CheckValidProgression() {
 
@@ -198,7 +196,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter(Collider other) {
-		if (currentSegment == this)
+		if (!other.CompareTag("Player") || currentSegment == this)
 			return;
 
 		AttemptTransition();

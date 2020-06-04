@@ -31,7 +31,7 @@ public class BarUIScript : MonoBehaviour {
 	}
 
 	public void SetBarPercentage(float percentage) {
-		percentage = Mathf.Clamp(percentage, 0, 1);
+		percentage = Mathf.Clamp01(percentage);
 
 		if (barFill.sprite == null) {
 			Vector3 scale = transform.localScale;
