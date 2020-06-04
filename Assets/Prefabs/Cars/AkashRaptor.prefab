@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 7964355030742710617}
   m_Layer: 15
   m_Name: Surface Type Sensor Fin
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -697,8 +697,15 @@ MonoBehaviour:
   BoostRumbleAmount: 0.6
   DriftRumbleHiLoHzRatio: 0.5
   DriftRumbleAmount: 0.5
+  DriftScorePerSec: 200
+  BoostScorePerSec: 200
+  BoostTimeThreshold: 0.1
+  AirTimeScorePerSec: 200
+  AirTimeTimeThreshold: 0.1
+  DestructionScore: 1000
   EnableSound: 1
   EnableCheatMitigation: 1
+  UIUpdateInterval: 3
   OverrideGravity: 0
   GravityOverride: 1
   InAirStabilization: 0
@@ -721,8 +728,6 @@ MonoBehaviour:
   GasKeyBinding: {fileID: -4424982356503854189, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   BrakeKeyBinding: {fileID: -1684478879774106034, guid: a8607000f05afde459be885d75c1936b,
-    type: 3}
-  HandbrakeKeyBinding: {fileID: 175570406938261719, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
   BoostKeyBinding: {fileID: 3795760171445226172, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
