@@ -83,7 +83,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 		if (currentListLayout.Count > obstacleList.Count) {
 			for (int i = 0; i < currentListLayout.Count - obstacleList.Count; i++) {
-				AddNewListItem("asdf");
+				AddNewListItem("Error, please select next segment");
 			}
 		}
 

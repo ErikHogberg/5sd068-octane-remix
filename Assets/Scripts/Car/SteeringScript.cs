@@ -388,6 +388,7 @@ public class SteeringScript : MonoBehaviour {
 		InitInput();
 
 		effects = GetComponent<CarParticleHandlerScript>();
+		LevelPieceSuperClass.ClearCurrentSegment();
 
 	}
 
@@ -1158,6 +1159,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void Unfreeze() {
+		freezeNextFrame = false;
 		enabled = true;
 		// Time.timeScale = preFreezeTimescale;
 		Time.timeScale = 1.0f;
@@ -1178,6 +1180,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public static void UnfreezeCurrentCar() {
+		freezeNextFrame = false;
 		MainInstance?.Unfreeze();
 	}
 
