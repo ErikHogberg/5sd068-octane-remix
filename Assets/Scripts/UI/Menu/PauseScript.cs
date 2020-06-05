@@ -12,14 +12,14 @@ public class PauseScript : MonoBehaviour {
 
 	[Space]
 	public InputActionReference PauseKeyBinding;
-
+	public GameObject SelectOnPauseObject;
 
 	private bool paused = false;
 
 	private void Awake() {
 		mainInstance = this;
 		if (PauseKeyBinding != null) {
-			PauseKeyBinding.action.performed += _ => Toggle();
+			PauseKeyBinding.action.performed += _ => mainInstance?.Toggle();
 			PauseKeyBinding.action.Enable();
 		}
 		Resume();
@@ -35,7 +35,8 @@ public class PauseScript : MonoBehaviour {
 		HideOnPause?.SetActive(false);
 		ShowOnPause?.SetActive(true);
 		SteeringScript.FreezeCurrentCar();
-		EventSystem.current.SetSelectedGameObject(ShowOnPause.transform.GetChild(0).gameObject);
+		// EventSystem.current.SetSelectedGameObject(ShowOnPause.transform.GetChild(0).gameObject);
+		EventSystem.current.SetSelectedGameObject(SelectOnPauseObject);
 	}
 
 	public void Resume() {
