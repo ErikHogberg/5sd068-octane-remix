@@ -26,6 +26,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// TODO: list of instances for split screen multiplayer, indexed by player order
 	public static SteeringScript MainInstance;
+	private static bool freezeNextFrame = false;
 
 	#region Steering fields
 	[Header("Steering")]
@@ -415,6 +416,12 @@ public class SteeringScript : MonoBehaviour {
 	float airTimeTimer = 0f;
 
 	void FixedUpdate() {
+
+		if (freezeNextFrame) {
+			Freeze();
+			return;
+		}
+
 		float dt = Time.deltaTime;
 		float unscaledDt = Time.unscaledDeltaTime;
 
@@ -428,6 +435,8 @@ public class SteeringScript : MonoBehaviour {
 			if (!wasTouchingGround) {
 				if (airTimeTimer > AirTimeTimeThreshold) {
 					// IDEA: make async call?
+					// TODO: dont get score for falling after resetting
+					// TODO: dont get score for air time while falling off track, discard score on next ground touch if car was reset since last ground touch?
 					ScoreBoard boardOne = ScoreManager.Board(0);
 					if (boardOne != null) {
 						boardOne.AddSkill(ScoreSkill.AIRTIME, (int)(airTimeTimer * AirTimeScorePerSec));
@@ -1140,20 +1149,32 @@ public class SteeringScript : MonoBehaviour {
 
 	// private float preFreezeTimescale = 1f;
 	public void Freeze() {
+		freezeNextFrame = false;
 		enabled = false;
 		boostWindupTimer = 0;
 		// preFreezeTimescale = Time.timeScale;
 		Time.timeScale = 0f;
+		Debug.LogWarning("car frozen");
 	}
 
 	public void Unfreeze() {
 		enabled = true;
 		// Time.timeScale = preFreezeTimescale;
 		Time.timeScale = 1.0f;
+		Debug.LogWarning("car unfrozen");
 	}
 
 	public static void FreezeCurrentCar() {
-		MainInstance?.Freeze();
+		// FIXME: no main instance in build
+		if (MainInstance) {
+			MainInstance.Freeze();
+		} else {
+			freezeNextFrame = true;
+		}
+		// MainInstance?.Freeze();
+		// if(!MainInstance){
+		// 	Debug.LogError("Could not freeze car: no car instance");
+		// }
 	}
 
 	public static void UnfreezeCurrentCar() {

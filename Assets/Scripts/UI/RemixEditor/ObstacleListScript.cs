@@ -87,14 +87,30 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 			}
 		}
 
+		// FIXME: index out of range exception after adding list items, on first time iterating and setting item settings
+
 		for (int i = 0; i < obstacleList.Count; i++) {
 			if (i < currentListLayout.Count) {
 				obstacleList[i].gameObject.SetActive(true);
 				SetListItem(obstacleList[i], currentListLayout[i]);
+
+				Toggle currentSegmentItem = SegmentListScript.ReadCurrentItem().GetToggle();
+
+				int prevIndex = i - 1;
+				if (i == 0)
+					prevIndex = currentListLayout.Count - 1;
+
+				int nextIndex = i + 1;
+				if (i == currentListLayout.Count - 1)
+					nextIndex = 0;
+
+				obstacleList[i].SetUpDownNav(obstacleList[prevIndex].GetToggle(), obstacleList[nextIndex].GetToggle());
+				obstacleList[i].SetLeftRightNav(currentSegmentItem, currentSegmentItem);
 			} else {
 				obstacleList[i].gameObject.SetActive(false);
 			}
 		}
+
 
 		/*
 		if (obstacleList.Count < 1) {
