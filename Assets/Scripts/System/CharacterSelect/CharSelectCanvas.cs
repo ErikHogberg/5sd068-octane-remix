@@ -8,7 +8,7 @@ public class CharSelectCanvas : MonoBehaviour {
 	private static CharSelectCanvas instance;
 	public static CharSelectCanvas Instance => instance ?? (instance = Instantiate(Resources.Load<CharSelectCanvas>("CharSelectCanvas")));
 
-	private CharacterSelection charSelectReference = null;
+	// private CharacterSelection charSelectReference = null;
 
 	private TMP_Text carName;
 	private GameObject characterInfo;

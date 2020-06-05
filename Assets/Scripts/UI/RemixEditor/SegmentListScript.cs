@@ -49,8 +49,9 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 		// hasBeenInit = true;
 
-		if (listItems.Count < 1) CreateSegmentList();
-		else {
+		if (listItems.Count < 1) {
+			CreateSegmentList();
+		} else {
 			if (newListOnEnable) {
 				DeleteSegmentList();
 				CreateSegmentList();

@@ -15,6 +15,7 @@ public class MainMenuScript : MonoBehaviour
 	
 	public void StartBtnClick(string sceneName){
 		scenes.StartScene(sceneName);
+		// scenes.SwapCurrentScene(sceneName);
 	}
 
 	public void ExitBtnClick() {

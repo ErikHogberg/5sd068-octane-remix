@@ -14,9 +14,16 @@ public class SceneLoadBarScript : MonoBehaviour {
 	public BarUIScript unloadBar;
 
 	private void Awake() {
+		SetVisible(false);
+		if (mainInstance) {
+			// Destroy(gameObject);
+			return;
+		}
+
 		mainInstance = this;
 		// bar = GetComponent<BarUIScript>();
-		Hide();
+		// Hide();
+		// DontDestroyOnLoad(gameObject);
 	}
 
 	private void OnDestroy() {
@@ -25,24 +32,27 @@ public class SceneLoadBarScript : MonoBehaviour {
 		}
 	}
 
-	public static void SetVisible(bool visible) {
+	public void SetVisible(bool visible) {
+		if (ObjectToHide) {
+			ObjectToHide.SetActive(visible);
+		} else {
+			transform.parent.gameObject.SetActive(visible);
+		}
+	}
+
+	public static void SetVisibleStatic(bool visible) {
 		if (!mainInstance)
 			return;
 
-		if (mainInstance.ObjectToHide) {
-			mainInstance.ObjectToHide.SetActive(visible);
-		} else {
-			mainInstance.transform.parent.gameObject.SetActive(visible);
-		}
-
+		mainInstance.SetVisible(visible);
 	}
 
 	public static void Show() {
-		SetVisible(true);
+		SetVisibleStatic(true);
 	}
 
 	public static void Hide() {
-		SetVisible(false);
+		SetVisibleStatic(false);
 	}
 
 	public static void SetProgress(float loadProgress, float unloadProgress) {
@@ -50,6 +60,7 @@ public class SceneLoadBarScript : MonoBehaviour {
 			return;
 
 		Show();
+		// Debug.Log("setting bar to " + loadProgress + ", " + unloadProgress);
 		mainInstance.loadBar.SetBarPercentage(loadProgress);
 		mainInstance.unloadBar.SetBarPercentage(unloadProgress);
 	}

@@ -1088,10 +1088,11 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void Reset() {
-		CallResetObservers();
+		// CallResetObservers();
 		// StartCountdownScript.StartPenaltyCountdownStatic(1f);
 
-		if (!LevelPieceSuperClass.ResetToCurrentSegment() && LevelWorldScript.CurrentLevel != null) {
+		if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
+		) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 			rb.velocity = Vector3.zero;
@@ -1099,6 +1100,10 @@ public class SteeringScript : MonoBehaviour {
 
 			rb.MovePosition(resetSpot.position);
 			rb.MoveRotation(resetSpot.rotation);
+
+			CallResetObservers();
+			StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
+
 
 			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
 			//CarRBHandler.Instance.FreezeRB(2.0f);
