@@ -49,8 +49,9 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 		// hasBeenInit = true;
 
-		if (listItems.Count < 1) CreateSegmentList();
-		else {
+		if (listItems.Count < 1) {
+			CreateSegmentList();
+		} else {
 			if (newListOnEnable) {
 				DeleteSegmentList();
 				CreateSegmentList();
@@ -176,7 +177,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 					//Applying the new segment's recorded obstacle to the obstacle list
 					ObstacleListScript.SegmentSwapObstacleRestoration(currentItem.GetObstacle());
-					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject);
+					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject); // FIXME: segment not getting selected correctly
 					break;
 				}
 			}

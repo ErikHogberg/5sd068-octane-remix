@@ -20,7 +20,8 @@ public class ChangeSceneUIScript : MonoBehaviour {
 
 	public void StartScene(string sceneName) {
 		Time.timeScale = 1f;
-		SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+		// SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+		StartCoroutine(LoadScene(sceneName, false, LoadSceneMode.Single));
 	}
 
 	// AsyncOperation loadSceneProgress = null;
@@ -42,15 +43,15 @@ public class ChangeSceneUIScript : MonoBehaviour {
 
 		// var unloadProgress =
 		// var unloadSceneProgress = 
-		 SceneManager.UnloadSceneAsync(CurrentScene);
+		// SceneManager.UnloadSceneAsync(CurrentScene);
 		// StartCoroutine(UnloadScene(CurrentScene));
 
 		// unloadSceneProgress.allowSceneActivation = false;
 		// var loadProgress = 
 		// var loadSceneProgress = 
-		SceneManager.LoadSceneAsync(SceneToSwapTo, LoadSceneMode.Additive);
+		// SceneManager.LoadSceneAsync(SceneToSwapTo, LoadSceneMode.Additive);
 		// loadSceneProgress.allowSceneActivation = false;
-		// StartCoroutine(LoadScene(SceneToSwapTo));
+		StartCoroutine(LoadScene(SceneToSwapTo, true, LoadSceneMode.Additive));
 
 
 	}
@@ -63,30 +64,40 @@ public class ChangeSceneUIScript : MonoBehaviour {
 	// 	SceneLoadBarScript.SetProgress(loadSceneProgress.progress, unloadSceneProgress.progress);
 	// }
 
-	IEnumerator LoadScene(string sceneToLoad) {
+	IEnumerator LoadScene(string sceneToLoad, bool unloadCurrent, LoadSceneMode loadMode) {
 		yield return null;
 
-		//Begin to load the Scene you specify
-		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneToLoad, LoadSceneMode.Additive);
-		//Don't let the Scene activate until you allow it to
-		asyncOperation.allowSceneActivation = false;
-		// Debug.Log("Pro :" + asyncOperation.progress);
-		// SceneLoadBarScript.SetProgress(asyncOperation.progress, 0.5f);
+		SceneTransitionScript.MainInstance?.StartTransition();
 
-		//When the load is still in progress, output the Text and progress bar
-		while (!asyncOperation.isDone) {
-			//Output the current progress
-			// m_Text.text = "Loading progress: " + (asyncOperation.progress * 100) + "%";
-			SceneLoadBarScript.SetProgress(asyncOperation.progress, 0.5f);
+		AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneToLoad, loadMode);
+		AsyncOperation unloadOperation = null;
 
-			// Check if the load has finished
-			if (asyncOperation.progress >= 0.9f) {
-				//Change the Text to show the Scene is ready
-				// m_Text.text = "Press the space bar to continue";
-				//Wait to you press the space key to activate the Scene
-				// if (Input.GetKeyDown(KeyCode.Space))
-				//Activate the Scene
-				asyncOperation.allowSceneActivation = true;
+		loadOperation.allowSceneActivation = false;
+
+		float unloadProgress = 1.0f;
+		if (unloadCurrent) {
+			unloadOperation = SceneManager.UnloadSceneAsync(CurrentScene);
+			unloadOperation.allowSceneActivation = false;
+			unloadProgress = unloadOperation.progress;
+		}
+
+
+		SceneLoadBarScript.SetProgress(loadOperation.progress, unloadProgress);
+
+
+		while (!loadOperation.isDone || (!unloadOperation?.isDone ?? false)) {
+			if (unloadCurrent) {
+				unloadProgress = unloadOperation.progress;
+			}
+			SceneLoadBarScript.SetProgress(loadOperation.progress, unloadProgress);
+
+			if (SceneTransitionScript.MainInstance?.Running ?? true) {
+				if (loadOperation.progress >= 0.9f && !loadOperation.allowSceneActivation) {
+					loadOperation.allowSceneActivation = true;
+				}
+				if (unloadCurrent && unloadOperation.progress >= 0.9f && !unloadOperation.allowSceneActivation) {
+					unloadOperation.allowSceneActivation = true;
+				}
 			}
 
 			yield return null;

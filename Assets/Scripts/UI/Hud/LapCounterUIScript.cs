@@ -19,7 +19,7 @@ public class LapCounterUIScript : MonoBehaviour, IObserver<int> {
 			SteeringScript.MainInstance.LapCompletedObservers.Add(mainInstance);
 	}
 
-	bool init = false;
+	// bool init = false;
 	private void Start() {
 		// SteeringScript.MainInstance.LapCompletedObservers.Add(this);
 		// Debug.LogWarning("lap steering: " + SteeringScript.MainInstance.gameObject.name);

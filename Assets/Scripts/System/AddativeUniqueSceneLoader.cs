@@ -7,8 +7,14 @@ public class AddativeUniqueSceneLoader : MonoBehaviour {
 	private static AddativeUniqueSceneLoader mainInstance;
 
 	public string SceneToAdd;
+	public bool IsSingletonInstance = true;
 
 	private void Awake() {
+		if (!IsSingletonInstance) {
+			SceneManager.LoadScene(SceneToAdd, LoadSceneMode.Additive);
+			return;
+		}
+
 		if (mainInstance) {
 			Destroy(gameObject);
 			return;
@@ -20,7 +26,7 @@ public class AddativeUniqueSceneLoader : MonoBehaviour {
 	}
 
 	private void OnDestroy() {
-		if (mainInstance == this) {
+		if (IsSingletonInstance && mainInstance == this) {
 			mainInstance = null;
 		}
 	}
