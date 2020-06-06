@@ -52,8 +52,8 @@ public class StartCountdownScript : MonoBehaviour {
 	}
 
 	// private void OnDisable() {
-		// Debug.Log("gas action disabled");
-		// GasBinding.action.Disable();
+	// Debug.Log("gas action disabled");
+	// GasBinding.action.Disable();
 	// }
 
 	private void OnDestroy() {
@@ -111,7 +111,8 @@ public class StartCountdownScript : MonoBehaviour {
 			StartButton?.gameObject.SetActive(false);
 
 			gameObject.SetActive(false);
-			SteeringScript.UnfreezeCurrentCar();
+			if (!PauseScript.IsPaused)
+				SteeringScript.UnfreezeCurrentCar();
 		}
 
 	}

@@ -683,8 +683,14 @@ public class SteeringScript : MonoBehaviour {
 
 	private bool leftStickRotationEnabled = false;
 
-
+	// TODO: check if list of input action callback just keeps growing
+	// private static bool inputInit = false;
 	private void InitInput() {
+		// if (inputInit) 
+		// 	return;
+		
+		// inputInit = true;
+
 		// adds press actions
 		SteeringKeyBinding.action.performed += SetSteering;
 		GasKeyBinding.action.performed += SetGas;
