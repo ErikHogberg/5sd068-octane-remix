@@ -1155,7 +1155,7 @@ public class SteeringScript : MonoBehaviour {
 		boostWindupTimer = 0;
 		// preFreezeTimescale = Time.timeScale;
 		Time.timeScale = 0f;
-		Debug.LogWarning("car frozen");
+		// Debug.LogWarning("car frozen");
 	}
 
 	public void Unfreeze() {
@@ -1163,7 +1163,7 @@ public class SteeringScript : MonoBehaviour {
 		enabled = true;
 		// Time.timeScale = preFreezeTimescale;
 		Time.timeScale = 1.0f;
-		Debug.LogWarning("car unfrozen");
+		// Debug.LogWarning("car unfrozen");
 	}
 
 	public static void FreezeCurrentCar() {
