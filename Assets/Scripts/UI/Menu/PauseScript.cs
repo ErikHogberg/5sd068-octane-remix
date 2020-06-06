@@ -15,19 +15,27 @@ public class PauseScript : MonoBehaviour {
 	public GameObject SelectOnPauseObject;
 
 	private bool paused = false;
+	public static bool IsPaused => mainInstance?.paused ?? false;
 
+	private static bool inputInit = false;
 	private void Awake() {
 		mainInstance = this;
-		if (PauseKeyBinding != null) {
-			PauseKeyBinding.action.performed += _ => mainInstance?.Toggle();
+		if (PauseKeyBinding != null && !inputInit) {
+			PauseKeyBinding.action.performed += _ => {
+				if (!mainInstance) {
+					Debug.LogError("cant pause: no instance");
+				}
+				mainInstance?.Toggle();
+			};
 			PauseKeyBinding.action.Enable();
+			inputInit = true;
 		}
 		Resume();
 	}
 
 	private void OnDestroy() {
 		mainInstance = null;
-		PauseKeyBinding?.action.Disable();
+		// PauseKeyBinding?.action.Disable();
 	}
 
 	public void Pause() {
