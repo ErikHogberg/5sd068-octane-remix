@@ -107,8 +107,8 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("Whether or not the force direction should be relative to the car orientation instead of world.")]
 	public bool UseRelativeDownwardForce = true;
 
-	[Header("In-air controls")]
 
+	[Header("In-air controls")]
 	public bool LeftStickRotationWhenInAir = false;
 
 	public float YawSpeed = 200f;
@@ -684,11 +684,12 @@ public class SteeringScript : MonoBehaviour {
 	private bool leftStickRotationEnabled = false;
 
 	// TODO: check if list of input action callback just keeps growing
+	// FIXME: error when leaving scene, delegates are still called
 	// private static bool inputInit = false;
 	private void InitInput() {
 		// if (inputInit) 
 		// 	return;
-		
+
 		// inputInit = true;
 
 		// adds press actions
@@ -814,27 +815,24 @@ public class SteeringScript : MonoBehaviour {
 
 		switch (Mode) {
 			case TractionMode.FrontTraction:
-				gasAmount /= FrontWheelColliders.Count;
+				// gasAmount /= FrontWheelColliders.Count;
 
 				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
 					frontWheelCollider.motorTorque = gasAmount;
 
 				break;
 			case TractionMode.RearTraction:
-				gasAmount /= RearWheelColliders.Count;
+				// gasAmount /= RearWheelColliders.Count;
 
 				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
 					rearWheelCollider.motorTorque = GasSpeed * gasBuffer;
 
 				break;
 			case TractionMode.FourWheelTraction:
-				gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
+				// gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
 
-				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
-					rearWheelCollider.motorTorque = GasSpeed * gasBuffer;
-
-				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
-					frontWheelCollider.motorTorque = GasSpeed * gasBuffer;
+				foreach (WheelCollider wheelCollider in allWheelColliders)
+					wheelCollider.motorTorque = GasSpeed * gasBuffer;
 
 				break;
 		}
@@ -844,6 +842,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void SetGas(CallbackContext c) {
+		// Debug.Log("gas car: " + gameObject.name);
 		float input = c.ReadValue<float>();
 		gasBuffer = GasPedalCurve.EvaluateMirrored(input);
 

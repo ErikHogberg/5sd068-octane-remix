@@ -10,21 +10,35 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public bool UseEnabledAsDefault = false;
 
 	[Serializable]
-	public class ObjectIndex {
+	public class ObjectEntry {
 		public string Key;
 		public GameObject Value;
 	}
 
-	public List<ObjectIndex> objects;
+	public List<ObjectEntry> objects;
 
 	[HideInInspector]
-	public ObjectIndex ShownObject = null;
+	public ObjectEntry ShownObject = null;
+	public int ShownIndex {
+		get {
+			if (ShownObject == null)
+				return -1;
+
+			for (int i = 0; i < objects.Count; i++) {
+				if (objects[i] == ShownObject) {
+					return i;
+				}
+			}
+
+			return -1; // should be error
+		}
+	}
 
 	private void Awake() {
 		foreach (var item in objects) {
 			if (UseEnabledAsDefault && (item?.Value.activeInHierarchy ?? false))
 				DefaultObject = item.Key;
-			
+
 			item.Value.SetActive(false);
 		}
 
