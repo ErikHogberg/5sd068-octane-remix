@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -265,84 +267,65 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	}
 
 	// creates a base 64 number (in a string) representing the current obstacle choices of all segments
-	public static string GetBase64Remix() {
-		// string intString = "";
-
-		// long obstacleChoices = 0;
-
+	public static string GetBase64Remix(bool printDebug = false) {
 		int obstaclesPerIndex = 2;
 		int indices = Segments.Count / obstaclesPerIndex + 1;
-		// int maxObstacleChoices = 8; // including none
 		byte[] obstacleChoices = new byte[indices];
 
 		for (int i = 0; i < Segments.Count; i++) {
 
 			int currentIndex = i / obstaclesPerIndex;
-
 			int subindex = i % obstaclesPerIndex;
-
 			int obstacleIndex = Segments[i].Obstacles.ShownIndex + 1;
+
 			int value = obstacleIndex & 0b_0000_1111;
 			if (subindex == 1) {
 				value = (value << 4) & 0b_1111_0000;
 			}
-			byte old = obstacleChoices[currentIndex];
+
+			// byte old = obstacleChoices[currentIndex];
 			obstacleChoices[currentIndex] = (byte)(obstacleChoices[currentIndex] | value);
 
-			// System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
-			// nfi.NumberDecimalDigits = 8;
-			// nfi
+			if (printDebug) {
+				Debug.Log("index " + i + " (" + currentIndex + ", " + subindex + "): added " +
+					value
+					// Convert.ToString(value, 2)
+					
+					// + " to " +
+					// old
+					// Convert.ToString(old, 2)
 
-			// Debug.Log("index " + i + ", " + subindex + ": added " + Convert.ToString(value, 2) + " to " + Convert.ToString(old, 2) + " resulting in " + Convert.ToString(obstacleChoices[currentIndex], 2));
-			Debug.Log("index " + i + " (" + currentIndex + ", " + subindex + "): added " +
-				value
-				// Convert.ToString(value, 2)
-				+ " to " +
-				old
-				// Convert.ToString(old, 2)
-				+ " resulting in " +
-				obstacleChoices[currentIndex]
-			// Convert.ToString(obstacleChoices[currentIndex], 2)
-			);
-
-			// byte chosenObstacle = (byte)(10*(i%25) + obstacleIndex); // 0 = no obstacle
-
-			// long pow = 1;
-			// for (int j = 0; j < byte.MaxValue / maxObstacleChoices; j++) {
-			// 	pow *= maxObstacleChoices;
-			// }
-
-			// i/25;
-
-			// Debug.Log("adding " + chosenObstacle + " with pow " + pow);
-			// Debug.Log("adding " + chosenObstacle + " to slot " + index);
-			// obstacleChoices += chosenObstacle * pow;
-
-			// obstacleChoices[index] += chosenObstacle;
+					+ " resulting in " +
+					obstacleChoices[currentIndex]
+				// Convert.ToString(obstacleChoices[currentIndex], 2)
+				);
+			}
 		}
 
-		// foreach (var item in Segments) {
-		// 	// NOTE: assumes single-digit entries, max 9 available obstacle choices
-		// 	int chosenObstacle = item.Obstacles.ShownIndex + 1; // 0 = no obstacle
-		// intString += chosenObstacle.ToString("D");
-		// }
-
-		// string outString = Convert.ToString(obstacleChoices, 64);
-
-		// return   outString.ToString();
 		string outString = System.Convert.ToBase64String(obstacleChoices);
-		Debug.Log("pre compress: " + obstacleChoices.ToString() + ",\npost compress: " + outString);
 
-		// return obstacleChoices.ToString();
+		if (printDebug) {
+			Debug.Log(
+
+				"pre convert: " + BitConverter.ToString(obstacleChoices) +
+				",\npost convert: " + outString
+			);
+
+			byte[] undoString = System.Convert.FromBase64String(outString);
+
+			Debug.Log(
+				"convert back: " + BitConverter.ToString(undoString)
+			);
+		}
+
 		return outString;
-
 	}
 
 	// loads obstacles choices from a base 64 number in a string, returns true if the string is valid and the process completed successfully
 	public static bool LoadRemixFromBase64(string remixBase64String) {
 		// string outString = "";
 
-		return true;
+		return false;
 	}
 
 }
