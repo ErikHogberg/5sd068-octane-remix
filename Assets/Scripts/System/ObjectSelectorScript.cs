@@ -16,6 +16,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 	}
 
 	public List<ObjectEntry> objects;
+	public int Count => objects.Count;
 
 	[HideInInspector]
 	public ObjectEntry ShownObject = null;

@@ -290,7 +290,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 				Debug.Log("index " + i + " (" + currentIndex + ", " + subindex + "): added " +
 					value
 					// Convert.ToString(value, 2)
-					
+
 					// + " to " +
 					// old
 					// Convert.ToString(old, 2)
@@ -325,7 +325,60 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public static bool LoadRemixFromBase64(string remixBase64String) {
 		// string outString = "";
 
-		return false;
+		// FIXME: sometimes invalid base64 string
+		byte[] obstacleBytes = System.Convert.FromBase64String(remixBase64String);
+
+		// TODO: validate input
+		if (obstacleBytes.Length * 2 < Segments.Count) {
+			return false;
+		}
+
+		for (int i = 0; i < obstacleBytes.Length; i++) {
+			int firstSegmentIndex = i * 2;
+			int secondSegmentIndex = firstSegmentIndex + 1;
+
+			if (firstSegmentIndex < Segments.Count) {
+				int obstacleIndex = obstacleBytes[i] & 0b_0000_1111;
+				
+				if (obstacleIndex > Segments[firstSegmentIndex].Obstacles.Count) {
+					return false;
+				}
+				
+				Debug.Log("[first] segment " + firstSegmentIndex + ": unhid obstacle " + obstacleIndex);
+				
+				if (obstacleIndex > 0) {
+					Segments[firstSegmentIndex].Obstacles.UnhideObject(obstacleIndex - 1);
+				} else {
+					Segments[firstSegmentIndex].Obstacles.UnhideObject();
+				}
+			} else {
+				break;
+			}
+
+			if (secondSegmentIndex < Segments.Count) {
+				int obstacleIndex = obstacleBytes[i] >> 4;
+				
+				if (obstacleIndex > Segments[secondSegmentIndex].Obstacles.Count) {
+					return false;
+				}
+
+				Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + obstacleIndex);
+				
+				if (obstacleIndex > 0) {
+					Segments[firstSegmentIndex].Obstacles.UnhideObject(obstacleIndex - 1);
+				} else {
+					Segments[firstSegmentIndex].Obstacles.UnhideObject();
+				}
+			} else {
+				break;
+			}
+
+		}
+
+		// TODO: update remix editor obstacle list
+		SegmentEditorSuperClass.UpdateAllUI();
+
+		return true;
 	}
 
 }

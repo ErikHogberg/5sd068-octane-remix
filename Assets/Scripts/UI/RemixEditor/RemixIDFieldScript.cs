@@ -8,6 +8,7 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 	public TMP_InputField TextField;
 	public GameObject ErrorPopup;
 	public GameObject ClipboardPopup;
+	// TODO: successful load popup
 
 	[Space]
 	public bool GetIDOnSelect = false;
