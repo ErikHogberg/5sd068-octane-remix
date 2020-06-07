@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ObjectSelectorScript))]
-public abstract class LevelPieceSuperClass : MonoBehaviour {
+public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass> {
 
 	private const int allowedSegmentSkip = 0;
 
@@ -101,6 +102,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	private void Awake() {
 		Segments.Add(this);
+		Segments.Sort();
 
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
@@ -241,6 +243,106 @@ public abstract class LevelPieceSuperClass : MonoBehaviour {
 
 	public static void ClearCurrentSegment() {
 		currentSegment = null;
+	}
+
+	public int CompareTo(LevelPieceSuperClass other) {
+		// Compare using distance from origin
+		/*
+		float originDistance = transform.position.sqrMagnitude;
+		float otherOriginDistance = other.transform.position.sqrMagnitude;
+		float diff = originDistance - otherOriginDistance;
+		if (diff > 0) {
+			return 1;
+		} else if (diff < 0) {
+			return -1;
+		} else {
+			return 0;
+		}
+		// */
+
+		// Compare using segment order
+		return SegmentOrder - other.SegmentOrder;
+	}
+
+	// creates a base 64 number (in a string) representing the current obstacle choices of all segments
+	public static string GetBase64Remix() {
+		// string intString = "";
+
+		// long obstacleChoices = 0;
+
+		int obstaclesPerIndex = 2;
+		int indices = Segments.Count / obstaclesPerIndex + 1;
+		// int maxObstacleChoices = 8; // including none
+		byte[] obstacleChoices = new byte[indices];
+
+		for (int i = 0; i < Segments.Count; i++) {
+
+			int currentIndex = i / obstaclesPerIndex;
+
+			int subindex = i % obstaclesPerIndex;
+
+			int obstacleIndex = Segments[i].Obstacles.ShownIndex + 1;
+			int value = obstacleIndex & 0b_0000_1111;
+			if (subindex == 1) {
+				value = (value << 4) & 0b_1111_0000;
+			}
+			byte old = obstacleChoices[currentIndex];
+			obstacleChoices[currentIndex] = (byte)(obstacleChoices[currentIndex] | value);
+
+			// System.Globalization.NumberFormatInfo nfi = new System.Globalization.NumberFormatInfo();
+			// nfi.NumberDecimalDigits = 8;
+			// nfi
+
+			// Debug.Log("index " + i + ", " + subindex + ": added " + Convert.ToString(value, 2) + " to " + Convert.ToString(old, 2) + " resulting in " + Convert.ToString(obstacleChoices[currentIndex], 2));
+			Debug.Log("index " + i + " (" + currentIndex + ", " + subindex + "): added " +
+				value
+				// Convert.ToString(value, 2)
+				+ " to " +
+				old
+				// Convert.ToString(old, 2)
+				+ " resulting in " +
+				obstacleChoices[currentIndex]
+			// Convert.ToString(obstacleChoices[currentIndex], 2)
+			);
+
+			// byte chosenObstacle = (byte)(10*(i%25) + obstacleIndex); // 0 = no obstacle
+
+			// long pow = 1;
+			// for (int j = 0; j < byte.MaxValue / maxObstacleChoices; j++) {
+			// 	pow *= maxObstacleChoices;
+			// }
+
+			// i/25;
+
+			// Debug.Log("adding " + chosenObstacle + " with pow " + pow);
+			// Debug.Log("adding " + chosenObstacle + " to slot " + index);
+			// obstacleChoices += chosenObstacle * pow;
+
+			// obstacleChoices[index] += chosenObstacle;
+		}
+
+		// foreach (var item in Segments) {
+		// 	// NOTE: assumes single-digit entries, max 9 available obstacle choices
+		// 	int chosenObstacle = item.Obstacles.ShownIndex + 1; // 0 = no obstacle
+		// intString += chosenObstacle.ToString("D");
+		// }
+
+		// string outString = Convert.ToString(obstacleChoices, 64);
+
+		// return   outString.ToString();
+		string outString = System.Convert.ToBase64String(obstacleChoices);
+		Debug.Log("pre compress: " + obstacleChoices.ToString() + ",\npost compress: " + outString);
+
+		// return obstacleChoices.ToString();
+		return outString;
+
+	}
+
+	// loads obstacles choices from a base 64 number in a string, returns true if the string is valid and the process completed successfully
+	public static bool LoadRemixFromBase64(string remixBase64String) {
+		// string outString = "";
+
+		return true;
 	}
 
 }
