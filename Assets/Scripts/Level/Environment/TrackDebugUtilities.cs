@@ -5,7 +5,7 @@ using UnityEngine;
 public class TrackDebugUtilities : MonoBehaviour {
 	public void PrintRemixBase64() {
 		Debug.Log("hash: " +
-			LevelPieceSuperClass.GetBase64Remix(true)
+			LevelPieceSuperClass.GetRemixString(true)
 		);
 	}
 }

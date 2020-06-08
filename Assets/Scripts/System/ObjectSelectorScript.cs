@@ -16,6 +16,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 	}
 
 	public List<ObjectEntry> objects;
+	public int Count => objects.Count;
 
 	[HideInInspector]
 	public ObjectEntry ShownObject = null;
@@ -49,6 +50,9 @@ public class ObjectSelectorScript : MonoBehaviour {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
 
+		if (index < 0)
+			return;
+
 		if (index < objects.Count) {
 			ShownObject = objects[index];
 			ShownObject.Value.SetActive(true);
@@ -59,6 +63,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
 
+		ShownObject = null;
 		if (key == "" || key == "None")
 			return;
 
@@ -73,7 +78,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 
 	public void UnhideObject() {
 		UnhideObject("");
-		ShownObject = null;
+		// ShownObject = null;
 	}
 
 }
