@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -267,7 +269,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	}
 
 	// creates a base 64 number (in a string) representing the current obstacle choices of all segments
-	public static string GetBase64Remix(bool printDebug = false) {
+	public static string GetRemixString(bool printDebug = false) {
 		int obstaclesPerIndex = 2;
 		int indices = Segments.Count / obstaclesPerIndex + 1;
 		byte[] obstacleChoices = new byte[indices];
@@ -278,6 +280,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			int subindex = i % obstaclesPerIndex;
 			int obstacleIndex = Segments[i].Obstacles.ShownIndex + 1;
 
+			// FIXME: no obstacle choice is not recorded
 			int value = obstacleIndex & 0b_0000_1111;
 			if (subindex == 1) {
 				value = (value << 4) & 0b_1111_0000;
@@ -303,8 +306,28 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		}
 
 		string outString = System.Convert.ToBase64String(obstacleChoices);
-
+		// string outString = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
+		
 		if (printDebug) {
+			string outString2 = BitConverter.ToString(obstacleChoices);
+			string outString3 = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
+			string outString4 = Encoding.ASCII.GetString(obstacleChoices, 0, obstacleChoices.Length);
+			string outString5 = Encoding.Unicode.GetString(obstacleChoices, 0, obstacleChoices.Length);
+			string outString6 = Encoding.BigEndianUnicode.GetString(obstacleChoices, 0, obstacleChoices.Length);
+			string outString7 = Encoding.Default.GetString(obstacleChoices, 0, obstacleChoices.Length);
+			string outString8 = Encoding.UTF32.GetString(obstacleChoices, 0, obstacleChoices.Length);
+
+			Debug.Log("print string types:");
+			Debug.Log("base64: " + outString);
+			Debug.Log("bitconverter: " + outString2);
+			Debug.Log("utf8: " + outString3);
+			Debug.Log("ascii: " + outString4);
+			Debug.Log("unicode: " + outString5);
+			Debug.Log("big endian unicode: " + outString6);
+			Debug.Log("default: " + outString7);
+			Debug.Log("utf32: " + outString8);
+			Debug.Log("utf7: " + Encoding.UTF7.GetString(obstacleChoices, 0, obstacleChoices.Length));
+
 			Debug.Log(
 
 				"pre convert: " + BitConverter.ToString(obstacleChoices) +
@@ -312,6 +335,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			);
 
 			byte[] undoString = System.Convert.FromBase64String(outString);
+			// byte[] undoString = Encoding.UTF8.GetBytes(outString);
 
 			Debug.Log(
 				"convert back: " + BitConverter.ToString(undoString)
@@ -322,16 +346,30 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	}
 
 	// loads obstacles choices from a base 64 number in a string, returns true if the string is valid and the process completed successfully
-	public static bool LoadRemixFromBase64(string remixBase64String) {
+	public static bool LoadRemixFromString(string remixBase64String) {
 		// string outString = "";
 
-		// FIXME: sometimes invalid base64 string
+		// remixBase64String.
+		Debug.Log("loading id \"" + remixBase64String + "\"");
+
+		// src for base 64 string validation: https://stackoverflow.com/questions/6309379/how-to-check-for-a-valid-base64-encoded-string
+		remixBase64String = remixBase64String.Trim();
+		bool valid = (remixBase64String.Length % 4 == 0) && Regex.IsMatch(remixBase64String, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+
+		if (!valid) {
+			Debug.LogWarning("invalid input string: not base 64 string");
+			return false;
+		}
+
 		byte[] obstacleBytes = System.Convert.FromBase64String(remixBase64String);
 
-		// TODO: validate input
 		if (obstacleBytes.Length * 2 < Segments.Count) {
 			return false;
 		}
+
+		// TODO: validate input more
+
+		// FIXME: new obstacles not applied, old ones applied instead (how??)
 
 		for (int i = 0; i < obstacleBytes.Length; i++) {
 			int firstSegmentIndex = i * 2;
@@ -339,17 +377,31 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 			if (firstSegmentIndex < Segments.Count) {
 				int obstacleIndex = obstacleBytes[i] & 0b_0000_1111;
-				
-				if (obstacleIndex > Segments[firstSegmentIndex].Obstacles.Count) {
+				ObjectSelectorScript obstacles = Segments[firstSegmentIndex].Obstacles;
+
+				if (obstacleIndex > obstacles.Count) {
 					return false;
 				}
-				
-				Debug.Log("[first] segment " + firstSegmentIndex + ": unhid obstacle " + obstacleIndex);
-				
+
+				int prevObject = obstacles.ShownIndex;
+				string unhidObstacle = "none";
 				if (obstacleIndex > 0) {
-					Segments[firstSegmentIndex].Obstacles.UnhideObject(obstacleIndex - 1);
+					unhidObstacle = obstacles.objects[obstacleIndex - 1].Key;
+				}
+
+				if (prevObject != obstacleIndex - 1) {
+					Debug.Log("[first] segment " + (firstSegmentIndex + 1)
+						+ ": unhid obstacle " + (obstacleIndex - 1)
+						+ " (" + unhidObstacle + "), prev: "
+						+ prevObject
+						+ " (" + (obstacles.ShownObject?.Key ?? "none") + ")"
+					);
+				}
+
+				if (obstacleIndex > 0) {
+					obstacles.UnhideObject(obstacleIndex - 1);
 				} else {
-					Segments[firstSegmentIndex].Obstacles.UnhideObject();
+					obstacles.UnhideObject();
 				}
 			} else {
 				break;
@@ -357,17 +409,33 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 			if (secondSegmentIndex < Segments.Count) {
 				int obstacleIndex = obstacleBytes[i] >> 4;
-				
-				if (obstacleIndex > Segments[secondSegmentIndex].Obstacles.Count) {
+				ObjectSelectorScript obstacles = Segments[secondSegmentIndex].Obstacles;
+
+				if (obstacleIndex > obstacles.Count) {
 					return false;
 				}
 
-				Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + obstacleIndex);
-				
+				int prevObject = obstacles.ShownIndex;
+				if (prevObject != obstacleIndex - 1) {
+					// Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + obstacleIndex);
+					// Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + (obstacleIndex - 1) + ", prev: " + prevObject);
+
+					string unhidObstacle = "none";
+					if (obstacleIndex > 0) {
+						unhidObstacle = obstacles.objects[obstacleIndex - 1].Key;
+					}
+					Debug.Log("[second] segment " + (secondSegmentIndex + 1)
+						+ ": unhid obstacle " + (obstacleIndex - 1)
+						+ " (" + unhidObstacle + "), prev: "
+						+ prevObject
+						+ " (" + (obstacles.ShownObject?.Key ?? "none") + ")"
+					);
+				}
+
 				if (obstacleIndex > 0) {
-					Segments[firstSegmentIndex].Obstacles.UnhideObject(obstacleIndex - 1);
+					obstacles.UnhideObject(obstacleIndex - 1);
 				} else {
-					Segments[firstSegmentIndex].Obstacles.UnhideObject();
+					obstacles.UnhideObject();
 				}
 			} else {
 				break;

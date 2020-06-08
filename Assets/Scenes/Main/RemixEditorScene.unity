@@ -1290,7 +1290,7 @@ MonoBehaviour:
   m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 18
-  m_CharacterLimit: 35
+  m_CharacterLimit: 40
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -3307,12 +3307,12 @@ GameObject:
   - component: {fileID: 367015031}
   - component: {fileID: 367015030}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Test button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &367015029
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3320,17 +3320,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 367015028}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1865944924}
-  m_Father: {fileID: 2036660545}
-  m_RootOrder: 6
+  m_Father: {fileID: 7600803974698530148}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -54.8}
+  m_AnchoredPosition: {x: 0.000061035, y: -197.5}
   m_SizeDelta: {x: 160, y: 139.57092}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &367015030
@@ -13193,7 +13193,6 @@ RectTransform:
   - {fileID: 312947857}
   - {fileID: 121458041}
   - {fileID: 1821705870}
-  - {fileID: 367015029}
   - {fileID: 7600803974698530148}
   m_Father: {fileID: 0}
   m_RootOrder: 6
@@ -15378,8 +15377,9 @@ RectTransform:
   - {fileID: 1814828207}
   - {fileID: 152578513}
   - {fileID: 284582595}
+  - {fileID: 367015029}
   m_Father: {fileID: 2036660545}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -15449,7 +15449,9 @@ MonoBehaviour:
   TextField: {fileID: 152578514}
   ErrorPopup: {fileID: 8342666773965005546}
   ClipboardPopup: {fileID: 981040082}
+  CopyToClipboardOnGetID: 1
   GetIDOnSelect: 0
+  PrintDebug: 0
 --- !u!114 &7813188020233374755
 MonoBehaviour:
   m_ObjectHideFlags: 0

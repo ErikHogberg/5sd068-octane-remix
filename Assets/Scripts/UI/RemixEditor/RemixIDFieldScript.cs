@@ -11,7 +11,10 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 	// TODO: successful load popup
 
 	[Space]
+	public bool CopyToClipboardOnGetID = true;
 	public bool GetIDOnSelect = false;
+	[Space]
+	public bool PrintDebug = false;
 
 	protected override void ChildAwake() {
 		ErrorPopup.SetActive(false);
@@ -26,17 +29,26 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 	}
 
 	public void GetID() {
-		string id = LevelPieceSuperClass.GetBase64Remix();
+		string id = LevelPieceSuperClass.GetRemixString(PrintDebug);
 		TextField.text = id;
+
 		ErrorPopup.SetActive(false);
 		ClipboardPopup.SetActive(true);
-		GUIUtility.systemCopyBuffer = id;
+
+		if (CopyToClipboardOnGetID)
+			GUIUtility.systemCopyBuffer = id;
 	}
 
 	public void SetID() {
-		bool success = LevelPieceSuperClass.LoadRemixFromBase64(TextField.text);
+		string id = TextField.text;
+		bool success = LevelPieceSuperClass.LoadRemixFromString(id);
+
+		// Debug.Log("Loaded " + id + " " + success);
+		
 		ErrorPopup.SetActive(!success);
 		ClipboardPopup.SetActive(false);
+		
+		SegmentEditorSuperClass.UpdateAllUI();
 	}
 
 }
