@@ -253,15 +253,15 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Score")]
 	public float DriftScorePerSec = 200f;
-	[Header("How long you need to drift continously to gain drift score")]
-	float DriftTimeThreshold = .1f;
+	[Tooltip("How long you need to drift continously to gain drift score")]
+	public float DriftTimeThreshold = .1f;
 	[Space]
 	public float BoostScorePerSec = 200f;
-	[Header("How long you need to Boost continously to gain boost score")]
+	[Tooltip("How long you need to Boost continously to gain boost score")]
 	public float BoostTimeThreshold = .1f;
 	[Space]
 	public float AirTimeScorePerSec = 200f;
-	[Header("How long you need to stay in air to gain air time score")]
+	[Tooltip("How long you need to stay in air to gain air time score")]
 	public float AirTimeTimeThreshold = .1f;
 	[Space]
 	public int DestructionScore = 1000;
