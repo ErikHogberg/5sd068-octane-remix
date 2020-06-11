@@ -23472,12 +23472,12 @@ PrefabInstance:
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: VelocityCap
-      value: 45
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: BoostVelocityCap
-      value: 55
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -23487,7 +23487,7 @@ PrefabInstance:
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: AbsoluteVelocityCap
-      value: 55
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -23513,6 +23513,41 @@ PrefabInstance:
         type: 3}
       propertyPath: GasSpeed
       value: 8000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: DownwardForce
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: MaxDownwardsForceSpeed
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: MinDownwardsForceSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: DownwardsForceSpeedCurve.m_Curve.Array.data[0].inSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: DownwardsForceSpeedCurve.m_Curve.Array.data[0].outSlope
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: DownwardsForceSpeedCurve.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: SpeedProfiles.Array.data[2].ProfileName
+      value: fast
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378622925341, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -24326,7 +24361,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: CapVelocity
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2710298148350280556, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -25171,11 +25206,6 @@ PrefabInstance:
       propertyPath: m_Parameters.colorGradient.m_NumAlphaKeys
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 1870186708340101268, guid: 93ddd33367930dd4394c396a7b1e5d4b,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 1870186708340101268, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_Parameters.colorGradient.key1.b

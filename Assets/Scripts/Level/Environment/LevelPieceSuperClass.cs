@@ -90,10 +90,12 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public Transform RespawnSpot;
 	public Transform GoalSpot;
 
-	// IDEA: empty level segment type for optional spots for adding roads
-	// IDEA: dynamic list of segment editing fields, only show the settings allowed for specific class, pushing fields from script every update
+	[Tooltip("If entering this segment should change the speed profile of the car")]
+	public bool SetSpeedProfile = false;
+	[Tooltip("Which speed profile to change to")]
+	public int SpeedProfileIndex = 0;
 
-	// IDEA: option to disallow placing any obstacles on segment, just dont add any obstacles to object selector?
+	// IDEA: empty level segment type for optional spots for adding roads
 
 	// IDEA: ability select multiple segments, shift click? show blank/custom message if same setting is different for some objects selected
 	// IDEA: ability to group segments together, selecting and altering all segments at the same time
@@ -190,6 +192,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			if (currentSegment)
 				foreach (var observer in currentSegment.LeaveSegmentObservers)
 					observer.Notify(currentSegment);
+
+			if (SetSpeedProfile) {
+				// bool changedProfileSuccessfully = 
+				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex);// ?? false;
+				// if (changedProfileSuccessfully)
+					// UINotificationSystem.Notify("Speed change!", Color.green, 1.5f);
+			}
 
 			currentSegment = this;
 			print("current segment: " + currentSegment.SegmentOrder);
@@ -307,7 +316,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 		string outString = System.Convert.ToBase64String(obstacleChoices);
 		// string outString = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
-		
+
 		if (printDebug) {
 			string outString2 = BitConverter.ToString(obstacleChoices);
 			string outString3 = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);

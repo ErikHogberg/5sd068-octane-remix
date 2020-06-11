@@ -110,7 +110,7 @@ public class CarCam : MonoBehaviour {
 
 		//Uses an animation curve to adjust at what rate the camera lags behind the car
 		//by comparing its current speed to its specified top speed
-		float percentOfTopSpeed = carPhysics.velocity.sqrMagnitude / (carControls.VelocityCap * carControls.VelocityCap);
+		float percentOfTopSpeed = carPhysics.velocity.sqrMagnitude / (carControls.CurrentProfile.VelocityCap * carControls.CurrentProfile.VelocityCap);
 		percentOfTopSpeed = Mathf.Clamp(percentOfTopSpeed, 0.0f, 1.0f);
 
 		float diffCameraLag = MaxCameraLag - MinCameraLag;
