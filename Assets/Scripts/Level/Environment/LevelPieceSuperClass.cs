@@ -196,8 +196,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 
 				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex);// ?? false;
-				// if (changedProfileSuccessfully)
-					// UINotificationSystem.Notify("Speed change!", Color.green, 1.5f);
+																		   // if (changedProfileSuccessfully)
+																		   // UINotificationSystem.Notify("Speed change!", Color.green, 1.5f);
 			}
 
 			currentSegment = this;
@@ -314,7 +314,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			}
 		}
 
-		string outString = System.Convert.ToBase64String(obstacleChoices);
+		// string outString = System.Convert.ToBase64String(obstacleChoices);
+		string outString = Ecoji.Encode(obstacleChoices);
 		// string outString = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
 
 		if (printDebug) {
@@ -343,34 +344,35 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 				",\npost convert: " + outString
 			);
 
-			byte[] undoString = System.Convert.FromBase64String(outString);
+			// byte[] undoString = System.Convert.FromBase64String(outString);
 			// byte[] undoString = Encoding.UTF8.GetBytes(outString);
 
-			Debug.Log(
-				"convert back: " + BitConverter.ToString(undoString)
-			);
+			// Debug.Log(
+				// "convert back: " + BitConverter.ToString(undoString)
+			// );
 		}
 
 		return outString;
 	}
 
 	// loads obstacles choices from a base 64 number in a string, returns true if the string is valid and the process completed successfully
-	public static bool LoadRemixFromString(string remixBase64String) {
+	public static bool LoadRemixFromString(string remixIDString) {
 		// string outString = "";
 
 		// remixBase64String.
-		Debug.Log("loading id \"" + remixBase64String + "\"");
+		Debug.Log("loading id \"" + remixIDString + "\"");
 
 		// src for base 64 string validation: https://stackoverflow.com/questions/6309379/how-to-check-for-a-valid-base64-encoded-string
-		remixBase64String = remixBase64String.Trim();
-		bool valid = (remixBase64String.Length % 4 == 0) && Regex.IsMatch(remixBase64String, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+		// remixIDString = remixIDString.Trim();
+		// bool valid = (remixBase64String.Length % 4 == 0) && Regex.IsMatch(remixBase64String, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
 
-		if (!valid) {
-			Debug.LogWarning("invalid input string: not base 64 string");
-			return false;
-		}
+		// if (!valid) {
+		// 	Debug.LogWarning("invalid input string: not base 64 string");
+		// 	return false;
+		// }
 
-		byte[] obstacleBytes = System.Convert.FromBase64String(remixBase64String);
+		// byte[] obstacleBytes = System.Convert.FromBase64String(remixIDString);
+		byte[] obstacleBytes = Ecoji.Decode(remixIDString);
 
 		if (obstacleBytes.Length * 2 < Segments.Count) {
 			return false;
