@@ -27,6 +27,8 @@ public class SteeringScript : MonoBehaviour {
 		SloMo
 	}
 
+	public static bool EnableProfileChange = true;
+
 	[Serializable]
 	public class SpeedProfile {
 
@@ -1096,7 +1098,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public bool SetProfile(int index) {
-		if (index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
+		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
 			return false;
 		}
 
