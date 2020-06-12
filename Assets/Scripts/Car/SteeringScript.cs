@@ -1,4 +1,5 @@
 ﻿﻿
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,9 @@ using System.Collections.Generic;
 using Assets.Scripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 using static UnityEngine.InputSystem.InputAction;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 [DisallowMultipleComponent]
@@ -24,104 +27,126 @@ public class SteeringScript : MonoBehaviour {
 		SloMo
 	}
 
-	// TODO: list of instances for split screen multiplayer, indexed by player order
+	[Serializable]
+	public class SpeedProfile {
+
+		public string ProfileName;
+
+		#region Steering fields
+		[Header("Steering")]
+
+		[Tooltip("Max steering angle")]
+		[Range(0, 90)]
+		public float SteeringMax = 45f;
+		[Tooltip("Adapts the joystick tilt before changing the steering angle")]
+		public AnimationCurve SteeringCurve;
+
+		[Space]
+		[Tooltip("Reduces the max steering angle as the car speeds up")]
+		public bool EnableNarrowing = true;
+		[Tooltip("Reduces the max steering angle as the car speeds up, reaching its narrowest angle at this speed")]
+		[Min(0)]
+		public float MaxNarrowingSpeed = 100;
+
+		[Range(0, 1)]
+		public float MaxNarrowingAmount = 0.05f;
+		[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
+		public AnimationCurve SteeringNarrowingCurve;
+
+		[Space]
+		[Tooltip("How much the rigidbody rotates with the steering amount to aid in turning")]
+		public float SteeringRotationHelp = 0;
+		[Tooltip("How much the rigidbody is pushed sidewats with the steering amount to aid in horizontal movement/strafing")]
+		public float SteeringStrafeHelp = 0;
+		[Tooltip("Which force mode the strafe help uses to push the car sideways")]
+		public ForceMode SteeringStrafeMode = ForceMode.VelocityChange;
+
+		#endregion
+
+		#region Gas and brake fields
+		[Header("Gas")]
+		public float GasSpeed = 100f;
+		public AnimationCurve GasPedalCurve;
+
+		[Header("Brakes")]
+		[Tooltip("How much brake torque is applied to each wheel collider")]
+		public float BrakeForce = 100f;
+		public AnimationCurve BrakePedalCurve;
+
+		[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
+		[Range(0, 1)]
+		public float BrakeDistribution = 0.75f;
+
+		[Space]
+
+		[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
+		public bool DampenRigidBody = true;
+		[Tooltip("Velocity that will be lost per second while braking")]
+		public float BrakeDampeningAmount = 2000f;
+
+		#endregion
+
+		#region Downward force fields
+		[Header("Downward force")]
+		public bool EnableDownwardForce = true;
+		[Tooltip("Downward force at max force")]
+		public float DownwardForce = 10f;
+		[Tooltip("At what speed downward force switches off")]
+		public float MinDownwardsForceSpeed = 1.0f;
+		[Tooltip("At what speed downward force reaches max force")]
+		public float MaxDownwardsForceSpeed = 10.0f;
+		[Tooltip("How the downwards force (percent of max force) is mapped to the velocities between the min and max speed. X values below 0 and above 1 are not used, the curve evaluation is skipped/bypassed for those value ranges.")]
+		public AnimationCurve DownwardsForceSpeedCurve = AnimationCurve.Linear(0, 0, 1, 1);
+		[Tooltip("Which force mode is used to apply the downwards force to the car rigidbody")]
+		public ForceMode DownwardForceMode = ForceMode.Acceleration;
+		[Tooltip("Whether or not the force direction should be relative to the car orientation instead of world.")]
+		public bool UseRelativeDownwardForce = true;
+
+		#endregion
+
+		#region Boost fields
+		[Header("Boost")]
+		public float BoostSpeed = 100f;
+
+		#endregion
+
+		#region Velocity cap fields
+		[Header("Velocity cap")]
+		public bool CapVelocity = true;
+		public bool DisableCapInAir = true;
+		public float VelocityCap = 20f;
+		public float BoostVelocityCap = 30f;
+		[Min(0)]
+		public float VelocityCapCorrectionSpeed = 1f;
+
+		[Tooltip("Immediate velocity cap, does not use correction speed, car never goes above this speed (except for the speed gained last frame)")]
+		public float AbsoluteVelocityCap = 200f;
+		#endregion
+
+	}
+
 	public static SteeringScript MainInstance;
 	private static bool freezeNextFrame = false;
 
-	#region Steering fields
+	public int CurrentProfileIndex = 0;
+	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
+	public SpeedProfile[] SpeedProfiles;
+	public Color ProfileChangeColor = Color.green;
+
 	[Header("Steering")]
 
 	[Tooltip("Sets which wheels are connected to the engine, rear axis, front axis, or both")]
 	public TractionMode Mode = TractionMode.RearTraction;
 
-	[Tooltip("Max steering angle")]
-	[Range(0, 90)]
-	public float SteeringMax = 45f;
-	[Tooltip("Adapts the joystick tilt before changing the steering angle")]
-	public AnimationCurve SteeringCurve;
-
-	[Space]
-	[Tooltip("Reduces the max steering angle as the car speeds up")]
-	public bool EnableNarrowing = true;
-	[Tooltip("Reduces the max steering angle as the car speeds up, reaching its narrowest angle at this speed")]
-	[Min(0)]
-	public float MaxNarrowingSpeed = 100;
-
-	[Range(0, 1)]
-	public float MaxNarrowingAmount = 0.05f;
-	[Tooltip("Reduces the max steering angle as the car speeds up, the angle narrowing at the rate set on this curve, 1.0 on the X axis is the max narrowing speed, 1.0 on the Y axis is the normal max steering angle")]
-	public AnimationCurve SteeringNarrowingCurve;
-
-	[Space]
-	[Tooltip("How much the rigidbody rotates with the steering amount to aid in turning")]
-	public float SteeringRotationHelp = 0;
-	[Tooltip("How much the rigidbody is pushed sidewats with the steering amount to aid in horizontal movement/strafing")]
-	public float SteeringStrafeHelp = 0;
-	[Tooltip("Which force mode the strafe help uses to push the car sideways")]
-	public ForceMode SteeringStrafeMode = ForceMode.VelocityChange;
-
-	#endregion
-
-	#region Gas and brake fields
-	[Header("Gas")]
-	public float GasSpeed = 100f;
-	public AnimationCurve GasPedalCurve;
-
-	[Header("Brakes")]
-	[Tooltip("How much brake torque is applied to each wheel collider")]
-	public float BrakeForce = 100f;
-
-	[Tooltip("How much the motor torque is reduced per second for each wheel collider")]
-	public float MotorBrakeAmount = 100f;
-
-	[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
-	[Range(0, 1)]
-	public float BrakeDistribution = 0.75f;
-
-	public AnimationCurve BrakePedalCurve;
-
-	[Space]
-
-	[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
-	public bool DampenRigidBody = true;
-
-	[Tooltip("Velocity that will be lost per second while braking")]
-	// [Range(0,1)]
-	public float BrakeDampeningAmount = 2000f;
-
-	[Header("Handbrake")]
-	public float HandbrakeForce = 100f;
-	public AnimationCurve HandbrakePedalCurve;
-
-	[Range(-180, 180)]
-	public float HandbrakeDriftAngle = 30f;
-	#endregion
-
-	#region Downward force fields
-	[Header("Downward force")]
-	public bool EnableDownwardForce = true;
-	[Tooltip("At what speed does DownwardForce switch off by default")]
-	public float MinDownwardsForceSpeed = 1.0f;
-	public float DownwardForce = 10f;
-	public ForceMode DownwardForceMode = ForceMode.Acceleration;
-	[Tooltip("Whether or not the force direction should be relative to the car orientation instead of world.")]
-	public bool UseRelativeDownwardForce = true;
-
-
 	[Header("In-air controls")]
 	public bool LeftStickRotationWhenInAir = false;
-
 	public float YawSpeed = 200f;
-
 	public AnimationCurve YawInputCurve;
-
 	public float PitchSpeed = 100f;
 	public AnimationCurve PitchInputCurve;
-	#endregion
 
 	#region Boost fields
 	[Header("Boost")]
-	public float BoostSpeed = 100f;
 	private float boostAmount = 1;
 	private bool boosting = false;
 	private bool BoostNotEmpty => boostAmount > 0;
@@ -159,14 +184,11 @@ public class SteeringScript : MonoBehaviour {
 
 
 	public BoostSkill BoostWindupSkill = BoostSkill.None;
-	// [Tooltip("If the car becomes invulnerable while boosting")]
 
-	// public bool BoostInvulnerability = false;
 	[Tooltip("How long time the car has to boost to become invulnerable")]
 	[Min(0)]
 	public float BoostWindup = 1f;
 
-	// public bool BoostSloMo = false;
 	[Range(0, 1)]
 	public float BoostSloMoTimescale = 1f;
 
@@ -176,28 +198,11 @@ public class SteeringScript : MonoBehaviour {
 	public bool BoostWindupReady => boosting && boostWindupTimer >= BoostWindup;
 	public bool IsInvulnerable => BoostWindupSkill == BoostSkill.Invulnerability && BoostWindupReady;
 	public bool IsInSloMo => BoostWindupSkill == BoostSkill.SloMo && BoostWindupReady;
-
-	#endregion
-
-	#region Velocity cap fields
-	[Header("Velocity cap")]
-	public bool CapVelocity = true;
-	public bool DisableCapInAir = true;
-	public float VelocityCap = 20f;
-	public float BoostVelocityCap = 30f;
-	[Min(0)]
-	public float VelocityCapCorrectionSpeed = 1f;
-
-	[Tooltip("Immediate velocity cap, does not use correction speed, car never goes above this speed (except for the speed gained last frame)")]
-	public float AbsoluteVelocityCap = 200f;
 	#endregion
 
 	#region Drifting fields
 
 	[Header("Drifting")]
-
-	[Tooltip("Change the left stick to rotate instead of steer when the player drifts, as if holding left bumper")]
-	public bool UseYawControlWhenDrifting = false;
 
 	[Tooltip("Prerequisite delta angle at which drifting starts")]
 	[Range(0, 180)]
@@ -253,15 +258,15 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("Score")]
 	public float DriftScorePerSec = 200f;
-	[Header("How long you need to drift continously to gain drift score")]
-	float DriftTimeThreshold = .1f;
+	[Tooltip("How long you need to drift continously to gain drift score")]
+	public float DriftTimeThreshold = .1f;
 	[Space]
 	public float BoostScorePerSec = 200f;
-	[Header("How long you need to Boost continously to gain boost score")]
+	[Tooltip("How long you need to Boost continously to gain boost score")]
 	public float BoostTimeThreshold = .1f;
 	[Space]
 	public float AirTimeScorePerSec = 200f;
-	[Header("How long you need to stay in air to gain air time score")]
+	[Tooltip("How long you need to stay in air to gain air time score")]
 	public float AirTimeTimeThreshold = .1f;
 	[Space]
 	public int DestructionScore = 1000;
@@ -324,10 +329,9 @@ public class SteeringScript : MonoBehaviour {
 	public Vector3 Velocity => rb.velocity;
 	private float springInit;
 
-	// IDEA: make observers instead?
+	// TODO: try converting into observers
 	private CarParticleHandlerScript effects;
 	private CarSoundHandler carSound;
-	// private TemperatureAndIntegrity tempAndInteg;
 
 	[HideInInspector]
 	public List<IObserver<bool>> BoostStartObservers = new List<IObserver<bool>>();
@@ -425,6 +429,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float dt = Time.deltaTime;
 		float unscaledDt = Time.unscaledDeltaTime;
+		float sqrVelocity = rb.velocity.sqrMagnitude;
 
 		lowHzRumble = 0;
 		highHzRumble = 0;
@@ -449,23 +454,16 @@ public class SteeringScript : MonoBehaviour {
 			airTimeTimer += Time.deltaTime;
 		}
 
-		float sqrVelocity = rb.velocity.sqrMagnitude;
-
-		// TODO: curve for gradual downwards force with velocity
-		if (EnableDownwardForce && sqrVelocity > MinDownwardsForceSpeed * MinDownwardsForceSpeed)
-			if (UseRelativeDownwardForce)
-				rb.AddRelativeForce(Vector3.down * DownwardForce, DownwardForceMode);
-			else
-				rb.AddForce(Vector3.down * DownwardForce, DownwardForceMode);
+		ApplyDownwardForce(dt, sqrVelocity);
 
 		Steer(dt);
 		Gas(dt);
 
 		Boost(dt, unscaledDt);
 
-		if (touchingGround && SteeringStrafeHelp > float.Epsilon) {
+		if (touchingGround && CurrentProfile.SteeringStrafeHelp > float.Epsilon) {
 			// Strafe help
-			rb.AddRelativeForce(Vector3.right * SteeringStrafeHelp * steeringBuffer, SteeringStrafeMode);
+			rb.AddRelativeForce(Vector3.right * CurrentProfile.SteeringStrafeHelp * steeringBuffer, CurrentProfile.SteeringStrafeMode);
 		}
 
 		Brake(dt);
@@ -476,8 +474,9 @@ public class SteeringScript : MonoBehaviour {
 		if (InAirStabilization && !touchingGround) {
 			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
 			var rot = Quaternion.FromToRotation(rb.transform.up, Vector3.up);
-			rb.AddTorque(new Vector3(rot.x, rot.y, rot.z) * InAirStabilizationAmount);
-			// rb.AddTorque(rot * Vector3.up * InAirStabilizationAmount);
+			// rb.AddTorque(new Vector3(rot.x, rot.y, rot.z) * InAirStabilizationAmount);
+			//  rb.transform.up
+			rb.AddRelativeTorque(rot * Vector3.up * InAirStabilizationAmount);
 		}
 
 		ApplyVelocityCap(dt);
@@ -529,8 +528,6 @@ public class SteeringScript : MonoBehaviour {
 		return false;
 	}
 
-
-	#region UI
 	private void RefreshUI() {
 		GasNeedleUIScript.Refresh();
 	}
@@ -538,8 +535,8 @@ public class SteeringScript : MonoBehaviour {
 	private void UpdateUI() {
 		// float gasAmount = GasSpeed * gasBuffer;
 
-		float percentage = rb.velocity.sqrMagnitude / (VelocityCap * VelocityCap);
-		float kmph = (float)rb.velocity.magnitude * 3.6f;
+		float percentage = rb.velocity.sqrMagnitude / (CurrentProfile.VelocityCap * CurrentProfile.VelocityCap);
+		float kmph = rb.velocity.magnitude * 3.6f;
 		if (EnableSound) carSound.RecieveVelocityData(percentage);
 
 		if (boosting) {
@@ -552,34 +549,33 @@ public class SteeringScript : MonoBehaviour {
 		}
 		GasNeedleUIScript.SetKMPH(kmph);
 	}
-	#endregion
 
 	private void ApplyVelocityCap(float dt) {
-		if (CapVelocity) {
+		if (CurrentProfile.CapVelocity) {
 			if (boosting) {
-				if (rb.velocity.sqrMagnitude > BoostVelocityCap * BoostVelocityCap) {
+				if (rb.velocity.sqrMagnitude > CurrentProfile.BoostVelocityCap * CurrentProfile.BoostVelocityCap) {
 					// rb.velocity = Vector3.Normalize(rb.velocity) * BoostVelocityCap;
 					rb.velocity = Vector3.MoveTowards(
 						rb.velocity,
-						Vector3.Normalize(rb.velocity) * BoostVelocityCap,
-						VelocityCapCorrectionSpeed * dt
+						Vector3.Normalize(rb.velocity) * CurrentProfile.BoostVelocityCap,
+						CurrentProfile.VelocityCapCorrectionSpeed * dt
 					);
 
 				}
 
-			} else if (!DisableCapInAir || touchingGround) {
-				if (rb.velocity.sqrMagnitude > VelocityCap * VelocityCap) {
+			} else if (!CurrentProfile.DisableCapInAir || touchingGround) {
+				if (rb.velocity.sqrMagnitude > CurrentProfile.VelocityCap * CurrentProfile.VelocityCap) {
 					// rb.velocity = Vector3.Normalize(rb.velocity) * VelocityCap;
 					rb.velocity = Vector3.MoveTowards(
 						rb.velocity,
-						Vector3.Normalize(rb.velocity) * VelocityCap,
-						VelocityCapCorrectionSpeed * dt
+						Vector3.Normalize(rb.velocity) * CurrentProfile.VelocityCap,
+						CurrentProfile.VelocityCapCorrectionSpeed * dt
 					);
 				}
 			}
 
-			if (rb.velocity.sqrMagnitude > AbsoluteVelocityCap * AbsoluteVelocityCap)
-				rb.velocity = Vector3.Normalize(rb.velocity) * AbsoluteVelocityCap;
+			if (rb.velocity.sqrMagnitude > CurrentProfile.AbsoluteVelocityCap * CurrentProfile.AbsoluteVelocityCap)
+				rb.velocity = Vector3.Normalize(rb.velocity) * CurrentProfile.AbsoluteVelocityCap;
 
 		}
 	}
@@ -750,6 +746,7 @@ public class SteeringScript : MonoBehaviour {
 		LeftRotateToggleKeyBinding.action.Disable();
 	}
 
+	#endregion
 
 	#region Steering
 
@@ -763,22 +760,22 @@ public class SteeringScript : MonoBehaviour {
 
 
 		// narrow steering angle as speed increases
-		float sqrMaxNarrowingSpeed = MaxNarrowingSpeed * MaxNarrowingSpeed;
+		float sqrMaxNarrowingSpeed = CurrentProfile.MaxNarrowingSpeed * CurrentProfile.MaxNarrowingSpeed;
 
 		float narrowing = 1f;
 
-		if (!EnableNarrowing) {
+		if (!CurrentProfile.EnableNarrowing) {
 		} else {
 			float speedProgress = 1f;
 
 			// if (sqrVelocity < sqrMaxNarrowingSpeed)
 			speedProgress -= sqrVelocity / sqrMaxNarrowingSpeed;
 
-			narrowing = SteeringNarrowingCurve.Evaluate(speedProgress);
-			narrowing = MaxNarrowingAmount + narrowing * (1f - MaxNarrowingAmount);
+			narrowing = CurrentProfile.SteeringNarrowingCurve.Evaluate(speedProgress);
+			narrowing = CurrentProfile.MaxNarrowingAmount + narrowing * (1f - CurrentProfile.MaxNarrowingAmount);
 		}
 
-		float steeringAmount = steeringBuffer * SteeringMax * narrowing;
+		float steeringAmount = steeringBuffer * CurrentProfile.SteeringMax * narrowing;
 		foreach (WheelCollider FrontWheelCollider in FrontWheelColliders)
 			FrontWheelCollider.steerAngle = steeringAmount;
 
@@ -789,7 +786,7 @@ public class SteeringScript : MonoBehaviour {
 			return;
 
 		float input = c.ReadValue<float>();
-		steeringBuffer = SteeringCurve.EvaluateMirrored(input);
+		steeringBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 
 	}
 
@@ -811,7 +808,7 @@ public class SteeringScript : MonoBehaviour {
 		// NOTE: torque is distributed, dividing gas speed by number of wheels with traction
 		// NOTE: this keeps gas settings the same, regardless of traction mode
 
-		float gasAmount = GasSpeed * gasBuffer;
+		float gasAmount = CurrentProfile.GasSpeed * gasBuffer;
 
 		switch (Mode) {
 			case TractionMode.FrontTraction:
@@ -825,14 +822,14 @@ public class SteeringScript : MonoBehaviour {
 				// gasAmount /= RearWheelColliders.Count;
 
 				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
-					rearWheelCollider.motorTorque = GasSpeed * gasBuffer;
+					rearWheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
 
 				break;
 			case TractionMode.FourWheelTraction:
 				// gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
 
 				foreach (WheelCollider wheelCollider in allWheelColliders)
-					wheelCollider.motorTorque = GasSpeed * gasBuffer;
+					wheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
 
 				break;
 		}
@@ -844,7 +841,7 @@ public class SteeringScript : MonoBehaviour {
 	private void SetGas(CallbackContext c) {
 		// Debug.Log("gas car: " + gameObject.name);
 		float input = c.ReadValue<float>();
-		gasBuffer = GasPedalCurve.EvaluateMirrored(input);
+		gasBuffer = CurrentProfile.GasPedalCurve.EvaluateMirrored(input);
 
 	}
 
@@ -862,9 +859,9 @@ public class SteeringScript : MonoBehaviour {
 
 		if (rpm > float.Epsilon) {
 			// brake if wheels have not stopped
-			float brakeAmount = BrakeForce * brakeBuffer;
-			float frontBrakeAmount = brakeAmount * BrakeDistribution;
-			float rearBrakeAmount = brakeAmount * (1f - BrakeDistribution);
+			float brakeAmount = CurrentProfile.BrakeForce * brakeBuffer;
+			float frontBrakeAmount = brakeAmount * CurrentProfile.BrakeDistribution;
+			float rearBrakeAmount = brakeAmount * (1f - CurrentProfile.BrakeDistribution);
 
 			foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
 				frontWheelCollider.brakeTorque = frontBrakeAmount;
@@ -876,9 +873,9 @@ public class SteeringScript : MonoBehaviour {
 				// rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 			}
 
-			if (DampenRigidBody && brakeBuffer > 0) {
+			if (CurrentProfile.DampenRigidBody && brakeBuffer > 0) {
 				// IDEA: minimum velocity for brake help, to disallow slow fall
-				rb.AddForce(-BrakeDampeningAmount * brakeBuffer * rb.velocity);
+				rb.AddForce(-CurrentProfile.BrakeDampeningAmount * brakeBuffer * rb.velocity);
 			}
 		} else if (brakeBuffer > float.Epsilon) {
 			// reverse if wheels have stopped
@@ -892,7 +889,7 @@ public class SteeringScript : MonoBehaviour {
 	private void SetBraking(CallbackContext c) {
 		float input = c.ReadValue<float>();
 		float pastBrakeBuffer = brakeBuffer;
-		brakeBuffer = BrakePedalCurve.EvaluateMirrored(input);
+		brakeBuffer = CurrentProfile.BrakePedalCurve.EvaluateMirrored(input);
 
 		if (EnableSound) {
 			if (brakeBuffer > pastBrakeBuffer) {
@@ -919,7 +916,7 @@ public class SteeringScript : MonoBehaviour {
 
 		Yaw(yawAmount, true);
 		if (touchingGround) {
-			float steeringYawAmount = SteeringRotationHelp * steeringBuffer * dt;
+			float steeringYawAmount = CurrentProfile.SteeringRotationHelp * steeringBuffer * dt;
 			Yaw(steeringYawAmount, false);
 		}
 	}
@@ -961,18 +958,18 @@ public class SteeringScript : MonoBehaviour {
 
 	private void SetYaw(CallbackContext c) {
 		float input = c.ReadValue<float>();
-		yawBuffer = SteeringCurve.EvaluateMirrored(input);
+		yawBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 	}
 	public float GetYaw() { return yawBuffer; }
 
 	private void SetPitch(CallbackContext c) {
 		float input = c.ReadValue<float>();
-		pitchBuffer = SteeringCurve.EvaluateMirrored(input);
+		pitchBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 	}
 
 	private void SetLeftPitch(CallbackContext c) {
 		float input = c.ReadValue<float>();
-		leftPitchBuffer = SteeringCurve.EvaluateMirrored(input);
+		leftPitchBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 	}
 
 	private void EnableLeftStickRotation(CallbackContext _) {
@@ -1020,7 +1017,7 @@ public class SteeringScript : MonoBehaviour {
 			if (BoostAffectedBySteering) {
 				boostDir = Quaternion.AngleAxis(steeringBuffer * BoostMaxSteering, Vector3.up) * boostDir;
 			}
-			rb.AddRelativeForce(boostDir * BoostSpeed, ForceMode.Acceleration);
+			rb.AddRelativeForce(boostDir * CurrentProfile.BoostSpeed, ForceMode.Acceleration);
 			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
 			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
 		} else {
@@ -1078,6 +1075,38 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	#endregion
+
+	private void ApplyDownwardForce(float dt, float sqrVelocity) {
+		float sqrMinSpeed = CurrentProfile.MinDownwardsForceSpeed * CurrentProfile.MinDownwardsForceSpeed;
+		if (CurrentProfile.EnableDownwardForce && sqrVelocity > sqrMinSpeed) {
+			float sqrMaxSpeed = CurrentProfile.MaxDownwardsForceSpeed * CurrentProfile.MaxDownwardsForceSpeed;
+			float speedPercentage = 1;
+
+			if (sqrVelocity < sqrMaxSpeed) {
+				speedPercentage = CurrentProfile.DownwardsForceSpeedCurve.Evaluate(sqrVelocity / (CurrentProfile.MaxDownwardsForceSpeed - CurrentProfile.MinDownwardsForceSpeed));
+			}
+
+			Vector3 resultForce = Vector3.down * CurrentProfile.DownwardForce * speedPercentage * dt;
+
+			if (CurrentProfile.UseRelativeDownwardForce)
+				rb.AddRelativeForce(resultForce, CurrentProfile.DownwardForceMode);
+			else
+				rb.AddForce(resultForce, CurrentProfile.DownwardForceMode);
+		}
+	}
+
+	public bool SetProfile(int index) {
+		if (index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
+			return false;
+		}
+
+		CurrentProfileIndex = index;
+
+		UINotificationSystem.Notify("Speed change to " + CurrentProfile.ProfileName + "!", Color.green, 1.5f);
+		// TODO: music change?
+
+		return true;
+	}
 
 	private void CallResetObservers() {
 		foreach (var observer in ResetObservers)
@@ -1138,8 +1167,6 @@ public class SteeringScript : MonoBehaviour {
 			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
 	}
-
-	#endregion
 
 	private void ApplyAnimations() {
 		foreach ((WheelCollider collider, Transform ModelTransform) in allWheelColliders.Zip(allWheelModels, (collider, model) => (collider, model.transform))) {
