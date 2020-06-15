@@ -9,7 +9,7 @@ public class SegmentListItem : MonoBehaviour
 {
 	private Toggle itemToggle;
 	private TMP_Text itemLabel;
-	private string segmentSelectedObstacle;
+	// private string segmentSelectedObstacle;
 	private LevelPieceSuperClass segment;
 	private SegmentListItemScrollPing scrollPing;
 	private SegmentListScript listReference;
@@ -18,7 +18,7 @@ public class SegmentListItem : MonoBehaviour
 		itemToggle = GetComponent<Toggle>();
 		itemLabel = transform.GetChild(1).GetComponent<TMP_Text>();
 		scrollPing = GetComponent<SegmentListItemScrollPing>();
-		segmentSelectedObstacle = "None";
+		// segmentSelectedObstacle = "None";
 		TextColorAdjust();
 	}
 
@@ -52,8 +52,9 @@ public class SegmentListItem : MonoBehaviour
 	public LevelPieceSuperClass GetSegment() { return segment; }
 	public SegmentListItemScrollPing GetScrollPinger() { return scrollPing; }
 
-	public void UpdateObstacle(string p_obstacle) { segmentSelectedObstacle = p_obstacle; }
-	public string GetObstacle() { return segmentSelectedObstacle; }
+	// public void UpdateObstacle(string p_obstacle) { segmentSelectedObstacle = p_obstacle; }
+	// public string GetObstacle() { return segmentSelectedObstacle; }
+	public string GetObstacle() { return segment.Obstacles.ShownObject?.Key ?? "None"; }
 
 	//Triggered onValueChanged
 	public void TogglePing() {

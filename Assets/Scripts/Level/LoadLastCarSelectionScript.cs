@@ -5,7 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(ObjectSelectorScript))]
 public class LoadLastCarSelectionScript : MonoBehaviour {
 
-	public bool Enable = true;
+	// public bool Enable = true;
+
+	public bool LoadIfNone = true;
+	public string CarToLoadIfNone = "Ludwig";
 
 	void Start() {
 		var selector = GetComponent<ObjectSelectorScript>();
@@ -23,10 +26,12 @@ public class LoadLastCarSelectionScript : MonoBehaviour {
 				selector.UnhideObject("Michishige");
 				break;
 			case CharacterSelected.NONE:
+				if (LoadIfNone) 
+					selector.UnhideObject(CarToLoadIfNone);
 				break;
 		}
 
-		Debug.LogWarning("current car: "+SteeringScript.MainInstance.gameObject.name);
+		Debug.LogWarning("current car: " + SteeringScript.MainInstance.gameObject.name);
 		LapCounterUIScript.SetCar();
 		GameOverPanel.SetCar();
 

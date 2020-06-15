@@ -4,7 +4,7 @@ using TMPro;
 
 public class TimerScript : MonoBehaviour {
 
-	private static TimerScript instance;
+	private static TimerScript instance = null;
 	public static TimerScript Instance => instance ?? (instance = Instantiate(Resources.Load<TimerScript>("Timer")));
 
 	private float timer = 0.0f;
@@ -23,7 +23,10 @@ public class TimerScript : MonoBehaviour {
 
 	private void Awake() {
 		Debug.LogWarning("Created new Timer!");
-		
+		if (!instance) {
+			instance = this;
+		}
+
 	}
 
 	public void DisplayTime() {
@@ -62,11 +65,11 @@ public class TimerScript : MonoBehaviour {
 									 TimeCalc(t.Seconds) + ":" + TimeCalc(milli);
 					timeTxt = timerText.text;
 					updateCount = 0;
-				// Debug.LogWarning("has timer UI!");
+					// Debug.LogWarning("has timer UI!");
 				}
 			}
-			
-		} 
+
+		}
 	}
 
 	private string TimeCalc(int nr) {

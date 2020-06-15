@@ -8,7 +8,7 @@ public class CharSelectCanvas : MonoBehaviour {
 	private static CharSelectCanvas instance;
 	public static CharSelectCanvas Instance => instance ?? (instance = Instantiate(Resources.Load<CharSelectCanvas>("CharSelectCanvas")));
 
-	private CharacterSelection charSelectReference = null;
+	// private CharacterSelection charSelectReference = null;
 
 	private TMP_Text carName;
 	private GameObject characterInfo;
@@ -33,17 +33,30 @@ public class CharSelectCanvas : MonoBehaviour {
 		characterItems.Add(CharacterSelected.LUDWIG, characterInfo.transform.GetChild(2).gameObject);
 	}
 
-	public void SetText(string p_carName) { carName.text = p_carName; }
+	private void OnDestroy() {
+		if (instance == this) {
+			instance = null;
+		}
+	}
 
-	public void SetCharacter(CharacterSelected p_name) {
-		if (characterItems.ContainsKey(p_name)) {
+	public void SetText(string carName) {
+		this.carName.text = carName;
+	}
+
+	public void SetCharacter(CharacterSelected name) {
+		if (characterItems.ContainsKey(name)) {
 			foreach (KeyValuePair<CharacterSelected, GameObject> item in characterItems) {
-				if (item.Key != p_name) { item.Value.SetActive(false); }
-				else { item.Value.SetActive(true); }
-            }
-        } else { UnityEngine.Debug.Log("CharSelectCanvas/SetCharacter: No character item for " + p_name.ToString()); }
-    }
-	public void Activate(bool toggle) { allUI.SetActive(toggle); btnNext.SetActive(toggle); }
+				if (item.Key != name) { item.Value.SetActive(false); } else { item.Value.SetActive(true); }
+			}
+		} else {
+			UnityEngine.Debug.Log("CharSelectCanvas/SetCharacter: No character item for " + name.ToString());
+		}
+	}
+
+	public void Activate(bool toggle) {
+		allUI.SetActive(toggle);
+		btnNext.SetActive(toggle);
+	}
 
 
 }

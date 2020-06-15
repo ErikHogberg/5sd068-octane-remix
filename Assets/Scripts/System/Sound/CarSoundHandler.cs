@@ -23,7 +23,7 @@ public class CarSoundHandler : MonoBehaviour
 	private float velocity = 0f;
 	private bool grounded = false;
 
-	private float pitchChangeSpeed = 5f;
+	// private float pitchChangeSpeed = 5f;
 	private float pitchDifference;
 	private float effectivePitch = 1f;
 

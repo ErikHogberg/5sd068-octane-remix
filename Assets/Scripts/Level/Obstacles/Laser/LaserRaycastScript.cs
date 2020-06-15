@@ -66,6 +66,7 @@ public class LaserRaycastScript : MonoBehaviour {
 			if (HitLastFrame) {
 				HitLastFrame = false;
 				LaserParticleSystem.Stop();
+				LaserParticleSystem.gameObject.SetActive(false);
 				if (AlwaysShowLaser) {
 					Vector3 scale = LaserCylinder.transform.localScale;
 					scale.z = Range * .5f;
@@ -80,9 +81,10 @@ public class LaserRaycastScript : MonoBehaviour {
 		if (!HitLastFrame) {
 			HitLastFrame = true;
 			LaserParticleSystem.Play();
-			if (!AlwaysShowLaser) {
-				LaserCylinder.SetActive(true);
-			}
+			LaserParticleSystem.gameObject.SetActive(true);
+			// if (!AlwaysShowLaser) {
+			LaserCylinder.SetActive(true);
+			// }
 		}
 
 		float min = hits.Select(hit => hit.distance).Min();

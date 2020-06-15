@@ -24,6 +24,11 @@ public abstract class SegmentEditorSuperClass : MonoBehaviour {
 
 	public abstract void UpdateUI();
 
+	public static void UpdateAllUI() {
+		foreach (var item in segmentEditors) 
+			item.UpdateUI();
+	}
+
 	public void SetSegment(LevelPieceSuperClass segment) {
 		currentSegment = segment;
 		UpdateUI();

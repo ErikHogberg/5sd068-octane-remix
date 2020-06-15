@@ -26,7 +26,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		listContent = GetComponent<ScrollRect>().content.gameObject;
 		scrollMaster = GetComponent<ScrollToSelected>();
 		group = GetComponent<ToggleGroup>();
-		TimerScript.Instance.ResetTimer();
+		// TimerScript.Instance.ResetTimer();
 	}
 	void Start() {
 		if (listItems.Count < 1) CreateSegmentList();
@@ -49,8 +49,9 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 		// hasBeenInit = true;
 
-		if (listItems.Count < 1) CreateSegmentList();
-		else {
+		if (listItems.Count < 1) {
+			CreateSegmentList();
+		} else {
 			if (newListOnEnable) {
 				DeleteSegmentList();
 				CreateSegmentList();
@@ -90,7 +91,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 	public static void UpdateLeftNav() {
 		foreach (SegmentListItem item in listItems) {
-			Toggle firstObstacle = ObstacleListScript.CurrentFirstItem().GetToggle();
+			Toggle firstObstacle = ObstacleListScript.CurrentFirstItem().ItemToggle;
 			item.SetLeftNav(firstObstacle);
 		}
 	}
@@ -117,9 +118,9 @@ public class SegmentListScript : SegmentEditorSuperClass {
 			newItemObj.SetListReference(this);
 
 			//Checking if a segment has a visible obstacle on them from before initialization
-			var shownObject = LevelPieceSuperClass.Segments[i].Obstacles.ShownObject;
-			if (shownObject != null && shownObject.Key != "")
-				newItemObj.UpdateObstacle(shownObject.Key);
+			// var shownObject = LevelPieceSuperClass.Segments[i].Obstacles.ShownObject;
+			// if (shownObject != null && shownObject.Key != "")
+				// newItemObj.UpdateObstacle(shownObject.Key);
 
 			//Registering the master script for smooth scrolling in every list item so they can adhere to it
 			newItemObj.GetScrollPinger().RegisterScrollMaster(scrollMaster);
@@ -169,14 +170,14 @@ public class SegmentListScript : SegmentEditorSuperClass {
 				if (item.GetSegment() == currentSegment) {
 					string currentObstacleType = ObstacleListScript.ReadCurrentObstacleType();
 					//Records which obstacle is currently selected for this segment, before switching to the new one
-					currentItem.UpdateObstacle(currentObstacleType);
+					// currentItem.UpdateObstacle(currentObstacleType);
 					currentItem = item;
 					currentItem.MarkAsSelected();
 					UpdateStartButtonNav(currentItem.GetToggle());
 
 					//Applying the new segment's recorded obstacle to the obstacle list
 					ObstacleListScript.SegmentSwapObstacleRestoration(currentItem.GetObstacle());
-					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject);
+					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject); // FIXME: segment not getting selected correctly
 					break;
 				}
 			}
