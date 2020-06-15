@@ -67,7 +67,8 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 	private void ScrollToTop() {
 		GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
-		EventSystem.current.SetSelectedGameObject(listItems[0].GetToggle().gameObject);
+		if (listItems.Count > 0)
+			EventSystem.current.SetSelectedGameObject(listItems[0].GetToggle().gameObject);
 	}
 
 	//Way of picking a segment #1
@@ -120,7 +121,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 			//Checking if a segment has a visible obstacle on them from before initialization
 			// var shownObject = LevelPieceSuperClass.Segments[i].Obstacles.ShownObject;
 			// if (shownObject != null && shownObject.Key != "")
-				// newItemObj.UpdateObstacle(shownObject.Key);
+			// newItemObj.UpdateObstacle(shownObject.Key);
 
 			//Registering the master script for smooth scrolling in every list item so they can adhere to it
 			newItemObj.GetScrollPinger().RegisterScrollMaster(scrollMaster);
@@ -129,6 +130,10 @@ public class SegmentListScript : SegmentEditorSuperClass {
 			listItems.Add(newItemObj);
 		}
 		group.SetAllTogglesOff();
+
+		if (listItems.Count < 1) {
+			return;
+		}
 
 		//Setting intra-list navigation relationships, for which all list items need to already exist
 		UpdateStartButtonNav(listItems[0].GetToggle());

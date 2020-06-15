@@ -37,7 +37,9 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 	void Start() {
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
-		SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
+		if (SegmentListScript.listItems.Count > 0) {
+			SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
+		}
 		UpdateUI();
 	}
 
