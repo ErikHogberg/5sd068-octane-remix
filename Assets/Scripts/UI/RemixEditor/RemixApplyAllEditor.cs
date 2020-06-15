@@ -39,4 +39,8 @@ public class RemixApplyAllEditor : MonoBehaviour {
 		SegmentEditorSuperClass.UpdateAllUI();
 	}
 
+	public void ShuffleAll() {
+		// TODO: randomize obstacles on all segments
+	}
+
 }
