@@ -348,7 +348,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			// byte[] undoString = Encoding.UTF8.GetBytes(outString);
 
 			// Debug.Log(
-				// "convert back: " + BitConverter.ToString(undoString)
+			// "convert back: " + BitConverter.ToString(undoString)
 			// );
 		}
 
@@ -372,7 +372,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		// }
 
 		// byte[] obstacleBytes = System.Convert.FromBase64String(remixIDString);
-		byte[] obstacleBytes = Ecoji.Decode(remixIDString);
+		byte[] obstacleBytes;
+		try {
+			obstacleBytes = Ecoji.Decode(remixIDString);
+		} catch (Ecoji.UnexpectedEndOfInputException) {
+			return false;
+			// throw;
+		}
 
 		if (obstacleBytes.Length * 2 < Segments.Count) {
 			return false;
