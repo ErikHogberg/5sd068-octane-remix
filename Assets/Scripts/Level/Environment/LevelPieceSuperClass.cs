@@ -101,10 +101,16 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
+	// TODO: observers for remix editors for refreshing when a new segment is added
+	// sends new total number of segments
+	public static List<IObserver<int>> AddSegmentObservers = new List<IObserver<int>>();
 
 	private void Awake() {
 		Segments.Add(this);
 		Segments.Sort();
+
+		foreach (var item in AddSegmentObservers)
+			item.Notify(Segments.Count);
 
 		Obstacles = GetComponent<ObjectSelectorScript>();
 
