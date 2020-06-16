@@ -15,11 +15,12 @@ public class NeedleMeterUIScript : MonoBehaviour {
 
 	private Image needle;
 	private float initRotation;
-	private Quaternion desiredRotation;
+	// private Quaternion desiredRotation;
 
 	private float targetPercent = 0.0f;
 	private ColorState colorState = ColorState.NORMAL;
-	private Color targetColor = Color.white;
+	// private Color targetColor = Color.white;
+	private Color normalColor;
 
 	[Tooltip("How many degrees the needle has turned when at max speed, clockwise")]
 	[Range(0, 360)]
@@ -28,28 +29,32 @@ public class NeedleMeterUIScript : MonoBehaviour {
 	[Tooltip("How fast the needle can fluctuate")]
 	public float NeedleSpeed = 5.0f;
 
-	void Start() {
+	public Color MaxColor = Color.red;
+	public Color BoostColor = new Color(20.0f / 255.0f, 75.0f / 255.0f, 215.0f / 255.0f, 1);
+
+	private void Awake() {
 		needle = GetComponent<Image>();
+		normalColor = needle.color;
 		initRotation = transform.rotation.eulerAngles.z;
-		// print("init rot: " + initRotation);
 	}
 
-	public void SetBarPercentage() {
+
+	public void UpdateBarPercentage() {
 
 		targetPercent = Mathf.Clamp(targetPercent, 0.0f, 1.1f);
 
-		desiredRotation = Quaternion.Euler(0, 0, initRotation - MaxRotation * targetPercent);
+		Quaternion desiredRotation = Quaternion.Euler(0, 0, initRotation - MaxRotation * targetPercent);
 		transform.localRotation = Quaternion.Slerp(transform.localRotation, desiredRotation, NeedleSpeed * Time.fixedDeltaTime);
 
 	}
 
 	public void ApplyColor() {
 		if (colorState == ColorState.NORMAL) {
-			needle.color = Color.white;
+			needle.color = normalColor;//Color.white;
 		} else if (colorState == ColorState.MAX) {
-			needle.color = Color.red;
+			needle.color = MaxColor;
 		} else if (colorState == ColorState.BOOST) {
-			needle.color = new Color(20.0f / 255.0f, 75.0f / 255.0f, 215.0f / 255.0f, 1);
+			needle.color = BoostColor;
 		} else {
 			needle.color = Color.grey;
 		}

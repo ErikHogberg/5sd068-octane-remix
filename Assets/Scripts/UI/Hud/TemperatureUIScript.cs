@@ -30,7 +30,7 @@ public class TemperatureUIScript : MonoBehaviour
 		}
 
 		bar.SetBarPercentage(percentage);
-		temperatureText.text = temp.ToString("F1") + "°C";
+		temperatureText.text = temp.ToString("F0") + "°C";
 
 		/*if (color.HasValue) 
 			bar.SetColor(color.Value);*/

@@ -10234,6 +10234,7 @@ GameObject:
   - component: {fileID: 1469900528578892573}
   - component: {fileID: 1575562338054905556}
   - component: {fileID: 3191791732721310881}
+  - component: {fileID: 8791038558156679162}
   m_Layer: 14
   m_Name: Lambo_Ella2
   m_TagString: Untagged
@@ -10346,6 +10347,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  SteeringRotationHelp: 0
+  SteeringStrafeHelp: 0
+  SteeringStrafeMode: 2
   GasSpeed: 15000
   GasPedalCurve:
     serializedVersion: 2
@@ -10486,6 +10490,8 @@ MonoBehaviour:
   BoostConsumptionRate: 0.4
   BoostFillRate: 0.25
   MinBoostLevel: 0.2
+  BoostAffectedBySteering: 0
+  BoostMaxSteering: 45
   CapVelocity: 1
   VelocityCap: 80
   BoostVelocityCap: 100
@@ -10498,6 +10504,20 @@ MonoBehaviour:
   DriftStopVelocity: 0.5
   DriftCorrectionSpeed: 20
   DriftSpeedReductionWhenCorrecting: 0
+  EnableRumble: 0
+  EngineRumbleHiLoHzRatio: 0.5
+  EngineRumbleAmount: 0.5
+  EngineRumbleSpeedMinMax: {x: 0, y: 0}
+  EngineRumbleCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  BoostRumbleHiLoHzRatio: 0.5
+  BoostRumbleAmount: 0.5
+  DriftRumbleHiLoHzRatio: 0.5
+  DriftRumbleAmount: 0.5
   FrontWheelColliders:
   - {fileID: 3191791734470370755}
   - {fileID: 3191791733096899068}
@@ -10536,6 +10556,7 @@ MonoBehaviour:
     type: 3}
   LeftPitchKeyBinding: {fileID: -4547618856026539353, guid: a8607000f05afde459be885d75c1936b,
     type: 3}
+  LapsCompleted: 0
 --- !u!114 &2414830160547268974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10612,6 +10633,7 @@ MonoBehaviour:
   tickRate: 1
   coolingRate: 1
   boostTempThreshold: 50
+  boostTempMax: 70
   integrityTempThreshold: 70
   integrityTempDOT: 3
   maxIntegrity: 100
@@ -10620,8 +10642,6 @@ MonoBehaviour:
   laserIntegEffect: 10
   sawIntegEffect: 10
   rockIntegEffect: 10
-  temperatureUI: {fileID: 0}
-  integrityUI: {fileID: 0}
 --- !u!136 &3191791732721310881
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10636,6 +10656,18 @@ CapsuleCollider:
   m_Height: 6.4
   m_Direction: 2
   m_Center: {x: 0, y: 2.4007926, z: 0}
+--- !u!114 &8791038558156679162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3191791732721310880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 431de81a5802eaa458d8267f298af9ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3191791732733511072
 GameObject:
   m_ObjectHideFlags: 0
@@ -14923,6 +14955,7 @@ MonoBehaviour:
   minCameraLag: 8
   maxCameraLag: 15
   car: {fileID: 0}
+  OptionalParent: {fileID: 0}
 --- !u!1 &3191791734386955114
 GameObject:
   m_ObjectHideFlags: 0

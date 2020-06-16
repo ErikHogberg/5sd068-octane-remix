@@ -57,16 +57,86 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soundEffects:
-  - name: example
+  - name: akash_engine
+    volume: 0.3
     loop: 1
-    audioClip: {fileID: 8300000, guid: c915459ce3297a04c8a2c71f7b8d2579, type: 3}
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: michi_engine
+    volume: 0.3
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: ludwig_engine
+    volume: 0.3
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: rock_explosion
+    volume: 1
+    loop: 0
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 23dc2e29e6f979a4b845994450b65a88, type: 3}
     audioMixer: {fileID: -297808172433319597, guid: 5e0710f0bdee74343809cc7934afe2d4,
       type: 2}
-  - name: 
+  - name: boost_start
+    volume: 0.1
     loop: 0
-    audioClip: {fileID: 0}
-    audioMixer: {fileID: 0}
-  - name: 
+    unique: 1
+    audioClip: {fileID: 8300000, guid: 529dd1b0ab2e7264a9f9d1209bb60559, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: boost_end
+    volume: 0.1
     loop: 0
+    unique: 1
+    audioClip: {fileID: 8300000, guid: 1172c8dc3fc6430439765dec92aea7c0, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: boost_continuous
+    volume: 0.1
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: fadac59e855dd7d4ab0c732fb1227fee, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: drift_continuous
+    volume: 0.3
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 738ec17e66a59184a99c1a554e38b703, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: dry_ice_brake
+    volume: 0.2
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 9e5f00b65dad8b34995b5581985ff93d, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: playscene_music
+    volume: 0.25
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 60baecb875c42a741abd5246443edaf8, type: 3}
+    audioMixer: {fileID: 2724648709495072334, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: menu_music
+    volume: 0.25
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: e62cddec253121b409e5ebdd06c95f72, type: 3}
+    audioMixer: {fileID: 2724648709495072334, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: 
+    volume: 1
+    loop: 0
+    unique: 0
     audioClip: {fileID: 0}
     audioMixer: {fileID: 0}

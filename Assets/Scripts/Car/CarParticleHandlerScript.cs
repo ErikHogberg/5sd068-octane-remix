@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts;
+using UnityEngine.Events;
 
-public class CarParticleHandlerScript : MonoBehaviour {
+public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	// public static SurfaceDetectionScript MainInstance;
 
@@ -20,30 +21,41 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	}
 
 	[Serializable]
-	public struct EnvironmentEffectCollection {
+	public class EnvironmentEffectCollection {
 		[Tooltip("The tag of the road surface collider that enables the effects, leave field blank to always be active")]
 		public string EnvironmentTag; // object tags that enable these effects
 		[Tooltip("At what speed the effects start and stop")]
 		public float StartVelocity;
-		public List<ParticleSystem> particles;
-		public List<TrailRenderer> trails;
+		public ParticleSystem[] particles;
+		public TrailRenderer[] trails;
+		public UnityEvent startEvents;
+		public UnityEvent endEvents;
 	}
 
 	[Header("Empty tag = always on")]
 
 	public List<EnvironmentEffectCollection> DriftEffects;
 	public List<EnvironmentEffectCollection> BoostEffects;
-
+	public List<EnvironmentEffectCollection> BoostWindupEffects;
 
 	public List<EnvironmentEffectCollection> ClockwiseYawEffects;
 	public List<EnvironmentEffectCollection> CounterClockwiseYawEffects;
 
-
 	public List<EnvironmentEffectCollection> AlwaysOnEffects;
+
+	private IEnumerable<EnvironmentEffectCollection> AllEffects =>
+		AlwaysOnEffects
+			.Concat(DriftEffects)
+			.Concat(BoostEffects)
+			.Concat(BoostWindupEffects)
+			.Concat(ClockwiseYawEffects)
+			.Concat(CounterClockwiseYawEffects)
+		;
 
 	private string currentTag = ""; // NOTE: only latest environment type touched have their effects enabled
 	private bool drifting = false;
 	private bool boosting = false;
+	private bool isWoundUp = false;
 	private bool touchingGround = false;
 	// private bool drivingFast = false;
 
@@ -65,6 +77,10 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	private bool dirty = true;
 
 
+	private void Awake() {
+		GetComponent<SteeringScript>().BoostStartObservers.Add(this);
+	}
+
 	// TODO: check that performance impact is not awful
 	private void EnableEffect(IEnumerable<EnvironmentEffectCollection> effects, string tag) {
 		foreach (EnvironmentEffectCollection effect in effects.Where(e =>
@@ -76,11 +92,13 @@ public class CarParticleHandlerScript : MonoBehaviour {
 					CustomUtilities.StartEffect(particleSystem);
 				foreach (TrailRenderer trail in effect.trails)
 					CustomUtilities.StartEffect(trail);
+				effect.startEvents.Invoke();
 			} else {
 				foreach (ParticleSystem particleSystem in effect.particles)
 					CustomUtilities.StopEffect(particleSystem);
 				foreach (TrailRenderer trail in effect.trails)
 					CustomUtilities.StopEffect(trail);
+				effect.endEvents.Invoke();
 			}
 		}
 	}
@@ -91,6 +109,7 @@ public class CarParticleHandlerScript : MonoBehaviour {
 				CustomUtilities.StopEffect(particleSystem);
 			foreach (TrailRenderer trail in effect.trails)
 				CustomUtilities.StopEffect(trail);
+			effect.endEvents.Invoke();
 		}
 	}
 
@@ -107,6 +126,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 
 		if (boosting)
 			EnableEffect(BoostEffects, tag);
+
+		if (isWoundUp)
+			EnableEffect(BoostWindupEffects, tag);
 
 		switch (YawDir) {
 			case RotationAxisDirection.Clockwise:
@@ -130,13 +152,31 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	private void DisableAllEffects(string tag) {
 		DisableEffect(DriftEffects, currentTag);
 		DisableEffect(BoostEffects, currentTag);
+		DisableEffect(BoostWindupEffects, currentTag);
 		DisableEffect(ClockwiseYawEffects, currentTag);
 		DisableEffect(CounterClockwiseYawEffects, currentTag);
 		DisableEffect(AlwaysOnEffects, currentTag);
 	}
 
-	private void DisableAllEffects() {
+	public void DisableAllEffects() {
 		DisableAllEffects(currentTag);
+	}
+
+
+	private void ClearEffects(EnvironmentEffectCollection effects) {
+		foreach (var item in effects.particles)
+			item.Clear();
+		foreach (var item in effects.trails)
+			item.Clear();
+	}
+
+	private void ClearEffects(IEnumerable<EnvironmentEffectCollection> effects) {
+		foreach (var item in effects)
+			ClearEffects(item);
+	}
+
+	public void ClearAllEffects() {
+		ClearEffects(AllEffects);
 	}
 
 	public void UpdateSpeed(float sqrVelocity) {
@@ -196,7 +236,7 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	}
 
 	public void StartDrift() {
-		if (boosting)
+		if (drifting)
 			return;
 
 		dirty = true;
@@ -213,12 +253,13 @@ public class CarParticleHandlerScript : MonoBehaviour {
 		DisableEffect(DriftEffects, currentTag);
 	}
 
-	public void StartBoost() {
-		if (boosting)
+	public void StartBoost(bool isWoundUp) {
+		if (boosting && isWoundUp == this.isWoundUp)
 			return;
 
 		dirty = true;
 		boosting = true;
+		this.isWoundUp = isWoundUp;
 		// EnableEffect(BoostEffects, currentTag);
 	}
 
@@ -228,7 +269,9 @@ public class CarParticleHandlerScript : MonoBehaviour {
 
 		dirty = true;
 		boosting = false;
+		isWoundUp = false;
 		DisableEffect(BoostEffects, currentTag);
+		DisableEffect(BoostWindupEffects, currentTag);
 	}
 
 	public void StopClockwiseYaw() {
@@ -249,6 +292,10 @@ public class CarParticleHandlerScript : MonoBehaviour {
 	public void StartCounterClockwiseYaw() {
 		StopClockwiseYaw();
 		YawDir = RotationAxisDirection.CounterClockwise;
+	}
+
+	public void Notify(bool carIsInvulnerable) {
+		StartBoost(carIsInvulnerable);
 	}
 
 }

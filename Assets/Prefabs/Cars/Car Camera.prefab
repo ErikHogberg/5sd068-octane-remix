@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8135559289499355424}
   - component: {fileID: 8135559289499355439}
   - component: {fileID: 8135559289499355438}
+  - component: {fileID: 539307937776496031}
   m_Layer: 0
   m_Name: Car Camera
   m_TagString: MainCamera
@@ -57,7 +58,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 4
   far clip plane: 1500
   field of view: 60
   orthographic: 0
@@ -65,7 +66,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 253751
+    m_Bits: 1826615
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -196,17 +197,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8135559289499355436}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7232962877fd4fe4892a8892012b3293, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeedThreshold: 7
-  rotationThreshold: 25
-  carSteeringAdaptation: 50
-  cameraRotationSpeed: 5
-  useFOVFluctuation: 0
-  velocityToFOV:
+  RotationSpeedThreshold: 7
+  RotationThreshold: 25
+  CarSteeringAdaptation: 50
+  CameraRotationSpeed: 5
+  UseFOVFluctuation: 0
+  VelocityToFOV:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -230,15 +231,59 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraFOV: 60
-  maxCameraFOV: 80
-  velocityToLag:
+  MinCameraFOV: 60
+  MaxCameraFOV: 80
+  VelocityToLag:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minCameraLag: 8
-  maxCameraLag: 15
-  car: {fileID: 0}
+  MinCameraLag: 8
+  MaxCameraLag: 15
+  Car: {fileID: 0}
   OptionalParent: {fileID: 0}
+  SteeringMaxOffset: 1
+  MaxOffsetRotationSpeed: 1
+--- !u!114 &539307937776496031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8135559289499355436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fa7b43fc47b3ae44ae113fd142d47bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FollowSpeed: 10
+  SteeringMax: 10
+  SteeringFollowSpeed: 2
+  MinSteeringFollowMultiplier: 0.2
+  SteeringRelativeToCar: 1
+  HorizontalBuffer: 3
+  VerticalBuffer: {x: -2, y: 4}
+  ZoomBuffer: {x: -1, y: 1}
+  Car: {fileID: 0}
+  CameraPivot: {fileID: 0}
+  CameraLookat: {fileID: 0}
+  Parent: {fileID: 0}

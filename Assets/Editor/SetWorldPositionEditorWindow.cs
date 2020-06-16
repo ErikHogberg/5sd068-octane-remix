@@ -39,7 +39,7 @@ class MoveToObject : EditorWindow {
 	}
 
 	void MoveSelectedToTarget() {
-		var selected = Selection.activeGameObject;
+		var selected = Selection.activeTransform;
 
 		if (!selected) {
 			Debug.LogWarning("No object to move selected in scene");

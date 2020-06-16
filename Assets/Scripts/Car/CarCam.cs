@@ -3,45 +3,52 @@
 public class CarCam : MonoBehaviour {
 	[Header("Camera Rotation")]
 	[Tooltip("If car speed is below this value, then the camera will default to looking forwards.")]
-	public float rotationSpeedThreshold = 3f;
+	public float RotationSpeedThreshold = 3f;
 
 	[Tooltip("If the angle between the car's facing direction and velocity exceeds this number, the camera will default to looking forwards")]
-	public float rotationThreshold = 25.0f;
+	public float RotationThreshold = 25.0f;
 
 	[Tooltip("What angle in comparison to the car's forward vector will the camera move towards while the car is turning?")]
-	public float carSteeringAdaptation = 50.0f;
+	public float CarSteeringAdaptation = 50.0f;
 
 	[Tooltip("How closely the camera matches the car's velocity vector. The lower the value, the smoother the camera rotations, but too much results in not being able to see where you're going.")]
-	public float cameraRotationSpeed = 5.0f;
+	public float CameraRotationSpeed = 5.0f;
 
 	[Header("Camera FOV")]
-	public bool useFOVFluctuation;
+	public bool UseFOVFluctuation;
 
 	[Tooltip("The relationship between camera FOV and the car's velocity")]
-	public AnimationCurve velocityToFOV;
+	public AnimationCurve VelocityToFOV;
 
 	[Range(0, 140)]
-	public float minCameraFOV = 60.0f;
+	public float MinCameraFOV = 60.0f;
 	[Range(0, 140)]
-	public float maxCameraFOV = 80.0f;
+	public float MaxCameraFOV = 80.0f;
 
 	[Header("Camera Lag")]
 	[Tooltip("The relationship between how much the camera lags behind the car and the car's velocity")]
-	public AnimationCurve velocityToLag;
+	public AnimationCurve VelocityToLag;
 
 	[Tooltip("How closely the camera follows the car's position. This value determines the least it will ever lag behind.")]
 	[Range(3, 50)]
-	public float minCameraLag = 8.0f;
+	public float MinCameraLag = 8.0f;
 
 	[Tooltip("How closely the camera follows the car's position. This value determines the most it will ever lag behind.")]
 	[Range(3, 50)]
-	public float maxCameraLag = 15.0f;
+	public float MaxCameraLag = 15.0f;
 
 	[Header("Follow Target")]
 	[Tooltip("The car that this particular camera will follow, but not necessary at this stage")]
-	public GameObject car;
+	public GameObject Car;
 
 	public GameObject OptionalParent;
+
+	public float SteeringMaxOffset = 1f;
+	public float MaxOffsetRotationSpeed = 1f;
+	private float steeringBuffer = 0f;
+
+	// TODO: camera yaw and pitch offset
+	// IDEA: just override lookat target
 
 	//The transform of the camera object
 	private Transform rootNode;
@@ -75,43 +82,45 @@ public class CarCam : MonoBehaviour {
 	void Awake() {
 		rootNode = GetComponent<Transform>();
 		//Temporary measure until we all collectively adapt our prefabs and put a car reference in this script
-		if (car == null) {
+		if (Car == null) {
 			cameraLock = rootNode.parent.GetComponent<Transform>();
-			car = cameraLock.parent.gameObject;
+			Car = cameraLock.parent.gameObject;
 		} else {
-			cameraLock = car.transform.Find("CameraLock");
+			cameraLock = Car.transform.Find("CameraLock");
 		}
 
-		carPhysics = car.transform.GetComponent<Rigidbody>();
-		carControls = car.transform.GetComponent<SteeringScript>();
-		currCamRotationSpeed = cameraRotationSpeed;
+		carPhysics = Car.GetComponent<Rigidbody>();
+		carControls = Car.GetComponent<SteeringScript>();
+		currCamRotationSpeed = CameraRotationSpeed;
 
 	}
 
 	void Start() {
+		// Detach the camera so that it can move freely on its own.
 		if (OptionalParent)
 			rootNode.parent = OptionalParent.transform;
 		else
-			// Detach the camera so that it can move freely on its own.
 			rootNode.parent = null;
 
 	}
 
 	void FixedUpdate() {
 
+		// TODO: separate interpolation and camera positon update logic from target position update logic to get camera movement as smooth as framerate, instead of same as physics step
+
 		//Uses an animation curve to adjust at what rate the camera lags behind the car
 		//by comparing its current speed to its specified top speed
-		float percentOfTopSpeed = carPhysics.velocity.sqrMagnitude / (carControls.VelocityCap * carControls.VelocityCap);
+		float percentOfTopSpeed = carPhysics.velocity.sqrMagnitude / (carControls.CurrentProfile.VelocityCap * carControls.CurrentProfile.VelocityCap);
 		percentOfTopSpeed = Mathf.Clamp(percentOfTopSpeed, 0.0f, 1.0f);
 
-		float diffCameraLag = maxCameraLag - minCameraLag;
-		float calcCameraLag = diffCameraLag * velocityToLag.Evaluate(percentOfTopSpeed);
-		cameraLag = minCameraLag + calcCameraLag;
+		float diffCameraLag = MaxCameraLag - MinCameraLag;
+		float calcCameraLag = diffCameraLag * VelocityToLag.Evaluate(percentOfTopSpeed);
+		cameraLag = MinCameraLag + calcCameraLag;
 
-		if (useFOVFluctuation) {
-			float diffFOV = maxCameraFOV - minCameraFOV;
-			float calcFOV = diffFOV * velocityToFOV.Evaluate(percentOfTopSpeed);
-			gameObject.GetComponent<Camera>().fieldOfView = minCameraFOV + calcFOV;
+		if (UseFOVFluctuation) {
+			float diffFOV = MaxCameraFOV - MinCameraFOV;
+			float calcFOV = diffFOV * VelocityToFOV.Evaluate(percentOfTopSpeed);
+			gameObject.GetComponent<Camera>().fieldOfView = MinCameraFOV + calcFOV;
 		}
 		// Moves the camera to match the car's position.
 		rootNode.position = Vector3.Lerp(rootNode.position, cameraLock.position, cameraLag * Time.fixedDeltaTime);
@@ -121,7 +130,10 @@ public class CarCam : MonoBehaviour {
 		//Gets steering values from car
 		float steer = carControls.GetSteering();
 		float yaw = carControls.GetYaw();
-		if (steer != 0.0f) { steeringValue = steer; } else if (yaw != 0.0f) { steeringValue = yaw; }
+		if (steer != 0.0f)
+			steeringValue = steer;
+		else if (yaw != 0.0f)
+			steeringValue = yaw;
 
 		//Lerping steer value to make a smoother transition between the min and max possible values
 		effectiveSteerValue = Mathf.Lerp(effectiveSteerValue, steeringValue, steerValueLerp * Time.fixedDeltaTime);
@@ -129,38 +141,39 @@ public class CarCam : MonoBehaviour {
 
 		float lookAngleComparison = Mathf.Acos(
 		//Dot product
-		((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z)) /
-		(cameraLock.forward.magnitude * carPhysics.velocity.magnitude)) * Mathf.Rad2Deg;
+			((cameraLock.forward.x * carPhysics.velocity.x) + (cameraLock.forward.z * carPhysics.velocity.z)) /
+			(cameraLock.forward.magnitude * carPhysics.velocity.magnitude)
+		) * Mathf.Rad2Deg;
 
 		Quaternion look;
-		lockToCar = (car.transform.position - rootNode.transform.position);
+		lockToCar = (Car.transform.position - rootNode.transform.position);
 		//Y-value adjustment for a view that looks a bit more forward than down
 		lockToCar.y += 4f;
 
 		//Different behaviors for the camera, depending on what the car is doing
 
 		// If the car isn't moving, default to looking forwards. Prevents camera from freaking out with a zero velocity getting put into a Quaternion.LookRotation
-		if (carPhysics.velocity.magnitude < rotationSpeedThreshold) {
+		if (carPhysics.velocity.magnitude < RotationSpeedThreshold) {
 			look = Quaternion.LookRotation(cameraLock.forward + lockToCar);
 			goalCamRotationSpeed = 2.0f;
 		}
 		//If the car is turning very fast, this will counteract the camera severely de-synching with the direction of the car
-		else if (lookAngleComparison > rotationThreshold) {
-			look = Quaternion.LookRotation((Quaternion.AngleAxis(carSteeringAdaptation * effectiveSteerValue, car.transform.up) * cameraLock.forward) + lockToCar);
+		else if (lookAngleComparison > RotationThreshold) {
+			look = Quaternion.LookRotation((Quaternion.AngleAxis(CarSteeringAdaptation * effectiveSteerValue, Car.transform.up) * cameraLock.forward) + lockToCar);
 			goalCamRotationSpeed = 2.0f;
 			//Debug.Log("Angle Threshold: " + lookAngleComparison);
 		}
 		//If the player is steering in a certain direction, the camera will look slightly towards that direction
 		else if (steeringValue != 0.0f) {
-			look = Quaternion.LookRotation((Quaternion.AngleAxis(carSteeringAdaptation * effectiveSteerValue, car.transform.up) * cameraLock.forward) + lockToCar);
+			look = Quaternion.LookRotation((Quaternion.AngleAxis(CarSteeringAdaptation * effectiveSteerValue, Car.transform.up) * cameraLock.forward) + lockToCar);
 			goalCamRotationSpeed = 2.0f;
 			steeringValue = 0.0f;
 			//Debug.Log("Steering Look");
 		}
 		//Looking direction based on the car's velocity vector
 		else {
-			look = Quaternion.LookRotation((Quaternion.AngleAxis(carSteeringAdaptation * effectiveSteerValue, car.transform.up) * carPhysics.velocity.normalized) + lockToCar);
-			goalCamRotationSpeed = cameraRotationSpeed;
+			look = Quaternion.LookRotation((Quaternion.AngleAxis(CarSteeringAdaptation * effectiveSteerValue, Car.transform.up) * carPhysics.velocity.normalized) + lockToCar);
+			goalCamRotationSpeed = CameraRotationSpeed;
 			//Debug.Log("Velocity Look");
 		}
 		//Lerping changes in camera rotation speed, for stability purposes
@@ -168,7 +181,12 @@ public class CarCam : MonoBehaviour {
 
 		//Rotate the camera towards the velocity vector.
 		look = Quaternion.Slerp(rootNode.rotation, look, currCamRotationSpeed * Time.fixedDeltaTime);
-		rootNode.rotation = look;
+
+		steeringBuffer = Mathf.MoveTowards(steeringBuffer, steeringValue, MaxOffsetRotationSpeed * Time.deltaTime);
+		var steeringOffset = Quaternion.AngleAxis(steeringBuffer * SteeringMaxOffset, Car.transform.up);
+		
+		rootNode.rotation = steeringOffset * look ;
+		// rootNode.Rotate(Vector3.up, effectiveSteerValue * SteeringMaxOffset, Space.Self);
 
 	}
 }
