@@ -7,12 +7,16 @@ public class HighscoreListUIScript : MonoBehaviour {
 	public class HighscoreEntry {
 		public int Score;
 		public int Time;
-		public CharacterSelected Character;	
+		public CharacterSelected Character;
 		public string RemixID;
 	}
 
 	void Start() {
 
+	}
+
+	public void Toggle() {
+		gameObject.SetActive(!gameObject.activeSelf);
 	}
 
 }
