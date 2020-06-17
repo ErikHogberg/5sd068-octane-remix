@@ -52,6 +52,11 @@ public class DestructibleObstacleScript : MonoBehaviour {
 		exploderinoThingie?.Explode();
 		OnExplodeEvents.Invoke();
 
+		ScoreBoard boardOne = ScoreManager.Board(0);
+		if (boardOne != null && SteeringScript.MainInstance) {
+			boardOne.AddRemix(SteeringScript.MainInstance.DestructionScore);
+		}
+
 		timer = RespawnTime;
 	}
 

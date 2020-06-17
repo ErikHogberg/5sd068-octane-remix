@@ -8,25 +8,55 @@ public class CharSelectCanvas : MonoBehaviour {
 	private static CharSelectCanvas instance;
 	public static CharSelectCanvas Instance => instance ?? (instance = Instantiate(Resources.Load<CharSelectCanvas>("CharSelectCanvas")));
 
+	// private CharacterSelection charSelectReference = null;
 
 	private TMP_Text carName;
-	private Image checkMark;
+	private GameObject characterInfo;
+	private RectTransform arrowLeft;
+	private RectTransform arrowRight;
 	private GameObject allUI;
 	private GameObject btnNext;
 
+	private Dictionary<CharacterSelected, GameObject> characterItems = new Dictionary<CharacterSelected, GameObject>();
+
 	void Awake() {
+		instance = this;
 		allUI = transform.GetChild(0).gameObject;
-		btnNext = transform.GetChild(1).gameObject;
 		carName = allUI.transform.GetChild(0).GetComponent<TMP_Text>();
-		checkMark = carName.transform.GetChild(0).GetComponent<Image>();
+		characterInfo = allUI.transform.GetChild(1).gameObject;
+		arrowLeft = allUI.transform.GetChild(2).GetComponent<RectTransform>();
+		arrowRight = allUI.transform.GetChild(3).GetComponent<RectTransform>();
+		btnNext = transform.GetChild(1).gameObject;
+
+		characterItems.Add(CharacterSelected.AKASH, characterInfo.transform.GetChild(0).gameObject);
+		characterItems.Add(CharacterSelected.MICHISHIGE, characterInfo.transform.GetChild(1).gameObject);
+		characterItems.Add(CharacterSelected.LUDWIG, characterInfo.transform.GetChild(2).gameObject);
 	}
 
-	public void SetText(string p_carName) { carName.text = p_carName; }
-	public void SetCheck(bool toggle) {
-		if (toggle == true) {
-			checkMark.color = new Color(30f / 255f, 200f / 255f, 150f / 255f);
-		} else { checkMark.color = new Color(185f / 255f, 185f / 255f, 185f / 255f); }
+	private void OnDestroy() {
+		if (instance == this) {
+			instance = null;
+		}
 	}
-	public void Activate(bool toggle) { allUI.SetActive(toggle); btnNext.SetActive(toggle); }
+
+	public void SetText(string carName) {
+		this.carName.text = carName;
+	}
+
+	public void SetCharacter(CharacterSelected name) {
+		if (characterItems.ContainsKey(name)) {
+			foreach (KeyValuePair<CharacterSelected, GameObject> item in characterItems) {
+				if (item.Key != name) { item.Value.SetActive(false); } else { item.Value.SetActive(true); }
+			}
+		} else {
+			UnityEngine.Debug.Log("CharSelectCanvas/SetCharacter: No character item for " + name.ToString());
+		}
+	}
+
+	public void Activate(bool toggle) {
+		allUI.SetActive(toggle);
+		btnNext.SetActive(toggle);
+	}
+
 
 }

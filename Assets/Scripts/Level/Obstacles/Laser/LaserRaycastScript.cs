@@ -34,10 +34,23 @@ public class LaserRaycastScript : MonoBehaviour {
 			LaserLayerMask = SettingsOverride.LaserLayerMask;
 			AlwaysShowLaser = SettingsOverride.AlwaysShowLaser;
 		}
+
 	}
 
+	bool visible = true;
+
+	private void OnBecameVisible() {
+		visible = true;
+	}
+
+	private void OnBecameInvisible() {
+		visible = false;
+	}
 
 	void Update() {
+
+		if (!visible)
+			return;
 
 		RaycastHit[] hits = Physics.RaycastAll(
 			transform.position,
@@ -53,6 +66,7 @@ public class LaserRaycastScript : MonoBehaviour {
 			if (HitLastFrame) {
 				HitLastFrame = false;
 				LaserParticleSystem.Stop();
+				LaserParticleSystem.gameObject.SetActive(false);
 				if (AlwaysShowLaser) {
 					Vector3 scale = LaserCylinder.transform.localScale;
 					scale.z = Range * .5f;
@@ -67,9 +81,10 @@ public class LaserRaycastScript : MonoBehaviour {
 		if (!HitLastFrame) {
 			HitLastFrame = true;
 			LaserParticleSystem.Play();
-			if (!AlwaysShowLaser) {
-				LaserCylinder.SetActive(true);
-			}
+			LaserParticleSystem.gameObject.SetActive(true);
+			// if (!AlwaysShowLaser) {
+			LaserCylinder.SetActive(true);
+			// }
 		}
 
 		float min = hits.Select(hit => hit.distance).Min();
@@ -78,7 +93,7 @@ public class LaserRaycastScript : MonoBehaviour {
 
 		{
 			Vector3 scale = LaserCylinder.transform.localScale;
-			scale.z = min * .5f;
+			scale.z = (min * .5f) / transform.lossyScale.z;
 			LaserCylinder.transform.localScale = scale;
 		}
 

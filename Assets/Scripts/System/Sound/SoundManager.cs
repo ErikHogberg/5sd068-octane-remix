@@ -25,15 +25,13 @@ public class Sound {
 	public AudioMixerGroup audioMixer;
 }
 
-public class SoundFader : MonoBehaviour
-{
+public class SoundFader : MonoBehaviour {
 	public static SoundFader Instance;
 	void Awake() { Instance = this; }
 
 	//public static void StartFade(Sound p_sound) { Instance.StartCoroutine(Fade(p_sound)); }
 
-	public IEnumerator Fade(Sound sound)
-	{
+	public IEnumerator Fade(Sound sound) {
 		float duration = 0f;
 		float timer = 0f;
 		float percent = 0f;
@@ -53,8 +51,7 @@ public class SoundFader : MonoBehaviour
 			percent = timer / duration;
 			timer += Time.deltaTime;
 
-			if (fadeIn) { source.volume = percent; }
-			else { source.volume = (1f - percent); }
+			if (fadeIn) { source.volume = percent; } else { source.volume = (1f - percent); }
 
 			yield return null;
 		}
@@ -63,8 +60,7 @@ public class SoundFader : MonoBehaviour
 	}
 }
 
-public class SoundManager : MonoBehaviour
-{
+public class SoundManager : MonoBehaviour {
 	//Dictionary to keep track of looping sound sources that have their own gameobjects
 	private static Dictionary<string, GameObject> loopingSounds;
 	//Dictionary to keep track of looping sound sources without unique gameobjects
@@ -74,7 +70,7 @@ public class SoundManager : MonoBehaviour
 	private static Dictionary<string, GameObject> singleSounds;
 	//Dictionary to keep track of single sound sources without unique gameobjects, if they are not allowed duplicates
 	private static Dictionary<string, AudioSource> singleSoundSources;
-	
+
 
 	//For efficiency's sake, a dedicated game object for playing sounds without a specified location
 	private static GameObject defaultSource;
@@ -90,16 +86,17 @@ public class SoundManager : MonoBehaviour
 	}
 
 	//Plays a sound without a specified origin location
-	public static void PlaySound(string name)
-	{
+	public static void PlaySound(string name) {
+		//UnityEngine.Debug.Log("SoundManager/PlaySound: " + name);
 		Sound sound = null;
 		//Check if requested sound exists in the "library" on the SoundAssets prefab (in Resources folder)
 		foreach (Sound item in SoundAssets.Instance.soundEffects) {
 			if (item.name == name) {
 				sound = item;
 				break;
-			} 
-		} if (sound == null) {
+			}
+		}
+		if (sound == null) {
 			UnityEngine.Debug.Log("SoundManager/PlaySound: Could not find requested sound among SoundAssets.");
 			return;
 		}
@@ -138,8 +135,7 @@ public class SoundManager : MonoBehaviour
 		else if (!sound.loop && sound.unique) {
 			singleSoundSources.Add(sound.name, audioSource);
 			Object.Destroy(audioSource, audioSource.clip.length);
-		}
-		else Object.Destroy(audioSource, audioSource.clip.length);
+		} else Object.Destroy(audioSource, audioSource.clip.length);
 	}
 
 	//Plays a sound at a specified position
@@ -153,7 +149,8 @@ public class SoundManager : MonoBehaviour
 				found = true;
 				break;
 			}
-		} if (!found) {
+		}
+		if (!found) {
 			UnityEngine.Debug.Log("SoundManager/PlaySound: Could not find requested sound " + name + " among SoundAssets.");
 			return;
 		}
@@ -193,11 +190,10 @@ public class SoundManager : MonoBehaviour
 		else if (!sound.loop && sound.unique) {
 			singleSounds.Add(sound.name, soundSource);
 			Object.Destroy(soundSource, audioSource.clip.length);
-		}
-		else Object.Destroy(soundSource, audioSource.clip.length);
+		} else Object.Destroy(soundSource, audioSource.clip.length);
 
 	}
-		
+
 
 	public static void StopLooping(string name, bool printDebug = true) {
 		Sound sound = null;
@@ -206,7 +202,8 @@ public class SoundManager : MonoBehaviour
 				sound = item;
 				break;
 			}
-		} if (sound == null) {
+		}
+		if (sound == null) {
 			UnityEngine.Debug.Log("SoundManager/StopLooping: Could not find requested sound  " + name + " among SoundAssets.");
 			return;
 		}
@@ -216,14 +213,43 @@ public class SoundManager : MonoBehaviour
 			loopingSounds.Remove(name);
 			//SoundFader.StartFade(sound);
 			Object.Destroy(dest/*, sound.fadeOutDuration*/);
-		}
-		else if (loopingSoundsSources.ContainsKey(name)) {
+		} else if (loopingSoundsSources.ContainsKey(name)) {
 			AudioSource dest = loopingSoundsSources[name];
 			loopingSoundsSources.Remove(name);
 			//SoundFader.StartFade(sound);
 			Object.Destroy(dest/*, sound.fadeOutDuration*/);
 		} else if (printDebug) {
-			//UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
+			UnityEngine.Debug.Log("SoundManager/StopLooping: Loop dictionaries do not contain an instance for " + name);
+		}
+	}
+
+	public static void StopAll() {
+		foreach (KeyValuePair<string, GameObject> entry in loopingSounds) {
+			GameObject dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, AudioSource> entry in loopingSoundsSources) {
+			AudioSource dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, GameObject> entry in singleSounds) {
+			GameObject dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		foreach (KeyValuePair<string, AudioSource> entry in singleSoundSources) {
+			AudioSource dest = entry.Value;
+			loopingSounds.Remove(entry.Key);
+			Object.Destroy(dest);
+		}
+		
+		if (defaultSource) {
+			AudioSource[] localSources = defaultSource.GetComponents<AudioSource>();
+			foreach (AudioSource source in localSources) {
+				Object.Destroy(source);
+			}
 		}
 	}
 

@@ -6,13 +6,15 @@ using UnityEngine;
 public enum ScoreSkill {
 	DRIFT = 0,
 	DODGE,
-	AIRTIME
+	AIRTIME,
+	BOOST
 }
 
 public class Score {
 	private int score = 0;
 	public void AddScore(int add) { score += add; }
 	public int GetScore() { return score; }
+	public void ClearScore() { score = 0; }
 }
 
 public class SkillScore {
@@ -50,6 +52,12 @@ public class SkillScore {
 		}
 		return all;
 	}
+
+	public void ClearSkillScores() {
+		foreach (KeyValuePair<ScoreSkill, Score> skillScore in skillScoreTypes) {
+			skillScore.Value.ClearScore();
+        }
+    }
 }
 
 public class ScoreBoard {
@@ -67,6 +75,7 @@ public class ScoreBoard {
 	public void AddRemix(int add) { remix.AddScore(add); }
 	public void AddTime(int add) { time.AddScore(add); }
 	public void AddSkill(ScoreSkill type, int add) { skill.AddScore(type, add); }
+	public void ClearScores() { remix.ClearScore(); time.ClearScore(); skill.ClearSkillScores(); }
 
 	public int GetRemix() { return remix.GetScore(); }
 	public int GetTime() { return time.GetScore(); }

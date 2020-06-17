@@ -58,21 +58,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   soundEffects:
   - name: akash_engine
-    volume: 0.2
+    volume: 0.3
     loop: 1
     unique: 0
     audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
     audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
       type: 2}
   - name: michi_engine
-    volume: 0.2
+    volume: 0.3
     loop: 1
     unique: 0
     audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
     audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
       type: 2}
   - name: ludwig_engine
-    volume: 0.2
+    volume: 0.3
     loop: 1
     unique: 0
     audioClip: {fileID: 8300000, guid: 8da4cbc276e64114596b7cd5258f1342, type: 3}
@@ -107,18 +107,32 @@ MonoBehaviour:
     audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
       type: 2}
   - name: drift_continuous
-    volume: 0.2
-    loop: 1
-    unique: 0
-    audioClip: {fileID: 8300000, guid: 87db2ab11a25a924d9e20744deb1708b, type: 3}
-    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
-      type: 2}
-  - name: wind_brake
-    volume: 0.05
+    volume: 0.3
     loop: 1
     unique: 0
     audioClip: {fileID: 8300000, guid: 738ec17e66a59184a99c1a554e38b703, type: 3}
     audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: dry_ice_brake
+    volume: 0.2
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 9e5f00b65dad8b34995b5581985ff93d, type: 3}
+    audioMixer: {fileID: -6734849495517354432, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: playscene_music
+    volume: 0.25
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: 60baecb875c42a741abd5246443edaf8, type: 3}
+    audioMixer: {fileID: 2724648709495072334, guid: 5e0710f0bdee74343809cc7934afe2d4,
+      type: 2}
+  - name: menu_music
+    volume: 0.25
+    loop: 1
+    unique: 0
+    audioClip: {fileID: 8300000, guid: e62cddec253121b409e5ebdd06c95f72, type: 3}
+    audioMixer: {fileID: 2724648709495072334, guid: 5e0710f0bdee74343809cc7934afe2d4,
       type: 2}
   - name: 
     volume: 1

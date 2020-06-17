@@ -10,21 +10,36 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public bool UseEnabledAsDefault = false;
 
 	[Serializable]
-	public class ObjectIndex {
+	public class ObjectEntry {
 		public string Key;
 		public GameObject Value;
 	}
 
-	public List<ObjectIndex> objects;
+	public List<ObjectEntry> objects;
+	public int Count => objects.Count;
 
 	[HideInInspector]
-	public ObjectIndex ShownObject = null;
+	public ObjectEntry ShownObject = null;
+	public int ShownIndex {
+		get {
+			if (ShownObject == null)
+				return -1;
+
+			for (int i = 0; i < objects.Count; i++) {
+				if (objects[i] == ShownObject) {
+					return i;
+				}
+			}
+
+			return -1; // should be error
+		}
+	}
 
 	private void Awake() {
 		foreach (var item in objects) {
-			if (UseEnabledAsDefault && item.Value.activeInHierarchy)
+			if (UseEnabledAsDefault && (item?.Value.activeInHierarchy ?? false))
 				DefaultObject = item.Key;
-			
+
 			item.Value.SetActive(false);
 		}
 
@@ -34,6 +49,9 @@ public class ObjectSelectorScript : MonoBehaviour {
 	public void UnhideObject(int index) {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
+
+		if (index < 0)
+			return;
 
 		if (index < objects.Count) {
 			ShownObject = objects[index];
@@ -45,6 +63,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
 
+		ShownObject = null;
 		if (key == "" || key == "None")
 			return;
 
@@ -59,7 +78,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 
 	public void UnhideObject() {
 		UnhideObject("");
-		ShownObject = null;
+		// ShownObject = null;
 	}
 
 }

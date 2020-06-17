@@ -6,60 +6,55 @@ using TMPro;
 using System.Security.Cryptography;
 
 [RequireComponent(typeof(Toggle))]
-public class ObstacleListItem : MonoBehaviour
-{
-	private string itemName = "";
-	private Toggle itemToggle;
-	private TMP_Text itemLabel;
+public class ObstacleListItem : MonoBehaviour {
+	public string ItemName {get; private set;} = "";	
+	public Toggle ItemToggle {get; private set;}
+	public TMP_Text ItemLabel {get; private set;}
 	private ObstacleListScript listReference;
 
-    ObstacleListItem(string p_name, ObstacleListScript p_list) { itemName = p_name; listReference = p_list; }
+	ObstacleListItem(string p_name, ObstacleListScript p_list) { ItemName = p_name; listReference = p_list; }
 
-	void Awake() { 
-		itemToggle = GetComponent<Toggle>(); 
-		itemLabel = transform.GetChild(1).GetComponent<TMP_Text>();
+	void Awake() {
+		ItemToggle = GetComponent<Toggle>();
+		ItemLabel = transform.GetChild(1).GetComponent<TMP_Text>();
 		TextColorAdjust();
 	}
 
-	public void SetName(string p_name) { itemName = p_name; itemLabel.text = p_name; }
+	public void SetName(string p_name) { ItemName = p_name; ItemLabel.text = p_name; }
 	public void SetListReference(ObstacleListScript p_list) { listReference = p_list; }
-	public void SetToggleGroup(ToggleGroup p_group) { itemToggle.group = p_group; }
+	public void SetToggleGroup(ToggleGroup p_group) { ItemToggle.group = p_group; }
 
-	public void SetUpDownNav(Toggle upSelect, Toggle downSelect)
-	{
-		Navigation orgNav = itemToggle.navigation;
+	public void SetUpDownNav(Toggle upSelect, Toggle downSelect) {
+		Navigation orgNav = ItemToggle.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
 		orgNav.selectOnUp = upSelect;
 		orgNav.selectOnDown = downSelect;
-		itemToggle.navigation = orgNav;
+		ItemToggle.navigation = orgNav;
 	}
-	public void SetLeftRightNav(Toggle leftSelect, Toggle rightSelect)
-	{
-		Navigation orgNav = itemToggle.navigation;
+	
+	public void SetLeftRightNav(Toggle leftSelect, Toggle rightSelect) {
+		Navigation orgNav = ItemToggle.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
 		orgNav.selectOnLeft = leftSelect;
 		orgNav.selectOnRight = rightSelect;
-		itemToggle.navigation = orgNav;
+		ItemToggle.navigation = orgNav;
 	}
-	public void SetNavModeVertical()
-    {
-		Navigation orgNav = itemToggle.navigation;
+	
+	public void SetNavModeVertical() {
+		Navigation orgNav = ItemToggle.navigation;
 		orgNav.mode = Navigation.Mode.Vertical;
-		itemToggle.navigation = orgNav;
+		ItemToggle.navigation = orgNav;
 	}
-
-	public Toggle GetToggle() { return itemToggle; }
-	public TMP_Text GetText() { return itemLabel; }
-	public string GetName() { return itemName; }
 
 	//Triggered onValueChanged
 	public void TogglePing() {
-		listReference.ReceiveTogglePing(itemName, itemToggle.isOn);
+		listReference.ReceiveTogglePing(ItemName, ItemToggle.isOn);
 		TextColorAdjust();
 	}
+	
 	private void TextColorAdjust() {
-		if (itemToggle.isOn == true)
-			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, 1f);
-		else itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
+		if (ItemToggle.isOn == true)
+			ItemLabel.color = new Color(ItemLabel.color.r, ItemLabel.color.g, ItemLabel.color.b, 1f);
+		else ItemLabel.color = new Color(ItemLabel.color.r, ItemLabel.color.g, ItemLabel.color.b, (45f / 255f));
 	}
 }

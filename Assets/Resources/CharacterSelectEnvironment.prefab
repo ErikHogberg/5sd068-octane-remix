@@ -416,6 +416,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -464,6 +466,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &839319575378371765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1170,6 +1174,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -1218,6 +1224,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &1763308869269641579
 GameObject:
   m_ObjectHideFlags: 0
@@ -2509,6 +2517,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -2557,6 +2567,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &4248666674209763740
 GameObject:
   m_ObjectHideFlags: 0
@@ -3634,6 +3646,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 15
+  stageSurface: {fileID: 8634497354998563018}
+  stageMaterials:
+  - tag: 1
+    material: {fileID: 2100000, guid: f54c236b48e79f146b802dcb1990790f, type: 2}
+  - tag: 2
+    material: {fileID: 2100000, guid: 6204a8bc8b8e5204f8e2f84e8a6933d0, type: 2}
+  - tag: 3
+    material: {fileID: 2100000, guid: 2c19fc94195443e4082ed63f9356bec6, type: 2}
 --- !u!1 &6267699808120356477
 GameObject:
   m_ObjectHideFlags: 0
@@ -4020,6 +4040,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -4068,6 +4090,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &6508407421282578639
 GameObject:
   m_ObjectHideFlags: 0
@@ -4288,6 +4312,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -4336,6 +4362,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &6508407421740168575
 GameObject:
   m_ObjectHideFlags: 0
@@ -4645,6 +4673,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -4693,6 +4723,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &6508407422300231636
 GameObject:
   m_ObjectHideFlags: 0
@@ -5152,6 +5184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6508407423166701681}
   - component: {fileID: 6508407423166701686}
+  - component: {fileID: 5261385308605567325}
   m_Layer: 0
   m_Name: CharacterSelectEnvironment
   m_TagString: Untagged
@@ -5187,17 +5220,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31b85b56c56c68148a1c85788521a85f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startAsActive: 0
+  startAsActive: 1
   charSelectData:
-  - carName: Akash's Raptor
+  - carName: Chipembere
     carTag: 1
     carModel: {fileID: 9012670459248435323}
-  - carName: Michishige's Nissan
+  - carName: IchiGo
     carTag: 2
     carModel: {fileID: 6883373544531242044}
-  - carName: Ludwig's Bugatti
+  - carName: Goldener Lowe
     carTag: 3
     carModel: {fileID: 1689072436028585246}
+--- !u!81 &5261385308605567325
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6508407423166701680}
+  m_Enabled: 1
 --- !u!1 &6558672072294107055
 GameObject:
   m_ObjectHideFlags: 0
@@ -5442,6 +5483,8 @@ MonoBehaviour:
   m_FilterSizeTraced: 16
   m_SunLightConeAngle: 0.5
   m_LightShadowRadius: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
   m_EvsmExponent: 15
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
@@ -5490,6 +5533,8 @@ MonoBehaviour:
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
 --- !u!1 &6883373544531242044
 GameObject:
   m_ObjectHideFlags: 0

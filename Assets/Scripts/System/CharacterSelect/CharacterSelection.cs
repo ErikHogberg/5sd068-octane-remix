@@ -46,6 +46,7 @@ public class CharacterSelection : MonoBehaviour {
 	private Canvas mainCanvas;
 	private Camera charSelectCamera;
 	private GameObject charSelectVisuals;
+	private CharSelectRotateStage stage = null;
 
 	//To be able to seamlessly return to whatever we were doing before hopping into char select
 	private Dictionary<Camera, bool> cameraStatusMemory;
@@ -56,25 +57,25 @@ public class CharacterSelection : MonoBehaviour {
 
 		mainCanvas = CanvasFinder.thisCanvas;
 		cameraStatusMemory = new Dictionary<Camera, bool>();
-		// choices = new Dictionary<int, CharacterSelected>();
-		UINavInput.Instance.AddUINavListener(UIMode.CHARSELECT);
 
-		if (transform.childCount > 2) {
-			Debug.Log("CharacterSelection: Root object has more than its intended 2 children");
+		if (transform.childCount > 3) {
+			Debug.Log("CharacterSelection: Root object has more than its intended 3 children");
 			return;
 		} else {
 			foreach (Transform child in transform) {
 				if (child.GetComponent<Camera>() != null)
 					charSelectCamera = child.gameObject.GetComponent<Camera>();
-				else charSelectVisuals = child.gameObject;
+				else if (child.gameObject.name == "CharSelectVisuals") {
+					charSelectVisuals = child.gameObject;
+				}
 			}
 			charSelectCamera.enabled = false;
-			charSelectVisuals.SetActive(false);
+			stage = charSelectVisuals.transform.GetChild(0).GetComponent<CharSelectRotateStage>();
 			CharSelectCanvas.Instance.Activate(false);
 		}
 	}
 	void Start() {
-		MakePick(0, CharacterSelected.NONE);
+		MakePick(0, CharacterSelected.AKASH);
 		if (startAsActive)
 			ActivateCharSelect(true);
 	}
@@ -100,6 +101,7 @@ public class CharacterSelection : MonoBehaviour {
 	public CharacterSelected CurrentIndex() { return charSelectData[currViewIndex].carTag; }
 
 	//Goes either left or right through the array of available cars
+	//AKA updates index according to user input
 	public void SwapDisplayCar(bool goLeft) {
 		charSelectData[currViewIndex].carModel.SetActive(false);
 
@@ -109,6 +111,7 @@ public class CharacterSelection : MonoBehaviour {
 		if (currViewIndex < 0) currViewIndex = charSelectData.Length - 1;
 		else if (currViewIndex >= charSelectData.Length) currViewIndex = 0;
 
+		MakePick(0, charSelectData[currViewIndex].carTag);
 		VisualSetDisplay();
 	}
 	//Swaps immediately to the available car at the specified index
@@ -118,13 +121,12 @@ public class CharacterSelection : MonoBehaviour {
 		VisualSetDisplay();
 	}
 
+	//Update char select visuals to match current index
 	private void VisualSetDisplay() {
-		if (charSelectData[currViewIndex].carTag == choices[0])
-			CharSelectCanvas.Instance.SetCheck(true);
-		else CharSelectCanvas.Instance.SetCheck(false);
-
 		CharSelectCanvas.Instance.SetText(charSelectData[currViewIndex].carName);
+		CharSelectCanvas.Instance.SetCharacter(charSelectData[currViewIndex].carTag);
 		charSelectData[currViewIndex].carModel.SetActive(true);
+		stage.ChangeMaterial(charSelectData[currViewIndex].carTag);
 	}
 	private void AnnouncePick(int index) {
 		string car_n = "";
@@ -140,8 +142,6 @@ public class CharacterSelection : MonoBehaviour {
 			playerObjects.Add(SteeringScript.MainInstance.gameObject);
 		}
 		foreach (GameObject obj in playerObjects) { obj.SetActive(!toggle); }
-		CanvasFinder.thisCanvas.gameObject.SetActive(!toggle);
-		UINavInput.Instance.SetUINavMode(UIMode.CHARSELECT);
 
 		if (toggle == true) {
 			Camera[] cameraList = Camera.allCameras;
@@ -149,16 +149,13 @@ public class CharacterSelection : MonoBehaviour {
 				cameraStatusMemory.Add(cam, cam.enabled);
 				cam.enabled = !toggle;
 			}
-			UINavInput.Instance.Activate();
 			CanvasFinder.SetThisCanvas(CharSelectCanvas.Instance.GetComponent<Canvas>());
 		} else {
 			foreach (KeyValuePair<Camera, bool> cam in cameraStatusMemory) {
 				cam.Key.enabled = cam.Value;
 			}
 			cameraStatusMemory.Clear();
-			UINavInput.Instance.Deactivate();
 		}
-		charSelectVisuals.SetActive(toggle);
 		charSelectCamera.enabled = toggle;
 		CharSelectCanvas.Instance.Activate(toggle);
 

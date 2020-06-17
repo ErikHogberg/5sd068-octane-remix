@@ -35,6 +35,8 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 	MaskableGraphic image;
 	Color initColor;
 	float timer = -1;
+	
+	public bool Running => timer >= 0;
 
 	void Start() {
 		image = GetComponent<MaskableGraphic>();
@@ -66,12 +68,12 @@ public class GenericFadeImageUIScript : MonoBehaviour {
 				timer = -1;
 				return;
 			case FadeMode.FadeIn: {
-					float percentage = FadeInCurve.Evaluate(Mathf.Clamp(timer / FadeInTime, 0, 1));
+					float percentage = FadeInCurve.Evaluate(Mathf.Clamp01(timer / FadeInTime));
 					image.color = Color.Lerp(initColor, FadeInFromColor, percentage);
 					break;
 				}
 			case FadeMode.FadeOut: {
-					float percentage = FadeOutCurve.Evaluate(Mathf.Clamp(timer / FadeOutTime, 0, 1));
+					float percentage = FadeOutCurve.Evaluate(Mathf.Clamp01(timer / FadeOutTime));
 					image.color = Color.Lerp(FadeOutToColor, initColor, percentage);
 					break;
 				}

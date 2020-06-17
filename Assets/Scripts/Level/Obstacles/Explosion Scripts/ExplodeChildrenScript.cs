@@ -6,10 +6,10 @@ using UnityEngine;
 
 // Component that takes all rigidbodies in its children, makes them non-kinematic, 
 // and sends them flying with explosive force.
-public class ExplodeChildrenScript : ExplodeComponent {
+public class ExplodeChildrenScript : ExplodeComponent, IObserver<Transform> {
 
 	List<Rigidbody> childRBs = new List<Rigidbody>();
-	List<(Vector3, Quaternion)> rbInitTransforms;
+	List<(Vector3, Quaternion)> rbInitTransforms = new List<(Vector3, Quaternion)>();
 
 	[Tooltip("How far around the explosion center the children will be affected by the explosion force")]
 	public float ExplosionRadius = 1f;
@@ -28,13 +28,22 @@ public class ExplodeChildrenScript : ExplodeComponent {
 	[Tooltip("If the explosion should be triggered by trigger collision with a collider on this object")]
 	public bool OnTrigger = false;
 
+	public MoveToRaycastNormalScript OptionalMoveToRaycast;
+
+	private void SetInitTransforms() {
+		rbInitTransforms.Clear();
+		foreach (var item in childRBs.Select(rb => (rb.transform.position, rb.transform.rotation)))
+			rbInitTransforms.Add(item);
+	}
 
 	private void Awake() {
 		GetComponentsInChildren<Rigidbody>(false, childRBs);
-		rbInitTransforms = childRBs.Select(rb => (rb.transform.position, rb.transform.rotation)).ToList();
+		SetInitTransforms();
 
 		if (!ExplosionCenter)
 			ExplosionCenter = transform;
+
+		OptionalMoveToRaycast?.Observers.Add(this);
 	}
 
 	private void OnTriggerEnter(Collider other) {
@@ -65,6 +74,10 @@ public class ExplodeChildrenScript : ExplodeComponent {
 			rb.position = rbInitPos;
 			rb.rotation = rbInitRot;
 		}
+	}
+
+	public void Notify(Transform t){
+		SetInitTransforms();
 	}
 
 }
