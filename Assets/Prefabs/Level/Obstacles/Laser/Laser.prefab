@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7745614070950145328}
   - component: {fileID: 7963299198831105598}
-  m_Layer: 20
+  m_Layer: 12
   m_Name: Laser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64,7 +64,7 @@ GameObject:
   - component: {fileID: 548430431787074617}
   - component: {fileID: 5283339573838642306}
   - component: {fileID: 4862832285141636398}
-  m_Layer: 20
+  m_Layer: 12
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4818,8 +4818,7 @@ GameObject:
   - component: {fileID: 8411543778388292233}
   - component: {fileID: 6949809425296548026}
   - component: {fileID: 5776258563359122751}
-  - component: {fileID: 8871911423808921152}
-  m_Layer: 20
+  m_Layer: 12
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4887,20 +4886,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!136 &8871911423808921152
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3436169323207845605}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &6810558745951380349
 GameObject:
   m_ObjectHideFlags: 0
@@ -4910,7 +4895,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1744977112234301692}
-  m_Layer: 20
+  m_Layer: 12
   m_Name: Cylinder Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}

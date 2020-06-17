@@ -37,7 +37,9 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 	void Start() {
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
-		SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
+		if (SegmentListScript.listItems.Count > 0) {
+			SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
+		}
 		UpdateUI();
 	}
 
@@ -79,18 +81,10 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		//Fetch the recorded selected obstacle for the currently selected segment list item
 		currentObstacleType = SegmentListScript.ReadCurrentItem().GetObstacle();
 
-		//Creates list items based on all entries in CurrentListLayout
-		//Should only be true the first time UpdateUI is run
-
-		// obstacleList.Clear();
-		// foreach (string entry in currentListLayout) {
-		// 	AddNewListItem(entry);
-		// }
-
 		int diff = currentListLayout.Count - obstacleList.Count;
 		if (currentListLayout.Count > obstacleList.Count) {
 			for (int i = 0; i < diff; i++) {
-				AddNewListItem("Error, please select next segment");
+				AddNewListItem();
 			}
 		}
 
@@ -120,22 +114,14 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		SegmentListScript.UpdateLeftNav();
 	}
 
-	private void AddNewListItem(string obstacleName) {
+	private void AddNewListItem() {
 		ObstacleListItem newItemObj = Instantiate(Resources.Load<ObstacleListItem>("ObstacleListItem"));
-		// ObstacleListItem newItemObj = Instantiate(listItemPrefab);
-		// obstacleList.Add(obstacleName, newItemObj);
 		obstacleList.Add(newItemObj);
 		newItemObj.transform.SetParent(gameObject.transform);
 		newItemObj.gameObject.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
 
 		newItemObj.SetListReference(this);
 		newItemObj.SetToggleGroup(group);
-
-		// newItemObj.SetName(p_name);
-		// if (p_name == currentObstacleType)
-		// 	newItemObj.GetToggle().isOn = true;
-
-		// SetListItem(newItemObj, obstacleName);
 	}
 
 	private void SetListItem(ObstacleListItem item, string obstacleName) {
