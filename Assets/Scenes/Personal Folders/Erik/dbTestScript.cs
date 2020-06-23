@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using static HighscoreManager;
+
 public class dbTestScript : MonoBehaviour {
 
 	// HighscoreManager.HighscoreList list;

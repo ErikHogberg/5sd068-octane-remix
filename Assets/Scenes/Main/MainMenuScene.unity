@@ -1024,7 +1024,6 @@ GameObject:
   - component: {fileID: 483264649}
   - component: {fileID: 483264648}
   - component: {fileID: 483264651}
-  - component: {fileID: 483264652}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1063,7 +1062,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 1
   far clip plane: 10
   field of view: 60
   orthographic: 1
@@ -1201,19 +1200,6 @@ MonoBehaviour:
       data1: 0
       data2: 0
   defaultFrameSettings: 0
---- !u!114 &483264652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 483264647}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1234834525b7ade4e9d38fb27b1137bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Insert: 1
 --- !u!1 &905145761
 GameObject:
   m_ObjectHideFlags: 0
