@@ -42,7 +42,7 @@ public class PlayerEntry {
 
 public class HighscoreList {
 
-	public static string dbPath = Application.dataPath + "/DBR1";
+	public static string dbPath = Application.dataPath + "/HighscoreDatabase";//"/DBR1";
 
 	public DBreezeEngine engine = null;
 
@@ -68,7 +68,7 @@ public class HighscoreList {
 		}
 
 		//Setting up NetJSON serializer (from NuGet) to be used by DBreeze
-		
+
 		// DBreeze.Utils.CustomSerializator.ByteArraySerializator = (object o) => { return NetJSON.NetJSON.Serialize(o).To_UTF8Bytes(); };
 		// DBreeze.Utils.CustomSerializator.ByteArrayDeSerializator = (byte[] bt, Type t) => { return NetJSON.NetJSON.Deserialize(t, bt.UTF8_GetString()); };
 
@@ -117,41 +117,42 @@ public class HighscoreList {
 
 	//
 
-	public void Start() {
+	public void Start(bool insert = true) {
 
+		if (insert) {
+			Debug.Log("insert remix");
 
-		Debug.Log("insert remix");
+			//* Inserting CustomerId 1
+			var remix = new RemixEntry() { RemixId = "asdf" };
+			Insert(remix);
 
-		//* Inserting CustomerId 1
-		var remix = new RemixEntry() { RemixId = "asdf" };
-		Insert(remix);
+			Debug.Log("insert player");
+			var player = new PlayerEntry() { Name = "Tino Zanner" };
+			Insert(player);
 
-		Debug.Log("insert player");
-		var player = new PlayerEntry() { Name = "Tino Zanner" };
-		Insert(player);
+			Debug.Log("insert highscores");
+			//* Inserting some orders for this customer
+			Insert(
+				Enumerable.Range(1, 5)
+				.Select(r => new HighscoreEntry { RemixEntryId = remix.EntryId, PlayerEntryId = player.EntryId, Score = 100, Time = 200, Character = CharacterSelected.NONE })
+				);
 
-		Debug.Log("insert highscores");
-		//* Inserting some orders for this customer
-		Insert(
-			Enumerable.Range(1, 5)
-			.Select(r => new HighscoreEntry { RemixEntryId = remix.EntryId, PlayerEntryId = player.EntryId, Score = 100, Time = 200, Character = CharacterSelected.NONE })
+			Debug.Log("update highscore");
+			//* Test update order 
+			UpdateHighscore(3);
+
+			Debug.Log("insert remix 2");
+			//* Inserting CustomerId 2
+			remix = new RemixEntry() { RemixId = "Michael Hinze" };
+			Insert(remix);
+
+			Debug.Log("insert highscores 2");
+			//* Inserting some orders for this customer
+			Insert(
+				Enumerable.Range(1, 8)
+				.Select(r => new HighscoreEntry { RemixEntryId = remix.EntryId, PlayerEntryId = player.EntryId, Score = 100, Time = 200, Character = CharacterSelected.AKASH })
 			);
-
-		Debug.Log("update highscore");
-		//* Test update order 
-		UpdateHighscore(3);
-
-		Debug.Log("insert remix 2");
-		//* Inserting CustomerId 2
-		remix = new RemixEntry() { RemixId = "Michael Hinze" };
-		Insert(remix);
-
-		Debug.Log("insert highscores 2");
-		//* Inserting some orders for this customer
-		Insert(
-			Enumerable.Range(1, 8)
-			.Select(r => new HighscoreEntry { RemixEntryId = remix.EntryId, PlayerEntryId = player.EntryId, Score = 100, Time = 200, Character = CharacterSelected.AKASH})
-		);
+		}
 
 		Debug.Log("get remix by entry id");
 		//* Getting Customer ById

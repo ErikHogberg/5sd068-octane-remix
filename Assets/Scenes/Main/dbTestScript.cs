@@ -6,10 +6,12 @@ public class dbTestScript : MonoBehaviour {
 
 	// HighscoreManager.HighscoreList list;
 
+	public bool Insert = false;
+
 	void Start() {
 		HighscoreList list = new HighscoreList();
 		// list = new HighscoreManager.HighscoreList();
-		list.Start();
+		list.Start(Insert);
 		list = null;
 	}
 
