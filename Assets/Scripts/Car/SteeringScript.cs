@@ -125,6 +125,16 @@ public class SteeringScript : MonoBehaviour {
 		public float AbsoluteVelocityCap = 200f;
 		#endregion
 
+		[Header("Wheel friction")]
+		[Tooltip("How much friction the front wheels have for forward traction, how effective gas and brake is")]
+		public float FrontWheelForwardStiffness = 1;
+		[Tooltip("How much friction the front wheels have for sideways traction, how hard the car can turn without drifting")]
+		public float FrontWheelSidewaysStiffness = 1;
+		[Tooltip("How much friction the rear wheels have for forward traction, how effective gas and brake is, higher rear forward value than front forward value potentially makes the car more stable when braking")]
+		public float RearWheelForwardStiffness = 1;
+		[Tooltip("How much friction the front wheels have for forward traction, how hard the car can turn without drifting, higher rear sideways value than front sideways value potentially makes the car more stable while steering, but harder to keep drifting")]
+		public float RearWheelSidewaysStiffness = 1;
+
 	}
 
 	public static SteeringScript MainInstance;
@@ -133,6 +143,7 @@ public class SteeringScript : MonoBehaviour {
 	public int CurrentProfileIndex = 0;
 	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
 	public SpeedProfile[] SpeedProfiles;
+	[Space]
 	public Color ProfileChangeColor = Color.green;
 
 	[Header("Steering")]
@@ -274,8 +285,6 @@ public class SteeringScript : MonoBehaviour {
 	public int DestructionScore = 1000;
 
 	[Header("Misc.")]
-
-	public bool EnableSound = false;
 	public bool EnableCheatMitigation = true;
 
 	[Space]
@@ -374,6 +383,9 @@ public class SteeringScript : MonoBehaviour {
 
 		wheelRotationBuffers = new float[FrontWheelColliders.Count + RearWheelColliders.Count];
 
+		// SetProfile(CurrentProfileIndex);
+		UpdateWheelFriction();
+
 		// TODO: teleport car to start segment reset spot
 		// FIXME: reset triggers penalty popup, prematurely starting game
 		// IDEA: reset fn with option to disable penalty
@@ -384,11 +396,6 @@ public class SteeringScript : MonoBehaviour {
 	void Awake() {
 		rb = GetComponent<Rigidbody>();
 		carSound = GetComponent<CarSoundHandler>();
-
-		if (EnableSound)
-			carSound.enabled = true;
-		else
-			carSound.enabled = false;
 
 		// IDEA: add null check to input bindings, dont crash if not set in editor
 		InitInput();
@@ -520,13 +527,12 @@ public class SteeringScript : MonoBehaviour {
 	private bool CheckIfTouchingGround() {
 
 		foreach (WheelCollider wheelCollider in allWheelColliders) {
-			if (wheelCollider.isGrounded && EnableSound) {
+			if (wheelCollider.isGrounded) {
 				carSound.RecieveGroundedData(true);
 				return true;
 			}
 		}
-		if (EnableSound)
-			carSound.RecieveGroundedData(false);
+		carSound.RecieveGroundedData(false);
 		return false;
 	}
 
@@ -539,7 +545,7 @@ public class SteeringScript : MonoBehaviour {
 
 		float percentage = rb.velocity.sqrMagnitude / (CurrentProfile.VelocityCap * CurrentProfile.VelocityCap);
 		float kmph = rb.velocity.magnitude * 3.6f;
-		if (EnableSound) carSound.RecieveVelocityData(percentage);
+		carSound.RecieveVelocityData(percentage);
 
 		if (boosting) {
 			if (percentage >= 1f)
@@ -588,7 +594,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void StartDrift() { // NOTE: called every frame while drifting, not just on drift status change
 		if (drifting == false) {
-			if (EnableSound && (rb.velocity.magnitude * 3.6f) > 100f)
+			if ((rb.velocity.magnitude * 3.6f) > 100f)
 				SoundManager.PlaySound("drift_continuous");
 		}
 
@@ -893,14 +899,12 @@ public class SteeringScript : MonoBehaviour {
 		float pastBrakeBuffer = brakeBuffer;
 		brakeBuffer = CurrentProfile.BrakePedalCurve.EvaluateMirrored(input);
 
-		if (EnableSound) {
-			if (brakeBuffer > pastBrakeBuffer) {
-				if (brakeBuffer > 0.2f) {
-					SoundManager.PlaySound("dry_ice_brake");
-				}
-			} else {
-				SoundManager.StopLooping("dry_ice_brake", false);
+		if (brakeBuffer > pastBrakeBuffer) {
+			if (brakeBuffer > 0.2f) {
+				SoundManager.PlaySound("dry_ice_brake");
 			}
+		} else {
+			SoundManager.StopLooping("dry_ice_brake", false);
 		}
 	}
 	#endregion
@@ -1039,7 +1043,7 @@ public class SteeringScript : MonoBehaviour {
 		if (boostAmount < MinBoostLevel)
 			return;
 
-		if (EnableSound && boosting == false) {
+		if (!boosting) {
 			SoundManager.PlaySound("boost_start");
 			SoundManager.PlaySound("boost_continuous");
 			//UnityEngine.Debug.Log("Boost sound start");
@@ -1064,11 +1068,12 @@ public class SteeringScript : MonoBehaviour {
 
 		effects?.StopBoost();
 
-		if (EnableSound && boosting == true) {
+		if (boosting) {
 			SoundManager.StopLooping("boost_continuous", false);
 			SoundManager.PlaySound("boost_end");
 			//UnityEngine.Debug.Log("Boost sound end");
 		}
+
 		boosting = false;
 	}
 
@@ -1097,17 +1102,41 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
-	public bool SetProfile(int index) {
+	public bool SetProfile(int index, bool sendNotification = true) {
 		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
 			return false;
 		}
 
 		CurrentProfileIndex = index;
+		UpdateWheelFriction();
 
-		UINotificationSystem.Notify("Speed change to " + CurrentProfile.ProfileName + "!", Color.green, 1.5f);
+		if (sendNotification)
+			UINotificationSystem.Notify("Speed change to " + CurrentProfile.ProfileName + "!", Color.green, 1.5f);
 		// TODO: music change?
 
 		return true;
+	}
+
+	public void UpdateWheelFriction() {
+		foreach (var wheelCollider in FrontWheelColliders) {
+			var forwardFriction = wheelCollider.forwardFriction;
+			forwardFriction.stiffness = CurrentProfile.FrontWheelForwardStiffness;
+			wheelCollider.forwardFriction = forwardFriction;
+
+			var sidewaysFriction = wheelCollider.sidewaysFriction;
+			sidewaysFriction.stiffness = CurrentProfile.FrontWheelSidewaysStiffness;
+			wheelCollider.sidewaysFriction = sidewaysFriction;
+		}
+
+		foreach (var wheelCollider in RearWheelColliders) {
+			var forwardFriction = wheelCollider.forwardFriction;
+			forwardFriction.stiffness = CurrentProfile.RearWheelForwardStiffness;
+			wheelCollider.forwardFriction = forwardFriction;
+
+			var sidewaysFriction = wheelCollider.sidewaysFriction;
+			sidewaysFriction.stiffness = CurrentProfile.RearWheelSidewaysStiffness;
+			wheelCollider.sidewaysFriction = sidewaysFriction;			
+		}
 	}
 
 	private void CallResetObservers() {

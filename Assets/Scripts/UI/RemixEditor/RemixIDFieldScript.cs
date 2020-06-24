@@ -6,7 +6,8 @@ using UnityEngine;
 public class RemixIDFieldScript : SegmentEditorSuperClass {
 
 	public TMP_InputField TextField;
-	public GameObject ErrorPopup;
+	public GameObject LoadErrorPopup;
+	public GameObject LoadSuccessPopup;
 	public GameObject ClipboardPopup;
 	// TODO: successful load popup
 
@@ -17,8 +18,9 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 	public bool PrintDebug = false;
 
 	protected override void ChildAwake() {
-		ErrorPopup.SetActive(false);
+		LoadErrorPopup.SetActive(false);
 		ClipboardPopup.SetActive(false);
+		LoadSuccessPopup.SetActive(false);
 	}
 
 	public override void UpdateUI() {
@@ -32,7 +34,8 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 		string id = LevelPieceSuperClass.GetRemixString(PrintDebug);
 		TextField.text = id;
 
-		ErrorPopup.SetActive(false);
+		LoadErrorPopup.SetActive(false);
+		LoadSuccessPopup.SetActive(false);
 		ClipboardPopup.SetActive(true);
 
 		if (CopyToClipboardOnGetID)
@@ -45,7 +48,8 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 
 		// Debug.Log("Loaded " + id + " " + success);
 		
-		ErrorPopup.SetActive(!success);
+		LoadErrorPopup.SetActive(!success);
+		LoadSuccessPopup.SetActive(success);
 		ClipboardPopup.SetActive(false);
 		
 		SegmentEditorSuperClass.UpdateAllUI();

@@ -47,6 +47,10 @@ public class LaserRaycastScript : MonoBehaviour {
 		visible = false;
 	}
 
+	private void OnEnable() {
+		visible = true;
+	}
+
 	void Update() {
 
 		if (!visible)
