@@ -159,7 +159,7 @@ public static class HighscoreManager {
 			GetRemixByFreeText("ichael");
 
 			Debug.Log("get highscores by remix");
-			GetHigscoresByRemix(1);
+			GetHighscoresByRemix(1);
 			Debug.Log("get highscores by remix and player");
 			GetHighscoresByRemixAndPlayer(1, 1);
 
@@ -354,7 +354,7 @@ public static class HighscoreManager {
 					var player = new PlayerEntry() { Name = playerName };
 					foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(playerName).GetDocumentIDs()) {
 						var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
-						if (obj != null){
+						if (obj != null) {
 							player.EntryId = obj.Entity.EntryId;
 						}
 					}
@@ -380,7 +380,7 @@ public static class HighscoreManager {
 					var remix = new RemixEntry() { RemixId = remixId };
 					foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(remixId).GetDocumentIDs()) {
 						var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
-						if (obj != null){
+						if (obj != null) {
 							player.EntryId = obj.Entity.EntryId;
 						}
 					}
@@ -409,9 +409,9 @@ public static class HighscoreManager {
 					var highscore = new HighscoreEntry {
 						RemixEntryId = remix.EntryId,
 						PlayerEntryId = player.EntryId,
-						Score = 100,
-						Time = 200,
-						Character = CharacterSelected.NONE
+						Score = score,
+						Time = time,
+						Character = character
 					};
 
 					{
@@ -476,187 +476,191 @@ public static class HighscoreManager {
 			}
 		}
 
+		public IEnumerable<HighscoreEntry> GetAllHighscores() {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				//Documentation https://goo.gl/MbZAsB
+				// foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+					1.ToIndex(long.MinValue), true,
+					1.ToIndex(long.MaxValue), true
+				)) {
+					var obj = row.ObjectGet<HighscoreEntry>();
+					if (obj != null) {
 
-		void GetHigscoresByRemix(long remixEntryId) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					//Documentation https://goo.gl/MbZAsB
-					// foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
-					foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
-						2.ToIndex(remixEntryId, long.MinValue), true,
-						2.ToIndex(remixEntryId, long.MaxValue), true
-						)) {
-						var obj = row.ObjectGet<HighscoreEntry>();
-						if (obj != null)
-							// Console.WriteLine(
-							Debug.Log(
-								"GetHigscoresByRemix " + remixEntryId + ": "
-								+ obj.Entity.EntryId
-								+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-								+ ", " + obj.Entity.RemixEntryId
-								+ ", " + obj.Entity.PlayerEntryId
-								+ ", " + obj.Entity.Score
-								+ ", " + obj.Entity.Time
-								+ ", " + obj.Entity.Character
-							);
+						// Console.WriteLine(
+						// Debug.Log(
+						// 	"GetHigscoresByRemix " + remixEntryId + ": "
+						// 	+ obj.Entity.EntryId
+						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
+						// 	+ ", " + obj.Entity.RemixEntryId
+						// 	+ ", " + obj.Entity.PlayerEntryId
+						// 	+ ", " + obj.Entity.Score
+						// 	+ ", " + obj.Entity.Time
+						// 	+ ", " + obj.Entity.Character
+						// );
+						yield return obj.Entity;
 					}
 				}
-			} catch (Exception ex) {
-				throw ex;
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
+		}
+
+		public IEnumerable<HighscoreEntry> GetHighscoresByRemix(long remixEntryId) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				//Documentation https://goo.gl/MbZAsB
+				// foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+					2.ToIndex(remixEntryId, long.MinValue), true,
+					2.ToIndex(remixEntryId, long.MaxValue), true
+					)) {
+					var obj = row.ObjectGet<HighscoreEntry>();
+					if (obj != null) {
+
+						// Console.WriteLine(
+						// Debug.Log(
+						// 	"GetHigscoresByRemix " + remixEntryId + ": "
+						// 	+ obj.Entity.EntryId
+						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
+						// 	+ ", " + obj.Entity.RemixEntryId
+						// 	+ ", " + obj.Entity.PlayerEntryId
+						// 	+ ", " + obj.Entity.Score
+						// 	+ ", " + obj.Entity.Time
+						// 	+ ", " + obj.Entity.Character
+						// );
+						yield return obj.Entity;
+					}
+				}
+			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 		}
 
 
-		void GetHighscoresByRemixAndPlayer(long remixEntryId, long playerEntryId) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
-						3.ToIndex(remixEntryId, playerEntryId, long.MinValue), true,
-						3.ToIndex(remixEntryId, playerEntryId, long.MaxValue), true)) {
-						var obj = row.ObjectGet<HighscoreEntry>();
-						if (obj != null)
-							// Console.WriteLine(
-							// TODO: get player name and remix ids from tables
-							Debug.Log(
-								"GetHighscoresByRemixAndPlayer " + remixEntryId + ", " + playerEntryId + ": "
-								+ obj.Entity.EntryId
-								+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-								+ ", " + obj.Entity.RemixEntryId
-								+ ", " + obj.Entity.PlayerEntryId
-								+ ", " + obj.Entity.Score
-								+ ", " + obj.Entity.Time
-								+ ", " + obj.Entity.Character
-
-							);
-					}
-				}
-			} catch (Exception ex) {
-				throw ex;
-			}
-		}
-		/*
-		void Test_GetHigscoresByDateTimeRange(DateTime from, DateTime to) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					//Documentation https://goo.gl/MbZAsB
-					foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
-						2.ToIndex(from, long.MinValue), true,
-						2.ToIndex(to, long.MaxValue), true)) {
-						var obj = row.ObjectGet<HighscoreEntry>();
-						if (obj != null)
-							Console.WriteLine(
-								obj.Entity.EntryId
-								+ " " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-								+ " " + obj.Entity.RemixEntryId);
-					}
-				}
-			} catch (Exception ex) {
-				throw ex;
-			}
-		}
-
-
-		void Test_GetHighscoresByRemixEntryIdAndDateTimeRange(long remixEntryId, DateTime from, DateTime to) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
-						3.ToIndex(remixEntryId, from, long.MinValue), true,
-						3.ToIndex(remixEntryId, to, long.MaxValue), true)) {
-						var obj = row.ObjectGet<HighscoreEntry>();
-						if (obj != null)
-							Console.WriteLine(
-								obj.Entity.EntryId
-								+ " " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-								+ " " + obj.Entity.RemixEntryId);
-					}
-				}
-			} catch (Exception ex) {
-				throw ex;
-			}
-		}
-		*/
-
-
-		void GetRemixByEntryId(long remixEntryId) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(remixEntryId)).ObjectGet<RemixEntry>();
+		public IEnumerable<HighscoreEntry> GetHighscoresByRemixAndPlayer(long remixEntryId, long playerEntryId) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+					3.ToIndex(remixEntryId, playerEntryId, long.MinValue), true,
+					3.ToIndex(remixEntryId, playerEntryId, long.MaxValue), true)) {
+					var obj = row.ObjectGet<HighscoreEntry>();
 					if (obj != null)
 						// Console.WriteLine(
-						Debug.Log(
-							"GetRemixByEntryId " + remixEntryId + ": "
-							+ obj.Entity.EntryId
-							+ ", " + obj.Entity.RemixId
-						);
+						// TODO: get player name and remix ids from tables
+						// Debug.Log(
+						// 	"GetHighscoresByRemixAndPlayer " + remixEntryId + ", " + playerEntryId + ": "
+						// 	+ obj.Entity.EntryId
+						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
+						// 	+ ", " + obj.Entity.RemixEntryId
+						// 	+ ", " + obj.Entity.PlayerEntryId
+						// 	+ ", " + obj.Entity.Score
+						// 	+ ", " + obj.Entity.Time
+						// 	+ ", " + obj.Entity.Character
+						// );
+						yield return obj.Entity;
 				}
-			} catch (Exception ex) {
-				throw ex;
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 		}
 
-		void GetRemixByFreeText(string text) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
-					foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(text).GetDocumentIDs()) {
-						var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
-						if (obj != null)
-							// Console.WriteLine(
-							Debug.Log(
-								"GetRemixByFreeText " + text + ": "
-								+ obj.Entity.EntryId
-								+ ", " + obj.Entity.RemixId
-							);
-					}
+		public RemixEntry GetRemixByEntryId(long remixEntryId) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(remixEntryId)).ObjectGet<RemixEntry>();
+				if (obj != null) {
+
+					// Console.WriteLine(
+					// Debug.Log(
+					// 	"GetRemixByEntryId " + remixEntryId + ": "
+					// 	+ obj.Entity.EntryId
+					// 	+ ", " + obj.Entity.RemixId
+					// );
+					return obj.Entity;
 				}
-			} catch (Exception ex) {
-				throw ex;
+				return null;
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 		}
 
-		void GetPlayerByEntryId(long playerEntryId) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(playerEntryId)).ObjectGet<PlayerEntry>();
-					if (obj != null)
+		public IEnumerable<RemixEntry> GetRemixByFreeText(string text) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
+				foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(text).GetDocumentIDs()) {
+					var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
+					if (obj != null) {
 						// Console.WriteLine(
-						Debug.Log(
-							"GetRemixByEntryId " + playerEntryId + ": "
-							+ obj.Entity.EntryId
-							+ ", " + obj.Entity.Name
-						);
-				}
-			} catch (Exception ex) {
-				throw ex;
-			}
-		}
-
-		void GetPlayerByFreeText(string text) {
-			try {
-				using (var t = engine.GetTransaction()) {
-					// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
-					foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(text).GetDocumentIDs()) {
-						var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
-						if (obj != null)
-							// Console.WriteLine(
-							Debug.Log(
-								"GetRemixByFreeText " + text + ": "
-								+ obj.Entity.EntryId
-								+ ", " + obj.Entity.Name
-							);
+						// Debug.Log(
+						// 	"GetRemixByFreeText " + text + ": "
+						// 	+ obj.Entity.EntryId
+						// 	+ ", " + obj.Entity.RemixId
+						// );
+						yield return obj.Entity;
 					}
 				}
-			} catch (Exception ex) {
-				throw ex;
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 		}
 
-		bool Remove(PlayerEntry player) {
+		public PlayerEntry GetPlayerByEntryId(long playerEntryId) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(playerEntryId)).ObjectGet<PlayerEntry>();
+				if (obj != null) {
+					// Console.WriteLine(
+					// Debug.Log(
+					// 	"GetRemixByEntryId " + playerEntryId + ": "
+					// 	+ obj.Entity.EntryId
+					// 	+ ", " + obj.Entity.Name
+					// );
+					return obj.Entity;
+				}
+				return null;
+			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
+		}
+
+		public IEnumerable<PlayerEntry> GetPlayerByFreeText(string text) {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
+				foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(text).GetDocumentIDs()) {
+					var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
+					if (obj != null) {
+						// Console.WriteLine(
+						// Debug.Log(
+						// 	"GetRemixByFreeText " + text + ": "
+						// 	+ obj.Entity.EntryId
+						// 	+ ", " + obj.Entity.Name
+						// );
+						yield return obj.Entity;
+					}
+				}
+			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
+		}
+
+		public bool Remove(PlayerEntry player) {
 
 			bool wasDeleted;
 			try {
 				using (var t = engine.GetTransaction()) {
 					t.RemoveKey(playerTable, player.EntryId, out wasDeleted);
+					// TODO: remove from ts table
 					t.Commit();
 				}
 			} catch (Exception ex) {
@@ -666,19 +670,32 @@ public static class HighscoreManager {
 			return wasDeleted;
 		}
 
-		void ClearAllTables() {
-			try {
-				using (var t = engine.GetTransaction()) {
-					t.RemoveAllKeys(playerTable, true);
-					t.RemoveAllKeys(playerTsTable, true);
-					t.RemoveAllKeys(remixTable, true);
-					t.RemoveAllKeys(remixTsTable, true);
-					t.RemoveAllKeys(highscoreTable, true);
-					t.Commit();
-				}
-			} catch (Exception ex) {
-				throw ex;
+		public bool RemoveHighscore(long entryId) {
+			// try {
+			// bool wasDeleted;
+			using (var t = engine.GetTransaction()) {
+				t.RemoveKey(highscoreTable, entryId, out bool wasDeleted);
+				t.Commit();
+				return wasDeleted;
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
+		}
+
+		public void ClearAllTables() {
+			// try {
+			using (var t = engine.GetTransaction()) {
+				t.RemoveAllKeys(playerTable, true);
+				t.RemoveAllKeys(playerTsTable, true);
+				t.RemoveAllKeys(remixTable, true);
+				t.RemoveAllKeys(remixTsTable, true);
+				t.RemoveAllKeys(highscoreTable, true);
+				t.Commit();
+			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 
 		}
 
