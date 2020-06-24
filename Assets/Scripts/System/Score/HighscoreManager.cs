@@ -20,7 +20,7 @@ public static class HighscoreManager {
 	public class HighscoreEntry {
 
 		public long EntryId { get; set; } = 0;
-		public long RemixEntryId { get; set; } // not needed?
+		public long RemixEntryId { get; set; }
 		public long PlayerEntryId { get; set; } = 0;
 
 		public DateTime udtCreated { get; set; }
@@ -337,6 +337,108 @@ public static class HighscoreManager {
 		// }
 
 
+		public void Insert(string playerName, string remixId, int score, int time, CharacterSelected character) {
+
+			try {
+				using (var t = engine.GetTransaction()) {
+					t.SynchronizeTables(
+						playerTable,
+						playerTsTable,
+						remixTable,
+						remixTsTable,
+						highscoreTable
+					);
+
+					// TODO: insert player
+					// TODO: check if player exists
+					var player = new PlayerEntry() { Name = playerName };
+					foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(playerName).GetDocumentIDs()) {
+						var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
+						if (obj != null){
+							player.EntryId = obj.Entity.EntryId;
+						}
+					}
+
+					{
+						bool newEntity = player.EntryId == 0;
+						if (newEntity)
+							player.EntryId = t.ObjectGetNewIdentity<long>(playerTable);
+
+						t.ObjectInsert(playerTable, new DBreeze.Objects.DBreezeObject<PlayerEntry> {
+							NewEntity = false,
+							Entity = player,
+							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+								new DBreeze.Objects.DBreezeIndex(1, player.EntryId) { PrimaryIndex = true },
+							}
+						}, false);
+
+						t.TextInsert(playerTsTable, player.EntryId.ToBytes(), player.Name);
+					}
+
+					// TODO: insert remix
+					// TODO: check if remix exists
+					var remix = new RemixEntry() { RemixId = remixId };
+					foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(remixId).GetDocumentIDs()) {
+						var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
+						if (obj != null){
+							player.EntryId = obj.Entity.EntryId;
+						}
+					}
+
+					{
+						bool newEntity = remix.EntryId == 0;
+						if (newEntity)
+							remix.EntryId = t.ObjectGetNewIdentity<long>(remixTable);
+
+						//Documentation https://goo.gl/YtWnAJ
+						t.ObjectInsert(remixTable, new DBreeze.Objects.DBreezeObject<RemixEntry> {
+							// NewEntity = newEntity,
+							NewEntity = false,
+							Entity = remix,
+							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+								new DBreeze.Objects.DBreezeIndex(1, remix.EntryId) { PrimaryIndex = true },
+							}
+						}, false);
+
+						t.TextInsert(remixTsTable, remix.EntryId.ToBytes(), remix.RemixId);
+					}
+
+					// TODO: insert highscore
+					// TODO: dont insert highscore if too low (and too many)
+					// TODO: delete lowest highscore in db if too many
+					var highscore = new HighscoreEntry {
+						RemixEntryId = remix.EntryId,
+						PlayerEntryId = player.EntryId,
+						Score = 100,
+						Time = 200,
+						Character = CharacterSelected.NONE
+					};
+
+					{
+						bool newEntity = highscore.EntryId == 0;
+						if (newEntity)
+							highscore.EntryId = t.ObjectGetNewIdentity<long>(highscoreTable);
+
+						t.ObjectInsert(highscoreTable, new DBreeze.Objects.DBreezeObject<HighscoreEntry> {
+							NewEntity = newEntity,
+							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+								new DBreeze.Objects.DBreezeIndex(1,highscore.EntryId) { PrimaryIndex = true },
+								new DBreeze.Objects.DBreezeIndex(2,highscore.RemixEntryId),
+								new DBreeze.Objects.DBreezeIndex(3,highscore.RemixEntryId, highscore.PlayerEntryId)
+							},
+							Entity = highscore
+						}, false);
+					}
+
+
+					t.Commit();
+				}
+			} catch (Exception ex) {
+				throw ex;
+			}
+
+		}
+
 		void UpdateHighscore(long orderId) {
 			try {
 
@@ -547,6 +649,37 @@ public static class HighscoreManager {
 			} catch (Exception ex) {
 				throw ex;
 			}
+		}
+
+		bool Remove(PlayerEntry player) {
+
+			bool wasDeleted;
+			try {
+				using (var t = engine.GetTransaction()) {
+					t.RemoveKey(playerTable, player.EntryId, out wasDeleted);
+					t.Commit();
+				}
+			} catch (Exception ex) {
+				throw ex;
+			}
+
+			return wasDeleted;
+		}
+
+		void ClearAllTables() {
+			try {
+				using (var t = engine.GetTransaction()) {
+					t.RemoveAllKeys(playerTable, true);
+					t.RemoveAllKeys(playerTsTable, true);
+					t.RemoveAllKeys(remixTable, true);
+					t.RemoveAllKeys(remixTsTable, true);
+					t.RemoveAllKeys(highscoreTable, true);
+					t.Commit();
+				}
+			} catch (Exception ex) {
+				throw ex;
+			}
+
 		}
 
 	}
