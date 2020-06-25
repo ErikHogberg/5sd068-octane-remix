@@ -349,6 +349,7 @@ public static class HighscoreManager {
 						highscoreTable
 					);
 
+					
 					// TODO: insert player
 					// TODO: check if player exists
 					var player = new PlayerEntry() { Name = playerName };
@@ -381,7 +382,7 @@ public static class HighscoreManager {
 					foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(remixId).GetDocumentIDs()) {
 						var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
 						if (obj != null) {
-							player.EntryId = obj.Entity.EntryId;
+							remix.EntryId = obj.Entity.EntryId;
 						}
 					}
 

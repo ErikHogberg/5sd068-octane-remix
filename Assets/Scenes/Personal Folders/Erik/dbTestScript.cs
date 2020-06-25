@@ -66,7 +66,6 @@ public class dbTestScript : MonoBehaviour {
 				break;
 		}
 
-		// FIXME: player name stays the same unless other values also change
 		DbList.Insert(name, remix, score, time, character);
 
 		UpdateUI();
