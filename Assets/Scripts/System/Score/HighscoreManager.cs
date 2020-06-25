@@ -25,8 +25,8 @@ public static class HighscoreManager {
 
 		public DateTime udtCreated { get; set; }
 
-		public int Score { get; set; }
-		public int Time { get; set; }
+		public long Score { get; set; }
+		public long Time { get; set; }
 		public CharacterSelected Character { get; set; }
 		// public string RemixID;
 
@@ -133,9 +133,9 @@ public static class HighscoreManager {
 					.Select(r => new HighscoreEntry { RemixEntryId = remix.EntryId, PlayerEntryId = player.EntryId, Score = 100, Time = 200, Character = CharacterSelected.NONE })
 					);
 
-				Debug.Log("update highscore");
+				// Debug.Log("update highscore");
 				//* Test update order 
-				UpdateHighscore(3);
+				// UpdateHighscore(3);
 
 				Debug.Log("insert remix 2");
 				//* Inserting CustomerId 2
@@ -338,355 +338,248 @@ public static class HighscoreManager {
 
 
 		public void Insert(string playerName, string remixId, int score, int time, CharacterSelected character) {
+			using (var t = engine.GetTransaction()) {
+				t.SynchronizeTables(
+					playerTable,
+					playerTsTable,
+					remixTable,
+					remixTsTable,
+					highscoreTable
+				);
 
-			try {
-				using (var t = engine.GetTransaction()) {
-					t.SynchronizeTables(
-						playerTable,
-						playerTsTable,
-						remixTable,
-						remixTsTable,
-						highscoreTable
-					);
-
-
-					// TODO: insert player
-					// TODO: check if player exists
-					var player = new PlayerEntry() { Name = playerName };
-					foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(playerName).GetDocumentIDs()) {
-						var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
-						if (obj != null) {
-							player.EntryId = obj.Entity.EntryId;
-						}
+				// Get/insert player
+				var player = new PlayerEntry() { Name = playerName };
+				foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(playerName).GetDocumentIDs()) {
+					var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
+					if (obj != null) {
+						player.EntryId = obj.Entity.EntryId;
 					}
+				}
 
-					{
-						bool newEntity = player.EntryId == 0;
-						if (newEntity)
-							player.EntryId = t.ObjectGetNewIdentity<long>(playerTable);
+				{
+					bool newEntity = player.EntryId == 0;
+					if (newEntity)
+						player.EntryId = t.ObjectGetNewIdentity<long>(playerTable);
 
-						t.ObjectInsert(playerTable, new DBreeze.Objects.DBreezeObject<PlayerEntry> {
-							NewEntity = false,
-							Entity = player,
-							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+					t.ObjectInsert(playerTable, new DBreeze.Objects.DBreezeObject<PlayerEntry> {
+						NewEntity = false,
+						Entity = player,
+						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
 								new DBreeze.Objects.DBreezeIndex(1, player.EntryId) { PrimaryIndex = true },
 							}
-						}, false);
+					}, false);
 
-						t.TextInsert(playerTsTable, player.EntryId.ToBytes(), player.Name);
+					t.TextInsert(playerTsTable, player.EntryId.ToBytes(), player.Name);
+				}
+
+				// Get/insert remix id
+				var remix = new RemixEntry() { RemixId = remixId };
+				foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(remixId).GetDocumentIDs()) {
+					var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
+					if (obj != null) {
+						remix.EntryId = obj.Entity.EntryId;
 					}
+				}
 
-					// TODO: insert remix
-					// TODO: check if remix exists
-					var remix = new RemixEntry() { RemixId = remixId };
-					foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(remixId).GetDocumentIDs()) {
-						var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
-						if (obj != null) {
-							remix.EntryId = obj.Entity.EntryId;
-						}
-					}
+				{
+					bool newEntity = remix.EntryId == 0;
+					if (newEntity)
+						remix.EntryId = t.ObjectGetNewIdentity<long>(remixTable);
 
-					{
-						bool newEntity = remix.EntryId == 0;
-						if (newEntity)
-							remix.EntryId = t.ObjectGetNewIdentity<long>(remixTable);
-
-						//Documentation https://goo.gl/YtWnAJ
-						t.ObjectInsert(remixTable, new DBreeze.Objects.DBreezeObject<RemixEntry> {
-							// NewEntity = newEntity,
-							NewEntity = false,
-							Entity = remix,
-							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+					t.ObjectInsert(remixTable, new DBreeze.Objects.DBreezeObject<RemixEntry> {
+						NewEntity = false,
+						Entity = remix,
+						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
 								new DBreeze.Objects.DBreezeIndex(1, remix.EntryId) { PrimaryIndex = true },
 							}
-						}, false);
+					}, false);
 
-						t.TextInsert(remixTsTable, remix.EntryId.ToBytes(), remix.RemixId);
-					}
-
-					// TODO: insert highscore
-					// TODO: dont insert highscore if too low (and too many)
-					// TODO: delete lowest highscore in db if too many
-					var highscore = new HighscoreEntry {
-						RemixEntryId = remix.EntryId,
-						PlayerEntryId = player.EntryId,
-						Score = score,
-						Time = time,
-						Character = character
-					};
-
-					{
-						bool newEntity = highscore.EntryId == 0;
-						if (newEntity)
-							highscore.EntryId = t.ObjectGetNewIdentity<long>(highscoreTable);
-
-						t.ObjectInsert(highscoreTable, new DBreeze.Objects.DBreezeObject<HighscoreEntry> {
-							NewEntity = newEntity,
-							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
-								new DBreeze.Objects.DBreezeIndex(1,highscore.EntryId) { PrimaryIndex = true },
-								new DBreeze.Objects.DBreezeIndex(2,highscore.RemixEntryId),
-								new DBreeze.Objects.DBreezeIndex(3,highscore.RemixEntryId, highscore.PlayerEntryId)
-							},
-							Entity = highscore
-						}, false);
-					}
-
-
-					t.Commit();
+					t.TextInsert(remixTsTable, remix.EntryId.ToBytes(), remix.RemixId);
 				}
-			} catch (Exception ex) {
-				throw ex;
-			}
 
+				// Insert Highscore
+				// TODO: dont insert highscore if too low (and too many)
+				// TODO: delete lowest highscore in db if too many
+				var highscore = new HighscoreEntry {
+					RemixEntryId = remix.EntryId,
+					PlayerEntryId = player.EntryId,
+					Score = score,
+					Time = time,
+					Character = character
+				};
+
+				{
+					bool newEntity = highscore.EntryId == 0;
+					if (newEntity)
+						highscore.EntryId = t.ObjectGetNewIdentity<long>(highscoreTable);
+
+					t.ObjectInsert(highscoreTable, new DBreeze.Objects.DBreezeObject<HighscoreEntry> {
+						NewEntity = newEntity,
+						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+							// query by ID
+							new DBreeze.Objects.DBreezeIndex(1,highscore.EntryId) { PrimaryIndex = true },
+							// query by remix
+							new DBreeze.Objects.DBreezeIndex(2,highscore.RemixEntryId),
+							// query by remix and player
+							new DBreeze.Objects.DBreezeIndex(3,highscore.RemixEntryId, highscore.PlayerEntryId),
+							// query by player
+							new DBreeze.Objects.DBreezeIndex(4,highscore.PlayerEntryId),
+						},
+						Entity = highscore
+					}, false);
+				}
+
+
+				t.Commit();
+			}
 		}
 
+		/*
 		void UpdateHighscore(long orderId) {
-			try {
+			using (var t = engine.GetTransaction()) {
+				t.SynchronizeTables(highscoreTable);
 
-				using (var t = engine.GetTransaction()) {
-					//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
-					//Documentation https://goo.gl/Kwm9aq
-					t.SynchronizeTables(highscoreTable);
+				var highscore = t.Select<byte[], byte[]>(highscoreTable, 1.ToIndex(orderId)).ObjectGet<HighscoreEntry>();
+				if (highscore == null)
+					return;
 
-					var highscore = t.Select<byte[], byte[]>(highscoreTable, 1.ToIndex(orderId)).ObjectGet<HighscoreEntry>();
-					if (highscore == null)
-						return;
+				highscore.Entity.udtCreated = new DateTime(1977, 1, 1);
+				highscore.Indexes = new List<DBreeze.Objects.DBreezeIndex>() {
+					new DBreeze.Objects.DBreezeIndex(1, highscore.Entity.EntryId) { PrimaryIndex = true },
+					new DBreeze.Objects.DBreezeIndex(2,highscore.Entity.RemixEntryId),
+					new DBreeze.Objects.DBreezeIndex(3,highscore.Entity.RemixEntryId, highscore.Entity.PlayerEntryId)
+				};
 
-					highscore.Entity.udtCreated = new DateTime(1977, 1, 1);
-					highscore.Indexes = new List<DBreeze.Objects.DBreezeIndex>() {
-						//* to Get order by ID
-						new DBreeze.Objects.DBreezeIndex(1, highscore.Entity.EntryId) { PrimaryIndex = true },
-						//* get highscore by remix
-						new DBreeze.Objects.DBreezeIndex(2,highscore.Entity.RemixEntryId),
-						//* get highscore by remix and player
-						new DBreeze.Objects.DBreezeIndex(3,highscore.Entity.RemixEntryId, highscore.Entity.PlayerEntryId)
+				t.ObjectInsert<HighscoreEntry>(highscoreTable, highscore, false);
 
-						// //* to get orders in specified time interval
-						// new DBreeze.Objects.DBreezeIndex(2, ord.Entity.udtCreated), //* AddPrimaryToTheEnd by default is true
-						// //* to get orders in specified time range for specific customer
-						// new DBreeze.Objects.DBreezeIndex(3, ord.Entity.RemixEntryId, ord.Entity.udtCreated)
-					};
-
-					t.ObjectInsert<HighscoreEntry>(highscoreTable, highscore, false);
-
-					//* Committing all changes
-					t.Commit();
-				}
-			} catch (Exception ex) {
-				throw ex;
+				t.Commit();
 			}
 		}
+		*/
 
 		public IEnumerable<HighscoreEntry> GetAllHighscores() {
-			// try {
 			using (var t = engine.GetTransaction()) {
-				//Documentation https://goo.gl/MbZAsB
-				// foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
 				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
 					1.ToIndex(long.MinValue), true,
 					1.ToIndex(long.MaxValue), true
 				)) {
 					var obj = row.ObjectGet<HighscoreEntry>();
 					if (obj != null) {
-
-						// Console.WriteLine(
-						// Debug.Log(
-						// 	"GetHigscoresByRemix " + remixEntryId + ": "
-						// 	+ obj.Entity.EntryId
-						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-						// 	+ ", " + obj.Entity.RemixEntryId
-						// 	+ ", " + obj.Entity.PlayerEntryId
-						// 	+ ", " + obj.Entity.Score
-						// 	+ ", " + obj.Entity.Time
-						// 	+ ", " + obj.Entity.Character
-						// );
 						yield return obj.Entity;
 					}
 				}
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 		public IEnumerable<HighscoreEntry> GetHighscoresByRemix(long remixEntryId) {
-			// try {
 			using (var t = engine.GetTransaction()) {
-				//Documentation https://goo.gl/MbZAsB
-				// foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
 				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
 					2.ToIndex(remixEntryId, long.MinValue), true,
 					2.ToIndex(remixEntryId, long.MaxValue), true
 					)) {
 					var obj = row.ObjectGet<HighscoreEntry>();
 					if (obj != null) {
-
-						// Console.WriteLine(
-						// Debug.Log(
-						// 	"GetHigscoresByRemix " + remixEntryId + ": "
-						// 	+ obj.Entity.EntryId
-						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-						// 	+ ", " + obj.Entity.RemixEntryId
-						// 	+ ", " + obj.Entity.PlayerEntryId
-						// 	+ ", " + obj.Entity.Score
-						// 	+ ", " + obj.Entity.Time
-						// 	+ ", " + obj.Entity.Character
-						// );
 						yield return obj.Entity;
 					}
 				}
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 
 		public IEnumerable<HighscoreEntry> GetHighscoresByRemixAndPlayer(long remixEntryId, long playerEntryId) {
-			// try {
 			using (var t = engine.GetTransaction()) {
 				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
 					3.ToIndex(remixEntryId, playerEntryId, long.MinValue), true,
 					3.ToIndex(remixEntryId, playerEntryId, long.MaxValue), true)) {
 					var obj = row.ObjectGet<HighscoreEntry>();
 					if (obj != null)
-						// Console.WriteLine(
 						// TODO: get player name and remix ids from tables
-						// Debug.Log(
-						// 	"GetHighscoresByRemixAndPlayer " + remixEntryId + ", " + playerEntryId + ": "
-						// 	+ obj.Entity.EntryId
-						// 	+ ", " + obj.Entity.udtCreated.ToString("dd.MM.yyyy HH:mm:ss.fff")
-						// 	+ ", " + obj.Entity.RemixEntryId
-						// 	+ ", " + obj.Entity.PlayerEntryId
-						// 	+ ", " + obj.Entity.Score
-						// 	+ ", " + obj.Entity.Time
-						// 	+ ", " + obj.Entity.Character
-						// );
 						yield return obj.Entity;
 				}
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
+		public IEnumerable<HighscoreEntry> GetHighscoresByPlayer(long playerEntryId) {
+			using (var t = engine.GetTransaction()) {
+				foreach (var row in t.SelectForwardFromTo<byte[], byte[]>(highscoreTable,
+					4.ToIndex(playerEntryId, long.MinValue), true,
+					4.ToIndex(playerEntryId, long.MaxValue), true
+					)) {
+					var obj = row.ObjectGet<HighscoreEntry>();
+					if (obj != null) {
+						yield return obj.Entity;
+					}
+				}
+			}
+		}
+
+		public IEnumerable<HighscoreEntry> GetHighestScore() {
+			return GetAllHighscores().OrderBy(e => e.Score);
+		}
+
+		public IEnumerable<HighscoreEntry> GetBestTime() {
+			return GetAllHighscores().OrderBy(e => e.Time);
+		}
+
+
 		public RemixEntry GetRemixByEntryId(long remixEntryId) {
-			// try {
 			using (var t = engine.GetTransaction()) {
 				var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(remixEntryId)).ObjectGet<RemixEntry>();
 				if (obj != null) {
-
-					// Console.WriteLine(
-					// Debug.Log(
-					// 	"GetRemixByEntryId " + remixEntryId + ": "
-					// 	+ obj.Entity.EntryId
-					// 	+ ", " + obj.Entity.RemixId
-					// );
 					return obj.Entity;
 				}
 				return null;
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 		public IEnumerable<RemixEntry> GetRemixByFreeText(string text) {
-			// try {
 			using (var t = engine.GetTransaction()) {
-				// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
 				foreach (var doc in t.TextSearch(remixTsTable).BlockAnd(text).GetDocumentIDs()) {
 					var obj = t.Select<byte[], byte[]>(remixTable, 1.ToIndex(doc)).ObjectGet<RemixEntry>();
 					if (obj != null) {
-						// Console.WriteLine(
-						// Debug.Log(
-						// 	"GetRemixByFreeText " + text + ": "
-						// 	+ obj.Entity.EntryId
-						// 	+ ", " + obj.Entity.RemixId
-						// );
 						yield return obj.Entity;
 					}
 				}
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 		public PlayerEntry GetPlayerByEntryId(long playerEntryId) {
-			// try {
 			using (var t = engine.GetTransaction()) {
 				var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(playerEntryId)).ObjectGet<PlayerEntry>();
 				if (obj != null) {
-					// Console.WriteLine(
-					// Debug.Log(
-					// 	"GetRemixByEntryId " + playerEntryId + ": "
-					// 	+ obj.Entity.EntryId
-					// 	+ ", " + obj.Entity.Name
-					// );
 					return obj.Entity;
 				}
 				return null;
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 		public IEnumerable<PlayerEntry> GetPlayerByFreeText(string text) {
-			// try {
 			using (var t = engine.GetTransaction()) {
-				// foreach (var doc in t.TextSearch("TS_Customers").BlockAnd(text).GetDocumentIDs()) {
 				foreach (var doc in t.TextSearch(playerTsTable).BlockAnd(text).GetDocumentIDs()) {
 					var obj = t.Select<byte[], byte[]>(playerTable, 1.ToIndex(doc)).ObjectGet<PlayerEntry>();
 					if (obj != null) {
-						// Console.WriteLine(
-						// Debug.Log(
-						// 	"GetRemixByFreeText " + text + ": "
-						// 	+ obj.Entity.EntryId
-						// 	+ ", " + obj.Entity.Name
-						// );
 						yield return obj.Entity;
 					}
 				}
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
-		public bool Remove(PlayerEntry player) {
-
-			bool wasDeleted;
-			try {
-				using (var t = engine.GetTransaction()) {
-					t.RemoveKey(playerTable, player.EntryId, out wasDeleted);
-					// TODO: remove from ts table
-					t.Commit();
-				}
-			} catch (Exception ex) {
-				throw ex;
+		public void RemovePlayer(long entryId) {
+			using (var t = engine.GetTransaction()) {
+				t.ObjectRemove(playerTable, 1.ToIndex(entryId));
+				// TODO: remove from ts table
+				t.Commit();
 			}
-
-			return wasDeleted;
 		}
 
 		public void RemoveHighscore(long entryId) {
-			// try {
-			// bool wasDeleted;
 			using (var t = engine.GetTransaction()) {
-				// t.RemoveKey(highscoreTable, entryId, out bool wasDeleted);
 				t.ObjectRemove(highscoreTable, 1.ToIndex(entryId));
 				t.Commit();
-				// return wasDeleted;
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
 		}
 
 		public void ClearAllTables() {
-			// try {
 			using (var t = engine.GetTransaction()) {
 				t.RemoveAllKeys(playerTable, true);
 				t.RemoveAllKeys(playerTsTable, true);
@@ -695,10 +588,6 @@ public static class HighscoreManager {
 				t.RemoveAllKeys(highscoreTable, true);
 				t.Commit();
 			}
-			// } catch (Exception ex) {
-			// 	throw ex;
-			// }
-
 		}
 
 	}

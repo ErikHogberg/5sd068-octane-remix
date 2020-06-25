@@ -13,7 +13,7 @@ public class dbTestListItem : MonoBehaviour {
 	private long dbEntryId;
 	public dbTestScript TestScript;
 
-	public void SetText(long dbEntryId, string playerName, string remixId, int score, int time, CharacterSelected character) {
+	public void SetText(long dbEntryId, string playerName, string remixId, long score, long time, CharacterSelected character) {
 		PlayerNameText.text = playerName;
 		RemixIdText.text = remixId;
 		ScoreText.text = score.ToString();

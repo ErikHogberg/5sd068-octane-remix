@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -24,6 +25,12 @@ public class dbTestScript : MonoBehaviour {
 	List<dbTestListItem> ListEntries;
 
 	public HighscoreManager.HighscoreList DbList;
+
+	public bool OrderedHighscore = false;
+
+	public void SetOrdered (bool value){
+		OrderedHighscore = value;
+	}
 
 	// public bool Insert = false;
 
@@ -85,6 +92,7 @@ public class dbTestScript : MonoBehaviour {
 
 
 		List<HighscoreEntry> highscores = new List<HighscoreEntry>();
+
 		if (queryRemix) {
 			var matchingRemix = DbList.GetRemixByFreeText(remix);
 			if (queryPlayer) {
@@ -104,10 +112,21 @@ public class dbTestScript : MonoBehaviour {
 				}
 			}
 		} else {
-			foreach (var highscore in DbList.GetAllHighscores()) {
-				highscores.Add(highscore);
+			if (queryPlayer) {
+				var matchingPlayers = DbList.GetPlayerByFreeText(player);
+				foreach (var playerMatch in matchingPlayers) {
+					foreach (var highscore in DbList.GetHighscoresByPlayer(playerMatch.EntryId)) {
+						highscores.Add(highscore);
+					}
+				}
+			} else {
+				foreach (var highscore in DbList.GetAllHighscores()) {
+					highscores.Add(highscore);
+				}
 			}
 		}
+
+		IEnumerable<HighscoreEntry> highscoreOrdered = OrderedHighscore ? highscores.OrderBy(e => e.Score) : highscores.AsEnumerable();
 
 		Dictionary<long, string> players = new Dictionary<long, string>();
 		Dictionary<long, string> remixes = new Dictionary<long, string>();
@@ -125,28 +144,29 @@ public class dbTestScript : MonoBehaviour {
 				ListEntries.Add(entry);
 			}
 
-			if (!players.ContainsKey(highscores[i].PlayerEntryId)) {
-				players.Add(highscores[i].PlayerEntryId, DbList.GetPlayerByEntryId(highscores[i].PlayerEntryId).Name);
+			if (!players.ContainsKey(highscoreOrdered.ElementAt(i).PlayerEntryId)) {
+				players.Add(highscoreOrdered.ElementAt(i).PlayerEntryId, DbList.GetPlayerByEntryId(highscoreOrdered.ElementAt(i).PlayerEntryId).Name);
 			}
-			if (!remixes.ContainsKey(highscores[i].RemixEntryId)) {
-				remixes.Add(highscores[i].RemixEntryId, DbList.GetRemixByEntryId(highscores[i].RemixEntryId).RemixId);
+			if (!remixes.ContainsKey(highscoreOrdered.ElementAt(i).RemixEntryId)) {
+				remixes.Add(highscoreOrdered.ElementAt(i).RemixEntryId, DbList.GetRemixByEntryId(highscoreOrdered.ElementAt(i).RemixEntryId).RemixId);
 			}
+
 
 			ListEntries[i].gameObject.SetActive(true);
 			// TODO: assign highscore data to entry
 			ListEntries[i].SetText(
-				highscores[i].EntryId,
-				players[highscores[i].PlayerEntryId],
-				remixes[highscores[i].RemixEntryId],
-				highscores[i].Score,
-				highscores[i].Time,
-				highscores[i].Character
+				highscoreOrdered.ElementAt(i).EntryId,
+				players[highscoreOrdered.ElementAt(i).PlayerEntryId],
+				remixes[highscoreOrdered.ElementAt(i).RemixEntryId],
+				highscoreOrdered.ElementAt(i).Score,
+				highscoreOrdered.ElementAt(i).Time,
+				highscoreOrdered.ElementAt(i).Character
 			);
 		}
 
 	}
 
-	public void Clear(){
+	public void Clear() {
 		DbList.ClearAllTables();
 		UpdateUI();
 	}
