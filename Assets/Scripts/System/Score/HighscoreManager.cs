@@ -349,7 +349,7 @@ public static class HighscoreManager {
 						highscoreTable
 					);
 
-					
+
 					// TODO: insert player
 					// TODO: check if player exists
 					var player = new PlayerEntry() { Name = playerName };
@@ -671,13 +671,14 @@ public static class HighscoreManager {
 			return wasDeleted;
 		}
 
-		public bool RemoveHighscore(long entryId) {
+		public void RemoveHighscore(long entryId) {
 			// try {
 			// bool wasDeleted;
 			using (var t = engine.GetTransaction()) {
-				t.RemoveKey(highscoreTable, entryId, out bool wasDeleted);
+				// t.RemoveKey(highscoreTable, entryId, out bool wasDeleted);
+				t.ObjectRemove(highscoreTable, 1.ToIndex(entryId));
 				t.Commit();
-				return wasDeleted;
+				// return wasDeleted;
 			}
 			// } catch (Exception ex) {
 			// 	throw ex;

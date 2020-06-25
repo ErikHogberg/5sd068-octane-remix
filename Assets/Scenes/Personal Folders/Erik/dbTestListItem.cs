@@ -25,8 +25,8 @@ public class dbTestListItem : MonoBehaviour {
 
 	public void DeleteFromDb() {
 		// FIXME: deletion always fails
-		bool success = TestScript.DbList.RemoveHighscore(dbEntryId);
-		Debug.Log("Deleting entry " + dbEntryId + ", successful: " + success);
+		TestScript.DbList.RemoveHighscore(dbEntryId);
+		Debug.Log("Deleting entry " + dbEntryId);
 		TestScript.UpdateUI();
 	}
 }
