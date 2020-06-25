@@ -62,18 +62,9 @@ public static class HighscoreManager {
 
 		public void InitDB() {
 			if (engine == null) {
-				// engine = ​new DBreezeEngine(​@"D:\temp\DBR1"​);
 				engine = new DBreezeEngine(dbPath);
 				Debug.Log("loaded db using " + dbPath);
 			}
-
-			//Setting up NetJSON serializer (from NuGet) to be used by DBreeze
-
-			// DBreeze.Utils.CustomSerializator.ByteArraySerializator = (object o) => { return NetJSON.NetJSON.Serialize(o).To_UTF8Bytes(); };
-			// DBreeze.Utils.CustomSerializator.ByteArrayDeSerializator = (byte[] bt, Type t) => { return NetJSON.NetJSON.Deserialize(t, bt.UTF8_GetString()); };
-
-			// DBreeze.Utils.CustomSerializator.ByteArraySerializator = (object o) => { return JsonUtility.ToJson(o).To_UTF8Bytes(); };
-			// DBreeze.Utils.CustomSerializator.ByteArrayDeSerializator = (byte[] bt, Type t) => { return JsonUtility.FromJson(bt.UTF8_GetString(), t); };
 
 			DBreeze.Utils.CustomSerializator.ByteArraySerializator = (object o) => { return Newtonsoft.Json.JsonConvert.SerializeObject(o).To_UTF8Bytes(); };
 			DBreeze.Utils.CustomSerializator.ByteArrayDeSerializator = (byte[] bt, Type t) => { return Newtonsoft.Json.JsonConvert.DeserializeObject(bt.UTF8_GetString(), t); };
@@ -84,34 +75,6 @@ public static class HighscoreManager {
 		// 	engine?.Dispose();
 		// }
 
-		// public Dictionary<string, List<HighscoreEntry>> Entries = new Dictionary<string, List<HighscoreEntry>>();
-
-		/*
-		// Sort one list
-		// NOTE: truncates list
-		public void Sort(string remixId, bool skipKeyCheck = false) {
-			if (!skipKeyCheck && !Entries.ContainsKey(remixId))
-				return;
-
-			Entries[remixId] = Entries[remixId].OrderByDescending(x => x.Score).Take(10).ToList();
-		}
-
-		// sort all lists
-		public void Sort() {
-			foreach (var item in Entries) {
-				Sort(item.Key, true);
-			}
-		}
-
-		public void AddScore(string remixId, HighscoreEntry entry) {
-			if (!Entries.ContainsKey(remixId))
-				Entries.Add(remixId, new List<HighscoreEntry>());
-
-			Entries[remixId].Add(entry);
-			// TODO: sort and truncate
-		}
-
-		*/
 
 		public void Start(bool insert = true) {
 
@@ -183,46 +146,46 @@ public static class HighscoreManager {
 		const string playerTsTable = "TS_Players";
 
 		void Insert(PlayerEntry entry) {
-			try {
-				//* We are going to store all customers in one table
-				//* Later we are going to search customers by their IDs and Names
+			// try {
+			//* We are going to store all customers in one table
+			//* Later we are going to search customers by their IDs and Names
 
-				using (var t = engine.GetTransaction()) {
-					//Documentation https://goo.gl/Kwm9aq
-					//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
-					t.SynchronizeTables(playerTable);
+			using (var t = engine.GetTransaction()) {
+				//Documentation https://goo.gl/Kwm9aq
+				//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
+				t.SynchronizeTables(playerTable);
 
-					// bool newEntity = entry.Id== 0;
-					bool newEntity = entry.EntryId == 0;
-					if (newEntity)
-						entry.EntryId = t.ObjectGetNewIdentity<long>(playerTable);
+				// bool newEntity = entry.Id== 0;
+				bool newEntity = entry.EntryId == 0;
+				if (newEntity)
+					entry.EntryId = t.ObjectGetNewIdentity<long>(playerTable);
 
-					//Documentation https://goo.gl/YtWnAJ
-					t.ObjectInsert(playerTable, new DBreeze.Objects.DBreezeObject<PlayerEntry> {
-						// NewEntity = newEntity,
-						NewEntity = false,
-						Entity = entry,
-						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+				//Documentation https://goo.gl/YtWnAJ
+				t.ObjectInsert(playerTable, new DBreeze.Objects.DBreezeObject<PlayerEntry> {
+					// NewEntity = newEntity,
+					NewEntity = false,
+					Entity = entry,
+					Indexes = new List<DBreeze.Objects.DBreezeIndex> {
 							//*to Get customer by ID
 							// new DBreeze.Objects.DBreezeIndex(1,entry.Id) { PrimaryIndex = true },
 							new DBreeze.Objects.DBreezeIndex(1, entry.EntryId) { PrimaryIndex = true },
 						}
-					}, false);
+				}, false);
 
-					//Documentation https://goo.gl/s8vtRG
-					//* Setting text search index. We will store text-search 
-					//* indexes concerning customers in table "TS_Customers".
-					//* Second parameter is a reference to the customer ID.
-					// t.TextInsert("TS_Customers", entry.Id.ToBytes(), entry.Name);
-					t.TextInsert(playerTsTable, entry.EntryId.ToBytes(), entry.Name);
+				//Documentation https://goo.gl/s8vtRG
+				//* Setting text search index. We will store text-search 
+				//* indexes concerning customers in table "TS_Customers".
+				//* Second parameter is a reference to the customer ID.
+				// t.TextInsert("TS_Customers", entry.Id.ToBytes(), entry.Name);
+				t.TextInsert(playerTsTable, entry.EntryId.ToBytes(), entry.Name);
 
-					//Committing entry
-					t.Commit();
-				}
-
-			} catch (Exception ex) {
-				throw ex;
+				//Committing entry
+				t.Commit();
 			}
+
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 
 		}
 
@@ -232,50 +195,50 @@ public static class HighscoreManager {
 
 		void Insert(RemixEntry entry) {
 
-			try {
-				//* We are going to store all customers in one table
-				//* Later we are going to search customers by their IDs and Names
+			// try {
+			//* We are going to store all customers in one table
+			//* Later we are going to search customers by their IDs and Names
 
-				using (var t = engine.GetTransaction()) {
-					//Documentation https://goo.gl/Kwm9aq
-					//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
-					t.SynchronizeTables(remixTable);
+			using (var t = engine.GetTransaction()) {
+				//Documentation https://goo.gl/Kwm9aq
+				//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
+				t.SynchronizeTables(remixTable);
 
-					// bool newEntity = entry.Id== 0;
-					bool newEntity = entry.EntryId == 0;
-					if (newEntity)
-						entry.EntryId = t.ObjectGetNewIdentity<long>(remixTable);
+				// bool newEntity = entry.Id== 0;
+				bool newEntity = entry.EntryId == 0;
+				if (newEntity)
+					entry.EntryId = t.ObjectGetNewIdentity<long>(remixTable);
 
-					//Documentation https://goo.gl/YtWnAJ
-					t.ObjectInsert(remixTable, new DBreeze.Objects.DBreezeObject<RemixEntry> {
-						// NewEntity = newEntity,
-						NewEntity = false,
-						Entity = entry,
-						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+				//Documentation https://goo.gl/YtWnAJ
+				t.ObjectInsert(remixTable, new DBreeze.Objects.DBreezeObject<RemixEntry> {
+					// NewEntity = newEntity,
+					NewEntity = false,
+					Entity = entry,
+					Indexes = new List<DBreeze.Objects.DBreezeIndex> {
 						//* to Get customer by ID
 						// new DBreeze.Objects.DBreezeIndex(1,entry.Id) { PrimaryIndex = true },
 						new DBreeze.Objects.DBreezeIndex(1, entry.EntryId) { PrimaryIndex = true },
 					}
-					}, false);
+				}, false);
 
-					Debug.Log("inserted remix: "
-						+ entry.EntryId
-						+ ", " + entry.RemixId
-					);
+				Debug.Log("inserted remix: "
+					+ entry.EntryId
+					+ ", " + entry.RemixId
+				);
 
-					//Documentation https://goo.gl/s8vtRG
-					//* Setting text search index. We will store text-search 
-					//* indexes concerning customers in table "TS_Customers".
-					//* Second parameter is a reference to the customer ID.
-					t.TextInsert(remixTsTable, entry.EntryId.ToBytes(), entry.RemixId);
+				//Documentation https://goo.gl/s8vtRG
+				//* Setting text search index. We will store text-search 
+				//* indexes concerning customers in table "TS_Customers".
+				//* Second parameter is a reference to the customer ID.
+				t.TextInsert(remixTsTable, entry.EntryId.ToBytes(), entry.RemixId);
 
-					//Committing entry
-					t.Commit();
-				}
-
-			} catch (Exception ex) {
-				throw ex;
+				//Committing entry
+				t.Commit();
 			}
+
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 
 		}
 
@@ -283,29 +246,29 @@ public static class HighscoreManager {
 		const string highscoreTable = "Highscores";
 
 		void Insert(IEnumerable<HighscoreEntry> highscores) {
-			try {
-				/*
-				 * We are going to store all orders from all customers in one table.
-				 * Later we are planning to search orders:
-				 *    1. by Order.Id
-				 *    2. by Order.udtCreated From-To
-				 *    3. by Order.CustomerId and Order.udtCreated From-To
-				 */
+			// try {
+			/*
+			 * We are going to store all orders from all customers in one table.
+			 * Later we are planning to search orders:
+			 *    1. by Order.Id
+			 *    2. by Order.udtCreated From-To
+			 *    3. by Order.CustomerId and Order.udtCreated From-To
+			 */
 
-				using (var t = engine.GetTransaction()) {
-					//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
-					//Documentation https://goo.gl/Kwm9aq
-					t.SynchronizeTables(highscoreTable);
+			using (var t = engine.GetTransaction()) {
+				//* This line with a list of tables we need in case if we modify more than 1 table inside of transaction
+				//Documentation https://goo.gl/Kwm9aq
+				t.SynchronizeTables(highscoreTable);
 
-					foreach (var highscore in highscores) {
-						// bool newEntity = order.Id == 0;
-						bool newEntity = highscore.EntryId == 0;
-						if (newEntity)
-							highscore.EntryId = t.ObjectGetNewIdentity<long>(highscoreTable);
+				foreach (var highscore in highscores) {
+					// bool newEntity = order.Id == 0;
+					bool newEntity = highscore.EntryId == 0;
+					if (newEntity)
+						highscore.EntryId = t.ObjectGetNewIdentity<long>(highscoreTable);
 
-						t.ObjectInsert(highscoreTable, new DBreeze.Objects.DBreezeObject<HighscoreEntry> {
-							NewEntity = newEntity,
-							Indexes = new List<DBreeze.Objects.DBreezeIndex> {
+					t.ObjectInsert(highscoreTable, new DBreeze.Objects.DBreezeObject<HighscoreEntry> {
+						NewEntity = newEntity,
+						Indexes = new List<DBreeze.Objects.DBreezeIndex> {
 								//* get highscore by ID
 								new DBreeze.Objects.DBreezeIndex(1,highscore.EntryId) { PrimaryIndex = true },
 								//* get highscore by remix
@@ -318,24 +281,17 @@ public static class HighscoreManager {
 								//* to get highscore in specified time range for specific customer
 								// new DBreeze.Objects.DBreezeIndex(3,highscore.RemixEntryId, highscore.udtCreated),
 							},
-							Entity = highscore  //* Setting entity
-						}, false);  //* set last parameter to true, if batch operation speed unsatisfactory
-					}
-
-					//* Committing all changes
-					t.Commit();
+						Entity = highscore  //* Setting entity
+					}, false);  //* set last parameter to true, if batch operation speed unsatisfactory
 				}
-			} catch (Exception ex) {
-				throw ex;
+
+				//* Committing all changes
+				t.Commit();
 			}
+			// } catch (Exception ex) {
+			// 	throw ex;
+			// }
 		}
-
-		// void Insert(HighscoreEntry highscore) {
-		// 	Insert(new HighscoreEntry[] {
-		// 		highscore
-		// 	});
-		// }
-
 
 		public void Insert(string playerName, string remixId, int score, int time, CharacterSelected character) {
 			using (var t = engine.GetTransaction()) {
@@ -594,8 +550,16 @@ public static class HighscoreManager {
 
 
 
-	// public static HighscoreList List = new HighscoreList();
+	private static HighscoreList list;
 
+	public static HighscoreList List {
+		get {
+			if (list == null) 
+				list = new HighscoreList();
+			
+			return list;
+		}
+	}
 
 
 	// public static string SavePath = Application.dataPath + "/highscore.json";

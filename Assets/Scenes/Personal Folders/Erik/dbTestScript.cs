@@ -79,8 +79,6 @@ public class dbTestScript : MonoBehaviour {
 	}
 
 	public void UpdateUI() {
-		// TODO: get highscores
-		// TODO: create/update list entries
 
 		string player = PlayerQueryInput.text;
 		string remix = RemixQueryInput.text;
