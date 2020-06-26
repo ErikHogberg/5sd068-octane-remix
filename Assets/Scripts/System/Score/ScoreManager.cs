@@ -7,8 +7,12 @@ public class ScoreManager : MonoBehaviour {
 
 	private static List<ScoreBoard> Boards = new List<ScoreBoard>();
 
-	public static void GenerateScoreBoards(int amount) {
-		for (int i = 0; i < amount; i++) {
+	public static void GenerateScoreBoards(int amount, bool reset = false) {
+		if (reset) {
+			Boards.Clear();
+		}
+
+		for (int i = Boards.Count; i < amount; i++) {
 			Boards.Add(new ScoreBoard());
 		}
 	}
@@ -22,25 +26,25 @@ public class ScoreManager : MonoBehaviour {
 		}
 	}
 
-	public static int GetGrandTotalScore(int index) {
+	public static long GetGrandTotalScore(int index) {
 		if (index <= (Boards.Count - 1)) {
-			int[] three = Boards[index].GetAllThree();
-			int grandTotal = 0;
+			long[] three = Boards[index].GetAllThree();
+			long grandTotal = 0;
 			foreach (int nr in three) {
 				grandTotal += nr;
-            } return grandTotal;
-		}
-		else { 
+			}
+			return grandTotal;
+		} else {
 			UnityEngine.Debug.Log("ScoreManager: Index does not exist in ScoreBoards list");
 			return 0;
-		} 
+		}
 	}
 
 	public static void ClearAllScores() {
 		foreach (ScoreBoard board in Boards) {
 			board.ClearScores();
 		}
-    }
+	}
 
 
 	//Test code for anyone who wants it

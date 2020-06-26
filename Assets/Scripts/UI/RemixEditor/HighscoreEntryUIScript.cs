@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using TMPro;
+using System;
 
 public class HighscoreEntryUIScript : MonoBehaviour {
 
@@ -15,13 +16,34 @@ public class HighscoreEntryUIScript : MonoBehaviour {
 	public long highscoreEntryId;
 	public HighscoreListUIScript ListScript;
 
-	public void SetText(long entryId, string playerName, string remixId, long score, long time, CharacterSelected character) {
+	public void SetText(long entryId, string playerName, string remixId, long score, float time, CharacterSelected character) {
 		highscoreEntryId = entryId;
 		PlayerNameText.text = playerName;
 		RemixIDInput.text = remixId;
 		ScoreText.text = score.ToString();
-		TimeText.text = time.ToString();
+
+		TimeSpan t = System.TimeSpan.FromSeconds(time);
+		int milli = t.Milliseconds / 10;
+		TimeText.text = TimeCalc(t.Hours)
+			+ ":" + TimeCalc(t.Minutes)
+			+ ":" + TimeCalc(t.Seconds)
+			+ ":" + TimeCalc(milli);
+		// TimeText.text = time.ToString();
+
 		CharacterText.text = character.ToString();
+	}
+
+	private string TimeCalc(int nr) {
+		string ret = "";
+		if (nr <= 9) {
+			ret = "0" + nr.ToString("F0");
+		} else if (nr >= 99f) {
+			ret = "00";
+		} else {
+			ret = nr.ToString("F0");
+		}
+
+		return ret;
 	}
 
 

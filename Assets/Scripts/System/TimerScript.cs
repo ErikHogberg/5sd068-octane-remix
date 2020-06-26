@@ -37,6 +37,7 @@ public class TimerScript : MonoBehaviour {
 		}
 		timerUI.SetActive(true);
 	}
+
 	public void HideTime() {
 		if (timerUI == null) {
 			Debug.Log("TimerScript: Timer UI cannot be hidden because it has not yet been instantiated.");
@@ -44,6 +45,7 @@ public class TimerScript : MonoBehaviour {
 		}
 		timerUI.SetActive(false);
 	}
+	
 	public float GetTimeNr() { return timer; }
 	public string GetTimeTxt() { return timeTxt; }
 

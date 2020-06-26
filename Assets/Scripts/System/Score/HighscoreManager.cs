@@ -26,7 +26,7 @@ public static class HighscoreManager {
 		public DateTime udtCreated { get; set; }
 
 		public long Score { get; set; }
-		public long Time { get; set; }
+		public float Time { get; set; }
 		public CharacterSelected Character { get; set; }
 		// public string RemixID;
 
@@ -293,7 +293,7 @@ public static class HighscoreManager {
 			// }
 		}
 
-		public void Insert(string playerName, string remixId, int score, int time, CharacterSelected character) {
+		public void Insert(string playerName, string remixId, long score, float time, CharacterSelected character) {
 			using (var t = engine.GetTransaction()) {
 				t.SynchronizeTables(
 					playerTable,
