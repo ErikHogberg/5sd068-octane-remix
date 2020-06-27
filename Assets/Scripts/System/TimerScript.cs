@@ -14,6 +14,9 @@ public class TimerScript : MonoBehaviour {
 	private GameObject timerUI;
 	private TMP_Text timerText;
 
+	[Tooltip("If the time counter should be instantiated as child of this object instead of the canvas")]
+	public bool ParentCounterToThis = false;
+
 	public void StartTimer() { running = true; Debug.Log("Timer Started!"); }
 	public void StopTimer() { running = false; Debug.Log("Timer Stopped: " + timer.ToString("F2")); }
 	public void ResetTimer() { timer = 0.0f; UnityEngine.Debug.Log("Timer Reset!"); }
@@ -32,7 +35,11 @@ public class TimerScript : MonoBehaviour {
 	public void DisplayTime() {
 		if (timerUI == null) {
 			timerUI = Instantiate(Resources.Load<GameObject>("TimerUI"));
-			timerUI.transform.SetParent(CanvasFinder.thisCanvas.transform, false);
+			if (ParentCounterToThis) {
+				timerUI.transform.SetParent(this.transform, false);
+			} else {
+				timerUI.transform.SetParent(CanvasFinder.thisCanvas.transform, false);
+			}
 			timerText = timerUI.transform.GetChild(0).GetComponent<TMP_Text>();
 		}
 		timerUI.SetActive(true);
@@ -45,7 +52,7 @@ public class TimerScript : MonoBehaviour {
 		}
 		timerUI.SetActive(false);
 	}
-	
+
 	public float GetTimeNr() { return timer; }
 	public string GetTimeTxt() { return timeTxt; }
 

@@ -25,6 +25,8 @@ public class HighscoreListUIScript : MonoBehaviour {
 	}
 
 	private void OnEnable() {
+		if (dbList == null)
+			dbList = HighscoreManager.List;
 		UpdateUI();
 	}
 
@@ -41,7 +43,6 @@ public class HighscoreListUIScript : MonoBehaviour {
 	}
 
 	public void UpdateUI() {
-		// TODO: persistent db
 
 		string player = PlayerQueryInput.text;
 		string remix = RemixQueryInput.text;
