@@ -37,6 +37,14 @@ public class GameOverPanel : MonoBehaviour, IObserver<int> {
 		if (lapsCompleted >= MaxLaps) {
 			// TODO: disable car controls
 			TimerScript.Instance.StopTimer();
+			ScoreManager.Board(0).StopScoreCollecting();
+			HighscoreManager.List.Insert(
+				"player", 
+				"remix", 
+				ScoreManager.GetGrandTotalScore(0), 
+				TimerScript.Instance.GetTimeNr(), 
+				CharacterSelected.NONE
+			);
 			gameObject.SetActive(true);
 			EventSystem.current.SetSelectedGameObject(gameObject.transform.GetChild(2).gameObject);
 		}
