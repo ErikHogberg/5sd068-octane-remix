@@ -29,8 +29,9 @@ public class SkillScore {
 		}
 	}
 
-	public void AddScore(ScoreSkill p_type, long add) {
-		skillScoreTypes[p_type].AddScore(add);
+	public void AddScore(ScoreSkill type, long add) {
+		ScoreNotificationUIScript.MainInstance?.Notify(type, add);
+		skillScoreTypes[type].AddScore(add);
 	}
 
 	public long GetScore(ScoreSkill p_type) {

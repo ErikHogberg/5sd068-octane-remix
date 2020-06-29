@@ -19,14 +19,20 @@ public class HighscoreListUIScript : MonoBehaviour {
 	bool timeOrdered = true;
 
 	void Start() {
-		dbList = HighscoreManager.List;
-		FirstListEntry.gameObject.SetActive(false);
-		UpdateUI();
+		Init();
 	}
 
 	private void OnEnable() {
+		Init();
+	}
+
+	private void Init() {
 		if (dbList == null)
 			dbList = HighscoreManager.List;
+
+		RemixQueryInput.text = LevelPieceSuperClass.GetRemixString();
+
+		FirstListEntry.gameObject.SetActive(false);
 		UpdateUI();
 	}
 
@@ -39,6 +45,18 @@ public class HighscoreListUIScript : MonoBehaviour {
 			return;
 		}
 		this.timeOrdered = timeOrdered;
+		UpdateUI();
+	}
+
+	public void ClearFilters() {
+		RemixQueryInput.text = "";
+		PlayerQueryInput.text = "";
+		UpdateUI();
+	}
+
+	public void FilterCurrentPlayerAndRemix() {
+		RemixQueryInput.text = LevelPieceSuperClass.GetRemixString();
+		PlayerQueryInput.text = NameInputInputScript.PlayerName;
 		UpdateUI();
 	}
 

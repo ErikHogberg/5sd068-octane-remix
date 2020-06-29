@@ -1,10 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class CharacterSelectInputDelegateScript : MonoBehaviour {
+
+	public TMP_InputField NameInput;
+	[Space]
 
 	[Tooltip("Press right")]
 	public UnityEvent NextCarEvents;
@@ -43,6 +47,13 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 	[Tooltip("If leaving confirm mode using left or right will also call the next or previous call events")]
 	public bool CallLeftRightOnLeaveConfirm = false;
 
+	bool CheckIfEditingNameInput() {
+		if (!NameInput) {
+			return false;
+		} else {
+			return NameInput.isFocused;
+		}
+	}
 
 	bool CheckLeftRight() {
 		if (ConfirmMode) {
@@ -58,16 +69,25 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 	}
 
 	void Next() {
+		if (CheckIfEditingNameInput())
+			return;
+
 		if (CheckLeftRight())
 			PreviousCarEvents.Invoke();
 	}
 
 	void Previous() {
+		if (CheckIfEditingNameInput())
+			return;
+
 		if (CheckLeftRight())
 			NextCarEvents.Invoke();
 	}
 
 	void ToggleConfirmMode() {
+		if (CheckIfEditingNameInput())
+			return;
+
 		ConfirmMode = !ConfirmMode;
 		if (ConfirmMode) {
 			EnterConfirmModeEvents.Invoke();
@@ -77,11 +97,21 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 	}
 
 	void Accept() {
+		if (CheckIfEditingNameInput())
+			return;
+
 		if (ConfirmMode) {
 			NextSceneEvents.Invoke();
 		} else {
 			SelectCarEvents.Invoke();
 		}
+	}
+
+	void Cancel() {
+		if (CheckIfEditingNameInput())
+			return;
+
+		CancelEvents.Invoke();
 	}
 
 
@@ -92,7 +122,7 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 		RightBinding.action.started += _ => Next();
 
 		AcceptBinding.action.started += _ => Accept();
-		CancelBinding.action.started += _ => CancelEvents.Invoke();
+		CancelBinding.action.started += _ => Cancel();
 
 
 		UpBinding.action.Enable();

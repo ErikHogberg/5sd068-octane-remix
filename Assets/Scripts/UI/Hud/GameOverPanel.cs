@@ -38,11 +38,12 @@ public class GameOverPanel : MonoBehaviour, IObserver<int> {
 			// TODO: disable car controls
 			TimerScript.Instance.StopTimer();
 			ScoreManager.Board(0).StopScoreCollecting();
+
 			HighscoreManager.List.Insert(
-				"No Name", // TODO: name input field
-				LevelPieceSuperClass.GetRemixString(), 
-				ScoreManager.GetGrandTotalScore(0), 
-				TimerScript.Instance.GetTimeNr(), 
+				NameInputInputScript.GetPlayerName(), // "No Name",
+				LevelPieceSuperClass.GetRemixString(),
+				ScoreManager.GetGrandTotalScore(0),
+				TimerScript.Instance.GetTimeNr(),
 				CharacterSelection.GetPick(0)
 			);
 			gameObject.SetActive(true);
