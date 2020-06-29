@@ -24,27 +24,12 @@ public class HighscoreEntryUIScript : MonoBehaviour {
 
 		TimeSpan t = System.TimeSpan.FromSeconds(time);
 		int milli = t.Milliseconds / 10;
-		TimeText.text = TimeCalc(t.Hours)
-			+ ":" + TimeCalc(t.Minutes)
-			+ ":" + TimeCalc(t.Seconds)
-			+ ":" + TimeCalc(milli);
-		// TimeText.text = time.ToString();
+		TimeText.text = TimerScript.TimeCalc(t.Hours)
+			+ ":" + TimerScript.TimeCalc(t.Minutes)
+			+ ":" + TimerScript.TimeCalc(t.Seconds)
+			+ ":" + TimerScript.TimeCalc(milli);
 
 		CharacterText.text = character.ToString();
 	}
-
-	private string TimeCalc(int nr) {
-		string ret = "";
-		if (nr <= 9) {
-			ret = "0" + nr.ToString("F0");
-		} else if (nr >= 99f) {
-			ret = "00";
-		} else {
-			ret = nr.ToString("F0");
-		}
-
-		return ret;
-	}
-
 
 }
