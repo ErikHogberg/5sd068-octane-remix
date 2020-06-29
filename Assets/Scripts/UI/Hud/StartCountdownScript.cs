@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using System;
 
 public class StartCountdownScript : MonoBehaviour {
 
@@ -118,8 +119,11 @@ public class StartCountdownScript : MonoBehaviour {
 	}
 
 	void UpdateUI() {
-		SecondText.text = timer.ToString("0");
-		MillisecondText.text = "." + ((timer % 1f) * 100f).ToString("00");
+		TimeSpan t = System.TimeSpan.FromSeconds(timer);
+		int milli = t.Milliseconds / 10;
+
+		SecondText.text = TimerScript.TimeCalc(t.Seconds, true);
+		MillisecondText.text = "." + TimerScript.TimeCalc(milli);
 	}
 
 	public void StartCountdown() {

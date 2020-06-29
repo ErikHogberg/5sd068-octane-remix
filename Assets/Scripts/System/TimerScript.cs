@@ -81,10 +81,24 @@ public class TimerScript : MonoBehaviour {
 		}
 	}
 
-	private string TimeCalc(int nr) {
+	public static string TimeCalc(int nr, bool singleDigit = false) {
 		string ret = "";
-		if (nr <= 9) { ret = "0" + nr.ToString("F0"); } else if (nr >= 99f) ret = "00";
-		else ret = nr.ToString("F0");
+		if (nr <= 9) {
+			if (singleDigit) {
+				ret = nr.ToString("F0");
+			} else {
+				ret = "0" + nr.ToString("F0");
+			}
+		} else if (nr >= 99f) {
+			if (singleDigit) {
+				ret = "0";
+			} else {
+				ret = "00";
+			}
+		} else {
+			ret = nr.ToString("F0");
+		};
+
 		return ret;
 	}
 
