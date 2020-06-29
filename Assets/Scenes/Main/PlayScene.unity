@@ -23431,6 +23431,56 @@ PrefabInstance:
       propertyPath: fireIntegEffect
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: Smoke
+      value: 
+      objectReference: {fileID: 3041120996014153804}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[0].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[1].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: rockVelocityDamageCurve.m_Curve.Array.data[1].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: SmokeMinIntegrity
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: SmokeCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921808050948891060, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: SmokeCurve.m_Curve.Array.data[1].inSlope
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5023840265247242384, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: m_Enabled
@@ -23483,6 +23533,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aa81892c545e3bf48bdc0a147a7cc3ea, type: 3}
+--- !u!2083052967 &3041120996014153804 stripped
+VisualEffect:
+  m_CorrespondingSourceObject: {fileID: 6376469309136687235, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+    type: 3}
+  m_PrefabInstance: {fileID: 3041120996014153803}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3223167303561264607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26469,7 +26525,7 @@ PrefabInstance:
     - target: {fileID: 8522380270251863250, guid: 3b614aba3ede48049af0f1695ec924fa,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 43.69995
+      value: 44
       objectReference: {fileID: 0}
     - target: {fileID: 8522380270251863250, guid: 3b614aba3ede48049af0f1695ec924fa,
         type: 3}
