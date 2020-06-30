@@ -7,13 +7,13 @@ using UnityEngine.UI;
 public class RumbleToggleUIScript : MonoBehaviour {
 
 	Toggle toggle;
-	
-	void Start() {
-		toggle.isOn = SteeringScript.EnableRumble;
 
+	void Start() {
+		toggle = GetComponent<Toggle>();
+		toggle.isOn = SteeringScript.EnableRumble;
 	}
 
-	public void Toggle(bool value){
+	public void Toggle(bool value) {
 		SteeringScript.EnableRumble = value;
 	}
 
