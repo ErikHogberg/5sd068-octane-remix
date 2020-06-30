@@ -242,7 +242,7 @@ public class SteeringScript : MonoBehaviour {
 	#region Rumble fields
 	[Header("Rumble")]
 
-	public bool EnableRumble = false;
+	public static bool EnableRumble = true;
 
 	public float EngineRumbleHiHzMaxVelocity;
 	public AnimationCurve EngineRumbleHiHzCurve;
