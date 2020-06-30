@@ -76,10 +76,20 @@ public class CharacterSelectInputDelegateScript : MonoBehaviour {
 			PreviousCarEvents.Invoke();
 	}
 
+	public void ClickNext() {
+		if (CheckLeftRight())
+			PreviousCarEvents.Invoke();
+	}
+
 	void Previous() {
 		if (CheckIfEditingNameInput())
 			return;
 
+		if (CheckLeftRight())
+			NextCarEvents.Invoke();
+	}
+
+	public void ClickPrevious() {
 		if (CheckLeftRight())
 			NextCarEvents.Invoke();
 	}
