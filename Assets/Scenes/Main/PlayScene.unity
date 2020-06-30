@@ -23499,6 +23499,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
       propertyPath: VelocityCap
       value: 100
       objectReference: {fileID: 0}
@@ -23530,7 +23540,7 @@ PrefabInstance:
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: EnableCheatMitigation
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -23626,6 +23636,141 @@ PrefabInstance:
         type: 3}
       propertyPath: SpeedProfiles.Array.data[1].RearWheelForwardStiffness
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzMaxVelocity
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzMaxVelocity
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].inSlope
+      value: 0.18097287
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outSlope
+      value: 0.18097287
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].time
+      value: 1.003479
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].value
+      value: 0.18160248
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inSlope
+      value: 0.18097287
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].outSlope
+      value: 0.18097287
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].inSlope
+      value: -0.18159485
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outSlope
+      value: -0.18159485
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inSlope
+      value: -0.18159485
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].outSlope
+      value: -0.18159485
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].value
+      value: 0.18159485
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: EnableRumble
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: SpeedProfiles.Array.data[1].BoostSpeed
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: DriftStartAngle
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378622925341, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -24459,6 +24604,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
       propertyPath: VelocityCap
       value: 50
       objectReference: {fileID: 0}
@@ -24581,6 +24736,121 @@ PrefabInstance:
         type: 3}
       propertyPath: SpeedProfiles.Array.data[1].RearWheelSidewaysStiffness
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzMaxVelocity
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzMaxVelocity
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].inSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].value
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].outSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].inSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].outSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].value
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     - target: {fileID: 2710298148350280556, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -25380,6 +25650,16 @@ PrefabInstance:
       propertyPath: tickRate
       value: 0.8
       objectReference: {fileID: 0}
+    - target: {fileID: 379379914319698648, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: sawIntegEffect
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 379379914319698648, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: rockIntegEffect
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 641268423818939244, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_ConnectedAnchor.y
@@ -25712,6 +25992,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
       propertyPath: VelocityCap
       value: 50
       objectReference: {fileID: 0}
@@ -25839,6 +26129,136 @@ PrefabInstance:
         type: 3}
       propertyPath: SpeedProfiles.Array.data[1].SteeringMax
       value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EnableRumble
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzMaxVelocity
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzMaxVelocity
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].inSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].value
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].outSlope
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleHiHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].inSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].outSlope
+      value: -0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].tangentMode
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].value
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[0].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: EngineRumbleLoHzCurve.m_Curve.Array.data[1].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: BoostConsumptionRate
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: DriftStartAngle
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 9210618085984265551, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}

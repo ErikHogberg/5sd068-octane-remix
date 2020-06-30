@@ -13,6 +13,10 @@ public class HighscoreListUIScript : MonoBehaviour {
 	public HighscoreEntryUIScript FirstListEntry;
 	public GameObject ListContentParent;
 
+	public GameObject SelectionErrorText;
+
+	string selectedHighscoreRemix = null;
+
 	List<HighscoreEntryUIScript> ListEntries = new List<HighscoreEntryUIScript>();
 
 	HighscoreList dbList;
@@ -33,6 +37,10 @@ public class HighscoreListUIScript : MonoBehaviour {
 		RemixQueryInput.text = LevelPieceSuperClass.GetRemixString();
 
 		FirstListEntry.gameObject.SetActive(false);
+
+		SelectionErrorText.SetActive(false);
+		selectedHighscoreRemix = null;
+
 		UpdateUI();
 	}
 
@@ -56,11 +64,52 @@ public class HighscoreListUIScript : MonoBehaviour {
 
 	public void FilterCurrentPlayerAndRemix() {
 		RemixQueryInput.text = LevelPieceSuperClass.GetRemixString();
-		PlayerQueryInput.text = NameInputInputScript.PlayerName;
+		PlayerQueryInput.text = NameInputInputScript.GetPlayerName();
+		UpdateUI();
+	}
+
+	public void SelectHighscore(string remix) {
+		Debug.Log("selected highscore with remix " + remix);
+		selectedHighscoreRemix = remix;
+	}
+
+	public void DeselectHighscore() {
+		selectedHighscoreRemix = null;
+	}
+
+	public void ChallengeHighscore() {
+		if (selectedHighscoreRemix == null) {
+			SelectionErrorText.SetActive(true);
+			return;
+		}
+
+		LevelPieceSuperClass.LoadRemixFromString(selectedHighscoreRemix);
+		ChangeSceneUIScript.MainInstance.SwapCurrentScene("PlayScene");
+	}
+
+	public void EditHighscoreRemix() {
+		if (selectedHighscoreRemix == null) {
+			SelectionErrorText.SetActive(true);
+			return;
+		}
+
+		LevelPieceSuperClass.LoadRemixFromString(selectedHighscoreRemix);
+		gameObject.SetActive(false);
+	}
+
+	public void FilterRemixBySelected() {
+		if (selectedHighscoreRemix == null) {
+			SelectionErrorText.SetActive(true);
+			return;
+		}
+
+		RemixQueryInput.text = selectedHighscoreRemix;
 		UpdateUI();
 	}
 
 	public void UpdateUI() {
+		SelectionErrorText.SetActive(false);
+		DeselectHighscore();
 
 		string player = PlayerQueryInput.text;
 		string remix = RemixQueryInput.text;

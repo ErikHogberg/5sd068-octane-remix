@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class ChangeSceneUIScript : MonoBehaviour {
 
+	public static ChangeSceneUIScript MainInstance = null;
+
 	public string CurrentScene;
 
 	private void Awake() {
@@ -16,6 +18,16 @@ public class ChangeSceneUIScript : MonoBehaviour {
 		// if (DebugOutput) {
 		// 	Debug.Log("Current scene: " + currentScene);
 		// }
+
+		if (MainInstance == null) {
+			MainInstance = this;
+		}
+	}
+
+	private void OnDestroy() {
+		if (MainInstance == this) {
+			MainInstance = null;
+		}
 	}
 
 	public void StartScene(string sceneName) {

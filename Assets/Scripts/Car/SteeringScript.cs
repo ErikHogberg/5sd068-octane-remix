@@ -244,15 +244,20 @@ public class SteeringScript : MonoBehaviour {
 
 	public bool EnableRumble = false;
 
-	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
-	[Range(0, 1)]
-	public float EngineRumbleHiLoHzRatio = .5f;
-	[Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
-	[Range(0, 2)]
-	public float EngineRumbleAmount = .5f;
+	public float EngineRumbleHiHzMaxVelocity;
+	public AnimationCurve EngineRumbleHiHzCurve;
+	public float EngineRumbleLoHzMaxVelocity;
+	public AnimationCurve EngineRumbleLoHzCurve;
 
-	public Vector2 EngineRumbleSpeedMinMax;
-	public AnimationCurve EngineRumbleCurve;
+	// [Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
+	// [Range(0, 1)]
+	// public float EngineRumbleHiLoHzRatio = .5f;
+	// [Tooltip("How much the distribution is multiplied when applied, max 200%, meaning at 50% distrition both motors are 100% at max amount ")]
+	// [Range(0, 2)]
+	// public float EngineRumbleAmount = .5f;
+
+	// public Vector2 EngineRumbleSpeedMinMax;
+	// public AnimationCurve EngineRumbleCurve;
 
 	[Tooltip("Distribution of high vs low Hz rumble motor amount, more high hz => buzzing, more low hz => shaking")]
 	[Range(0, 1)]
@@ -645,8 +650,17 @@ public class SteeringScript : MonoBehaviour {
 			&& absAngle > DriftStartAngle
 			&& velocity.sqrMagnitude > DriftStartVelocity * DriftStartVelocity
 		) {
-			lowHzRumble += (1f - DriftRumbleHiLoHzRatio) * DriftRumbleAmount;
-			highHzRumble += DriftRumbleHiLoHzRatio * DriftRumbleAmount;
+			// lowHzRumble += (1f - DriftRumbleHiLoHzRatio) * DriftRumbleAmount;
+			float driftLoRumble = (1f - DriftRumbleHiLoHzRatio) * DriftRumbleAmount;
+			if (lowHzRumble < driftLoRumble) {
+				lowHzRumble = driftLoRumble;
+			}
+			// highHzRumble += DriftRumbleHiLoHzRatio * DriftRumbleAmount;
+			float driftHiRumble = DriftRumbleHiLoHzRatio * DriftRumbleAmount;
+			if (highHzRumble < driftHiRumble) {
+				highHzRumble = driftHiRumble;
+			}
+
 			StartDrift();
 		}
 
@@ -1024,8 +1038,17 @@ public class SteeringScript : MonoBehaviour {
 				boostDir = Quaternion.AngleAxis(steeringBuffer * BoostMaxSteering, Vector3.up) * boostDir;
 			}
 			rb.AddRelativeForce(boostDir * CurrentProfile.BoostSpeed, ForceMode.Acceleration);
-			lowHzRumble += (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
-			highHzRumble += BoostRumbleHiLoHzRatio * BoostRumbleAmount;
+
+			float boostLoRumble = (1f - BoostRumbleHiLoHzRatio) * BoostRumbleAmount;
+			if (lowHzRumble < boostLoRumble) {
+				lowHzRumble = boostLoRumble;
+			}
+
+			float boostHiRumble = BoostRumbleHiLoHzRatio * BoostRumbleAmount;
+			if (highHzRumble < boostHiRumble) {
+				highHzRumble = boostHiRumble;
+			}
+
 		} else {
 			StopBoost();
 		}
@@ -1135,7 +1158,7 @@ public class SteeringScript : MonoBehaviour {
 
 			var sidewaysFriction = wheelCollider.sidewaysFriction;
 			sidewaysFriction.stiffness = CurrentProfile.RearWheelSidewaysStiffness;
-			wheelCollider.sidewaysFriction = sidewaysFriction;			
+			wheelCollider.sidewaysFriction = sidewaysFriction;
 		}
 	}
 
@@ -1192,6 +1215,17 @@ public class SteeringScript : MonoBehaviour {
 
 	private void Rumble() {
 		if (EnableRumble) {
+
+			float engineLoRumble = EngineRumbleLoHzCurve.Evaluate(Mathf.Clamp01(Velocity.sqrMagnitude / (EngineRumbleLoHzMaxVelocity * EngineRumbleLoHzMaxVelocity)));
+			float engineHiRumble = EngineRumbleHiHzCurve.Evaluate(Mathf.Clamp01(Velocity.sqrMagnitude / (EngineRumbleHiHzMaxVelocity * EngineRumbleHiHzMaxVelocity)));
+
+			if (lowHzRumble < engineLoRumble) {
+				lowHzRumble = engineLoRumble;
+			}
+			if (highHzRumble < engineHiRumble) {
+				highHzRumble = engineHiRumble;
+			}
+
 			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
 			highHzRumble = Mathf.Clamp(highHzRumble, 0, 1);
 

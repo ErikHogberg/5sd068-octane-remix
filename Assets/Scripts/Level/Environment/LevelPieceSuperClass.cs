@@ -194,7 +194,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 
-				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex);// ?? false;
+				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex, false);// ?? false;
 			}
 
 			currentSegment = this;
