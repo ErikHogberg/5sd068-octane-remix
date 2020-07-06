@@ -153,6 +153,8 @@ public class SteeringScript : MonoBehaviour {
 
 	[Header("In-air controls")]
 	public bool LeftStickRotationWhenInAir = false;
+	public bool ZeroAngularVelocityOnLanding = false;
+	public bool ZeroAngularVelocityOnAir = false;
 	public float YawSpeed = 200f;
 	public AnimationCurve YawInputCurve;
 	public float PitchSpeed = 100f;
@@ -453,6 +455,11 @@ public class SteeringScript : MonoBehaviour {
 
 		if (touchingGround) {
 			if (!wasTouchingGround) {
+				// First frame on ground
+				if (ZeroAngularVelocityOnLanding) {
+					rb.angularVelocity = Vector3.zero;
+				}
+
 				if (airTimeTimer > AirTimeTimeThreshold) {
 					// IDEA: make async call?
 					// TODO: dont get score for falling after resetting
@@ -466,6 +473,13 @@ public class SteeringScript : MonoBehaviour {
 			}
 		} else {
 			airTimeTimer += Time.deltaTime;
+
+			if (wasTouchingGround) {
+				// First frame in air
+				if (ZeroAngularVelocityOnAir) {
+					rb.angularVelocity = Vector3.zero;
+				}
+			}
 		}
 
 		ApplyDownwardForce(dt, sqrVelocity);
@@ -1188,6 +1202,11 @@ public class SteeringScript : MonoBehaviour {
 	public void Reset() {
 		// CallResetObservers();
 		// StartCountdownScript.StartPenaltyCountdownStatic(1f);
+
+		foreach (var item in allWheelColliders) {
+			item.motorTorque = 0;
+			item.brakeTorque = 0;
+		}
 
 		if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
 		) {
