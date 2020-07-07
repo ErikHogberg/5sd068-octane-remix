@@ -3734,8 +3734,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 361.45, y: 261.62}
-  m_SizeDelta: {x: 293.9867, y: 55.122498}
+  m_AnchoredPosition: {x: 361.34, y: 261.62}
+  m_SizeDelta: {x: 291.9621, y: 55.122498}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &521458387
 MonoBehaviour:
@@ -3793,7 +3793,18 @@ MonoBehaviour:
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1965835199}
+        m_MethodName: SetResolution
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &521458388
 MonoBehaviour:
   m_ObjectHideFlags: 0

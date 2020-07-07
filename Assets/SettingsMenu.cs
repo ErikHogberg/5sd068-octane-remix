@@ -5,8 +5,7 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
 
-public class SettingsMenu : MonoBehaviour
-{
+public class SettingsMenu : MonoBehaviour {
 	public AudioMixer audioMixer;
 
 	public TMP_Dropdown resolutionDropdown;
@@ -15,8 +14,7 @@ public class SettingsMenu : MonoBehaviour
 	public Slider MusicVolume;
 
 	Resolution[] resolutions;
-	void Start() 
-	{
+	void Start() {
 		resolutions = Screen.resolutions;
 
 		resolutionDropdown.ClearOptions();
@@ -26,9 +24,9 @@ public class SettingsMenu : MonoBehaviour
 
 		for (int i = 0; i < resolutions.Length; i++) {
 
-			string option = resolutions[i].width + "x" + resolutions[i].height;
+			string option = resolutions[i].width + "x" + resolutions[i].height + ", " + resolutions[i].refreshRate + "hz";
 			options.Add(option);
-			
+
 			if (resolutions[i].width == Screen.currentResolution.width && resolutions[i].height == Screen.currentResolution.height) {
 
 				currentResolutionIndex = i;
@@ -55,17 +53,16 @@ public class SettingsMenu : MonoBehaviour
 		}
 	}
 
-	public void SetResolution (int resolutionIndex) {
-
+	public void SetResolution(int resolutionIndex) {
 		Resolution resolution = resolutions[resolutionIndex];
-		Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+		Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen, resolution.refreshRate);
 	}
-	public void SetVolumeMaster (float volume)
-    {
+
+	public void SetVolumeMaster(float volume) {
 		audioMixer.SetFloat("Volume", volume);
-    }
-	
-	public void SetVolumeSFX (float volume) {
+	}
+
+	public void SetVolumeSFX(float volume) {
 
 		audioMixer.SetFloat("SFX", volume);
 		audioMixer.SetFloat("Player", volume);
@@ -77,7 +74,7 @@ public class SettingsMenu : MonoBehaviour
 	}
 
 
-	public void SetFullScreen (bool isFullscreen) {
+	public void SetFullScreen(bool isFullscreen) {
 
 		Screen.fullScreen = isFullscreen;
 	}
