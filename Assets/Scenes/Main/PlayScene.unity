@@ -20302,6 +20302,7 @@ MonoBehaviour:
   SetSpeedInDirectionForceMode: 2
   SetAngularVelocity: 3
   AngularVelocity: {x: 5, y: 0, z: 0}
+  IgnoreNextJumpZeroing: 1
   OptionalDirectionOverride: {fileID: 0}
 --- !u!4 &1962962395 stripped
 Transform:
@@ -21756,7 +21757,7 @@ PrefabInstance:
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
       propertyPath: ZeroAngularVelocityOnAir
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4541707378162166546, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -22749,7 +22750,7 @@ PrefabInstance:
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
       propertyPath: ZeroAngularVelocityOnAir
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2597371096964422253, guid: 2763359df68fbe84f8424990b9c144da,
         type: 3}
@@ -24228,7 +24229,7 @@ PrefabInstance:
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: ZeroAngularVelocityOnAir
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
@@ -25467,6 +25468,7 @@ MonoBehaviour:
   SetSpeedInDirectionForceMode: 2
   SetAngularVelocity: 1
   AngularVelocity: {x: 0, y: 0, z: 0}
+  IgnoreNextJumpZeroing: 0
   OptionalDirectionOverride: {fileID: 0}
 --- !u!33 &8539400088955104312
 MeshFilter:
