@@ -24,6 +24,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	// [Tooltip("If resetting due to out of order segment should be ignored")]
 	// public bool OverrideSegmentOrderReset = false;
 
+	// TODO: remove all goal post stuff here, migrate relevant stuff to goal post spot script
+
 	[Tooltip("If this is the default start segment, make sure only one is marked, or a random one will be selected")]
 	public bool InitStart = false;
 	[Tooltip("If this is the default end/finish segment, make sure only one is marked, or a random one will be selected")]
