@@ -146,7 +146,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 		if (Input.GetMouseButtonDown(0)) {
 			// print("left click");
-			RemixMapScript.SelectSegment(this);
+			RemixMapScript.Select(this);
 		}
 		if (Input.GetMouseButtonDown(1)) {
 			// print("right click");

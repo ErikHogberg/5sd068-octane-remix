@@ -26,12 +26,12 @@ public class RemixEditorGoalPost : MonoBehaviour {
 	}
 
 	private void OnMouseOver() {
+
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
 		if (Input.GetMouseButtonDown(0)) {
-			// TODO: remix editor list for start/finish line spots
-			// RemixMapScript.SelectSegment(this);
+			RemixMapScript.Select(this);
 		}
 
 		if (Input.GetMouseButtonDown(1)) {

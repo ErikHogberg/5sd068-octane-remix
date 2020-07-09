@@ -74,13 +74,14 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	public static void SetInstanceSegment(LevelPieceSuperClass segment) {
 		// if (!MainInstance)
-			// return;
+		// return;
 
 		MainInstance?.SetSegment(segment);
 	}
 
 	// called when car leaves parent segment
 	public void Notify(LevelPieceSuperClass segment) {
+
 		if (ready) {
 			// Registers lap if the car somehow missed the goal post
 			// IDEA: reset player to goal post segment instead
@@ -88,7 +89,6 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		} else {
 			ready = true;
 		}
-
 
 	}
 

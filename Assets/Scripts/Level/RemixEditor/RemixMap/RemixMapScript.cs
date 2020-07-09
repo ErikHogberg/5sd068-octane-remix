@@ -28,15 +28,9 @@ public class RemixMapScript : MonoBehaviour {
 
 	void Start() {
 
-		// TODO: 3d mouse picking to select segment
 		// TODO: selection highlight
-		// IDEA: right click drag to rotate map
 		// TODO: only enable segment mouse picking in remix edit mode
-		// TODO: mouse pick-able boxes between segments for selecting transition, for adding portals, etc.
-		// TODO: figure out more mechanics than portals that 
-		// TODO: save remix		
-		// TODO: load remix		
-
+		
 		// foreach (var piece in LevelPieceSuperClass.Pieces) {
 
 		// 	Button button = Instantiate(
@@ -86,9 +80,9 @@ public class RemixMapScript : MonoBehaviour {
 
 	}
 
-	public static void SelectSegment(LevelPieceSuperClass segment) {
+	public static void Select(LevelPieceSuperClass segment) {
 		if (!mainInstance) {
-			//UnityEngine.Debug.Log("RemixMap: No main instance");
+			UnityEngine.Debug.Log("RemixMap: No main instance");
 			return;
 		}
 
@@ -98,6 +92,34 @@ public class RemixMapScript : MonoBehaviour {
 		
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
+		
+	}
+
+	public static void Select(RemixEditorGoalPost goalPost) {
+		if (!mainInstance) {
+			UnityEngine.Debug.Log("RemixMap: No main instance");
+			return;
+		}
+
+		RemixCameraRotateScript.StopStatic();
+
+
+		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		GoalSpotListScript.MainInstance?.SetToggleObject(goalPost);
+		RemixMenuCameraFocusScript.SetTarget(goalPost.transform);
+		
+	}
+
+	public static void Select(RemixEditorToggleObject toggleObject) {
+		if (!mainInstance) {
+			UnityEngine.Debug.Log("RemixMap: No main instance");
+			return;
+		}
+
+		RemixCameraRotateScript.StopStatic();
+
+		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		RemixMenuCameraFocusScript.SetTarget(toggleObject.transform);
 		
 	}
 
