@@ -12,7 +12,7 @@ using System.Dynamic;
 public class GoalSpotListScript : MonoBehaviour {
 
 	public static GoalSpotListScript MainInstance;
-	
+
 	public static List<GoalSpotListItem> listItems = new List<GoalSpotListItem>();
 	private static GoalSpotListItem currentItem;
 	public static GoalSpotListItem ReadCurrentItem() { return currentItem; }
@@ -77,12 +77,21 @@ public class GoalSpotListScript : MonoBehaviour {
 		}
 	}
 
-	private void UpdateStartButtonNav(Toggle p_item) {
+	private void UpdateStartButtonNav(Toggle item) {
 		Navigation orgNav = startButton.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
-		orgNav.selectOnLeft = p_item;
-		orgNav.selectOnRight = p_item;
+		orgNav.selectOnLeft = item;
+		orgNav.selectOnRight = item;
 		startButton.navigation = orgNav;
+	}
+
+	void SetEntry(GoalSpotListItem entry, RemixEditorGoalPost goalPost, int index) {
+		entry.SetGoalPost(goalPost);
+		entry.SetToggleGroup(group);
+		entry.SetListReference(this);
+		entry.GetScrollPinger().RegisterScrollMaster(scrollMaster);
+		entry.SetText("Line " + (index + 1));
+		listItems.Add(entry);
 	}
 
 	void CreateSegmentList() {
@@ -93,42 +102,26 @@ public class GoalSpotListScript : MonoBehaviour {
 			return;
 		}
 
-		ListEntryTemplate.SetGoalPost(RemixEditorGoalPost.Instances[0]);
-		ListEntryTemplate.SetToggleGroup(group);
-		ListEntryTemplate.SetListReference(this);
-		ListEntryTemplate.GetScrollPinger().RegisterScrollMaster(scrollMaster);
-		listItems.Add(ListEntryTemplate);
+		ListEntryTemplate.gameObject.SetActive(true);
+		SetEntry(ListEntryTemplate, RemixEditorGoalPost.Instances[0], 1);
 
 		// NOTE: skips first entry
 		for (int i = 1; i < RemixEditorGoalPost.Instances.Count; i++) {
 			//Instantiating a new list item
 			// SegmentListItem newItemObj = Instantiate(Resources.Load<SegmentListItem>("SegmentListItem"));
 			GoalSpotListItem newItemObj = Instantiate(ListEntryTemplate);//.GetComponent<SegmentListItem>();
-																		 // newItemObj.transform.SetParent(listContent.transform);
+
+			// newItemObj.transform.SetParent(listContent.transform);
 			newItemObj.transform.SetParent(ListEntryTemplate.transform.parent);
 			newItemObj.GetComponent<RectTransform>().localScale = Vector3.one;
 
-			//Giving data to new list item
-			newItemObj.SetGoalPost(RemixEditorGoalPost.Instances[i]);
-			newItemObj.SetToggleGroup(group);
-			newItemObj.SetListReference(this);
-
-			//Checking if a segment has a visible obstacle on them from before initialization
-			// var shownObject = LevelPieceSuperClass.Segments[i].Obstacles.ShownObject;
-			// if (shownObject != null && shownObject.Key != "")
-			// newItemObj.UpdateObstacle(shownObject.Key);
-
-			//Registering the master script for smooth scrolling in every list item so they can adhere to it
-			newItemObj.GetScrollPinger().RegisterScrollMaster(scrollMaster);
-
-			newItemObj.SetText("Segment " + (i + 1));
-			listItems.Add(newItemObj);
+			SetEntry(newItemObj, RemixEditorGoalPost.Instances[i], i + 1);
 		}
+
 		group.SetAllTogglesOff();
 
-		if (listItems.Count < 1) {
+		if (listItems.Count < 1) 
 			return;
-		}
 
 		//Setting intra-list navigation relationships, for which all list items need to already exist
 		UpdateStartButtonNav(listItems[0].GetToggle());

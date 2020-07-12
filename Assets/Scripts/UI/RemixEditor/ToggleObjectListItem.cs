@@ -9,7 +9,7 @@ public class ToggleObjectListItem : MonoBehaviour {
 	private Toggle itemToggle;
 	private TMP_Text itemLabel;
 	// private string segmentSelectedObstacle;
-	private LevelPieceSuperClass segment;
+	private RemixEditorToggleObject toggleObject;
 	private ListItemScrollPing scrollPing;
 	private ToggleObjectListScript listReference;
 
@@ -22,7 +22,7 @@ public class ToggleObjectListItem : MonoBehaviour {
 	}
 
 	public void SetText(string txt) { itemLabel.text = txt; }
-	public void SetSegment(LevelPieceSuperClass segment) { this.segment = segment; }
+	public void SetSegment(RemixEditorToggleObject segment) { this.toggleObject = segment; }
 	public void SetToggleGroup(ToggleGroup group) { itemToggle.group = group; }
 	public void SetListReference(ToggleObjectListScript list) { listReference = list; }
 
@@ -47,12 +47,8 @@ public class ToggleObjectListItem : MonoBehaviour {
 
 	public Toggle GetToggle() { return itemToggle; }
 	public TMP_Text GetText() { return itemLabel; }
-	public LevelPieceSuperClass GetSegment() { return segment; }
+	public RemixEditorToggleObject GetToggleObject() { return toggleObject; }
 	public ListItemScrollPing GetScrollPinger() { return scrollPing; }
-
-	// public void UpdateObstacle(string p_obstacle) { segmentSelectedObstacle = p_obstacle; }
-	// public string GetObstacle() { return segmentSelectedObstacle; }
-	public string GetObstacle() { return segment.Obstacles.ShownObject?.Key ?? "None"; }
 
 	//Triggered onValueChanged
 	public void TogglePing() {

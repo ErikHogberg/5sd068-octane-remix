@@ -32,13 +32,13 @@ public class GoalSpotListItem : MonoBehaviour {
 		orgNav.selectOnDown = downSelect;
 		itemToggle.navigation = orgNav;
 	}
-	
+
 	public void SetLeftNav(Toggle leftSelect) {
 		Navigation orgNav = itemToggle.navigation;
 		orgNav.selectOnLeft = leftSelect;
 		itemToggle.navigation = orgNav;
 	}
-	
+
 	public void SetRightNav(Button rightSelect) {
 		Navigation orgNav = itemToggle.navigation;
 		orgNav.selectOnRight = rightSelect;
@@ -50,22 +50,22 @@ public class GoalSpotListItem : MonoBehaviour {
 	public RemixEditorGoalPost GetGoalPost() { return goalPost; }
 	public ListItemScrollPing GetScrollPinger() { return scrollPing; }
 
-
 	//Triggered onValueChanged
 	public void TogglePing() {
 		listReference.ReceiveTogglePing(this, itemToggle.isOn);
 		TextColorAdjust();
 	}
-	
+
 	public void MarkAsSelected() {
 		itemToggle.isOn = true;
 		TextColorAdjust();
 	}
-	
+
 	private void TextColorAdjust() {
 		if (itemToggle.isOn == true)
 			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, 1f);
-		else itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
+		else
+			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
 	}
 
 }
