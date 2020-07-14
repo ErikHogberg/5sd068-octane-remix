@@ -4,6 +4,7 @@ using UnityEngine;
 
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class HighscoreEntryUIScript : MonoBehaviour {
 
@@ -12,6 +13,7 @@ public class HighscoreEntryUIScript : MonoBehaviour {
 	public TMP_Text ScoreText;
 	public TMP_Text TimeText;
 	public TMP_Text CharacterText;
+	public Toggle SelectionToggle;
 
 	public long highscoreEntryId;
 	public HighscoreListUIScript ListScript;
@@ -21,6 +23,7 @@ public class HighscoreEntryUIScript : MonoBehaviour {
 		PlayerNameText.text = playerName;
 		RemixIDInput.text = remixId;
 		ScoreText.text = score.ToString();
+		SelectionToggle.isOn = false;
 
 		TimeSpan t = System.TimeSpan.FromSeconds(time);
 		int milli = t.Milliseconds / 10;
@@ -30,6 +33,14 @@ public class HighscoreEntryUIScript : MonoBehaviour {
 			+ ":" + TimerScript.TimeCalc(milli);
 
 		CharacterText.text = character.ToString();
+	}
+
+	public void Toggle(bool value) {
+		if (value) {
+			ListScript.SelectHighscore(RemixIDInput.text);
+		} else {
+			ListScript.DeselectHighscore();
+		}
 	}
 
 }

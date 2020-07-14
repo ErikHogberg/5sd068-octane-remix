@@ -123,7 +123,11 @@ public class SoundManager : MonoBehaviour {
 		audioSource.clip = sound.audioClip;
 		audioSource.outputAudioMixerGroup = sound.audioMixer;
 		audioSource.loop = sound.loop;
-		audioSource.volume = sound.volume; ;
+		audioSource.volume = sound.volume;
+
+		// if (name == "playscene_music" || name == "menu_music") {
+		// 	audioSource.priority = 129;
+		// }
 
 		audioSource.Play();
 		/*if (sound.fadeInDuration > 0f) {
@@ -244,7 +248,7 @@ public class SoundManager : MonoBehaviour {
 			loopingSounds.Remove(entry.Key);
 			Object.Destroy(dest);
 		}
-		
+
 		if (defaultSource) {
 			AudioSource[] localSources = defaultSource.GetComponents<AudioSource>();
 			foreach (AudioSource source in localSources) {

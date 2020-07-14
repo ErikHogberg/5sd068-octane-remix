@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class DecelerationZoneScript : MonoBehaviour {
 
-	public float DecelerationSpeed;
-	public float MinSpeed;
+	public float DecelerationSpeed = 100f;
+	public float MinSpeed = 30f;
 
-	private void OnTriggerEnter(Collider other) {
-		UINotificationSystem.Notify("Slow Zone!",Color.blue, 1);
-	}
+	// private void OnTriggerEnter(Collider other) {
+	// 	UINotificationSystem.Notify("Slow Zone!",Color.blue, 1);
+	// }
 
-	private void OnTriggerStay(Collider other) {
-		var rb = other.attachedRigidbody;
-
+	private void SlowDownRigidbody(Rigidbody rb) {
 		if (!rb || rb.velocity.sqrMagnitude < MinSpeed * MinSpeed)
 			return;
 
@@ -22,7 +20,14 @@ public class DecelerationZoneScript : MonoBehaviour {
 			Vector3.Normalize(rb.velocity) * MinSpeed,
 			DecelerationSpeed * Time.deltaTime
 		);
+	}
 
+	private void OnTriggerStay(Collider other) {
+		SlowDownRigidbody(other.attachedRigidbody);
+	}
+
+	private void OnCollisionStay(Collision other) {
+		SlowDownRigidbody(other.rigidbody);
 	}
 
 }
