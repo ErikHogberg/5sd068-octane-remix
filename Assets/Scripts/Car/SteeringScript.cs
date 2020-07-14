@@ -155,6 +155,7 @@ public class SteeringScript : MonoBehaviour {
 	public bool LeftStickRotationWhenInAir = false;
 	public bool ZeroAngularVelocityOnLanding = false;
 	public bool ZeroAngularVelocityOnAir = false;
+	private bool ignoreNextOnAirZeroing = false;
 	public float YawSpeed = 200f;
 	public AnimationCurve YawInputCurve;
 	public float PitchSpeed = 100f;
@@ -469,16 +470,20 @@ public class SteeringScript : MonoBehaviour {
 						boardOne.AddSkill(ScoreSkill.AIRTIME, (int)(airTimeTimer * AirTimeScorePerSec));
 					}
 				}
+
 				airTimeTimer = 0f;
+				ignoreNextOnAirZeroing = false;
+
 			}
 		} else {
 			airTimeTimer += Time.deltaTime;
 
 			if (wasTouchingGround) {
 				// First frame in air
-				if (ZeroAngularVelocityOnAir) {
+				if (ZeroAngularVelocityOnAir && !ignoreNextOnAirZeroing) {
 					rb.angularVelocity = Vector3.zero;
 				}
+				ignoreNextOnAirZeroing = false;
 			}
 		}
 
@@ -1298,6 +1303,10 @@ public class SteeringScript : MonoBehaviour {
 	public static void UnfreezeCurrentCar() {
 		freezeNextFrame = false;
 		MainInstance?.Unfreeze();
+	}
+
+	public void DontZeroNextOnAir(){
+		ignoreNextOnAirZeroing = true;
 	}
 
 }

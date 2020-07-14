@@ -29,6 +29,9 @@ public class BoostPadScript : MonoBehaviour {
 	public Vector3 AngularVelocity;
 
 	[Space]
+	public bool IgnoreNextJumpZeroing = false;
+
+	[Space]
 	[Tooltip("Assign an object here to use its forward direction instead of the forward direction of this object. The object position can be anywhere")]
 	public Transform OptionalDirectionOverride;
 
@@ -88,6 +91,10 @@ public class BoostPadScript : MonoBehaviour {
 			case AngularVelocityMode.Local:
 				rb.angularVelocity = rb.transform.localToWorldMatrix * AngularVelocity;
 				break;
+		}
+
+		if(IgnoreNextJumpZeroing){
+			other.GetComponent<SteeringScript>()?.DontZeroNextOnAir();
 		}
 
 	}
