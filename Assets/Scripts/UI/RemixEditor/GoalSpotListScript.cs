@@ -17,7 +17,7 @@ public class GoalSpotListScript : MonoBehaviour {
 	private static GoalSpotListItem currentItem;
 	public static GoalSpotListItem ReadCurrentItem() { return currentItem; }
 
-	private static RemixEditorGoalPost currentGoalPost = null;
+	public static RemixEditorGoalPost CurrentGoalPost = null;
 
 	public Button startButton;
 	// public GameObject ListEntryTemplate;
@@ -55,7 +55,7 @@ public class GoalSpotListScript : MonoBehaviour {
 	//Sent from SegmentListItems, triggered by toggle event
 	public void ReceiveTogglePing(GoalSpotListItem item, bool isOn) {
 		if (isOn) {
-			if (currentGoalPost != item.GetGoalPost()) {
+			if (CurrentGoalPost != item.GetGoalPost()) {
 				currentItem = item;
 				RemixMapScript.Select(item.GetGoalPost());
 				UpdateStartButtonNav(currentItem.GetToggle());
@@ -141,15 +141,15 @@ public class GoalSpotListScript : MonoBehaviour {
 
 	public void UpdateUI() {
 
-		if (currentGoalPost == null) {
+		if (CurrentGoalPost == null) {
 			return;
 		}
 
 		//Way of picking a segment #2
 		//Should only run when a segment is selected through clicking on them in the world
-		if (currentGoalPost != currentItem.GetGoalPost()) {
+		if (CurrentGoalPost != currentItem.GetGoalPost()) {
 			foreach (GoalSpotListItem item in listItems) {
-				if (item.GetGoalPost() == currentGoalPost) {
+				if (item.GetGoalPost() == CurrentGoalPost) {
 					string currentObstacleType = ObstacleListScript.ReadCurrentObstacleType();
 					// Records which obstacle is currently selected for this segment, before switching to the new one
 					// currentItem.UpdateObstacle(currentObstacleType);
@@ -168,8 +168,9 @@ public class GoalSpotListScript : MonoBehaviour {
 	}
 
 	public void SetToggleObject(RemixEditorGoalPost goalPost) {
-		currentGoalPost = goalPost;
-		UpdateUI();
+		CurrentGoalPost = goalPost;
+		GoalPostMenuScript.Show();
+		// UpdateUI();
 	}
 
 }

@@ -30,7 +30,7 @@ public class RemixMapScript : MonoBehaviour {
 
 		// TODO: selection highlight
 		// TODO: only enable segment mouse picking in remix edit mode
-		
+
 		// foreach (var piece in LevelPieceSuperClass.Pieces) {
 
 		// 	Button button = Instantiate(
@@ -89,10 +89,11 @@ public class RemixMapScript : MonoBehaviour {
 		RemixCameraRotateScript.StopStatic();
 
 		// TODO: deselect
-		
+
+		ObstacleListScript.Show(skipUpdate: true);
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
-		
+
 	}
 
 	public static void Select(RemixEditorGoalPost goalPost) {
@@ -103,11 +104,11 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
-
+		GoalPostMenuScript.Show();
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		GoalSpotListScript.MainInstance?.SetToggleObject(goalPost);
 		RemixMenuCameraFocusScript.SetTarget(goalPost.transform);
-		
+
 	}
 
 	public static void Select(RemixEditorToggleObject toggleObject) {
@@ -120,7 +121,7 @@ public class RemixMapScript : MonoBehaviour {
 
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(toggleObject.transform);
-		
+
 	}
 
 }

@@ -18,6 +18,7 @@ public class ObstacleListItem : MonoBehaviour {
 		ItemToggle = GetComponent<Toggle>();
 		ItemLabel = transform.GetChild(1).GetComponent<TMP_Text>();
 		TextColorAdjust();
+		// Debug.Log("obstacle list item awake");
 	}
 
 	public void SetName(string p_name) { ItemName = p_name; ItemLabel.text = p_name; }

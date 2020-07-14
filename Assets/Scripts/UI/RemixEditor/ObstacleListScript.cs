@@ -25,22 +25,47 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		return currentObstacleType;
 	}
 
-	private ObstacleListItem listItemPrefab;
+	public GameObject ParentToHide;
+
+	// private ObstacleListItem listItemPrefab;
+	public ObstacleListItem ListItemTemplate;
 
 	protected override void ChildAwake() {
 		group = GetComponent<ToggleGroup>();
-		listItemPrefab = Resources.Load<ObstacleListItem>("ObstacleListItem");
+		// listItemPrefab = Resources.Load<ObstacleListItem>("ObstacleListItem");
 		mainInstance = this;
 	}
 
-	void OnDisable() { obstacleList.Clear(); }
+	// void OnDisable() { obstacleList.Clear(); }
 
 	void Start() {
+		obstacleList.Add(ListItemTemplate);
+		ListItemTemplate.SetListReference(this);
+		ListItemTemplate.SetToggleGroup(group);
+
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
 		if (SegmentListScript.listItems.Count > 0) {
 			SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
 		}
 		UpdateUI();
+	}
+
+	public static void Show(bool skipUpdate = false) {
+		if (!mainInstance)
+			return;
+
+		GoalPostMenuScript.Hide();
+		mainInstance.gameObject.SetActive(true);
+		if (!skipUpdate) {
+			mainInstance.UpdateUI();
+		}
+	}
+
+	public static void Hide() {
+		if (!mainInstance)
+			return;
+
+		mainInstance.gameObject.SetActive(false);
 	}
 
 	//Sent from ObstacleListItems, triggered by toggle event 
@@ -115,10 +140,11 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	}
 
 	private void AddNewListItem() {
-		ObstacleListItem newItemObj = Instantiate(Resources.Load<ObstacleListItem>("ObstacleListItem"));
+		// ObstacleListItem newItemObj = Instantiate(Resources.Load<ObstacleListItem>("ObstacleListItem"));
+		ObstacleListItem newItemObj = Instantiate(ListItemTemplate);
 		obstacleList.Add(newItemObj);
 		newItemObj.transform.SetParent(gameObject.transform);
-		newItemObj.gameObject.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+		newItemObj.gameObject.GetComponent<RectTransform>().localScale = Vector3.one;
 
 		newItemObj.SetListReference(this);
 		newItemObj.SetToggleGroup(group);

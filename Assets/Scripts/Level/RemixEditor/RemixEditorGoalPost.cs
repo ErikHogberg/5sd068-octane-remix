@@ -5,8 +5,8 @@ using UnityEngine.EventSystems;
 
 public class RemixEditorGoalPost : MonoBehaviour {
 	public static List<RemixEditorGoalPost> Instances = new List<RemixEditorGoalPost>();
-	public static RemixEditorGoalPost StartSpot;
-	public static RemixEditorGoalPost FinishSpot;
+	public static RemixEditorGoalPost StartSpot = null;
+	public static RemixEditorGoalPost FinishSpot = null;
 
 	public GoalPostScript GoalPost;
 	public GameObject ObjectToToggle;

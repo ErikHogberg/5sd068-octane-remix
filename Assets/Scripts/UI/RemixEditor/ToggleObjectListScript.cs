@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Dynamic;
 
 [RequireComponent(typeof(ScrollRect))]
-[RequireComponent(typeof(ToggleGroup))]
 [RequireComponent(typeof(ScrollToSelected))]
 public class ToggleObjectListScript : MonoBehaviour {
 
@@ -25,14 +24,12 @@ public class ToggleObjectListScript : MonoBehaviour {
 
 	// private GameObject listContent = null;
 	private ScrollToSelected scrollMaster = null;
-	private ToggleGroup group = null;
 
 	void Awake() {
 		MainInstance = this;
 
 		// listContent = GetComponent<ScrollRect>().content.gameObject;
 		scrollMaster = GetComponent<ScrollToSelected>();
-		group = GetComponent<ToggleGroup>();
 		// TimerScript.Instance.ResetTimer();
 	}
 
@@ -87,7 +84,6 @@ public class ToggleObjectListScript : MonoBehaviour {
 
 	void SetSegment(ToggleObjectListItem entry, RemixEditorToggleObject toggleObject) {
 		entry.SetSegment(toggleObject);
-		entry.SetToggleGroup(group);
 		entry.SetListReference(this);
 		entry.GetScrollPinger().RegisterScrollMaster(scrollMaster);
 		entry.SetText(toggleObject.Name);
@@ -117,8 +113,6 @@ public class ToggleObjectListScript : MonoBehaviour {
 
 			SetSegment(newItemObj, RemixEditorToggleObject.Instances[i]);
 		}
-
-		group.SetAllTogglesOff();
 
 		if (listItems.Count < 1) {
 			return;
