@@ -50,6 +50,7 @@ public class ObjectSelectorScript : MonoBehaviour {
 		if (ShownObject != null && ShownObject.Value != null)
 			ShownObject.Value.SetActive(false);
 
+		ShownObject = null;
 		if (index < 0)
 			return;
 

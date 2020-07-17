@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -27,6 +23,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public int SegmentOrder;
 	// [Tooltip("If resetting due to out of order segment should be ignored")]
 	// public bool OverrideSegmentOrderReset = false;
+
+	// TODO: remove all goal post stuff here, migrate relevant stuff to goal post spot script
 
 	[Tooltip("If this is the default start segment, make sure only one is marked, or a random one will be selected")]
 	public bool InitStart = false;
@@ -84,8 +82,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	[Tooltip("How many segments are allowed to be skipped when entering this segment, 0 means only the exact previous segment is allowed")]
 	[Min(0)]
 	public int CustomSegmentSkip = 0;
-	// NOTE: will not check overrides of previous segments other than for this segment
-	// IDEA: define list of multiple allowed previous segments?
 
 	public Transform RespawnSpot;
 	public Transform GoalSpot;
@@ -96,6 +92,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public int SpeedProfileIndex = 0;
 
 	// IDEA: empty level segment type for optional spots for adding roads
+	// IDEA: mark road as "hideable" to show a toggle in editor? too easy to miss that you have the option? 
+	// IDEA: show separate list of hideable things, which can contain duplicates in other lists?
 
 	// IDEA: ability select multiple segments, shift click? show blank/custom message if same setting is different for some objects selected
 	// IDEA: ability to group segments together, selecting and altering all segments at the same time
@@ -105,14 +103,18 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
+	// TODO: observers for remix editors for refreshing when a new segment is added
+	// sends new total number of segments
+	public static List<IObserver<int>> AddSegmentObservers = new List<IObserver<int>>();
 
 	private void Awake() {
 		Segments.Add(this);
 		Segments.Sort();
 
-		Obstacles = GetComponent<ObjectSelectorScript>();
+		foreach (var item in AddSegmentObservers)
+			item.Notify(Segments.Count);
 
-		// Obstacles.UnhideObject("");
+		Obstacles = GetComponent<ObjectSelectorScript>();
 
 		if (InitStart) {
 			// startSegment = this;
@@ -137,7 +139,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	}
 
 	private void OnMouseOver() {
-
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
@@ -145,7 +146,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 		if (Input.GetMouseButtonDown(0)) {
 			// print("left click");
-			RemixMapScript.SelectSegment(this);
+			RemixMapScript.Select(this);
 		}
 		if (Input.GetMouseButtonDown(1)) {
 			// print("right click");
@@ -195,9 +196,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 
-				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex);// ?? false;
-																		   // if (changedProfileSuccessfully)
-																		   // UINotificationSystem.Notify("Speed change!", Color.green, 1.5f);
+				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex, false);// ?? false;
 			}
 
 			currentSegment = this;
@@ -277,7 +276,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return SegmentOrder - other.SegmentOrder;
 	}
 
-	// creates a base 64 number (in a string) representing the current obstacle choices of all segments
 	public static string GetRemixString(bool printDebug = false) {
 		int obstaclesPerIndex = 2;
 		int indices = Segments.Count / obstaclesPerIndex + 1;
@@ -289,98 +287,35 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			int subindex = i % obstaclesPerIndex;
 			int obstacleIndex = Segments[i].Obstacles.ShownIndex + 1;
 
-			// FIXME: no obstacle choice is not recorded
 			int value = obstacleIndex & 0b_0000_1111;
 			if (subindex == 1) {
 				value = (value << 4) & 0b_1111_0000;
 			}
 
-			// byte old = obstacleChoices[currentIndex];
 			obstacleChoices[currentIndex] = (byte)(obstacleChoices[currentIndex] | value);
-
-			if (printDebug) {
-				Debug.Log("index " + i + " (" + currentIndex + ", " + subindex + "): added " +
-					value
-					// Convert.ToString(value, 2)
-
-					// + " to " +
-					// old
-					// Convert.ToString(old, 2)
-
-					+ " resulting in " +
-					obstacleChoices[currentIndex]
-				// Convert.ToString(obstacleChoices[currentIndex], 2)
-				);
-			}
 		}
 
-		// string outString = System.Convert.ToBase64String(obstacleChoices);
 		string outString = Ecoji.Encode(obstacleChoices);
-		// string outString = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
-
-		if (printDebug) {
-			string outString2 = BitConverter.ToString(obstacleChoices);
-			string outString3 = Encoding.UTF8.GetString(obstacleChoices, 0, obstacleChoices.Length);
-			string outString4 = Encoding.ASCII.GetString(obstacleChoices, 0, obstacleChoices.Length);
-			string outString5 = Encoding.Unicode.GetString(obstacleChoices, 0, obstacleChoices.Length);
-			string outString6 = Encoding.BigEndianUnicode.GetString(obstacleChoices, 0, obstacleChoices.Length);
-			string outString7 = Encoding.Default.GetString(obstacleChoices, 0, obstacleChoices.Length);
-			string outString8 = Encoding.UTF32.GetString(obstacleChoices, 0, obstacleChoices.Length);
-
-			Debug.Log("print string types:");
-			Debug.Log("base64: " + outString);
-			Debug.Log("bitconverter: " + outString2);
-			Debug.Log("utf8: " + outString3);
-			Debug.Log("ascii: " + outString4);
-			Debug.Log("unicode: " + outString5);
-			Debug.Log("big endian unicode: " + outString6);
-			Debug.Log("default: " + outString7);
-			Debug.Log("utf32: " + outString8);
-			Debug.Log("utf7: " + Encoding.UTF7.GetString(obstacleChoices, 0, obstacleChoices.Length));
-
-			Debug.Log(
-
-				"pre convert: " + BitConverter.ToString(obstacleChoices) +
-				",\npost convert: " + outString
-			);
-
-			// byte[] undoString = System.Convert.FromBase64String(outString);
-			// byte[] undoString = Encoding.UTF8.GetBytes(outString);
-
-			// Debug.Log(
-				// "convert back: " + BitConverter.ToString(undoString)
-			// );
-		}
 
 		return outString;
 	}
 
 	// loads obstacles choices from a base 64 number in a string, returns true if the string is valid and the process completed successfully
 	public static bool LoadRemixFromString(string remixIDString) {
-		// string outString = "";
 
-		// remixBase64String.
-		Debug.Log("loading id \"" + remixIDString + "\"");
+		// Debug.Log("loading id \"" + remixIDString + "\"");
 
-		// src for base 64 string validation: https://stackoverflow.com/questions/6309379/how-to-check-for-a-valid-base64-encoded-string
-		// remixIDString = remixIDString.Trim();
-		// bool valid = (remixBase64String.Length % 4 == 0) && Regex.IsMatch(remixBase64String, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
-
-		// if (!valid) {
-		// 	Debug.LogWarning("invalid input string: not base 64 string");
-		// 	return false;
-		// }
-
-		// byte[] obstacleBytes = System.Convert.FromBase64String(remixIDString);
-		byte[] obstacleBytes = Ecoji.Decode(remixIDString);
+		byte[] obstacleBytes;
+		try {
+			obstacleBytes = Ecoji.Decode(remixIDString);
+		} catch (Ecoji.UnexpectedEndOfInputException) {
+			return false;
+			// throw;
+		}
 
 		if (obstacleBytes.Length * 2 < Segments.Count) {
 			return false;
 		}
-
-		// TODO: validate input more
-
-		// FIXME: new obstacles not applied, old ones applied instead (how??)
 
 		for (int i = 0; i < obstacleBytes.Length; i++) {
 			int firstSegmentIndex = i * 2;
@@ -392,21 +327,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 				if (obstacleIndex > obstacles.Count) {
 					return false;
-				}
-
-				int prevObject = obstacles.ShownIndex;
-				string unhidObstacle = "none";
-				if (obstacleIndex > 0) {
-					unhidObstacle = obstacles.objects[obstacleIndex - 1].Key;
-				}
-
-				if (prevObject != obstacleIndex - 1) {
-					Debug.Log("[first] segment " + (firstSegmentIndex + 1)
-						+ ": unhid obstacle " + (obstacleIndex - 1)
-						+ " (" + unhidObstacle + "), prev: "
-						+ prevObject
-						+ " (" + (obstacles.ShownObject?.Key ?? "none") + ")"
-					);
 				}
 
 				if (obstacleIndex > 0) {
@@ -424,23 +344,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 				if (obstacleIndex > obstacles.Count) {
 					return false;
-				}
-
-				int prevObject = obstacles.ShownIndex;
-				if (prevObject != obstacleIndex - 1) {
-					// Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + obstacleIndex);
-					// Debug.Log("[second] segment " + secondSegmentIndex + ": unhid obstacle " + (obstacleIndex - 1) + ", prev: " + prevObject);
-
-					string unhidObstacle = "none";
-					if (obstacleIndex > 0) {
-						unhidObstacle = obstacles.objects[obstacleIndex - 1].Key;
-					}
-					Debug.Log("[second] segment " + (secondSegmentIndex + 1)
-						+ ": unhid obstacle " + (obstacleIndex - 1)
-						+ " (" + unhidObstacle + "), prev: "
-						+ prevObject
-						+ " (" + (obstacles.ShownObject?.Key ?? "none") + ")"
-					);
 				}
 
 				if (obstacleIndex > 0) {

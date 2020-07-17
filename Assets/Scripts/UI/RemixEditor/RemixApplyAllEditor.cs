@@ -40,7 +40,12 @@ public class RemixApplyAllEditor : MonoBehaviour {
 	}
 
 	public void ShuffleAll() {
-		// TODO: randomize obstacles on all segments
+		foreach (var segment in LevelPieceSuperClass.Segments) {
+			int index = Random.Range(0, segment.Obstacles.Count) - 1;
+			segment.Obstacles.UnhideObject(index);
+		}
+
+		SegmentEditorSuperClass.UpdateAllUI();
 	}
 
 }

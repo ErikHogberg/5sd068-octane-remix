@@ -11,9 +11,9 @@ public enum ScoreSkill {
 }
 
 public class Score {
-	private int score = 0;
-	public void AddScore(int add) { score += add; }
-	public int GetScore() { return score; }
+	private long score = 0;
+	public void AddScore(long add) { score += add; }
+	public long GetScore() { return score; }
 	public void ClearScore() { score = 0; }
 }
 
@@ -29,24 +29,25 @@ public class SkillScore {
 		}
 	}
 
-	public void AddScore(ScoreSkill p_type, int add) {
-		skillScoreTypes[p_type].AddScore(add);
+	public void AddScore(ScoreSkill type, long add) {
+		ScoreNotificationUIScript.MainInstance?.Notify(type, add);
+		skillScoreTypes[type].AddScore(add);
 	}
 
-	public int GetScore(ScoreSkill p_type) {
+	public long GetScore(ScoreSkill p_type) {
 		return skillScoreTypes[p_type].GetScore();
 	}
 
-	public int GetScoreTotal() {
-		int total = 0;
+	public long GetScoreTotal() {
+		long total = 0;
 		foreach (KeyValuePair<ScoreSkill, Score> skill in skillScoreTypes) {
 			total += skill.Value.GetScore();
 		}
 		return total;
 	}
 
-	public Dictionary<ScoreSkill, int> GetSkillScores() {
-		Dictionary<ScoreSkill, int> all = new Dictionary<ScoreSkill, int>();
+	public Dictionary<ScoreSkill, long> GetSkillScores() {
+		Dictionary<ScoreSkill, long> all = new Dictionary<ScoreSkill, long>();
 		foreach (KeyValuePair<ScoreSkill, Score> skill in skillScoreTypes) {
 			all.Add(skill.Key, skill.Value.GetScore());
 		}
@@ -56,8 +57,8 @@ public class SkillScore {
 	public void ClearSkillScores() {
 		foreach (KeyValuePair<ScoreSkill, Score> skillScore in skillScoreTypes) {
 			skillScore.Value.ClearScore();
-        }
-    }
+		}
+	}
 }
 
 public class ScoreBoard {
@@ -66,30 +67,47 @@ public class ScoreBoard {
 	private Score time = new Score();
 	private SkillScore skill = new SkillScore();
 
+	private bool collectingScore = true;
+
 	public ScoreBoard() {
 		remix = new Score();
 		time = new Score();
 		skill = new SkillScore();
 	}
 
-	public void AddRemix(int add) { remix.AddScore(add); }
-	public void AddTime(int add) { time.AddScore(add); }
-	public void AddSkill(ScoreSkill type, int add) { skill.AddScore(type, add); }
+	public void StopScoreCollecting() {
+		collectingScore = false;
+	}
+
+	public void AddRemix(long add) {
+		if (collectingScore)
+			remix.AddScore(add);
+	}
+	public void AddTime(long add) {
+		if (collectingScore)
+			time.AddScore(add);
+	}
+	public void AddSkill(ScoreSkill type, long add) {
+		if (collectingScore)
+			skill.AddScore(type, add);
+	}
+
 	public void ClearScores() { remix.ClearScore(); time.ClearScore(); skill.ClearSkillScores(); }
 
-	public int GetRemix() { return remix.GetScore(); }
-	public int GetTime() { return time.GetScore(); }
-	public int GetSkill(ScoreSkill type) { return skill.GetScore(type); }
-	public int GetSkillTotal() { return skill.GetScoreTotal(); }
+	public long GetRemix() { return remix.GetScore(); }
+	public long GetTime() { return time.GetScore(); }
+	public long GetSkill(ScoreSkill type) { return skill.GetScore(type); }
+	public long GetSkillTotal() { return skill.GetScoreTotal(); }
 
-	public int[] GetAllThree() {
-		int[] all = new int[3];
+	public long[] GetAllThree() {
+		long[] all = new long[3];
 		all[0] = GetRemix();
 		all[1] = GetTime();
 		all[2] = GetSkillTotal();
 		return all;
 	}
-	public Dictionary<ScoreSkill, int> GetAllSkillScores() {
+
+	public Dictionary<ScoreSkill, long> GetAllSkillScores() {
 		return skill.GetSkillScores();
 	}
 }

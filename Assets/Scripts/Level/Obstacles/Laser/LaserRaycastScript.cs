@@ -23,6 +23,8 @@ public class LaserRaycastScript : MonoBehaviour {
 
 	[Header("Optional Objects")]
 	public LaserSettingsOverride SettingsOverride;
+	[Tooltip("Renderer that will pause raycasting when not visible")]
+	public Renderer VisibilityRenderer;
 
 	private Vector3 lastTarget;
 
@@ -37,15 +39,22 @@ public class LaserRaycastScript : MonoBehaviour {
 
 	}
 
+	private void OnEnable() {
+		visible = true;
+		// FIXME: always false?
+		// visible = VisibilityRenderer?.isVisible ?? true;
+	}
+
 	bool visible = true;
 
-	private void OnBecameVisible() {
-		visible = true;
-	}
+	// FIXME: never called, because of no renderer on game object
+	// private void OnBecameVisible() {
+	// 	visible = true;
+	// }
 
-	private void OnBecameInvisible() {
-		visible = false;
-	}
+	// private void OnBecameInvisible() {
+	// 	visible = false;
+	// }
 
 	void Update() {
 

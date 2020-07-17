@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class ChangeSceneUIScript : MonoBehaviour {
 
+	public static ChangeSceneUIScript MainInstance = null;
+
 	public string CurrentScene;
 
 	private void Awake() {
@@ -16,6 +18,16 @@ public class ChangeSceneUIScript : MonoBehaviour {
 		// if (DebugOutput) {
 		// 	Debug.Log("Current scene: " + currentScene);
 		// }
+
+		if (MainInstance == null) {
+			MainInstance = this;
+		}
+	}
+
+	private void OnDestroy() {
+		if (MainInstance == this) {
+			MainInstance = null;
+		}
 	}
 
 	public void StartScene(string sceneName) {
@@ -28,8 +40,9 @@ public class ChangeSceneUIScript : MonoBehaviour {
 	// AsyncOperation unloadSceneProgress = null;
 
 	bool loading = false;
+	string sceneToSwapTo;
 
-	public void SwapCurrentScene(string SceneToSwapTo) {
+	public void SwapCurrentScene(string sceneToSwapTo) {
 		if (loading)
 			return;
 
@@ -41,6 +54,15 @@ public class ChangeSceneUIScript : MonoBehaviour {
 			return;
 		}
 
+		if (FadeTransitionScript.MainInstance != null) {
+			FadeTransitionScript.MainInstance.Show(this);
+		} else {
+			this.sceneToSwapTo = sceneToSwapTo;
+			ApplySwapCurrentScene();
+		}
+	}
+
+	public void ApplySwapCurrentScene() {
 		// var unloadProgress =
 		// var unloadSceneProgress = 
 		SceneManager.UnloadSceneAsync(CurrentScene);
@@ -49,7 +71,7 @@ public class ChangeSceneUIScript : MonoBehaviour {
 		// unloadSceneProgress.allowSceneActivation = false;
 		// var loadProgress = 
 		// var loadSceneProgress = 
-		SceneManager.LoadSceneAsync(SceneToSwapTo, LoadSceneMode.Additive);
+		SceneManager.LoadSceneAsync(sceneToSwapTo, LoadSceneMode.Additive);
 		// loadSceneProgress.allowSceneActivation = false;
 
 		// StartCoroutine(LoadScene(SceneToSwapTo, true, LoadSceneMode.Additive));

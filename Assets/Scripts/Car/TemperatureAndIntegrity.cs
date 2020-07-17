@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	[Header("Temperature")]
@@ -51,6 +53,16 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	public Color ExplodeColor = Color.red;
 	public Color InstakillColor = Color.red;
 
+	[Header("Smoke")]
+	public VisualEffect Smoke;
+	private ExposedProperty smokeValue = "SmokeValue";
+	// public Vector2 SmokeMinMaxIntegrity = new Vector2(0.1f, 0.9f);
+	[Range(0, 1)]
+	public float SmokeMinIntegrity = .1f;
+	[Range(0, 1)]
+	public float SmokeMaxIntegrity = .9f;
+	public AnimationCurve SmokeCurve = AnimationCurve.Linear(0, 0, 1, 1);
+
 	// [Header("UI Scripts")]
 	// [Tooltip("This car's associated temperature UI bar")]
 	// public TemperatureUIScript temperatureUI;
@@ -98,6 +110,9 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		integrityUI = IntegrityUIScript.MainInstance;
 		if (integrityUI == null)
 			Debug.Log("TemperatureAndIntegrity: " + gameObject.name + " is missing a reference to its IntegrityUIScript");
+
+		UpdateSmoke();
+
 	}
 
 	public void BoostHeat() {
@@ -222,7 +237,20 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	private void Hit() {
 		SetIntegUI();
 		damageTimer = damageRate;
+
+		UpdateSmoke();
+
 		ValueCheck();
+	}
+
+	private void UpdateSmoke() {
+		if (Smoke) {
+			float smokePercent = 1f - (currIntegrity / maxIntegrity);
+			smokePercent = (smokePercent - SmokeMinIntegrity) / (SmokeMaxIntegrity - SmokeMinIntegrity);
+			float smokeIntensity = SmokeCurve.Evaluate(Mathf.Clamp01(smokePercent));
+			Smoke.SetFloat(smokeValue, smokeIntensity);
+			Debug.Log("smoke updated to " + smokeIntensity + ", " + smokePercent);
+		}
 	}
 
 	private void SetTempUI() {
@@ -240,11 +268,13 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	private void ValueCheck() {
 		if (currIntegrity <= 0.0f) {
 			Debug.Log("Integrity reached 0!");
-			UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 5);
+			// UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 5);
+			UINotificationSystem.Notify("Your car broke down! Restarting with penalty.", ExplodeColor, 5);
 			// TODO: time and/or score penalty
 			carControls.Reset();
 			Reset();
 		}
+
 		if (currTemp >= boostTempThreshold) {
 			tooHotBoost = true;
 		} else {
@@ -265,6 +295,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		currIntegrity = maxIntegrity;
 		currTemp = 0.0f; goalTemp = 0.0f;
 		SetTempUI(); SetIntegUI();
+		UpdateSmoke();
+		Smoke?.Reinit();
 	}
 
 	// on car boost start
