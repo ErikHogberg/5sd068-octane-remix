@@ -15,7 +15,7 @@ public class SegmentNameUIScript : SegmentEditorSuperClass {
 	}
 
 	public override void UpdateUI() {
-		GetComponent<TMP_Text>().text = currentSegment.gameObject.name;
+		GetComponent<TMP_Text>().text = LevelPieceSuperClass.CurrentSegment.gameObject.name;
 	}
 
 	public void SetDropdown() {

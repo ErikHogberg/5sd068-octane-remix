@@ -22,11 +22,11 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 
 		obstacleDropdown.options.Add(new TMP_Dropdown.OptionData("None"));
 
-		var shownObject = currentSegment.Obstacles.ShownObject;
+		var shownObject = LevelPieceSuperClass.CurrentSegment.Obstacles.ShownObject;
 
 		int currentIndex = 0;
-		for (int i = 0; i < currentSegment.Obstacles.objects.Count; i++) {
-			var item = currentSegment.Obstacles.objects[i];
+		for (int i = 0; i < LevelPieceSuperClass.CurrentSegment.Obstacles.objects.Count; i++) {
+			var item = LevelPieceSuperClass.CurrentSegment.Obstacles.objects[i];
 			obstacleDropdown.options.Add(new TMP_Dropdown.OptionData(item.Key));
 			if (shownObject != null && shownObject.Key == item.Key)
 				currentIndex = i + 1;
@@ -41,7 +41,7 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 	}
 
 	public void ApplyDropdown(int i) {
-		currentSegment.Obstacles.UnhideObject(
+		LevelPieceSuperClass.CurrentSegment.Obstacles.UnhideObject(
 			obstacleDropdown.options[i].text
 		);
 	}

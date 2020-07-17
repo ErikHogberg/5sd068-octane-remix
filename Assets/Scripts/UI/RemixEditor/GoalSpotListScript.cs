@@ -130,7 +130,8 @@ public class GoalSpotListScript : MonoBehaviour {
 
 			if (i == 0) {
 				listItems[i].SetUpDownNav(listItems[listItems.Count - 1].GetToggle(), listItems[i + 1].GetToggle());
-				listItems[i].GetToggle().isOn = true;
+				// listItems[i].GetToggle().isOn = true;
+				listItems[i].GetToggle().SetIsOnWithoutNotify(true);
 			} else if (i == listItems.Count - 1)
 				listItems[i].SetUpDownNav(listItems[i - 1].GetToggle(), listItems[0].GetToggle());
 			else

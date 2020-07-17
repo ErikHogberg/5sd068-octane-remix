@@ -39,9 +39,9 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	// void OnDisable() { obstacleList.Clear(); }
 
 	void Start() {
-		obstacleList.Add(ListItemTemplate);
 		ListItemTemplate.SetListReference(this);
 		ListItemTemplate.SetToggleGroup(group);
+		obstacleList.Add(ListItemTemplate);
 
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
 		if (SegmentListScript.listItems.Count > 0) {
@@ -99,7 +99,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		currentListLayout.Clear();
 
 		//For the currently selected segment, which obstacles are available?
-		foreach (var item in currentSegment.Obstacles.objects) {
+		foreach (var item in LevelPieceSuperClass.CurrentSegment.Obstacles.objects) {
 			currentListLayout.Add(item.Key);
 		}
 
@@ -157,12 +157,12 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 	public void ApplyObstacleSelection() {
 		//UnityEngine.Debug.Log(SegmentListScript.ReadCurrentItem().GetText().text + " ApplyObstacle: " + currentObstacleType);
-		currentSegment.Obstacles.UnhideObject(currentObstacleType);
+		LevelPieceSuperClass.CurrentSegment.Obstacles.UnhideObject(currentObstacleType);
 	}
 
 	//Showing a specific obstacle without actually recording it, used to avoid problems with
 	//non-user initiated toggle-offs
-	public void ApplyObstacleSelection(string p_name) {
-		currentSegment.Obstacles.UnhideObject(p_name);
+	public void ApplyObstacleSelection(string name) {
+		LevelPieceSuperClass.CurrentSegment.Obstacles.UnhideObject(name);
 	}
 }

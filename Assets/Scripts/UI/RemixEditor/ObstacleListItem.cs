@@ -7,12 +7,12 @@ using System.Security.Cryptography;
 
 [RequireComponent(typeof(Toggle))]
 public class ObstacleListItem : MonoBehaviour {
-	public string ItemName {get; private set;} = "";	
-	public Toggle ItemToggle {get; private set;}
-	public TMP_Text ItemLabel {get; private set;}
+	public string ItemName { get; private set; } = "";
+	public Toggle ItemToggle { get; private set; }
+	public TMP_Text ItemLabel { get; private set; }
 	private ObstacleListScript listReference;
 
-	ObstacleListItem(string p_name, ObstacleListScript p_list) { ItemName = p_name; listReference = p_list; }
+	// ObstacleListItem(string p_name, ObstacleListScript p_list) { ItemName = p_name; listReference = p_list; }
 
 	void Awake() {
 		ItemToggle = GetComponent<Toggle>();
@@ -21,9 +21,9 @@ public class ObstacleListItem : MonoBehaviour {
 		// Debug.Log("obstacle list item awake");
 	}
 
-	public void SetName(string p_name) { ItemName = p_name; ItemLabel.text = p_name; }
-	public void SetListReference(ObstacleListScript p_list) { listReference = p_list; }
-	public void SetToggleGroup(ToggleGroup p_group) { ItemToggle.group = p_group; }
+	public void SetName(string name) { ItemName = name; ItemLabel.text = name; }
+	public void SetListReference(ObstacleListScript list) { listReference = list; }
+	public void SetToggleGroup(ToggleGroup group) { ItemToggle.group = group; }
 
 	public void SetUpDownNav(Toggle upSelect, Toggle downSelect) {
 		Navigation orgNav = ItemToggle.navigation;
@@ -32,7 +32,7 @@ public class ObstacleListItem : MonoBehaviour {
 		orgNav.selectOnDown = downSelect;
 		ItemToggle.navigation = orgNav;
 	}
-	
+
 	public void SetLeftRightNav(Toggle leftSelect, Toggle rightSelect) {
 		Navigation orgNav = ItemToggle.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
@@ -40,7 +40,7 @@ public class ObstacleListItem : MonoBehaviour {
 		orgNav.selectOnRight = rightSelect;
 		ItemToggle.navigation = orgNav;
 	}
-	
+
 	public void SetNavModeVertical() {
 		Navigation orgNav = ItemToggle.navigation;
 		orgNav.mode = Navigation.Mode.Vertical;
@@ -49,13 +49,20 @@ public class ObstacleListItem : MonoBehaviour {
 
 	//Triggered onValueChanged
 	public void TogglePing() {
+		if (listReference == null) {
+			Debug.LogError("no list ref");
+		}
+		if (ItemToggle == null) {
+			Debug.LogError("no toggle");
+		}
 		listReference.ReceiveTogglePing(ItemName, ItemToggle.isOn);
 		TextColorAdjust();
 	}
-	
+
 	private void TextColorAdjust() {
 		if (ItemToggle.isOn == true)
 			ItemLabel.color = new Color(ItemLabel.color.r, ItemLabel.color.g, ItemLabel.color.b, 1f);
-		else ItemLabel.color = new Color(ItemLabel.color.r, ItemLabel.color.g, ItemLabel.color.b, (45f / 255f));
+		else
+			ItemLabel.color = new Color(ItemLabel.color.r, ItemLabel.color.g, ItemLabel.color.b, (45f / 255f));
 	}
 }

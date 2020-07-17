@@ -90,6 +90,8 @@ public class RemixMapScript : MonoBehaviour {
 
 		// TODO: deselect
 
+		LevelPieceSuperClass.CurrentSegment = segment;
+
 		ObstacleListScript.Show(skipUpdate: true);
 		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
