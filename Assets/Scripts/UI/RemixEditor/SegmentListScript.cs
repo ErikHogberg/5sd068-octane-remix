@@ -9,7 +9,7 @@ using System.Dynamic;
 [RequireComponent(typeof(ScrollRect))]
 [RequireComponent(typeof(ToggleGroup))]
 [RequireComponent(typeof(ScrollToSelected))]
-public class SegmentListScript : SegmentEditorSuperClass {
+public class SegmentListScript : MonoBehaviour {
 	public static List<SegmentListItem> listItems = new List<SegmentListItem>();
 	private static SegmentListItem currentItem;
 	public static SegmentListItem ReadCurrentItem() { return currentItem; }
@@ -22,7 +22,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 	private ScrollToSelected scrollMaster = null;
 	private ToggleGroup group = null;
 
-	protected override void ChildAwake() {
+	protected void Awake() {
 		// listContent = GetComponent<ScrollRect>().content.gameObject;
 		scrollMaster = GetComponent<ScrollToSelected>();
 		group = GetComponent<ToggleGroup>();
@@ -135,7 +135,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		currentItem = listItems[0];
 	}
 
-	public override void UpdateUI() {
+	public void UpdateUI() {
 
 		if (LevelPieceSuperClass.CurrentSegment == null) {
 			return;

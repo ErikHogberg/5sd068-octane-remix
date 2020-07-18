@@ -90,7 +90,7 @@ public class GoalSpotListScript : MonoBehaviour {
 		entry.SetToggleGroup(group);
 		entry.SetListReference(this);
 		entry.GetScrollPinger().RegisterScrollMaster(scrollMaster);
-		entry.SetText("Line " + (index + 1));
+		entry.SetText("Line " + index);
 		listItems.Add(entry);
 	}
 

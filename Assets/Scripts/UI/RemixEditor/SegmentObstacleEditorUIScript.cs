@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 
 [RequireComponent(typeof(TMP_Dropdown))]
-public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
+public class SegmentObstacleEditorUIScript : MonoBehaviour {
 
 	// TODO: show current obstacle on segment
 	// TODO: set current obstacle on segment
@@ -12,12 +12,12 @@ public class SegmentObstacleEditorUIScript : SegmentEditorSuperClass {
 
 	TMP_Dropdown obstacleDropdown;
 
-	protected override void ChildAwake() {
+	protected void Awake() {
 		obstacleDropdown = GetComponent<TMP_Dropdown>();
 		obstacleDropdown.onValueChanged.AddListener(ApplyDropdown);
 	}
 
-	public override void UpdateUI() {
+	public void UpdateUI() {
 		obstacleDropdown.ClearOptions();
 
 		obstacleDropdown.options.Add(new TMP_Dropdown.OptionData("None"));

@@ -36,7 +36,8 @@ public class RemixApplyAllEditor : MonoBehaviour {
 			segment.Obstacles.UnhideObject(selectedObstacle);
 		}
 
-		SegmentEditorSuperClass.UpdateAllUI();
+		// SegmentEditorSuperClass.UpdateAllUI();
+		ObstacleListScript.UpdateUIStatic();
 	}
 
 	public void ShuffleAll() {
@@ -45,7 +46,7 @@ public class RemixApplyAllEditor : MonoBehaviour {
 			segment.Obstacles.UnhideObject(index);
 		}
 
-		SegmentEditorSuperClass.UpdateAllUI();
+		// SegmentEditorSuperClass.UpdateAllUI();
 	}
 
 }

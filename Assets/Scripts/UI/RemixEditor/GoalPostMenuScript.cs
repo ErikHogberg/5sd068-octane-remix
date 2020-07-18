@@ -16,11 +16,13 @@ public class GoalPostMenuScript : MonoBehaviour {
 
 	public void UpdateUI() {
 		bool isStart = RemixEditorGoalPost.StartSpot == GoalSpotListScript.CurrentGoalPost;
-		StartToggle.isOn = isStart;
+		StartToggle.SetIsOnWithoutNotify(isStart);
+		// StartToggle.isOn = isStart;
 		StartToggle.interactable = !isStart;
 
 		bool isFinish = RemixEditorGoalPost.FinishSpot == GoalSpotListScript.CurrentGoalPost;
-		FinishToggle.isOn = isFinish;
+		// FinishToggle.isOn = isFinish;
+		FinishToggle.SetIsOnWithoutNotify(isFinish);
 		FinishToggle.interactable = !isFinish;
 	}
 
@@ -44,14 +46,20 @@ public class GoalPostMenuScript : MonoBehaviour {
 		if (GoalSpotListScript.CurrentGoalPost == null)
 			return;
 
-		RemixEditorGoalPost.StartSpot = GoalSpotListScript.CurrentGoalPost;
+		if (value) {
+			RemixEditorGoalPost.StartSpot = GoalSpotListScript.CurrentGoalPost;
+			StartToggle.interactable = false;
+		}
 	}
 
 	public void OnFinishToggle(bool value) {
 		if (GoalSpotListScript.CurrentGoalPost == null)
 			return;
 
-		RemixEditorGoalPost.FinishSpot = GoalSpotListScript.CurrentGoalPost;
+		if (value) {
+			RemixEditorGoalPost.FinishSpot = GoalSpotListScript.CurrentGoalPost;
+			FinishToggle.interactable = false;
+		}
 	}
 
 }

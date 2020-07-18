@@ -93,7 +93,8 @@ public class RemixMapScript : MonoBehaviour {
 		LevelPieceSuperClass.CurrentSegment = segment;
 
 		ObstacleListScript.Show(skipUpdate: true);
-		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		ObstacleListScript.UpdateUIStatic();
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
 
 	}
@@ -106,7 +107,7 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
-		GoalPostMenuScript.Show();
+		// GoalPostMenuScript.Show();
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		GoalSpotListScript.MainInstance?.SetToggleObject(goalPost);
 		RemixMenuCameraFocusScript.SetTarget(goalPost.transform);

@@ -5,8 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ObjectSelectorScript))]
-public abstract class LevelPieceSuperClass : MonoBehaviour//, IComparable<LevelPieceSuperClass> 
-{
+public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass> {
 
 	private const int allowedSegmentSkip = 0;
 
@@ -279,7 +278,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour//, IComparable<LevelP
 		}
 
 		// TODO: update remix editor obstacle list
-		SegmentEditorSuperClass.UpdateAllUI();
+		// SegmentEditorSuperClass.UpdateAllUI();
+		ObstacleListScript.UpdateUIStatic();
 
 		return true;
 	}

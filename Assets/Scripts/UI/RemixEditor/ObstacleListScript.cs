@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 
 [RequireComponent(typeof(ToggleGroup))]
-public class ObstacleListScript : SegmentEditorSuperClass {
+public class ObstacleListScript : MonoBehaviour {
 
 	private static ObstacleListScript mainInstance;
 
@@ -30,7 +30,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	// private ObstacleListItem listItemPrefab;
 	public ObstacleListItem ListItemTemplate;
 
-	protected override void ChildAwake() {
+	void Awake() {
 		group = GetComponent<ToggleGroup>();
 		// listItemPrefab = Resources.Load<ObstacleListItem>("ObstacleListItem");
 		mainInstance = this;
@@ -92,7 +92,7 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	}
 
 	//Runs whenever a new segment is selected
-	public override void UpdateUI() {
+	public void UpdateUI() {
 
 		// FIXME: resets obstacles loaded by id
 
@@ -137,6 +137,10 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 		// ApplyObstacleSelection();
 		SegmentListScript.UpdateLeftNav();
+	}
+
+	public static void UpdateUIStatic(){
+		mainInstance?.UpdateUI();
 	}
 
 	private void AddNewListItem() {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class RemixIDFieldScript : SegmentEditorSuperClass {
+public class RemixIDFieldScript : MonoBehaviour {
 
 	public TMP_InputField TextField;
 	public GameObject LoadErrorPopup;
@@ -13,21 +13,13 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 
 	[Space]
 	public bool CopyToClipboardOnGetID = true;
-	public bool GetIDOnSelect = false;
 	[Space]
 	public bool PrintDebug = false;
 
-	protected override void ChildAwake() {
+	protected void Awake() {
 		LoadErrorPopup.SetActive(false);
 		ClipboardPopup.SetActive(false);
 		LoadSuccessPopup.SetActive(false);
-	}
-
-	public override void UpdateUI() {
-		if (GetIDOnSelect) {
-			GetID();
-			// TODO: also update ID when changing obstacle on current segment
-		}
 	}
 
 	public void GetID() {
@@ -52,7 +44,7 @@ public class RemixIDFieldScript : SegmentEditorSuperClass {
 		LoadSuccessPopup.SetActive(success);
 		ClipboardPopup.SetActive(false);
 		
-		SegmentEditorSuperClass.UpdateAllUI();
+		ObstacleListScript.UpdateUIStatic();
 	}
 
 }
