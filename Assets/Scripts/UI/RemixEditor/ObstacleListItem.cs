@@ -49,12 +49,6 @@ public class ObstacleListItem : MonoBehaviour {
 
 	//Triggered onValueChanged
 	public void TogglePing() {
-		if (listReference == null) {
-			Debug.LogError("no list ref");
-		}
-		if (ItemToggle == null) {
-			Debug.LogError("no toggle");
-		}
 		listReference.ReceiveTogglePing(ItemName, ItemToggle.isOn);
 		TextColorAdjust();
 	}

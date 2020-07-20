@@ -51,13 +51,11 @@ public class ToggleObjectListScript : MonoBehaviour {
 	//Way of picking a segment #1
 	//Sent from SegmentListItems, triggered by toggle event
 	public void ReceiveTogglePing(ToggleObjectListItem item, bool isOn) {
-		if (isOn) {
-			if (currentToggleObject != item.GetToggleObject()) {
-				currentItem = item;
-				RemixMapScript.Select(item.GetToggleObject());
-				UpdateStartButtonNav(currentItem.GetToggle());
-			}
-		}
+		// if (currentToggleObject != item.GetToggleObject()) {
+		currentItem = item;
+		RemixMapScript.Select(item.GetToggleObject());
+		UpdateStartButtonNav(currentItem.GetToggle());
+		// }
 	}
 	//ATM, run by ObstacleListScript in its Start() so that it can register itself as a SegmentEditor 
 	//in Awake() before first segmentselection occurs
@@ -74,11 +72,11 @@ public class ToggleObjectListScript : MonoBehaviour {
 		}
 	}
 
-	private void UpdateStartButtonNav(Toggle p_item) {
+	private void UpdateStartButtonNav(Toggle item) {
 		Navigation orgNav = startButton.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
-		orgNav.selectOnLeft = p_item;
-		orgNav.selectOnRight = p_item;
+		orgNav.selectOnLeft = item;
+		orgNav.selectOnRight = item;
 		startButton.navigation = orgNav;
 	}
 

@@ -66,7 +66,8 @@ public class ToggleObjectListItem : MonoBehaviour {
 	private void TextColorAdjust() {
 		if (itemToggle.isOn == true)
 			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, 1f);
-		else itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
+		else
+			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
 	}
 
 }
