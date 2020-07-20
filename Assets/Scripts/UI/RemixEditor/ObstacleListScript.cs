@@ -55,7 +55,7 @@ public class ObstacleListScript : MonoBehaviour {
 			return;
 
 		GoalPostMenuScript.Hide();
-		mainInstance.gameObject.SetActive(true);
+		mainInstance.ParentToHide.SetActive(true);
 		if (!skipUpdate) {
 			mainInstance.UpdateUI();
 		}
@@ -65,7 +65,7 @@ public class ObstacleListScript : MonoBehaviour {
 		if (!mainInstance)
 			return;
 
-		mainInstance.gameObject.SetActive(false);
+		mainInstance.ParentToHide.SetActive(false);
 	}
 
 	//Sent from ObstacleListItems, triggered by toggle event 
@@ -93,8 +93,6 @@ public class ObstacleListScript : MonoBehaviour {
 
 	//Runs whenever a new segment is selected
 	public void UpdateUI() {
-
-		// FIXME: resets obstacles loaded by id
 
 		currentListLayout.Clear();
 

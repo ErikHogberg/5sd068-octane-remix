@@ -23,6 +23,7 @@ public class ToggleObjectListItem : MonoBehaviour {
 	}
 
 	public void SetText(string txt) { itemLabel.text = txt; }
+	public void SetIsOnNoNotify(bool isOn) { itemToggle.SetIsOnWithoutNotify(isOn); }
 	public void SetToggleObject(RemixEditorToggleObject toggleObject) { this.toggleObject = toggleObject; }
 	public void SetListReference(ToggleObjectListScript list) { listReference = list; }
 

@@ -82,6 +82,7 @@ public class ToggleObjectListScript : MonoBehaviour {
 
 	void SetSegment(ToggleObjectListItem entry, RemixEditorToggleObject toggleObject) {
 		entry.SetToggleObject(toggleObject);
+		entry.SetIsOnNoNotify(toggleObject.ToggleState);
 		entry.SetListReference(this);
 		entry.GetScrollPinger().RegisterScrollMaster(scrollMaster);
 		entry.SetText(toggleObject.Name);
