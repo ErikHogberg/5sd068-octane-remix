@@ -480,7 +480,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1745716710}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.7707865
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3505,7 +3505,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1.4199829, y: -31.251984}
+  m_AnchoredPosition: {x: -1.4199829, y: -31.251953}
   m_SizeDelta: {x: -32.8833, y: -63.464478}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &312947858
@@ -7702,7 +7702,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 8380215
+    m_Bits: 8379703
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -9397,7 +9397,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1.4199829, y: -31.251984}
+  m_AnchoredPosition: {x: -1.4199829, y: -31.251953}
   m_SizeDelta: {x: -32.8833, y: -63.464478}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &899448229
@@ -12124,7 +12124,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1.4199829, y: -31.251984}
+  m_AnchoredPosition: {x: -1.4199829, y: -31.251953}
   m_SizeDelta: {x: -32.8833, y: -63.464478}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1140884093
@@ -13952,6 +13952,7 @@ MonoBehaviour:
   CameraPivot: {fileID: 197218639}
   ButtonPrefab: {fileID: 900115666}
   MapImage: {fileID: 530008382}
+  TabSelector: {fileID: 0}
   CameraMouseSpeed: 1
 --- !u!1 &1340859893
 GameObject:
@@ -14707,27 +14708,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
-  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_ActionsAsset: {fileID: -944628639613478452, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_PointAction: {fileID: 1054132383583890850, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_PointAction: {fileID: -1654692200621890270, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_MoveAction: {fileID: 3710738434707379630, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_MoveAction: {fileID: -8784545083839296357, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_SubmitAction: {fileID: 2064916234097673511, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_SubmitAction: {fileID: 392368643174621059, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_CancelAction: {fileID: -1967631576421560919, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_CancelAction: {fileID: 7727032971491509709, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_LeftClickAction: {fileID: 8056856818456041789, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_MiddleClickAction: {fileID: 3279352641294131588, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_RightClickAction: {fileID: 3837173908680883260, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_RightClickAction: {fileID: -4090225696740746782, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_ScrollWheelAction: {fileID: 4502412055082496612, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_TrackedDevicePositionAction: {fileID: 4754684134866288074, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
-  m_TrackedDeviceOrientationAction: {fileID: 1025543830046995696, guid: ca9f5fa95ffab41fb9a615ab714db018,
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: de665e196d77ea340b9c7cc5c7595959,
     type: 3}
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
@@ -16406,6 +16407,7 @@ MonoBehaviour:
   CameraPivot: {fileID: 197218639}
   ButtonPrefab: {fileID: 0}
   MapImage: {fileID: 874786037}
+  TabSelector: {fileID: 1768219640}
   CameraMouseSpeed: 1
 --- !u!222 &1656058001
 CanvasRenderer:

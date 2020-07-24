@@ -49,6 +49,7 @@ public class GoalPostMenuScript : MonoBehaviour {
 		if (value) {
 			RemixEditorGoalPost.StartSpot = GoalSpotListScript.CurrentGoalPost;
 			StartToggle.interactable = false;
+			RemixEditorGoalPost.UpdateGoalPost();
 		}
 	}
 
@@ -59,6 +60,7 @@ public class GoalPostMenuScript : MonoBehaviour {
 		if (value) {
 			RemixEditorGoalPost.FinishSpot = GoalSpotListScript.CurrentGoalPost;
 			FinishToggle.interactable = false;
+			RemixEditorGoalPost.UpdateGoalPost();
 		}
 	}
 

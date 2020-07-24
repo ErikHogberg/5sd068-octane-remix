@@ -13,6 +13,8 @@ public class RemixMapScript : MonoBehaviour {
 	public GameObject ButtonPrefab;
 	public RawImage MapImage;
 
+	public ObjectSelectorScript TabSelector;
+
 	public float CameraMouseSpeed = 1f;
 
 	private bool mouseDown = false;
@@ -88,7 +90,7 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
-		// TODO: deselect
+		mainInstance.TabSelector.UnhideObject("Obstacles");
 
 		LevelPieceSuperClass.CurrentSegment = segment;
 
@@ -107,6 +109,8 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
+		mainInstance.TabSelector.UnhideObject("GoalPosts");
+
 		// GoalPostMenuScript.Show();
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		GoalSpotListScript.MainInstance?.SetToggleObject(goalPost);
@@ -121,6 +125,8 @@ public class RemixMapScript : MonoBehaviour {
 		}
 
 		RemixCameraRotateScript.StopStatic();
+
+		mainInstance.TabSelector.UnhideObject("ToggleObjects");
 
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(toggleObject.transform);

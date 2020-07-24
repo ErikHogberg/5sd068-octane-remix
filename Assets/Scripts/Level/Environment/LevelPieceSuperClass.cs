@@ -7,8 +7,6 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(ObjectSelectorScript))]
 public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass> {
 
-	private const int allowedSegmentSkip = 0;
-
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
 	public static LevelPieceSuperClass CurrentSegment = null;
@@ -24,14 +22,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
 	public LevelPieceSuperClass SegmentOnReset;
 
-	[Tooltip("Override how many segments are allowed to be skipped when entering this segment")]
-	public bool OverrideSegmentSkip = false;
-	[Tooltip("How many segments are allowed to be skipped when entering this segment, 0 means only the exact previous segment is allowed")]
-	[Min(0)]
-	public int CustomSegmentSkip = 0;
-
 	public Transform RespawnSpot;
-	public Transform GoalSpot;
 
 	[Tooltip("If entering this segment should change the speed profile of the car")]
 	public bool SetSpeedProfile = false;
@@ -48,7 +39,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public ObjectSelectorScript Obstacles { get; private set; }
 
-	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+	public static List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
 	// TODO: observers for remix editors for refreshing when a new segment is added
 	// sends new total number of segments
@@ -91,17 +82,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			return true;
 		}
 
-		int currentSegmentSkip = allowedSegmentSkip;
-
-		if (OverrideSegmentSkip)
-			currentSegmentSkip = CustomSegmentSkip;
 
 		bool validProgression = !CurrentSegment;
 		if (OverridePreviousSegment)
 			validProgression = validProgression || PreviousSegments.Contains(CurrentSegment.SegmentOrder);
 		else
 			validProgression = validProgression
-				|| (SegmentOrder <= CurrentSegment.SegmentOrder + 1 + currentSegmentSkip
+				|| (SegmentOrder <= CurrentSegment.SegmentOrder + 1
 					&& SegmentOrder > CurrentSegment.SegmentOrder);
 
 		return validProgression;
@@ -111,7 +98,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		bool validProgression = CheckValidProgression();
 		if (validProgression) {
 			if (CurrentSegment)
-				foreach (var observer in CurrentSegment.LeaveSegmentObservers)
+				foreach (var observer in LeaveSegmentObservers)
 					observer.Notify(CurrentSegment);
 
 			if (SetSpeedProfile) {
