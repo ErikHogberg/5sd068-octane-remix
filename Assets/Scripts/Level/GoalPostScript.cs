@@ -40,7 +40,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			return;
 
 
-		if (!RemixEditorGoalPost.CheckTransition(LevelPieceSuperClass.CurrentSegment)) {
+		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
 			return;
 		}
 
@@ -84,7 +84,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	// called when car leaves parent segment
 	public void Notify(LevelPieceSuperClass segment) {
 
-		if (!RemixEditorGoalPost.CheckTransition(segment)) {
+		if (!RemixEditorGoalPost.AttemptTransition(segment)) {
 			return;
 		}
 

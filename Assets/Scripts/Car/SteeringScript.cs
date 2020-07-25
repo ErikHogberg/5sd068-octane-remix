@@ -1253,7 +1253,7 @@ public class SteeringScript : MonoBehaviour {
 			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
 			highHzRumble = Mathf.Clamp(highHzRumble, 0, 1);
 
-			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+			Gamepad.current?.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
 	}
 
