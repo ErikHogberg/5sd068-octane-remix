@@ -20,12 +20,14 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		}
 		// if (ParentSegment)
 		// 	ParentSegment.LeaveSegmentObservers.Add(this);
+		LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
 	}
 
 	private void OnDestroy() {
 		if (IsMainInstance) {
 			MainInstance = null;
 		}
+		LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
 	private void Start() {
@@ -41,6 +43,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 
 		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
+			// LevelPieceSuperClass.ResetToCurrentSegment();
 			return;
 		}
 
@@ -62,29 +65,10 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		ready = false;
 	}
 
-	// public void SetSegment(LevelPieceSuperClass segment) {
-
-	// 	if (ParentSegment)
-	// 		ParentSegment.LeaveSegmentObservers.Remove(this);
-
-	// 	ParentSegment = segment;
-	// 	ParentSegment.LeaveSegmentObservers.Add(this);
-
-	// 	ContainerObject.SetActive(true);
-
-	// ContainerObject.transform.position = segment.GoalSpot.position;
-	// ContainerObject.transform.rotation = segment.GoalSpot.rotation;
-	// ContainerObject.transform.localScale = segment.GoalSpot.localScale;
-	// }
-
-	// public static void SetInstanceSegment(LevelPieceSuperClass segment) {
-	// 	MainInstance?.SetSegment(segment);
-	// }
-
 	// called when car leaves parent segment
 	public void Notify(LevelPieceSuperClass segment) {
 
-		if (!RemixEditorGoalPost.AttemptTransition(segment)) {
+		if (!RemixEditorGoalPost.CheckTransition(segment)) {
 			return;
 		}
 

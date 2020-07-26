@@ -146,40 +146,11 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return true;
 	}
 
-	// public void UpdateGoalPost() {
-
-	// 	if (!startSegment)
-	// 		startSegment = this;
-	// 	if (!endSegment)
-	// 		endSegment = this;
-
-	// 	if (startSegment == this && endSegment == this) {
-	// 		GoalPostScript.SetInstanceSegment(this);
-	// 	} else {
-	// 		// TODO: spawn portals at ends instead
-	// 	}
-	// }
-
 	public static void ClearCurrentSegment() {
 		CurrentSegment = null;
 	}
 
 	public int CompareTo(LevelPieceSuperClass other) {
-		// Compare using distance from origin
-		/*
-		float originDistance = transform.position.sqrMagnitude;
-		float otherOriginDistance = other.transform.position.sqrMagnitude;
-		float diff = originDistance - otherOriginDistance;
-		if (diff > 0) {
-			return 1;
-		} else if (diff < 0) {
-			return -1;
-		} else {
-			return 0;
-		}
-		// */
-
-		// Compare using segment order
 		return SegmentOrder - other.SegmentOrder;
 	}
 

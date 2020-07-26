@@ -68,23 +68,30 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		}
 	}
 
+	public static bool CheckTransition(LevelPieceSuperClass targetSegment){
+		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment) ?? true;
+	}
+
 	public static bool AttemptTransition(LevelPieceSuperClass targetSegment) {
 		if (targetSegment == null)
 			return true;
 
-		bool success = FinishSpot?.AllowedPreviousSegments.Contains(targetSegment) ?? true;
+		bool success = CheckTransition(targetSegment);
 
 		if (success) {
 			if (FinishSpot != StartSpot) {
-				// TODO: teleport car to start spot
+				MoveCarToStart();
 			}
-
 		} else {
-			// TODO: reset car to last segment
-
+			LevelPieceSuperClass.ResetToCurrentSegment();
 		}
 
 		return success;
+	}
+
+	public static void MoveCarToStart() {
+		LevelPieceSuperClass.ClearCurrentSegment();
+		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
 	}
 
 	public static void UpdateGoalPost() {

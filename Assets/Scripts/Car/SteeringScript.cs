@@ -399,6 +399,9 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: reset fn with option to disable penalty
 		// LevelPieceSuperClass.ResetToStart();
 
+		// FIXME: move car before freeze
+		RemixEditorGoalPost.MoveCarToStart();
+
 	}
 
 	void Awake() {
@@ -411,6 +414,7 @@ public class SteeringScript : MonoBehaviour {
 		effects = GetComponent<CarParticleHandlerScript>();
 		LevelPieceSuperClass.ClearCurrentSegment();
 
+		// RemixEditorGoalPost.MoveCarToStart();
 	}
 
 	void OnEnable() {
@@ -1237,6 +1241,19 @@ public class SteeringScript : MonoBehaviour {
 			Reset();
 	}
 
+	public void Teleport(Vector3 pos, Quaternion rot) {
+		effects?.DisableAllEffects();
+		effects?.ClearAllEffects();
+
+		rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
+
+		// rb.MovePosition(pos);
+		// rb.MoveRotation(rot);
+		transform.position = pos;
+		transform.rotation = rot;
+	}
+
 	private void Rumble() {
 		if (EnableRumble) {
 
@@ -1305,7 +1322,7 @@ public class SteeringScript : MonoBehaviour {
 		MainInstance?.Unfreeze();
 	}
 
-	public void DontZeroNextOnAir(){
+	public void DontZeroNextOnAir() {
 		ignoreNextOnAirZeroing = true;
 	}
 
