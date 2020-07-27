@@ -43,10 +43,12 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			return;
 		}
 
+		ready = false;
 
 		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
 			print("invalid goal post transition!");
 			// LevelPieceSuperClass.ResetToCurrentSegment();
+			ready = true;
 			return;
 		}
 
@@ -65,7 +67,6 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		SteeringScript.MainInstance.LapsCompleted++;
 		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted);
 
-		ready = false;
 	}
 
 	// called when car leaves parent segment

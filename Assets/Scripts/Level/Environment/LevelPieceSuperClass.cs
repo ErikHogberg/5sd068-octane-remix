@@ -94,6 +94,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return validProgression;
 	}
 
+
 	public bool AttemptTransition() {
 		bool validProgression = CheckValidProgression();
 		if (validProgression) {
@@ -146,7 +147,12 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return true;
 	}
 
-	public static void ClearCurrentSegment() {
+	public static void ClearCurrentSegment(bool notifyLeaving = false) {
+		if (notifyLeaving && CurrentSegment) {
+			foreach (var observer in LeaveSegmentObservers)
+				observer.Notify(CurrentSegment);
+		}
+
 		CurrentSegment = null;
 	}
 

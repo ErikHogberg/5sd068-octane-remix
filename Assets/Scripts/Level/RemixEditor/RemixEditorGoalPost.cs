@@ -94,7 +94,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 
 	public static void MoveCarToStart() {
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
-		LevelPieceSuperClass.ClearCurrentSegment();
+		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: true);
 	}
 
 	public static void UpdateGoalPost() {

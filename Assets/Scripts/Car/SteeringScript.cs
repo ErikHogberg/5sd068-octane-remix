@@ -308,8 +308,11 @@ public class SteeringScript : MonoBehaviour {
 	public float InAirStabilizationAmount = 1f;
 	[Space]
 
-	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
-	public bool StartBeforeGoalPost = false;
+	public bool AllowYawOnGround = false;
+
+	// [Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
+	// public bool StartBeforeGoalPost = false;
+	private bool StartBeforeGoalPost = false;
 
 	#region object refs and input bindings
 
@@ -425,6 +428,9 @@ public class SteeringScript : MonoBehaviour {
 		MainInstance = this;
 		// LevelPieceSuperClass.ClearCurrentSegment();
 
+		// TODO: error checks
+		StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
+
 	}
 
 	void OnDisable() {
@@ -505,8 +511,10 @@ public class SteeringScript : MonoBehaviour {
 
 		Brake(dt);
 
-		Yaw(dt);
-		Pitch(dt);
+		if (AllowYawOnGround || !touchingGround) {
+			Yaw(dt);
+			Pitch(dt);
+		}
 
 		if (InAirStabilization && !touchingGround) {
 			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
