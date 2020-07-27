@@ -400,7 +400,7 @@ public class SteeringScript : MonoBehaviour {
 		// LevelPieceSuperClass.ResetToStart();
 
 		// FIXME: move car before freeze
-		RemixEditorGoalPost.MoveCarToStart();
+		// RemixEditorGoalPost.MoveCarToStart();
 
 	}
 
@@ -1245,7 +1245,10 @@ public class SteeringScript : MonoBehaviour {
 		effects?.DisableAllEffects();
 		effects?.ClearAllEffects();
 
-		rb.velocity = Vector3.zero;
+		Quaternion relativeRotation = Quaternion.Inverse(transform.rotation) * rot;
+
+		// rb.velocity = Vector3.zero;
+		rb.velocity = relativeRotation * rb.velocity;
 		rb.angularVelocity = Vector3.zero;
 
 		// rb.MovePosition(pos);

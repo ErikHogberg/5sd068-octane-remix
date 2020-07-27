@@ -68,7 +68,10 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		}
 	}
 
-	public static bool CheckTransition(LevelPieceSuperClass targetSegment){
+	public static bool CheckTransition(LevelPieceSuperClass targetSegment) {
+		if (!targetSegment)
+			return true;
+
 		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment) ?? true;
 	}
 
@@ -90,8 +93,8 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 	}
 
 	public static void MoveCarToStart() {
-		LevelPieceSuperClass.ClearCurrentSegment();
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
+		LevelPieceSuperClass.ClearCurrentSegment();
 	}
 
 	public static void UpdateGoalPost() {

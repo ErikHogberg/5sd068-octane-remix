@@ -82,7 +82,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			return true;
 		}
 
-
+		// NOTE: always returns true if current segment is null
 		bool validProgression = !CurrentSegment;
 		if (OverridePreviousSegment)
 			validProgression = validProgression || PreviousSegments.Contains(CurrentSegment.SegmentOrder);

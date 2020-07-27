@@ -38,11 +38,14 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	// TODO: set car, ground and obstacle collision layer settings to not count ground fin and flip trigger when entering goal post or portal
 	private void OnTriggerEnter(Collider other) {
-		if (!ready)
+		if (!ready){
+			print("goal post not ready!");
 			return;
+		}
 
 
 		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
+			print("invalid goal post transition!");
 			// LevelPieceSuperClass.ResetToCurrentSegment();
 			return;
 		}
@@ -73,12 +76,11 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		}
 
 		if (ready) {
-			// IDEA: dont trigger if transitioning to other segment also on goal post allowed segment list
 			// Registers lap if the car somehow missed the goal post
 			SteeringScript.MainInstance.LapsCompleted++;
-		} else {
-			ready = true;
 		}
+
+		ready = true;
 
 	}
 
