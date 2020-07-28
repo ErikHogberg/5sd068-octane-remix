@@ -27,7 +27,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 	// IDEA: have same object for goal post and goal portal entrance, just toggle effect volume and use different ontrigger branches, place goal post with disabled trigger as portal exit?
 
 	[Tooltip("Which previous segments the player is allowed to cross this finish line from")]
-	public LevelPieceSuperClass[] AllowedPreviousSegments;
+	public int[] AllowedPreviousSegments;
 	[Tooltip("Where the car starts when starting a run from this goal line")]
 	public Transform SpawnSpot;
 
@@ -72,7 +72,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		if (!targetSegment)
 			return true;
 
-		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment) ?? true;
+		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
 	}
 
 	public static bool AttemptTransition(LevelPieceSuperClass targetSegment) {
@@ -94,7 +94,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 
 	public static void MoveCarToStart() {
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
-		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: true);
+		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: false);
 	}
 
 	public static void UpdateGoalPost() {

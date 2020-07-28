@@ -98,9 +98,9 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public bool AttemptTransition() {
 		bool validProgression = CheckValidProgression();
 		if (validProgression) {
-			if (CurrentSegment)
-				foreach (var observer in LeaveSegmentObservers)
-					observer.Notify(CurrentSegment);
+			// if (CurrentSegment)
+			foreach (var observer in LeaveSegmentObservers)
+				observer.Notify(CurrentSegment);
 
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 

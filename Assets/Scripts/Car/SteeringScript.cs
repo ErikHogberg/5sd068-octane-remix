@@ -312,7 +312,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// [Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	// public bool StartBeforeGoalPost = false;
-	private bool StartBeforeGoalPost = false;
+	private bool startBeforeGoalPost = true;
 
 	#region object refs and input bindings
 
@@ -369,8 +369,9 @@ public class SteeringScript : MonoBehaviour {
 	public int LapsCompleted {
 		get { return lapsCompleted; }
 		set {
-			if (StartBeforeGoalPost) {
-				StartBeforeGoalPost = false;
+			if (startBeforeGoalPost) {
+				startBeforeGoalPost = false;
+				print("lap invalidated");
 				return;
 			}
 
@@ -418,6 +419,9 @@ public class SteeringScript : MonoBehaviour {
 		LevelPieceSuperClass.ClearCurrentSegment();
 
 		// RemixEditorGoalPost.MoveCarToStart();
+		// StartBeforeGoalPost = false;
+		// if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
+			// StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 	}
 
 	void OnEnable() {
@@ -427,9 +431,6 @@ public class SteeringScript : MonoBehaviour {
 
 		MainInstance = this;
 		// LevelPieceSuperClass.ClearCurrentSegment();
-
-		// TODO: error checks
-		StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 
 	}
 

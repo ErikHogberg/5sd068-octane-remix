@@ -36,9 +36,11 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	}
 
-	// TODO: set car, ground and obstacle collision layer settings to not count ground fin and flip trigger when entering goal post or portal
 	private void OnTriggerEnter(Collider other) {
-		if (!ready){
+		if (!ready) {
+
+			// FIXME: goal post only triggering new lap half the time, reporting not ready on other half
+
 			print("goal post not ready!");
 			return;
 		}
@@ -65,7 +67,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		// }
 
 		SteeringScript.MainInstance.LapsCompleted++;
-		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted);
+		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + "<--");
 
 	}
 
@@ -78,11 +80,17 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 		if (ready) {
 			// Registers lap if the car somehow missed the goal post
+			int oldLapsCompleted = SteeringScript.MainInstance.LapsCompleted;
 			SteeringScript.MainInstance.LapsCompleted++;
+
+			// FIXME: illegal shortcut on first segment after teleport, despite current segment being cleared
+			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted && RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
+				RemixEditorGoalPost.MoveCarToStart();
+			}
 		}
 
 		ready = true;
-
+		print("goal post ready");
 	}
 
 	public void SetGoalPost(RemixEditorGoalPost goalPost) {
