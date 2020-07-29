@@ -30,16 +30,8 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
-	private void Start() {
-
-		// IDEA: show portal if only start or only end, show goalpost if both start and end
-
-	}
-
 	private void OnTriggerEnter(Collider other) {
 		if (!ready) {
-
-			// FIXME: goal post only triggering new lap half the time, reporting not ready on other half
 
 			print("goal post not ready!");
 			return;
@@ -83,14 +75,18 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			int oldLapsCompleted = SteeringScript.MainInstance.LapsCompleted;
 			SteeringScript.MainInstance.LapsCompleted++;
 
-			// FIXME: illegal shortcut on first segment after teleport, despite current segment being cleared
-			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted && RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
+			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted
+			&& RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
+				// RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment);
 				RemixEditorGoalPost.MoveCarToStart();
-			}
+				// RemixEditorGoalPost.MoveCarToStart();
+				ready = false;
+			} 
+		} else {
+			ready = true;
 		}
 
-		ready = true;
-		print("goal post ready");
+		// print("goal post ready");
 	}
 
 	public void SetGoalPost(RemixEditorGoalPost goalPost) {

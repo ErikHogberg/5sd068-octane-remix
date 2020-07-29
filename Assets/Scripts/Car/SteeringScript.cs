@@ -421,7 +421,7 @@ public class SteeringScript : MonoBehaviour {
 		// RemixEditorGoalPost.MoveCarToStart();
 		// StartBeforeGoalPost = false;
 		// if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
-			// StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
+		// StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 	}
 
 	void OnEnable() {
@@ -1194,7 +1194,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
-	private void CallResetObservers() {
+	public void CallResetObservers() {
 		foreach (var observer in ResetObservers)
 			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
 			observer.Notify(Camera.main);
@@ -1254,10 +1254,11 @@ public class SteeringScript : MonoBehaviour {
 		effects?.DisableAllEffects();
 		effects?.ClearAllEffects();
 
-		Quaternion relativeRotation = Quaternion.Inverse(transform.rotation) * rot;
+		// Quaternion relativeRotation = Quaternion.Inverse(transform.rotation) * rot;
 
 		// rb.velocity = Vector3.zero;
-		rb.velocity = relativeRotation * rb.velocity;
+		// rb.velocity = relativeRotation * rb.velocity;
+		rb.velocity = rot * Vector3.forward * rb.velocity.magnitude;
 		rb.angularVelocity = Vector3.zero;
 
 		// rb.MovePosition(pos);

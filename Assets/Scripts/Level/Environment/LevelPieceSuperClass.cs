@@ -94,21 +94,23 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return validProgression;
 	}
 
-
 	public bool AttemptTransition() {
 		bool validProgression = CheckValidProgression();
 		if (validProgression) {
 			// if (CurrentSegment)
+
+			LevelPieceSuperClass prevSegment = CurrentSegment;
+			CurrentSegment = this;
+
 			foreach (var observer in LeaveSegmentObservers)
-				observer.Notify(CurrentSegment);
+				observer.Notify(prevSegment);
 
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 
 				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex, false);// ?? false;
 			}
 
-			CurrentSegment = this;
-			print("current segment: " + CurrentSegment.SegmentOrder);
+			// print("current segment: " + CurrentSegment.SegmentOrder);
 		} else {
 			UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
 			ResetToCurrentSegment();
