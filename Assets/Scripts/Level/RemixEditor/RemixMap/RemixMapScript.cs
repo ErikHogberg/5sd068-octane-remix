@@ -13,6 +13,8 @@ public class RemixMapScript : MonoBehaviour {
 	public GameObject ButtonPrefab;
 	public RawImage MapImage;
 
+	public ObjectSelectorScript TabSelector;
+
 	public float CameraMouseSpeed = 1f;
 
 	private bool mouseDown = false;
@@ -30,7 +32,7 @@ public class RemixMapScript : MonoBehaviour {
 
 		// TODO: selection highlight
 		// TODO: only enable segment mouse picking in remix edit mode
-		
+
 		// foreach (var piece in LevelPieceSuperClass.Pieces) {
 
 		// 	Button button = Instantiate(
@@ -88,11 +90,15 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
-		// TODO: deselect
-		
-		SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		mainInstance.TabSelector.UnhideObject("Obstacles");
+
+		LevelPieceSuperClass.CurrentSegment = segment;
+
+		ObstacleListScript.Show(skipUpdate: true);
+		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
+		ObstacleListScript.UpdateUIStatic();
 		RemixMenuCameraFocusScript.SetTarget(segment.transform);
-		
+
 	}
 
 	public static void Select(RemixEditorGoalPost goalPost) {
@@ -103,11 +109,13 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
+		mainInstance.TabSelector.UnhideObject("GoalPosts");
 
+		// GoalPostMenuScript.Show();
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		GoalSpotListScript.MainInstance?.SetToggleObject(goalPost);
 		RemixMenuCameraFocusScript.SetTarget(goalPost.transform);
-		
+
 	}
 
 	public static void Select(RemixEditorToggleObject toggleObject) {
@@ -118,9 +126,11 @@ public class RemixMapScript : MonoBehaviour {
 
 		RemixCameraRotateScript.StopStatic();
 
+		mainInstance.TabSelector.UnhideObject("ToggleObjects");
+
 		// SegmentEditorSuperClass.SetSegmentsOnAll(segment);
 		RemixMenuCameraFocusScript.SetTarget(toggleObject.transform);
-		
+
 	}
 
 }

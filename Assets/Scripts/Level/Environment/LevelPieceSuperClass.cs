@@ -7,67 +7,12 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(ObjectSelectorScript))]
 public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass> {
 
-	private const int allowedSegmentSkip = 0;
-
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
-	protected static LevelPieceSuperClass startSegment = null;
-	protected static LevelPieceSuperClass endSegment = null;
-
-	protected static LevelPieceSuperClass currentSegment = null;
-
-	// TODO: progress through whole track
-	// IDEA: mark some tracks as reversing direction, to allow going back on the previous track and still progress
+	public static LevelPieceSuperClass CurrentSegment = null;
 
 	[Tooltip("In which order this segment is expected, if a segment is too much out of order, then the car will be reset to the last segment")]
 	public int SegmentOrder;
-	// [Tooltip("If resetting due to out of order segment should be ignored")]
-	// public bool OverrideSegmentOrderReset = false;
-
-	// TODO: remove all goal post stuff here, migrate relevant stuff to goal post spot script
-
-	[Tooltip("If this is the default start segment, make sure only one is marked, or a random one will be selected")]
-	public bool InitStart = false;
-	[Tooltip("If this is the default end/finish segment, make sure only one is marked, or a random one will be selected")]
-	public bool InitEnd = false;
-
-	[Tooltip("If a start goal post can be placed here")]
-	public bool IsStartable = true;
-	[Tooltip("If an end goal portal can be placed here")]
-	public bool IsEndable = true;
-
-	public bool isStart {
-		get {
-			if (!startSegment) {
-				startSegment = this;
-				GoalPostScript.SetInstanceSegment(startSegment);
-				Debug.Log("start segment is null");
-			}
-			return startSegment == this;
-		}
-		set {
-			if (value) {
-				startSegment = this;
-				GoalPostScript.SetInstanceSegment(startSegment);
-			}
-		}
-	}
-	public bool isEnd {
-		get {
-			if (!endSegment) {
-				endSegment = this;
-				GoalPostScript.SetInstanceSegment(endSegment);
-				Debug.Log("end segment is null");
-			}
-			return endSegment == this;
-		}
-		set {
-			if (value) {
-				endSegment = this;
-				GoalPostScript.SetInstanceSegment(endSegment);
-			}
-		}
-	}
 
 	[Tooltip("Override which segment was before this one, instead of assuming (segment order - 1)")]
 	public bool OverridePreviousSegment = false;
@@ -77,14 +22,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
 	public LevelPieceSuperClass SegmentOnReset;
 
-	[Tooltip("Override how many segments are allowed to be skipped when entering this segment")]
-	public bool OverrideSegmentSkip = false;
-	[Tooltip("How many segments are allowed to be skipped when entering this segment, 0 means only the exact previous segment is allowed")]
-	[Min(0)]
-	public int CustomSegmentSkip = 0;
-
 	public Transform RespawnSpot;
-	public Transform GoalSpot;
 
 	[Tooltip("If entering this segment should change the speed profile of the car")]
 	public bool SetSpeedProfile = false;
@@ -101,7 +39,7 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public ObjectSelectorScript Obstacles { get; private set; }
 
-	public List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+	public static List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
 	// TODO: observers for remix editors for refreshing when a new segment is added
 	// sends new total number of segments
@@ -115,27 +53,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			item.Notify(Segments.Count);
 
 		Obstacles = GetComponent<ObjectSelectorScript>();
-
-		if (InitStart) {
-			// startSegment = this;
-			isStart = true;
-			// endSegment = this;
-			// GoalPostScript.SetInstanceSegment(this);
-			// UpdateGoalPost();
+		if (!Obstacles) {
+			Debug.LogError("no obstacle script found in " + name);
 		}
 
-		if (InitEnd) {
-			isEnd = true;
-			// endSegment = this;
-			// UpdateGoalPost();
-		}
-	}
-
-	private void Start() {
-
-		if (isEnd || isStart) {
-			UpdateGoalPost();
-		}
 	}
 
 	private void OnMouseOver() {
@@ -154,16 +75,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		}
 	}
 
-	public static bool ResetToStart() {
-		if (!startSegment)
-			return false;
-
-		currentSegment = startSegment;
-		ResetToCurrentSegment();
-
-		return true;
-	}
-
 	// If a transition to this segment is allowed
 	public bool CheckValidProgression() {
 
@@ -171,18 +82,14 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 			return true;
 		}
 
-		int currentSegmentSkip = allowedSegmentSkip;
-
-		if (OverrideSegmentSkip)
-			currentSegmentSkip = CustomSegmentSkip;
-
-		bool validProgression = !currentSegment;
+		// NOTE: always returns true if current segment is null
+		bool validProgression = !CurrentSegment;
 		if (OverridePreviousSegment)
-			validProgression = validProgression || PreviousSegments.Contains(currentSegment.SegmentOrder);
+			validProgression = validProgression || PreviousSegments.Contains(CurrentSegment.SegmentOrder);
 		else
 			validProgression = validProgression
-				|| (SegmentOrder <= currentSegment.SegmentOrder + 1 + currentSegmentSkip
-					&& SegmentOrder > currentSegment.SegmentOrder);
+				|| (SegmentOrder <= CurrentSegment.SegmentOrder + 1
+					&& SegmentOrder > CurrentSegment.SegmentOrder);
 
 		return validProgression;
 	}
@@ -190,17 +97,20 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	public bool AttemptTransition() {
 		bool validProgression = CheckValidProgression();
 		if (validProgression) {
-			if (currentSegment)
-				foreach (var observer in currentSegment.LeaveSegmentObservers)
-					observer.Notify(currentSegment);
+			// if (CurrentSegment)
+
+			LevelPieceSuperClass prevSegment = CurrentSegment;
+			CurrentSegment = this;
+
+			foreach (var observer in LeaveSegmentObservers)
+				observer.Notify(prevSegment);
 
 			if (SetSpeedProfile) {
 				// bool changedProfileSuccessfully = 
 				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex, false);// ?? false;
 			}
 
-			currentSegment = this;
-			print("current segment: " + currentSegment.SegmentOrder);
+			// print("current segment: " + CurrentSegment.SegmentOrder);
 		} else {
 			UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
 			ResetToCurrentSegment();
@@ -210,28 +120,28 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 	}
 
 	private void OnTriggerEnter(Collider other) {
-		if (!other.CompareTag("Player") || currentSegment == this)
+		if (!other.CompareTag("Player") || CurrentSegment == this)
 			return;
 
 		AttemptTransition();
 	}
 
 	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
-		if (!currentSegment)
+		if (!CurrentSegment)
 			return true;
 
-		return currentSegment == segmentToCheck;
+		return CurrentSegment == segmentToCheck;
 	}
 
 	public static bool ResetToCurrentSegment() {
-		if (!currentSegment)
+		if (!CurrentSegment)
 			return false;
 
-		if (currentSegment.RespawnSpot) {
-			if (currentSegment.SegmentOnReset)
-				currentSegment = currentSegment.SegmentOnReset;
+		if (CurrentSegment.RespawnSpot) {
+			if (CurrentSegment.SegmentOnReset)
+				CurrentSegment = CurrentSegment.SegmentOnReset;
 
-			SteeringScript.MainInstance?.Reset(currentSegment.RespawnSpot.position, currentSegment.RespawnSpot.rotation);
+			SteeringScript.MainInstance?.Reset(CurrentSegment.RespawnSpot.position, CurrentSegment.RespawnSpot.rotation);
 		} else {
 			return false;
 		}
@@ -239,40 +149,16 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return true;
 	}
 
-	public void UpdateGoalPost() {
-
-		if (!startSegment)
-			startSegment = this;
-		if (!endSegment)
-			endSegment = this;
-
-		if (startSegment == this && endSegment == this) {
-			GoalPostScript.SetInstanceSegment(this);
-		} else {
-			// TODO: spawn portals at ends instead
+	public static void ClearCurrentSegment(bool notifyLeaving = false) {
+		if (notifyLeaving && CurrentSegment) {
+			foreach (var observer in LeaveSegmentObservers)
+				observer.Notify(CurrentSegment);
 		}
-	}
 
-	public static void ClearCurrentSegment() {
-		currentSegment = null;
+		CurrentSegment = null;
 	}
 
 	public int CompareTo(LevelPieceSuperClass other) {
-		// Compare using distance from origin
-		/*
-		float originDistance = transform.position.sqrMagnitude;
-		float otherOriginDistance = other.transform.position.sqrMagnitude;
-		float diff = originDistance - otherOriginDistance;
-		if (diff > 0) {
-			return 1;
-		} else if (diff < 0) {
-			return -1;
-		} else {
-			return 0;
-		}
-		// */
-
-		// Compare using segment order
 		return SegmentOrder - other.SegmentOrder;
 	}
 
@@ -358,7 +244,8 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		}
 
 		// TODO: update remix editor obstacle list
-		SegmentEditorSuperClass.UpdateAllUI();
+		// SegmentEditorSuperClass.UpdateAllUI();
+		ObstacleListScript.UpdateUIStatic();
 
 		return true;
 	}

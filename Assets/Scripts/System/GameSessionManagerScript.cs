@@ -15,7 +15,7 @@ public class GameSessionManagerScript : MonoBehaviour {
 
 	public void NotifyLap(SteeringScript car) {
 		
-		if (!gameOver && car.LapsCompleted >= 3) {
+		if (!gameOver && car.LapsCompleted >= MaxLaps) {
 			// TODO: still count laps and decide finish order for other cars than winner in 3+ multiplayer
 			EndGame();
 		}
