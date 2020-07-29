@@ -8,7 +8,11 @@ public class RespawnTriggerScript : MonoBehaviour {
 	public Color notificationColor = Color.blue;
 
 	private void Respawn() {
-		LevelPieceSuperClass.ResetToCurrentSegment();
+		if (!LevelPieceSuperClass.ResetToCurrentSegment()) {
+			SteeringScript.MainInstance?.CallResetObservers();
+			RemixEditorGoalPost.MoveCarToStart();
+			StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
+		}
 		UINotificationSystem.Notify("You fell off the track!", notificationColor, 1.5f);
 
 	}

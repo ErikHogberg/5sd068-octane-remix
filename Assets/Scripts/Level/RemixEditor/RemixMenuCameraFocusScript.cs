@@ -49,10 +49,11 @@ public class RemixMenuCameraFocusScript : MonoBehaviour {
 	}
 
 	public static void SetTarget(Transform target) {
-		if (lastTarget != null && target == lastTarget) {
-			SetTarget();
-			return;
-		}
+		
+		// if (lastTarget != null && target == lastTarget) {
+		// 	SetTarget();
+		// 	return;
+		// }
 
 		lastTarget = target;
 

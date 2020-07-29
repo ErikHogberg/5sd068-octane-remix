@@ -308,8 +308,11 @@ public class SteeringScript : MonoBehaviour {
 	public float InAirStabilizationAmount = 1f;
 	[Space]
 
-	[Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
-	public bool StartBeforeGoalPost = false;
+	public bool AllowYawOnGround = false;
+
+	// [Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
+	// public bool StartBeforeGoalPost = false;
+	private bool startBeforeGoalPost = true;
 
 	#region object refs and input bindings
 
@@ -366,8 +369,9 @@ public class SteeringScript : MonoBehaviour {
 	public int LapsCompleted {
 		get { return lapsCompleted; }
 		set {
-			if (StartBeforeGoalPost) {
-				StartBeforeGoalPost = false;
+			if (startBeforeGoalPost) {
+				startBeforeGoalPost = false;
+				print("lap invalidated");
 				return;
 			}
 
@@ -399,6 +403,9 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: reset fn with option to disable penalty
 		// LevelPieceSuperClass.ResetToStart();
 
+		// FIXME: move car before freeze
+		// RemixEditorGoalPost.MoveCarToStart();
+
 	}
 
 	void Awake() {
@@ -411,6 +418,10 @@ public class SteeringScript : MonoBehaviour {
 		effects = GetComponent<CarParticleHandlerScript>();
 		LevelPieceSuperClass.ClearCurrentSegment();
 
+		// RemixEditorGoalPost.MoveCarToStart();
+		// StartBeforeGoalPost = false;
+		// if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
+		// StartBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 	}
 
 	void OnEnable() {
@@ -501,8 +512,10 @@ public class SteeringScript : MonoBehaviour {
 
 		Brake(dt);
 
-		Yaw(dt);
-		Pitch(dt);
+		if (AllowYawOnGround || !touchingGround) {
+			Yaw(dt);
+			Pitch(dt);
+		}
 
 		if (InAirStabilization && !touchingGround) {
 			// rb.transform.up = Vector3.RotateTowards(rb.transform.up, Vector3.up, InAirStabilizationAmount, 0);
@@ -1181,7 +1194,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
-	private void CallResetObservers() {
+	public void CallResetObservers() {
 		foreach (var observer in ResetObservers)
 			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
 			observer.Notify(Camera.main);
@@ -1237,6 +1250,23 @@ public class SteeringScript : MonoBehaviour {
 			Reset();
 	}
 
+	public void Teleport(Vector3 pos, Quaternion rot) {
+		effects?.DisableAllEffects();
+		effects?.ClearAllEffects();
+
+		// Quaternion relativeRotation = Quaternion.Inverse(transform.rotation) * rot;
+
+		// rb.velocity = Vector3.zero;
+		// rb.velocity = relativeRotation * rb.velocity;
+		rb.velocity = rot * Vector3.forward * rb.velocity.magnitude;
+		rb.angularVelocity = Vector3.zero;
+
+		// rb.MovePosition(pos);
+		// rb.MoveRotation(rot);
+		transform.position = pos;
+		transform.rotation = rot;
+	}
+
 	private void Rumble() {
 		if (EnableRumble) {
 
@@ -1253,7 +1283,7 @@ public class SteeringScript : MonoBehaviour {
 			lowHzRumble = Mathf.Clamp(lowHzRumble, 0, 1);
 			highHzRumble = Mathf.Clamp(highHzRumble, 0, 1);
 
-			Gamepad.current.SetMotorSpeeds(lowHzRumble, highHzRumble);
+			Gamepad.current?.SetMotorSpeeds(lowHzRumble, highHzRumble);
 		}
 	}
 
@@ -1305,7 +1335,7 @@ public class SteeringScript : MonoBehaviour {
 		MainInstance?.Unfreeze();
 	}
 
-	public void DontZeroNextOnAir(){
+	public void DontZeroNextOnAir() {
 		ignoreNextOnAirZeroing = true;
 	}
 

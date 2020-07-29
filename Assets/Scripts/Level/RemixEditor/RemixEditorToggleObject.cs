@@ -1,10 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RemixEditorToggleObject : MonoBehaviour {
+public class RemixEditorToggleObject : MonoBehaviour, IComparable<RemixEditorToggleObject> {
 	public static List<RemixEditorToggleObject> Instances = new List<RemixEditorToggleObject>();
+
+	[Tooltip("Order of the object in the remix editor list")]
+	public int RemixEditorOrder;
+	[Space]
 
 	public GameObject ObjectToToggle;
 	[Space]
@@ -14,6 +19,7 @@ public class RemixEditorToggleObject : MonoBehaviour {
 
 	private void Awake() {
 		Instances.Add(this);
+		Instances.Sort();
 	}
 
 	private void OnDestroy() {
@@ -32,6 +38,10 @@ public class RemixEditorToggleObject : MonoBehaviour {
 		if (Input.GetMouseButtonDown(1)) {
 			RemixMapScript.StartRotate();
 		}
-		
+
+	}
+
+	public int CompareTo(RemixEditorToggleObject other) {
+		return RemixEditorOrder - other.RemixEditorOrder;
 	}
 }

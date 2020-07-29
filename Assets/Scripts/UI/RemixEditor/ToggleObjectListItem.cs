@@ -8,6 +8,7 @@ using TMPro;
 public class ToggleObjectListItem : MonoBehaviour {
 	private Toggle itemToggle;
 	private TMP_Text itemLabel;
+
 	// private string segmentSelectedObstacle;
 	private RemixEditorToggleObject toggleObject;
 	private ListItemScrollPing scrollPing;
@@ -22,8 +23,8 @@ public class ToggleObjectListItem : MonoBehaviour {
 	}
 
 	public void SetText(string txt) { itemLabel.text = txt; }
-	public void SetSegment(RemixEditorToggleObject segment) { this.toggleObject = segment; }
-	public void SetToggleGroup(ToggleGroup group) { itemToggle.group = group; }
+	public void SetIsOnNoNotify(bool isOn) { itemToggle.SetIsOnWithoutNotify(isOn); }
+	public void SetToggleObject(RemixEditorToggleObject toggleObject) { this.toggleObject = toggleObject; }
 	public void SetListReference(ToggleObjectListScript list) { listReference = list; }
 
 	public void SetUpDownNav(Toggle upSelect, Toggle downSelect) {
@@ -52,6 +53,8 @@ public class ToggleObjectListItem : MonoBehaviour {
 
 	//Triggered onValueChanged
 	public void TogglePing() {
+		// toggleObject.ToggleState = itemToggle.isOn;
+		toggleObject.ObjectToToggle.SetActive(itemToggle.isOn);
 		listReference.ReceiveTogglePing(this, itemToggle.isOn);
 		TextColorAdjust();
 	}
@@ -64,7 +67,8 @@ public class ToggleObjectListItem : MonoBehaviour {
 	private void TextColorAdjust() {
 		if (itemToggle.isOn == true)
 			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, 1f);
-		else itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
+		else
+			itemLabel.color = new Color(itemLabel.color.r, itemLabel.color.g, itemLabel.color.b, (45f / 255f));
 	}
 
 }

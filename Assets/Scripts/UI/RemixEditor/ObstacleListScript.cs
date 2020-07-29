@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 
 [RequireComponent(typeof(ToggleGroup))]
-public class ObstacleListScript : SegmentEditorSuperClass {
+public class ObstacleListScript : MonoBehaviour {
 
 	private static ObstacleListScript mainInstance;
 
@@ -25,22 +25,47 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		return currentObstacleType;
 	}
 
-	private ObstacleListItem listItemPrefab;
+	public GameObject ParentToHide;
 
-	protected override void ChildAwake() {
+	// private ObstacleListItem listItemPrefab;
+	public ObstacleListItem ListItemTemplate;
+
+	void Awake() {
 		group = GetComponent<ToggleGroup>();
-		listItemPrefab = Resources.Load<ObstacleListItem>("ObstacleListItem");
+		// listItemPrefab = Resources.Load<ObstacleListItem>("ObstacleListItem");
 		mainInstance = this;
 	}
 
-	void OnDisable() { obstacleList.Clear(); }
+	// void OnDisable() { obstacleList.Clear(); }
 
 	void Start() {
+		ListItemTemplate.SetListReference(this);
+		ListItemTemplate.SetToggleGroup(group);
+		obstacleList.Add(ListItemTemplate);
+
 		//So the obstacle list can register itself as a SegmentEditor in Awake() before first segment selection occurs
 		if (SegmentListScript.listItems.Count > 0) {
 			SegmentListScript.InitializeSegmentSelection(SegmentListScript.listItems[0]);
 		}
 		UpdateUI();
+	}
+
+	public static void Show(bool skipUpdate = false) {
+		if (!mainInstance)
+			return;
+
+		GoalPostMenuScript.Hide();
+		mainInstance.ParentToHide.SetActive(true);
+		if (!skipUpdate) {
+			mainInstance.UpdateUI();
+		}
+	}
+
+	public static void Hide() {
+		if (!mainInstance)
+			return;
+
+		mainInstance.ParentToHide.SetActive(false);
 	}
 
 	//Sent from ObstacleListItems, triggered by toggle event 
@@ -67,14 +92,12 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 	}
 
 	//Runs whenever a new segment is selected
-	public override void UpdateUI() {
-
-		// FIXME: resets obstacles loaded by id
+	public void UpdateUI() {
 
 		currentListLayout.Clear();
 
 		//For the currently selected segment, which obstacles are available?
-		foreach (var item in currentSegment.Obstacles.objects) {
+		foreach (var item in LevelPieceSuperClass.CurrentSegment.Obstacles.objects) {
 			currentListLayout.Add(item.Key);
 		}
 
@@ -114,11 +137,16 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 		SegmentListScript.UpdateLeftNav();
 	}
 
+	public static void UpdateUIStatic(){
+		mainInstance?.UpdateUI();
+	}
+
 	private void AddNewListItem() {
-		ObstacleListItem newItemObj = Instantiate(Resources.Load<ObstacleListItem>("ObstacleListItem"));
+		// ObstacleListItem newItemObj = Instantiate(Resources.Load<ObstacleListItem>("ObstacleListItem"));
+		ObstacleListItem newItemObj = Instantiate(ListItemTemplate);
 		obstacleList.Add(newItemObj);
 		newItemObj.transform.SetParent(gameObject.transform);
-		newItemObj.gameObject.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+		newItemObj.gameObject.GetComponent<RectTransform>().localScale = Vector3.one;
 
 		newItemObj.SetListReference(this);
 		newItemObj.SetToggleGroup(group);
@@ -131,12 +159,12 @@ public class ObstacleListScript : SegmentEditorSuperClass {
 
 	public void ApplyObstacleSelection() {
 		//UnityEngine.Debug.Log(SegmentListScript.ReadCurrentItem().GetText().text + " ApplyObstacle: " + currentObstacleType);
-		currentSegment.Obstacles.UnhideObject(currentObstacleType);
+		LevelPieceSuperClass.CurrentSegment.Obstacles.UnhideObject(currentObstacleType);
 	}
 
 	//Showing a specific obstacle without actually recording it, used to avoid problems with
 	//non-user initiated toggle-offs
-	public void ApplyObstacleSelection(string p_name) {
-		currentSegment.Obstacles.UnhideObject(p_name);
+	public void ApplyObstacleSelection(string name) {
+		LevelPieceSuperClass.CurrentSegment.Obstacles.UnhideObject(name);
 	}
 }

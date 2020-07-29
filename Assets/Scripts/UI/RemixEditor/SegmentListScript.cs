@@ -9,7 +9,7 @@ using System.Dynamic;
 [RequireComponent(typeof(ScrollRect))]
 [RequireComponent(typeof(ToggleGroup))]
 [RequireComponent(typeof(ScrollToSelected))]
-public class SegmentListScript : SegmentEditorSuperClass {
+public class SegmentListScript : MonoBehaviour {
 	public static List<SegmentListItem> listItems = new List<SegmentListItem>();
 	private static SegmentListItem currentItem;
 	public static SegmentListItem ReadCurrentItem() { return currentItem; }
@@ -22,7 +22,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 	private ScrollToSelected scrollMaster = null;
 	private ToggleGroup group = null;
 
-	protected override void ChildAwake() {
+	protected void Awake() {
 		// listContent = GetComponent<ScrollRect>().content.gameObject;
 		scrollMaster = GetComponent<ScrollToSelected>();
 		group = GetComponent<ToggleGroup>();
@@ -44,7 +44,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 	//Sent from SegmentListItems, triggered by toggle event
 	public void ReceiveTogglePing(SegmentListItem item, bool isOn) {
 		if (isOn) {
-			if (currentSegment != item.GetSegment()) {
+			if (LevelPieceSuperClass.CurrentSegment != item.GetSegment()) {
 				currentItem = item;
 				RemixMapScript.Select(item.GetSegment());
 				UpdateStartButtonNav(currentItem.GetToggle());
@@ -135,17 +135,17 @@ public class SegmentListScript : SegmentEditorSuperClass {
 		currentItem = listItems[0];
 	}
 
-	public override void UpdateUI() {
+	public void UpdateUI() {
 
-		if (currentSegment == null) {
+		if (LevelPieceSuperClass.CurrentSegment == null) {
 			return;
 		}
 
 		//Way of picking a segment #2
 		//Should only run when a segment is selected through clicking on them in the world
-		if (currentSegment != currentItem.GetSegment()) {
+		if (LevelPieceSuperClass.CurrentSegment != currentItem.GetSegment()) {
 			foreach (SegmentListItem item in listItems) {
-				if (item.GetSegment() == currentSegment) {
+				if (item.GetSegment() == LevelPieceSuperClass.CurrentSegment) {
 					string currentObstacleType = ObstacleListScript.ReadCurrentObstacleType();
 					// Records which obstacle is currently selected for this segment, before switching to the new one
 					// currentItem.UpdateObstacle(currentObstacleType);
@@ -156,7 +156,7 @@ public class SegmentListScript : SegmentEditorSuperClass {
 
 					//Applying the new segment's recorded obstacle to the obstacle list
 					ObstacleListScript.SegmentSwapObstacleRestoration(currentItem.GetObstacle());
-					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject); // FIXME: segment not getting selected correctly
+					EventSystem.current.SetSelectedGameObject(currentItem.GetToggle().gameObject);
 					break;
 				}
 			}
