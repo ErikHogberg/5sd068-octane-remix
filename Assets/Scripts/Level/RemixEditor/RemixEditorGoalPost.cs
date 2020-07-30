@@ -69,8 +69,14 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 	}
 
 	public static bool CheckTransition(LevelPieceSuperClass targetSegment) {
-		if (!targetSegment)
-			return true;
+		if (!targetSegment) {
+			print("target segment null in check transition");
+			return false;
+		}
+
+		if (!FinishSpot) {
+			print("finish spot null in check transition");
+		}
 
 		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
 	}

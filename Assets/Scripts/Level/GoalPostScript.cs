@@ -21,6 +21,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		// if (ParentSegment)
 		// 	ParentSegment.LeaveSegmentObservers.Add(this);
 		LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
+		print("leave observer registered");
 	}
 
 	private void OnDestroy() {
@@ -29,6 +30,8 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		}
 		LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
+
+	private bool readyOnAnyNextNotify = false;
 
 	private void OnTriggerEnter(Collider other) {
 		if (!ready) {
@@ -44,6 +47,9 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			// LevelPieceSuperClass.ResetToCurrentSegment();
 			ready = true;
 			return;
+		} else {
+			print("any next notify set");
+			readyOnAnyNextNotify = true;
 		}
 
 		// if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
@@ -59,12 +65,19 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		// }
 
 		SteeringScript.MainInstance.LapsCompleted++;
-		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + "<--");
+		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
 
 	}
 
 	// called when car leaves parent segment
 	public void Notify(LevelPieceSuperClass segment) {
+
+		if (readyOnAnyNextNotify) {
+			print("any next notify used");
+			ready = true;
+			readyOnAnyNextNotify = false;
+			return;
+		}
 
 		if (!RemixEditorGoalPost.CheckTransition(segment)) {
 			return;
@@ -74,6 +87,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			// Registers lap if the car somehow missed the goal post
 			int oldLapsCompleted = SteeringScript.MainInstance.LapsCompleted;
 			SteeringScript.MainInstance.LapsCompleted++;
+			print("[Notify] Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
 
 			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted
 			&& RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
@@ -81,12 +95,14 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 				RemixEditorGoalPost.MoveCarToStart();
 				// RemixEditorGoalPost.MoveCarToStart();
 				ready = false;
-			} 
+				readyOnAnyNextNotify = true;
+				print("[Notify] any next notify set");
+			}
 		} else {
 			ready = true;
+			print("goal post ready");
 		}
 
-		// print("goal post ready");
 	}
 
 	public void SetGoalPost(RemixEditorGoalPost goalPost) {
