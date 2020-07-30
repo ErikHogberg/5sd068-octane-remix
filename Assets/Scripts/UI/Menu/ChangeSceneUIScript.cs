@@ -63,6 +63,7 @@ public class ChangeSceneUIScript : MonoBehaviour {
 	}
 
 	public void ApplySwapCurrentScene() {
+
 		// var unloadProgress =
 		// var unloadSceneProgress = 
 		SceneManager.UnloadSceneAsync(CurrentScene);
@@ -72,7 +73,10 @@ public class ChangeSceneUIScript : MonoBehaviour {
 		// var loadProgress = 
 		// var loadSceneProgress = 
 		SceneManager.LoadSceneAsync(sceneToSwapTo, LoadSceneMode.Additive);
+		// SceneManager.LoadScene(sceneToSwapTo, LoadSceneMode.Additive);
 		// loadSceneProgress.allowSceneActivation = false;
+
+		// SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneToSwapTo));
 
 		// StartCoroutine(LoadScene(SceneToSwapTo, true, LoadSceneMode.Additive));
 

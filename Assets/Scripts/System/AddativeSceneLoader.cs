@@ -19,7 +19,21 @@ public class AddativeSceneLoader : MonoBehaviour {
 	// public bool IsSingletonInstance = true;
 	// public bool IsPlaceholder = false;
 
+	public bool UseTrackSelect = false;
+
 	private void Awake() {
+
+		if (UseTrackSelect) {
+			switch (TrackSelectUIScript.SelectedTrack) {
+				case "Long":
+					SceneToAdd = "TrackScene";
+					break;
+				case "Short":
+				default:
+					SceneToAdd = "SecondTrackScene";
+					break;
+			}
+		}
 
 		switch (Mode) {
 			case LoaderMode.Unique:
