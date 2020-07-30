@@ -8,9 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 30
     smallestHole: 1
     backfaceThreshold: 100
-  m_SceneGUID: 7df02977ce994e941b6475a5bd74f941
-  m_OcclusionCullingData: {fileID: 36300000, guid: c0513fe9afb91fc40b0dcf37c5374718,
-    type: 2}
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -18812,7 +18811,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1472195899}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 87.3, y: 12.51, z: -4.9}
+  m_LocalPosition: {x: 151.6, y: 12.51, z: -4.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 422557927}
@@ -23171,11 +23170,16 @@ PrefabInstance:
     - target: {fileID: 6343303310425016295, guid: 895a886dfd1336b479b77c8aea66f803,
         type: 3}
       propertyPath: CarToLoadIfNone
-      value: Michishige
+      value: Akash
       objectReference: {fileID: 0}
     - target: {fileID: 6343303310425016295, guid: 895a886dfd1336b479b77c8aea66f803,
         type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6343303310425016295, guid: 895a886dfd1336b479b77c8aea66f803,
+        type: 3}
+      propertyPath: LoadIfNone
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -23682,6 +23686,11 @@ PrefabInstance:
       propertyPath: rockIntegEffect
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 379379914319698648, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: laserIntegEffect
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 641268423818939244, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: m_ConnectedAnchor.y
@@ -23766,6 +23775,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Parameters.colorGradient.key0.g
       value: 0.41553438
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055697375966780977, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055697375966780977, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055697375966780977, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4961822177650881788, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
@@ -24155,12 +24179,12 @@ PrefabInstance:
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: SpeedProfiles.Array.data[0].RearWheelForwardStiffness
-      value: 2
+      value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: SpeedProfiles.Array.data[0].RearWheelSidewaysStiffness
-      value: 1.7
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 9081913895796772990, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}

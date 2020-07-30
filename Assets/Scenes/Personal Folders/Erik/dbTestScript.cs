@@ -35,7 +35,7 @@ public class dbTestScript : MonoBehaviour {
 	// public bool Insert = false;
 
 	void Start() {
-		DbList = new HighscoreList();
+		DbList = new HighscoreList(Application.dataPath + "/HighscoreDatabase");
 		// list = new HighscoreManager.HighscoreList();
 		// list.Start(Insert);
 		// list = null;

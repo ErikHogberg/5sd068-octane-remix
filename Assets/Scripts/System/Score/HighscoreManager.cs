@@ -42,16 +42,16 @@ public static class HighscoreManager {
 
 	public class HighscoreList {
 
-		public static string dbPath = Application.dataPath + "/HighscoreDatabase";//"/DBR1";
+		// public static string dbPath = Application.dataPath + "/HighscoreDatabase";//"/DBR1";
 
 		public DBreezeEngine engine = null;
 
 		// IDEA: only save top 10 in each category
 
-		public HighscoreList(bool initDb = true) {
+		public HighscoreList(string dbPath, bool initDb = true) {
 
 			if (initDb) {
-				InitDB();
+				InitDB(dbPath);
 			}
 		}
 
@@ -60,7 +60,7 @@ public static class HighscoreManager {
 			Debug.Log("Disposed db");
 		}
 
-		public void InitDB() {
+		public void InitDB(string dbPath) {
 			if (engine == null) {
 				engine = new DBreezeEngine(dbPath);
 				Debug.Log("loaded db using " + dbPath);
@@ -550,13 +550,32 @@ public static class HighscoreManager {
 
 
 
-	private static HighscoreList list;
+	private static HighscoreList shortTrackList;
+	private static HighscoreList longTrackList;
 
 	public static HighscoreList List {
 		get {
-			if (list == null) 
-				list = new HighscoreList();
-			
+			HighscoreList list;
+
+			switch (TrackSelectUIScript.SelectedTrack) {
+				case "Long": {
+						if (longTrackList == null)
+							longTrackList = new HighscoreList(Application.dataPath + "/LongTrackHighscoreDatabase");
+						list = longTrackList;
+					}
+					break;
+				case "Short":
+				default: {
+						if (shortTrackList == null)
+							shortTrackList = new HighscoreList(Application.dataPath + "/ShortTrackHighscoreDatabase");
+						list = shortTrackList;
+					}
+					break;
+			}
+
+			// if (list == null) 
+			// list = new HighscoreList();
+
 			return list;
 		}
 	}
