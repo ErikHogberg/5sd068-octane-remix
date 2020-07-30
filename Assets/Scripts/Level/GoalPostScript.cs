@@ -22,6 +22,8 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		// 	ParentSegment.LeaveSegmentObservers.Add(this);
 		LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
 		print("leave observer registered");
+
+		RemixEditorGoalPost.UpdateGoalPost();
 	}
 
 	private void OnDestroy() {

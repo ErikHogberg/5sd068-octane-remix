@@ -30,7 +30,7 @@ public class AddativeSceneLoader : MonoBehaviour {
 					break;
 				case "Short":
 				default:
-					SceneToAdd = "SecondTrackScene";
+					SceneToAdd = "AdamTrackScene";
 					break;
 			}
 		}

@@ -110,7 +110,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 			StartSpot = FinishSpot;
 
 		if (!FinishSpot) {
-			Debug.LogError("no finish spot assigned");
+			// Debug.LogError("no finish spot assigned");
 			return;
 		}
 
