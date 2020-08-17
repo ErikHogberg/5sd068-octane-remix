@@ -15,12 +15,6 @@ using Random = UnityEngine.Random;
 [DisallowMultipleComponent]
 public class SteeringScript : MonoBehaviour {
 
-	public enum TractionMode {
-		FrontTraction,
-		RearTraction,
-		FourWheelTraction,
-	}
-
 	public enum BoostSkill {
 		None,
 		Invulnerability,
@@ -145,11 +139,6 @@ public class SteeringScript : MonoBehaviour {
 	public SpeedProfile[] SpeedProfiles;
 	[Space]
 	public Color ProfileChangeColor = Color.green;
-
-	[Header("Steering")]
-
-	[Tooltip("Sets which wheels are connected to the engine, rear axis, front axis, or both")]
-	public TractionMode Mode = TractionMode.RearTraction;
 
 	[Header("In-air controls")]
 	public bool LeftStickRotationWhenInAir = false;
@@ -864,32 +853,10 @@ public class SteeringScript : MonoBehaviour {
 
 		float gasAmount = CurrentProfile.GasSpeed * gasBuffer;
 
-		switch (Mode) {
-			case TractionMode.FrontTraction:
-				// gasAmount /= FrontWheelColliders.Count;
-
-				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
-					frontWheelCollider.motorTorque = gasAmount;
-
-				break;
-			case TractionMode.RearTraction:
-				// gasAmount /= RearWheelColliders.Count;
-
-				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
-					rearWheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
-
-				break;
-			case TractionMode.FourWheelTraction:
-				// gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
-
-				foreach (WheelCollider wheelCollider in allWheelColliders)
-					wheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
-
-				break;
-		}
+		foreach (WheelCollider wheelCollider in allWheelColliders)
+			wheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
 
 		lastAppliedGasValue = gasBuffer;
-
 	}
 
 	private void SetGas(CallbackContext c) {
