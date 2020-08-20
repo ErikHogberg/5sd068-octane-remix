@@ -23,6 +23,28 @@ public class SteeringScript : MonoBehaviour {
 
 	public static bool EnableProfileChange = true;
 
+	// TODO: efficient way to store and share replays
+	// TODO: option to dynamically speed up or slow down replays depending on distance to active player car
+	private class GhostData {
+		public Vector3 Position;
+		public Quaternion Rotation;
+		public float TimeStamp;
+
+		// TODO: toggle effects
+
+		public GhostData(Vector3 pos, Quaternion rot, float time) {
+			Position = pos;
+			Rotation = rot;
+			TimeStamp = time;
+		}
+
+		public GhostData(Transform transform, float time) {
+			Position = transform.position;
+			Rotation = transform.rotation;
+			TimeStamp = time;
+		}
+	}
+
 	[Serializable]
 	public class SpeedProfile {
 
@@ -1285,7 +1307,6 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public static void FreezeCurrentCar() {
-		// FIXME: no main instance in build
 		if (MainInstance) {
 			MainInstance.Freeze();
 		} else {
@@ -1304,6 +1325,47 @@ public class SteeringScript : MonoBehaviour {
 
 	public void DontZeroNextOnAir() {
 		ignoreNextOnAirZeroing = true;
+	}
+
+	// Recording
+
+	// TODO: load ghost data
+	private Queue<GhostData> ghostRecording = new Queue<GhostData>();
+	private GhostData currentGhostData = null;
+	private bool recording;
+
+	public void ClearRecording() {
+		ghostRecording.Clear();
+	}
+
+	// TODO: static timer, incremented by main instance, used by ghosts
+	float GhostTimer = 0f;
+	public void PlayBackRecording() {
+
+		while (true) {
+			if (currentGhostData == null) {
+				if (ghostRecording.Count < 1)
+					return;
+
+				currentGhostData = ghostRecording.Dequeue();
+			}
+
+			if (currentGhostData.TimeStamp > GhostTimer) {
+				// TODO: apply transform
+				continue;
+			}
+
+			break;
+
+		}
+
+	}
+
+	public void RecordTransform() {
+		if (!recording)
+			return;
+
+		ghostRecording.Enqueue(new GhostData(transform, GhostTimer));
 	}
 
 }
