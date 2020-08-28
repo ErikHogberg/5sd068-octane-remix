@@ -91,10 +91,6 @@ public class SteeringScript : MonoBehaviour {
 		public float BrakeForce = 100f;
 		public AnimationCurve BrakePedalCurve;
 
-		[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
-		[Range(0, 1)]
-		public float BrakeDistribution = 0.75f;
-
 		[Space]
 
 		[Tooltip("If the velocity of the rigidbody itself should be braked/dampened when braking")]
@@ -903,17 +899,10 @@ public class SteeringScript : MonoBehaviour {
 		if (rpm > float.Epsilon) {
 			// brake if wheels have not stopped
 			float brakeAmount = CurrentProfile.BrakeForce * brakeBuffer;
-			float frontBrakeAmount = brakeAmount * CurrentProfile.BrakeDistribution;
-			float rearBrakeAmount = brakeAmount * (1f - CurrentProfile.BrakeDistribution);
 
-			foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
-				frontWheelCollider.brakeTorque = frontBrakeAmount;
-				// frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
-			}
-
-			foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
-				rearWheelCollider.brakeTorque = rearBrakeAmount;
-				// rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+			foreach (WheelCollider wheelCollider in allWheelColliders) {
+				wheelCollider.brakeTorque = brakeAmount;
+				// wheelCollider.motorTorque = Mathf.MoveTowards(wheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 			}
 
 			if (CurrentProfile.DampenRigidBody && brakeBuffer > 0) {
