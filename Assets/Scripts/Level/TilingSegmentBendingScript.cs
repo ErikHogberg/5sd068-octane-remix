@@ -16,7 +16,10 @@ public class TilingSegmentBendingScript : MonoBehaviour {
 	public float MinLength;
 	public float MaxLength;
 
-	private List<GameObject> segments;
+	[Tooltip("How many points/what resolution should be used for measuring curve length")]
+	public int MeasureResolution = 8;
+
+	public List<(GameObject, StraightLevelPieceScript)> segments = new List<(GameObject, StraightLevelPieceScript)>();
 
 	private Vector3 CornerPos;
 	private Vector3 EndMagnitudePos;
@@ -34,11 +37,15 @@ public class TilingSegmentBendingScript : MonoBehaviour {
 		}
 
 		if (CornerPos == null
+			|| TargetMagnitude == null
+			|| StartMagnitude == null
 			|| Target.localPosition != CornerPos
 			|| TargetMagnitude.localPosition != EndMagnitudePos
 			|| StartMagnitude.localPosition != StartMagnitudePos
 		) {
 			CornerPos = Target.localPosition;
+			EndMagnitudePos = TargetMagnitude.localPosition;
+			StartMagnitudePos = StartMagnitude.localPosition;
 			UpdateCurve();
 		}
 
@@ -53,7 +60,7 @@ public class TilingSegmentBendingScript : MonoBehaviour {
 			StartMagnitude.position,
 			TargetMagnitude.position,
 			Target.position,
-			10
+			MeasureResolution
 		);
 
 		float distance = 0f;
@@ -75,21 +82,114 @@ public class TilingSegmentBendingScript : MonoBehaviour {
 		}
 
 		// TODO: place, bend and snap segments
-
+		List<Vector3> segmentPoints = Bezier.CubicBezierRender(
+			transform.position,
+			StartMagnitude.position,
+			TargetMagnitude.position,
+			Target.position,
+			segments.Count * 10
+		);
 
 	}
 
 	private void RefreshSegments(int segmentCount) {
+
+		Transform segmentContainer = transform.Find("New segments");
+
+		if (!segmentContainer) {
+			segmentContainer = new GameObject("New segments").transform;
+			segmentContainer.parent = transform;
+			segmentContainer.localPosition = Vector3.zero;
+		}
+
 		if (segments.Count < segmentCount) {
 			for (int i = 0; i < segmentCount - segments.Count; i++) {
-				segments.Add(Instantiate(Segment));
+				GameObject newSegment = Instantiate(Segment, segmentContainer);
+				segments.Add((newSegment, newSegment.transform.Find("RoadSegment27doublebone").GetComponentInChildren<StraightLevelPieceScript>()));
 			}
 		} else if (segments.Count > segmentCount) {
-			for (int i = segments.Count; i > segmentCount; i--) {
-				DestroyImmediate(segments[i]);
+			for (int i = segments.Count - 1; i > segmentCount; i--) {
+				// TODO: hide instead
+				// DestroyImmediate(segments[i].Item1);
+				segments[i].Item1.SetActive(false);
 			}
-			segments.RemoveRange(segmentCount, segments.Count - segmentCount);
+			// segments.RemoveRange(segmentCount, segments.Count - segmentCount);
 		}
 
 	}
+
+	/*
+	private void BendBones() {
+
+		if (!startObject) {
+			Debug.LogWarning("Start object not assigned");
+			return;
+		}
+
+		if (!endObject) {
+			Debug.LogWarning("End object not assigned");
+			return;
+		}
+
+		// BoneCollectionScript bones = Selection.activeTransform.GetComponent<BoneCollectionScript>();
+		BoneCollectionScript bones = Selection.activeTransform.GetComponent<BoneCollectionScript>();
+
+		if (!bones) {
+			Debug.LogWarning("No bone collection script in selected object");
+			return;
+		}
+
+
+		float endpointsDistance = Vector3.Distance(
+			startObject.position,
+			endObject.position
+		);
+
+		Vector3 centerMidpoint = Vector3.Lerp(startObject.position, endObject.position, .5f);
+
+		Undo.RecordObjects(bones.Bones.Select(b => b.BoneTransform).ToArray(), "move bones");
+
+		Undo.RecordObject(bones.transform, "move segment root");
+		bones.transform.position = centerMidpoint;
+
+		int boneCount = bones.Bones.Length;
+
+		List<Vector3> points;
+		{
+			Vector3 start = startObject.position;
+			Vector3 startDir = start - startObject.forward * startBezierMagnitude;
+			Vector3 end = endObject.position;
+			Vector3 endDir = end - endObject.forward * endBezierMagnitude;
+			points = Bezier.CubicBezierRender(start, startDir, endDir, end, boneCount, 1,3);
+		}
+
+		if (points.Count != boneCount) {
+			Debug.LogError("bone and bezier point count dont match");
+			return;
+		}
+
+		for (int i = 0; i < points.Count; i++) {
+			bones.Bones[i].BoneTransform.position = points[i];
+		}
+
+		for (int i = 0; i < boneCount; i++) {
+
+			Transform nextBone;
+			if (i == boneCount - 1)
+				nextBone = endObject.transform;
+			else
+				nextBone = bones.Bones[i + 1].BoneTransform;
+
+			var bone = bones.Bones[i];
+
+			bone.BoneTransform.LookAt(nextBone, Vector3.Lerp(startObject.up, endObject.up, (float)i / boneCount));
+
+			bone.BoneTransform.rotation *= Quaternion.FromToRotation(Vector3.forward, bone.Forward);
+			bone.BoneTransform.rotation *= Quaternion.FromToRotation(Vector3.up, bone.Up);
+
+		}
+
+	}
+	*/
+
 }
