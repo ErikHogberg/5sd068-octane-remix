@@ -154,7 +154,7 @@ public class SteeringScript : MonoBehaviour {
 
 	public int CurrentProfileIndex = 0;
 	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
-	public SpeedProfile[] SpeedProfiles;
+	public List<SpeedProfile> SpeedProfiles;
 	[Space]
 	public Color ProfileChangeColor = Color.green;
 
@@ -297,7 +297,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How long you need to stay in air to gain air time score")]
 	public float AirTimeTimeThreshold = .1f;
 	[Space]
-	public int DestructionScore = 1000;
+	public long DestructionScore = 1000;
 
 	[Header("Misc.")]
 	public bool EnableCheatMitigation = true;
@@ -1136,7 +1136,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public bool SetProfile(int index, bool sendNotification = true) {
-		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
+		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Count || index == CurrentProfileIndex) {
 			return false;
 		}
 
