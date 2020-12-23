@@ -15,12 +15,6 @@ using Random = UnityEngine.Random;
 [DisallowMultipleComponent]
 public class SteeringScript : MonoBehaviour {
 
-	public enum TractionMode {
-		FrontTraction,
-		RearTraction,
-		FourWheelTraction,
-	}
-
 	public enum BoostSkill {
 		None,
 		Invulnerability,
@@ -28,6 +22,28 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public static bool EnableProfileChange = true;
+
+	// TODO: efficient way to store and share replays
+	// TODO: option to dynamically speed up or slow down replays depending on distance to active player car
+	private class GhostData {
+		public Vector3 Position;
+		public Quaternion Rotation;
+		public float TimeStamp;
+
+		// TODO: toggle effects
+
+		public GhostData(Vector3 pos, Quaternion rot, float time) {
+			Position = pos;
+			Rotation = rot;
+			TimeStamp = time;
+		}
+
+		public GhostData(Transform transform, float time) {
+			Position = transform.position;
+			Rotation = transform.rotation;
+			TimeStamp = time;
+		}
+	}
 
 	[Serializable]
 	public class SpeedProfile {
@@ -74,10 +90,6 @@ public class SteeringScript : MonoBehaviour {
 		[Tooltip("How much brake torque is applied to each wheel collider")]
 		public float BrakeForce = 100f;
 		public AnimationCurve BrakePedalCurve;
-
-		[Tooltip("How much of the brake force is applied to front wheels, the rest is applied to the rear wheels")]
-		[Range(0, 1)]
-		public float BrakeDistribution = 0.75f;
 
 		[Space]
 
@@ -142,14 +154,9 @@ public class SteeringScript : MonoBehaviour {
 
 	public int CurrentProfileIndex = 0;
 	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
-	public SpeedProfile[] SpeedProfiles;
+	public List<SpeedProfile> SpeedProfiles;
 	[Space]
 	public Color ProfileChangeColor = Color.green;
-
-	[Header("Steering")]
-
-	[Tooltip("Sets which wheels are connected to the engine, rear axis, front axis, or both")]
-	public TractionMode Mode = TractionMode.RearTraction;
 
 	[Header("In-air controls")]
 	public bool LeftStickRotationWhenInAir = false;
@@ -290,7 +297,7 @@ public class SteeringScript : MonoBehaviour {
 	[Tooltip("How long you need to stay in air to gain air time score")]
 	public float AirTimeTimeThreshold = .1f;
 	[Space]
-	public int DestructionScore = 1000;
+	public long DestructionScore = 1000;
 
 	[Header("Misc.")]
 	public bool EnableCheatMitigation = true;
@@ -864,32 +871,10 @@ public class SteeringScript : MonoBehaviour {
 
 		float gasAmount = CurrentProfile.GasSpeed * gasBuffer;
 
-		switch (Mode) {
-			case TractionMode.FrontTraction:
-				// gasAmount /= FrontWheelColliders.Count;
-
-				foreach (WheelCollider frontWheelCollider in FrontWheelColliders)
-					frontWheelCollider.motorTorque = gasAmount;
-
-				break;
-			case TractionMode.RearTraction:
-				// gasAmount /= RearWheelColliders.Count;
-
-				foreach (WheelCollider rearWheelCollider in RearWheelColliders)
-					rearWheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
-
-				break;
-			case TractionMode.FourWheelTraction:
-				// gasAmount /= FrontWheelColliders.Count + RearWheelColliders.Count;
-
-				foreach (WheelCollider wheelCollider in allWheelColliders)
-					wheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
-
-				break;
-		}
+		foreach (WheelCollider wheelCollider in allWheelColliders)
+			wheelCollider.motorTorque = CurrentProfile.GasSpeed * gasBuffer;
 
 		lastAppliedGasValue = gasBuffer;
-
 	}
 
 	private void SetGas(CallbackContext c) {
@@ -914,17 +899,10 @@ public class SteeringScript : MonoBehaviour {
 		if (rpm > float.Epsilon) {
 			// brake if wheels have not stopped
 			float brakeAmount = CurrentProfile.BrakeForce * brakeBuffer;
-			float frontBrakeAmount = brakeAmount * CurrentProfile.BrakeDistribution;
-			float rearBrakeAmount = brakeAmount * (1f - CurrentProfile.BrakeDistribution);
 
-			foreach (WheelCollider frontWheelCollider in FrontWheelColliders) {
-				frontWheelCollider.brakeTorque = frontBrakeAmount;
-				// frontWheelCollider.motorTorque = Mathf.MoveTowards(frontWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
-			}
-
-			foreach (WheelCollider rearWheelCollider in RearWheelColliders) {
-				rearWheelCollider.brakeTorque = rearBrakeAmount;
-				// rearWheelCollider.motorTorque = Mathf.MoveTowards(rearWheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
+			foreach (WheelCollider wheelCollider in allWheelColliders) {
+				wheelCollider.brakeTorque = brakeAmount;
+				// wheelCollider.motorTorque = Mathf.MoveTowards(wheelCollider.motorTorque, 0, brakeAmount * MotorBrakeAmount * dt);
 			}
 
 			if (CurrentProfile.DampenRigidBody && brakeBuffer > 0) {
@@ -1158,7 +1136,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public bool SetProfile(int index, bool sendNotification = true) {
-		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Length || index == CurrentProfileIndex) {
+		if (!EnableProfileChange || index < 0 || index >= SpeedProfiles.Count || index == CurrentProfileIndex) {
 			return false;
 		}
 
@@ -1318,7 +1296,6 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public static void FreezeCurrentCar() {
-		// FIXME: no main instance in build
 		if (MainInstance) {
 			MainInstance.Freeze();
 		} else {
@@ -1337,6 +1314,47 @@ public class SteeringScript : MonoBehaviour {
 
 	public void DontZeroNextOnAir() {
 		ignoreNextOnAirZeroing = true;
+	}
+
+	// Recording
+
+	// TODO: load ghost data
+	private Queue<GhostData> ghostRecording = new Queue<GhostData>();
+	private GhostData currentGhostData = null;
+	private bool recording;
+
+	public void ClearRecording() {
+		ghostRecording.Clear();
+	}
+
+	// TODO: static timer, incremented by main instance, used by ghosts
+	float GhostTimer = 0f;
+	public void PlayBackRecording() {
+
+		while (true) {
+			if (currentGhostData == null) {
+				if (ghostRecording.Count < 1)
+					return;
+
+				currentGhostData = ghostRecording.Dequeue();
+			}
+
+			if (currentGhostData.TimeStamp > GhostTimer) {
+				// TODO: apply transform
+				continue;
+			}
+
+			break;
+
+		}
+
+	}
+
+	public void RecordTransform() {
+		if (!recording)
+			return;
+
+		ghostRecording.Enqueue(new GhostData(transform, GhostTimer));
 	}
 
 }
