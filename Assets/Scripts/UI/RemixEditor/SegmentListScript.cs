@@ -70,7 +70,7 @@ public class SegmentListScript : MonoBehaviour {
 		Navigation orgNav = startButton.navigation;
 		orgNav.mode = Navigation.Mode.Explicit;
 		orgNav.selectOnLeft = p_item;
-		orgNav.selectOnRight = p_item;
+		// orgNav.selectOnRight = p_item;
 		startButton.navigation = orgNav;
 	}
 
