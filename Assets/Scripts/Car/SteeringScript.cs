@@ -335,7 +335,7 @@ public class SteeringScript : MonoBehaviour {
 	private IEnumerable<WheelCollider> allWheelColliders;
 	private IEnumerable<GameObject> allWheelModels;
 
-	[Header("Key bindings")]
+	// [Header("Key bindings")]
 	public InputActionReference SteeringKeyBinding;
 	public InputActionReference GasKeyBinding;
 	public InputActionReference BrakeKeyBinding;
