@@ -9,7 +9,6 @@ using System.Collections;
 public class CenterlineEditorScript : Editor {
 	SerializedProperty controlPoints;
 
-	private bool autoUpdate = true;
 
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
@@ -22,28 +21,36 @@ public class CenterlineEditorScript : Editor {
 		Handles.color = Color.white;
 
 		// TODO: draw lines along sides of grid
-		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
+		for (int i = 1; i < centerlineScript.LinePoints.Count; i++) {
+
+			Handles.DrawLine(
+				centerlineScript.transform.TransformPoint(centerlineScript.LinePoints[i - 1]),
+				centerlineScript.transform.TransformPoint(centerlineScript.LinePoints[i])
+			);
+
+		}
 		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
 		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
 		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
 
-		/*
-		{
+		for (int i = 0; i < centerlineScript.ControlPoints.Count; i++) {
 
 			EditorGUI.BeginChangeCheck();
-			Transform handleTransform = gridUpdater.transform;
-			Quaternion handleRotation = gridUpdater.transform.rotation;
-			Vector3 pos = handleTransform.TransformPoint(gridUpdater.CornerPos);
+
+			Transform handleTransform = centerlineScript.transform;
+			Quaternion handleRotation = centerlineScript.transform.rotation;
+			Vector3 pos = handleTransform.TransformPoint(centerlineScript.ControlPoints[i]);
 			pos = Handles.DoPositionHandle(pos, handleRotation);
+
 			if (EditorGUI.EndChangeCheck()) {
-				Undo.RecordObject(gridUpdater, "Move grid corner");
-				EditorUtility.SetDirty(gridUpdater);
+				Undo.RecordObject(centerlineScript, "Moved centerline control point");
+				EditorUtility.SetDirty(centerlineScript);
 				// item.Item2.RearLeftBone.position = handleTransform.InverseTransformPoint(p0l);
-				gridUpdater.CornerPos = handleTransform.InverseTransformPoint(pos);
-				if (autoUpdate)
-					gridUpdater.UpdateCells();
+				centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+				centerlineScript.GenerateLinePoints();
 			}
 		}
+		/*
 
 		switch (gridUpdater.RotationMode) {
 			case GridUpdaterScript.CellRotationMode.OrientWithParent:
@@ -99,7 +106,10 @@ public class CenterlineEditorScript : Editor {
 			}
 		}
 
+		centerlineScript.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.Resolution);
+
 		if (EditorGUI.EndChangeCheck()) {
+			centerlineScript.GenerateLinePoints();
 			Undo.RecordObject(centerlineScript, "Changed centerline control points");
 			EditorUtility.SetDirty(centerlineScript);
 		}
@@ -109,11 +119,4 @@ public class CenterlineEditorScript : Editor {
 		serializedObject.ApplyModifiedProperties();
 	}
 
-	// Custom GUILayout progress bar.
-	void ProgressBar(float value, string label) {
-		// Get a rect for the progress bar using the same margins as a textfield:
-		Rect rect = GUILayoutUtility.GetRect(18, 18, "TextField");
-		EditorGUI.ProgressBar(rect, value, label);
-		EditorGUILayout.Space();
-	}
 }

@@ -87,7 +87,7 @@ public class SegmentEditorScript : Editor {
 	void SnapSegments() {
 
 		SegmentScript segmentScript = (SegmentScript)target;
-		StraightLevelPieceScript middleSegment = segmentSctipt.LevelPieceScript;
+		StraightLevelPieceScript middleSegment = segmentScript.LevelPieceScript;
 
 
 		// float leftEndpointsDistance = Vector3.Distance(
