@@ -32,7 +32,6 @@ public class CenterlineScript : MonoBehaviour {
 			return;
 		}
 
-		// IDEA: choose curve resolution
 
 		if (controlPointCount == 3) {
 			LinePoints = Bezier.CubicBezierRender(
@@ -53,6 +52,8 @@ public class CenterlineScript : MonoBehaviour {
 				Resolution
 			);
 		}
+
+		// TODO: subdivide control points into multiple curves
 
 	}
 

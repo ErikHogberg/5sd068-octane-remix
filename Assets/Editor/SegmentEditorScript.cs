@@ -8,60 +8,58 @@ using System.Collections.Generic;
 public class SegmentEditorScript : Editor {
 
 	SerializedProperty LevelPieceScript;
+	float handleSize = 0.4f;
 
 	void OnEnable() {
 		// cellSize = serializedObject.FindProperty("CellSize");
+		LevelPieceScript = serializedObject.FindProperty("LevelPieceScript");
 	}
 
 
 	private void OnSceneGUI() {
-		SteeringScript segmentBendingScript = target as SteeringScript;
+		SegmentScript segmentScript = target as SegmentScript;
+		StraightLevelPieceScript levelPieceScript = segmentScript.LevelPieceScript;
 
 		Handles.color = Color.white;
 
-		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
+		for (int i = 1; i < levelPieceScript.LeftBones.Count; i++) {
 
-		// {
+			Handles.DrawLine(
+				// segmentScript.transform.TransformPoint(levelPieceScript.LeftBones[i - 1].position),
+				// segmentScript.transform.TransformPoint(levelPieceScript.LeftBones[i].position)
+				// levelPieceScript.transform.TransformPoint( levelPieceScript.LeftBones[i - 1].localPosition),
+				// levelPieceScript.transform.TransformPoint(levelPieceScript.LeftBones[i].localPosition)
 
-		// 	EditorGUI.BeginChangeCheck();
-		// 	Transform handleTransform = gridUpdater.transform;
-		// 	Quaternion handleRotation = gridUpdater.transform.rotation;
-		// 	Vector3 pos = handleTransform.TransformPoint(gridUpdater.CornerPos);
-		// 	pos = Handles.DoPositionHandle(pos, handleRotation);
-		// 	if (EditorGUI.EndChangeCheck()) {
-		// 		Undo.RecordObject(gridUpdater, "Move grid corner");
-		// 		EditorUtility.SetDirty(gridUpdater);
-		// 		// item.Item2.RearLeftBone.position = handleTransform.InverseTransformPoint(p0l);
-		// 		gridUpdater.CornerPos = handleTransform.InverseTransformPoint(pos);
-		// 		if (autoUpdate)
-		// 			gridUpdater.UpdateCells();
-		// 	}
-		// }
+				levelPieceScript.LeftBones[i - 1].position,
+				levelPieceScript.LeftBones[i].position
+			);
 
-		// switch (gridUpdater.RotationMode) {
-		// 	case GridUpdaterScript.CellRotationMode.OrientWithParent:
-		// 		break;
-		// 	case GridUpdaterScript.CellRotationMode.CustomUpDirection:
-		// 	case GridUpdaterScript.CellRotationMode.CustomGlobalRotation:
-		// 		EditorGUI.BeginChangeCheck();
-		// 		Transform handleTransform = gridUpdater.transform;
-		// 		Quaternion handleRotation = gridUpdater.transform.rotation;
-		// 		Vector3 cellRotation = gridUpdater.CellRotation; //handleTransform.TransformPoint(gridUpdater.CornerPos);
+		}
 
-		// 		// FIXME: rotation handle position
-		// 		cellRotation = Handles.DoRotationHandle(Quaternion.Euler(cellRotation), gridUpdater.transform.position).eulerAngles;
-		// 		if (EditorGUI.EndChangeCheck()) {
-		// 			Undo.RecordObject(gridUpdater, "Move grid corner");
-		// 			EditorUtility.SetDirty(gridUpdater);
-		// 			// item.Item2.RearLeftBone.position = handleTransform.InverseTransformPoint(p0l);
-		// 			// gridUpdater.CornerPos = handleTransform.InverseTransformPoint(cellRotation);
-		// 			gridUpdater.CellRotation = handleTransform.InverseTransformDirection(cellRotation);
-		// 			if (autoUpdate)
-		// 				gridUpdater.UpdateCells();
-		// 		}
+		for (int i = 0; i < levelPieceScript.LeftBones.Count; i++) {
 
-		// 		break;
-		// }
+			EditorGUI.BeginChangeCheck();
+
+			Transform handleTransform = levelPieceScript.LeftBones[i];
+			Quaternion handleRotation = levelPieceScript.LeftBones[i].rotation;
+			Vector3 pos = levelPieceScript.LeftBones[i].position;
+			//handleTransform.TransformPoint(centerlineScript.ControlPoints[i]);
+			// pos = Handles.DoPositionHandle(pos, handleRotation);
+			// pos = Handles.PositionHandle(pos, handleRotation);
+			pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
+			// TODO: rotate forward dir towards next bone
+			// TODO: rotate left dir towards bone on other side
+			// IDEA: toggle option for disabling bone auto-rotation
+
+			if (EditorGUI.EndChangeCheck()) {
+				// FIXME: undo entry not registering
+				Undo.RecordObject(segmentScript, "Segment script change");
+				Undo.RecordObject(levelPieceScript, "Level piece change");
+				EditorUtility.SetDirty(segmentScript);
+				EditorUtility.SetDirty(levelPieceScript);
+				levelPieceScript.LeftBones[i].position = pos;//handleTransform.InverseTransformPoint(pos);
+			}
+		}
 
 	}
 
@@ -74,6 +72,9 @@ public class SegmentEditorScript : Editor {
 
 		EditorGUI.BeginChangeCheck();
 
+		EditorGUILayout.PropertyField(LevelPieceScript);
+		handleSize = EditorGUILayout.Slider("Handle size", handleSize, 0, 10);
+
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(segmentScript, "Segment Script Change");
 			EditorUtility.SetDirty(segmentScript);
@@ -83,7 +84,7 @@ public class SegmentEditorScript : Editor {
 		serializedObject.ApplyModifiedProperties();
 	}
 
-	
+
 	void SnapSegments() {
 
 		SegmentScript segmentScript = (SegmentScript)target;

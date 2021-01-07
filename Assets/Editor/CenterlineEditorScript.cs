@@ -9,6 +9,9 @@ using System.Collections;
 public class CenterlineEditorScript : Editor {
 	SerializedProperty controlPoints;
 
+	float handleSize = .04f;
+	// int maxResolution = 100;
+	bool overrideResolutionMax = false;
 
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
@@ -20,7 +23,6 @@ public class CenterlineEditorScript : Editor {
 
 		Handles.color = Color.white;
 
-		// TODO: draw lines along sides of grid
 		for (int i = 1; i < centerlineScript.LinePoints.Count; i++) {
 
 			Handles.DrawLine(
@@ -40,7 +42,9 @@ public class CenterlineEditorScript : Editor {
 			Transform handleTransform = centerlineScript.transform;
 			Quaternion handleRotation = centerlineScript.transform.rotation;
 			Vector3 pos = handleTransform.TransformPoint(centerlineScript.ControlPoints[i]);
-			pos = Handles.DoPositionHandle(pos, handleRotation);
+			// pos = Handles.DoPositionHandle(pos, handleRotation);
+			// pos = Handles.PositionHandle(pos, handleRotation);
+			pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
 
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(centerlineScript, "Moved centerline control point");
@@ -106,13 +110,24 @@ public class CenterlineEditorScript : Editor {
 			}
 		}
 
-		centerlineScript.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.Resolution);
+		// EditorGUILayout.BeginHorizontal();
+		if (overrideResolutionMax) {
+			centerlineScript.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.Resolution);
+		} else {
+			centerlineScript.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.Resolution, 0, 100);
+		}
+		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
+		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
+		// EditorGUILayout.EndHorizontal();
+
 
 		if (EditorGUI.EndChangeCheck()) {
 			centerlineScript.GenerateLinePoints();
 			Undo.RecordObject(centerlineScript, "Changed centerline control points");
 			EditorUtility.SetDirty(centerlineScript);
 		}
+
+		handleSize = EditorGUILayout.Slider("Handle Size", handleSize, 0.01f, .5f);
 
 
 		// Apply changes to the serializedProperty - always do this in the end of OnInspectorGUI.
