@@ -73,11 +73,18 @@ public class SegmentEditorScript : Editor {
 		EditorGUI.BeginChangeCheck();
 
 		EditorGUILayout.PropertyField(LevelPieceScript);
-		handleSize = EditorGUILayout.Slider("Handle size", handleSize, 0, 10);
 
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(segmentScript, "Segment Script Change");
 			EditorUtility.SetDirty(segmentScript);
+		}
+		
+		EditorGUI.BeginChangeCheck();
+
+		handleSize = EditorGUILayout.Slider("Handle size", handleSize, 0, 10);
+		if (EditorGUI.EndChangeCheck()) {
+			// Repaint();
+			SceneView.RepaintAll();
 		}
 
 		// Apply changes to the serializedProperty - always do this in the end of OnInspectorGUI.

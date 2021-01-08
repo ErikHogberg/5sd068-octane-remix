@@ -53,6 +53,14 @@ public class CenterlineScript : MonoBehaviour {
 			);
 		}
 
+		if (controlPointCount > 4) {
+			LinePoints = Bezier.CubicBezierRender(
+				ControlPoints,
+				Resolution
+			);
+		}
+
+
 		// TODO: subdivide control points into multiple curves
 
 	}
