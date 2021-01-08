@@ -21,19 +21,6 @@ public class CenterlineEditorScript : Editor {
 
 		CenterlineScript centerlineScript = (CenterlineScript)target;
 
-		Handles.color = Color.white;
-
-		for (int i = 1; i < centerlineScript.LinePoints.Count; i++) {
-
-			Handles.DrawLine(
-				centerlineScript.transform.TransformPoint(centerlineScript.LinePoints[i - 1]),
-				centerlineScript.transform.TransformPoint(centerlineScript.LinePoints[i])
-			);
-
-		}
-		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
-		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
-		// Handles.DrawLine(gridUpdater.transform.position, gridUpdater.);
 
 		Handles.color = Color.blue;
 
@@ -57,7 +44,7 @@ public class CenterlineEditorScript : Editor {
 
 		Handles.color = Color.gray;
 
-		for (int i = 0; i < centerlineScript.LinePoints.Count; i++) {
+		for (int i = 1; i < centerlineScript.LinePoints.Count - 1; i++) {
 
 			EditorGUI.BeginChangeCheck();
 
@@ -71,11 +58,12 @@ public class CenterlineEditorScript : Editor {
 				EditorUtility.SetDirty(centerlineScript);
 				centerlineScript.LinePoints[i] = handleTransform.InverseTransformPoint(pos);
 			}
-			// IDEA: create new control point if start or end point is moved too far away from the next/previous point
 		}
 
 
 	}
+
+
 
 	public override void OnInspectorGUI() {
 		serializedObject.Update();
