@@ -75,6 +75,43 @@ public class CenterlineScript : MonoBehaviour {
 
 	}
 
+	public Quaternion GetRotationDeltaAhead(Vector3 pos, float distanceAhead, out int compareLineIndex) {
+		Vector3 closestPos = GetClosestPoint(pos, out int index, out float distance);
+		Quaternion outRot = GetRotationDeltaAhead(closestPos, index, distanceAhead, out int outCompareLineIndex);
+		compareLineIndex = outCompareLineIndex;
+		return outRot;
+	}
+
+	public Quaternion GetRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, out int compareLineIndex) {
+		// TODO: search backwards if distance is negative
+
+		int index = closestLineIndex;
+		float distanceAheadSqr = distanceAhead * distanceAhead;
+		float distanceTraveledSqr = 0;
+		for (int i = index + 1; i < LinePoints.Count; i++) {
+			float distanceSqr = (LinePoints[i] - closestPos).sqrMagnitude;
+			distanceTraveledSqr += distanceSqr;
+			if (distanceTraveledSqr < distanceAheadSqr) {
+				continue;
+			} else {
+				compareLineIndex = i;
+
+				Quaternion outRot = 
+				Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1],Vector3.up) 
+				
+				* 
+				Quaternion.Inverse(
+					Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index],Vector3.up)
+					);
+					
+				return outRot;
+			}
+		}
+
+		compareLineIndex = -1;
+		return Quaternion.identity;
+	}
+
 	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out float closestDistance) {
 		Vector3 currentClosest = Vector3.zero;
 		float currentClosestDistance = 0;
