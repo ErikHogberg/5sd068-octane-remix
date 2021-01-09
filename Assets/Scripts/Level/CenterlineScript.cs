@@ -96,19 +96,67 @@ public class CenterlineScript : MonoBehaviour {
 			} else {
 				compareLineIndex = i;
 
-				Quaternion outRot = 
-				Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1],Vector3.up) 
-				
-				* 
+				Quaternion outRot =
+				Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1], Vector3.up)
+
+				*
 				Quaternion.Inverse(
-					Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index],Vector3.up)
+					Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index], Vector3.up)
 					);
-					
+
 				return outRot;
 			}
 		}
 
 		compareLineIndex = -1;
+		return Quaternion.identity;
+	}
+
+	public Quaternion GetRotationDeltaAhead(Vector3 pos, float distanceAhead, out int indexAtEnd, out int indexAtGreatestDelta) {
+		Vector3 closestPos = GetClosestPoint(pos, out int index, out float distance);
+		Quaternion outRot = GetGreatestRotationDeltaAhead(closestPos, index, distanceAhead, out int outIndexAtEnd, out int outIndexAtGreatestDelta);
+		indexAtEnd = outIndexAtEnd;
+		indexAtGreatestDelta = outIndexAtGreatestDelta;
+		return outRot;
+	}
+
+	public Quaternion GetGreatestRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, out int indexAtEnd, out int indexAtGreatestDelta) {
+		// TODO: search backwards if distance is negative
+		// TODO: option to ignore some distance at the start in front of the car
+
+		int index = closestLineIndex;
+		float distanceAheadSqr = distanceAhead * distanceAhead;
+		float distanceTraveledSqr = 0;
+		Quaternion greatestDelta = Quaternion.identity;
+		float greatestDeltaAngle = 0;
+		indexAtGreatestDelta = -1;
+
+		indexAtEnd = -1;
+
+		for (int i = index + 1; i < LinePoints.Count; i++) {
+			float distanceSqr = (LinePoints[i] - closestPos).sqrMagnitude;
+			distanceTraveledSqr += distanceSqr;
+			Quaternion outRot =
+					Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1], Vector3.up)
+					* Quaternion.Inverse(
+						Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index], Vector3.up)
+					);
+
+			float angle = Quaternion.Angle(Quaternion.identity, outRot);
+			if (greatestDeltaAngle < angle) {
+				greatestDeltaAngle = angle;
+				greatestDelta = outRot;
+				indexAtGreatestDelta = i;
+			}
+
+			if (distanceTraveledSqr < distanceAheadSqr) {
+				continue;
+			} else {
+				indexAtEnd = i;
+				return greatestDelta;
+			}
+		}
+
 		return Quaternion.identity;
 	}
 

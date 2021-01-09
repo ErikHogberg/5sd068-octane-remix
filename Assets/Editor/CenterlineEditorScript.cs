@@ -13,6 +13,9 @@ public class CenterlineEditorScript : Editor {
 	// int maxResolution = 100;
 	bool overrideResolutionMax = false;
 
+	bool addPointOnDrag = false;
+	float distanceThreshold = 10f;
+
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
 	}
@@ -36,10 +39,26 @@ public class CenterlineEditorScript : Editor {
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(centerlineScript, "Moved centerline control point");
 				EditorUtility.SetDirty(centerlineScript);
-				centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+				// IDEA: create new control point if start or end point is moved too far away from the next/previous point
+				int count = centerlineScript.ControlPoints.Count;
+				if (addPointOnDrag && i > 0 && i == count - 1) {
+					if ((centerlineScript.ControlPoints[count - 1] - centerlineScript.ControlPoints[count - 2]).sqrMagnitude > distanceThreshold * distanceThreshold) {
+						centerlineScript.ControlPoints.Add(centerlineScript.ControlPoints[count - 1]);
+						// FIXME: handle holds second last point after point is added
+						// TODO: add when dragging start point
+						centerlineScript.ControlPoints[i + 1] = handleTransform.InverseTransformPoint(pos);
+						centerlineScript.GenerateLinePoints();
+						break;
+					} else {
+						centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+					}
+
+				} else {
+
+					centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+				}
 				centerlineScript.GenerateLinePoints();
 			}
-			// IDEA: create new control point if start or end point is moved too far away from the next/previous point
 		}
 
 		Handles.color = Color.gray;
@@ -90,13 +109,13 @@ public class CenterlineEditorScript : Editor {
 			}
 		}
 
-		EditorGUIUtility.labelWidth = 135;
+		EditorGUIUtility.labelWidth = 150;
 
 		// EditorGUILayout.BeginHorizontal();
 		if (overrideResolutionMax) {
 			centerlineScript.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.Resolution);
 		} else {
-			centerlineScript.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.Resolution, 0, 100);
+			centerlineScript.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.Resolution, 0, 250);
 		}
 		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
 		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
@@ -110,11 +129,14 @@ public class CenterlineEditorScript : Editor {
 		}
 
 		float oldHandleSize = handleSize;
-		handleSize = EditorGUILayout.Slider("Handle Size", handleSize, 0.01f, .5f);
+		handleSize = EditorGUILayout.Slider("Handle Size", handleSize, 0.01f, 1f);
 
 		if (oldHandleSize != handleSize) {
 			SceneView.RepaintAll();
 		}
+
+		addPointOnDrag = EditorGUILayout.Toggle("Add new point by dragging", addPointOnDrag);
+		distanceThreshold = EditorGUILayout.FloatField("Drag distance threshold", distanceThreshold);
 
 		serializedObject.ApplyModifiedProperties();
 	}
