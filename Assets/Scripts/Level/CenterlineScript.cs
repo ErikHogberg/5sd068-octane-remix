@@ -1,18 +1,58 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CenterlineScript : MonoBehaviour {
 
-	public static List<CenterlineScript> Instances = new List<CenterlineScript>();
+	// public static List<CenterlineScript> Instances = new List<CenterlineScript>();
 
-	public List<Vector3> ControlPoints;
+	[Serializable]
+	public class InternalCenterline {
+		public int StartIndex = 0;
+		public List<Vector3> ControlPoints = new List<Vector3>();
+		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
+		public List<Vector3> LinePoints = new List<Vector3>();
+		public int Resolution = 10;
+	}
 
-	// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
-	public List<Vector3> LinePoints;
+	private InternalCenterline mainCenterline = new InternalCenterline();
+	public InternalCenterline MainCenterline {
+		get {
+			if (mainCenterline == null)
+				mainCenterline = new InternalCenterline();
+			return mainCenterline;
+		}
+	}
 
-	public int Resolution = 10;
+	public List<Vector3> ControlPoints {
+		get {
+			return MainCenterline.ControlPoints;
+		}
+		set {
+			MainCenterline.ControlPoints = value;
+		}
+	}
+	public List<Vector3> LinePoints {
+		get {
+			return MainCenterline.LinePoints;
+		}
+		set {
+			MainCenterline.LinePoints = value;
+		}
+	}
+
+	public List<InternalCenterline> Forks = new List<InternalCenterline>();
+
+	public int Resolution {
+		get {
+			return MainCenterline.Resolution;
+		}
+		set {
+			MainCenterline.Resolution = value;
+		}
+	}
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
 	// TODO: use centerline to pull car towards center of road as a handicap option
@@ -23,15 +63,15 @@ public class CenterlineScript : MonoBehaviour {
 	// TODO: figure out way to make cheat mitigation (using index counting) work with forks/multiple lines
 	// TODO: static versions of methods for checking all lines instead of one line
 
-	private void Awake() {
-		if(!Instances.Contains(this)){
-			Instances.Add(this);
-		}
-	}
+	// private void Awake() {
+	// 	if(!Instances.Contains(this)){
+	// 		Instances.Add(this);
+	// 	}
+	// }
 
-	private void OnDestroy() {
-		Instances.Remove(this);
-	}
+	// private void OnDestroy() {
+	// 	Instances.Remove(this);
+	// }
 
 #if UNITY_EDITOR
 	void OnDrawGizmos() {
@@ -42,54 +82,113 @@ public class CenterlineScript : MonoBehaviour {
 				transform.TransformPoint(LinePoints[i - 1]),
 				transform.TransformPoint(LinePoints[i])
 			);
-
 		}
+
+		foreach (var fork in Forks) {
+			if (fork.LinePoints.Count < 1)
+				continue;
+
+			for (int i = 1; i < fork.LinePoints.Count; i++) {
+				UnityEditor.Handles.DrawLine(
+					transform.TransformPoint(fork.LinePoints[i - 1]),
+					transform.TransformPoint(fork.LinePoints[i])
+				);
+			}
+		}
+
 	}
 #endif
 
-	public void GenerateLinePoints() {
+	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution) {
+		List<Vector3> LinePoints = new List<Vector3>();
+
 		int controlPointCount = ControlPoints.Count;
-		if (controlPointCount < 2)
-			return;
 
-		if (LinePoints == null) {
-			LinePoints = new List<Vector3>();
+		if (startControlPoint is Vector3 start) {
+			if (controlPointCount < 1)
+				return LinePoints;
+
+			if (controlPointCount == 1) {
+				LinePoints.Add(start);
+				LinePoints.Add(ControlPoints[0]);
+				return LinePoints;
+			}
+
+
+			if (controlPointCount == 2) {
+				LinePoints = Bezier.CubicBezierRender(
+					start,
+					ControlPoints[0],
+					ControlPoints[0],
+					ControlPoints[1],
+					Resolution
+				);
+			}
+
+			if (controlPointCount == 3) {
+				LinePoints = Bezier.CubicBezierRender(
+					start,
+					ControlPoints[0],
+					ControlPoints[1],
+					ControlPoints[2],
+					Resolution
+				);
+			}
+
+			if (controlPointCount > 3) {
+				LinePoints = Bezier.CubicBezierRender(
+					ControlPoints.Prepend(start).ToList(),
+					Resolution
+				);
+			}
 		} else {
-			LinePoints.Clear();
+			if (controlPointCount < 2)
+				return LinePoints;
+
+			if (controlPointCount == 2) {
+				LinePoints.Add(ControlPoints[0]);
+				LinePoints.Add(ControlPoints[1]);
+				return LinePoints;
+			}
+
+			if (controlPointCount == 3) {
+				LinePoints = Bezier.CubicBezierRender(
+					ControlPoints[0],
+					ControlPoints[1],
+					ControlPoints[1],
+					ControlPoints[2],
+					Resolution
+				);
+			}
+
+			if (controlPointCount == 4) {
+				LinePoints = Bezier.CubicBezierRender(
+					ControlPoints[0],
+					ControlPoints[1],
+					ControlPoints[2],
+					ControlPoints[3],
+					Resolution
+				);
+			}
+
+			if (controlPointCount > 4) {
+				LinePoints = Bezier.CubicBezierRender(
+					ControlPoints,
+					Resolution
+				);
+			}
 		}
 
-		if (controlPointCount == 2) {
-			LinePoints.Add(ControlPoints[0]);
-			LinePoints.Add(ControlPoints[1]);
-			return;
-		}
+		return LinePoints;
+	}
 
+	public void GenerateLinePoints() {
 
-		if (controlPointCount == 3) {
-			LinePoints = Bezier.CubicBezierRender(
-				ControlPoints[0],
-				ControlPoints[1],
-				ControlPoints[1],
-				ControlPoints[2],
-				Resolution
-			);
-		}
+		LinePoints = GenerateLinePoints(null, ControlPoints, Resolution);
 
-		if (controlPointCount == 4) {
-			LinePoints = Bezier.CubicBezierRender(
-				ControlPoints[0],
-				ControlPoints[1],
-				ControlPoints[2],
-				ControlPoints[3],
-				Resolution
-			);
-		}
-
-		if (controlPointCount > 4) {
-			LinePoints = Bezier.CubicBezierRender(
-				ControlPoints,
-				Resolution
-			);
+		foreach (var fork in Forks) {
+			Vector3 startPoint = LinePoints != null && LinePoints.Count> fork.StartIndex && fork.StartIndex >=0 ? LinePoints[fork.StartIndex] : Vector3.zero;
+			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution);
 		}
 
 	}
