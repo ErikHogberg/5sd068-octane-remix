@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CenterlineScript : MonoBehaviour {
 
+	public static List<CenterlineScript> Instances = new List<CenterlineScript>();
+
 	public List<Vector3> ControlPoints;
 
 	// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
@@ -13,6 +15,23 @@ public class CenterlineScript : MonoBehaviour {
 	public int Resolution = 10;
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
+	// TODO: use centerline to pull car towards center of road as a handicap option
+	// TODO: use centerline as respawn when falling off track
+	// TODO: use centerline as cheat mitigation
+
+	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
+	// TODO: figure out way to make cheat mitigation (using index counting) work with forks/multiple lines
+	// TODO: static versions of methods for checking all lines instead of one line
+
+	private void Awake() {
+		if(!Instances.Contains(this)){
+			Instances.Add(this);
+		}
+	}
+
+	private void OnDestroy() {
+		Instances.Remove(this);
+	}
 
 #if UNITY_EDITOR
 	void OnDrawGizmos() {

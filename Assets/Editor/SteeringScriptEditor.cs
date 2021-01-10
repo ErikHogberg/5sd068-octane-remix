@@ -49,6 +49,9 @@ public class SteeringScriptEditor : Editor {
 	SerializedProperty leftRotateToggleKeyBinding;
 	SerializedProperty leftYawKeyBinding;
 	SerializedProperty leftPitchKeyBinding;
+	SerializedProperty changeCameraKeyBinding;
+
+	Camera emptyCameraField;
 
 	void OnEnable() {
 		// cellSize = serializedObject.FindProperty("CellSize");
@@ -79,6 +82,7 @@ public class SteeringScriptEditor : Editor {
 		leftRotateToggleKeyBinding = serializedObject.FindProperty("LeftRotateToggleKeyBinding");
 		leftYawKeyBinding = serializedObject.FindProperty("LeftYawKeyBinding");
 		leftPitchKeyBinding = serializedObject.FindProperty("LeftPitchKeyBinding");
+		changeCameraKeyBinding = serializedObject.FindProperty("ChangeCameraKeyBinding");
 
 		SteeringScript steeringScript = (SteeringScript)target;
 
@@ -323,7 +327,7 @@ public class SteeringScriptEditor : Editor {
 				for (int i = 0; i < steeringScript.FrontWheelColliders.Count; i++) {
 					EditorGUILayout.BeginHorizontal();
 					EditorGUILayout.LabelField("Wheel " + i);
-					if(GUILayout.Button("Remove")){
+					if (GUILayout.Button("Remove")) {
 						steeringScript.RearWheelColliders.RemoveAt(i);
 						steeringScript.RearWheelModels.RemoveAt(i);
 					}
@@ -362,7 +366,7 @@ public class SteeringScriptEditor : Editor {
 				for (int i = 0; i < steeringScript.RearWheelColliders.Count; i++) {
 					EditorGUILayout.BeginHorizontal();
 					EditorGUILayout.LabelField("Wheel " + i);
-					if(GUILayout.Button("Remove")){
+					if (GUILayout.Button("Remove")) {
 						steeringScript.RearWheelColliders.RemoveAt(i);
 						steeringScript.RearWheelModels.RemoveAt(i);
 					}
@@ -389,12 +393,35 @@ public class SteeringScriptEditor : Editor {
 			EditorGUILayout.PropertyField(leftRotateToggleKeyBinding);
 			EditorGUILayout.PropertyField(leftYawKeyBinding);
 			EditorGUILayout.PropertyField(leftPitchKeyBinding);
+			EditorGUILayout.PropertyField(changeCameraKeyBinding);
 		}
 
+		showCameras = EditorGUILayout.Foldout(showCameras, "Cameras");
 		if (showCameras) {
 			// TODO: cameras
 			// IDEA: draw one extra empty camera field, one more than current amount of cameras. if field is filled, then another empty field will be added below
 			// IDEA: auto remove empty fields other than last
+			for (int i = 0; i < steeringScript.Cameras.Count; i++) {
+				EditorGUILayout.BeginHorizontal();
+				bool isCurrentCamera = steeringScript.Cameras[i] == steeringScript.CurrentCamera;
+				bool toggle = EditorGUILayout.Toggle(isCurrentCamera);
+				if (toggle && !isCurrentCamera) {
+					steeringScript.CurrentCameraIndex = i;
+				}
+				steeringScript.Cameras[i] = (Camera)EditorGUILayout.ObjectField(steeringScript.Cameras[i], typeof(Camera), true);
+				// if (GUILayout.Button("Remove")) {
+				if (!steeringScript.Cameras[i]) {
+					steeringScript.Cameras.RemoveAt(i);
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+
+			emptyCameraField = (Camera)EditorGUILayout.ObjectField(emptyCameraField, typeof(Camera), true);
+			if (emptyCameraField) {
+				steeringScript.Cameras.Add(emptyCameraField);
+				emptyCameraField = null;
+			}
+
 		}
 
 		if (EditorGUI.EndChangeCheck()) {

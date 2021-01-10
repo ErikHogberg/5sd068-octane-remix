@@ -108,6 +108,14 @@
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Change Camera",
+                    "type": "Button",
+                    "id": "1dc83fe5-dcf1-4c4a-8eca-118964ee473f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -416,6 +424,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3aa7473c-cf89-458a-a255-fa1d864e77e7",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Change Camera",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
