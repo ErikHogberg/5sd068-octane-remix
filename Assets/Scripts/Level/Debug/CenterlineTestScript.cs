@@ -25,13 +25,17 @@ public class CenterlineTestScript : MonoBehaviour {
 	}
 
 	void OnDrawGizmos() {
-		if (Centerline && Centerline.LinePoints.Count > 1) {
+		if (Centerline && Centerline.MainCenterline.LinePoints.Count > 1) {
 			Gizmos.color = LineColor;
 			Vector3 closestPos = Centerline.GetClosestPoint(transform.position, out int closestIndex);
 			Gizmos.DrawLine(transform.position, closestPos);
 
 			Gizmos.color = Color.white;
-			Quaternion closestLineRot = Quaternion.LookRotation(Centerline.LinePoints[closestIndex + 1] - Centerline.LinePoints[closestIndex], Vector3.forward);
+			Vector3 delta = Centerline.MainCenterline.LinePoints[closestIndex + 1] - Centerline.MainCenterline.LinePoints[closestIndex];
+			if (delta == Vector3.zero)
+				return;
+
+			Quaternion closestLineRot = Quaternion.LookRotation(delta, Vector3.forward);
 			Gizmos.DrawLine(transform.position, transform.TransformPoint(closestLineRot * Vector3.forward * ArrowLength));
 
 			Quaternion rot = Centerline.GetRotationDeltaAhead(closestPos, closestIndex, DistanceAhead, out int index)
@@ -39,7 +43,7 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			Gizmos.color = Color.green;
 			if (index < 0) index = 0;
-			Gizmos.DrawCube(Centerline.LinePoints[index], Vector3.one);
+			Gizmos.DrawCube(Centerline.MainCenterline.LinePoints[index], Vector3.one);
 			Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 
 			rot = Centerline.GetGreatestRotationDeltaAhead(closestPos, closestIndex, DistanceAhead, out int indexAtEnd, out int indexAtGreatestDelta)
@@ -48,7 +52,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.color = Color.cyan;
 			if (indexAtEnd < 0) indexAtEnd = 0;
 			if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
-			Gizmos.DrawCube(Centerline.LinePoints[indexAtGreatestDelta], Vector3.one);
+			Gizmos.DrawCube(Centerline.MainCenterline.LinePoints[indexAtGreatestDelta], Vector3.one);
 			Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 
 		}

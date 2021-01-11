@@ -17,42 +17,43 @@ public class CenterlineScript : MonoBehaviour {
 		public int Resolution = 10;
 	}
 
-	private InternalCenterline mainCenterline = new InternalCenterline();
-	public InternalCenterline MainCenterline {
-		get {
-			if (mainCenterline == null)
-				mainCenterline = new InternalCenterline();
-			return mainCenterline;
-		}
-	}
+	// private InternalCenterline mainCenterline = new InternalCenterline();
+	public InternalCenterline MainCenterline = new InternalCenterline();
+	// public InternalCenterline MainCenterline {
+	// 	get {
+	// 		if (mainCenterline == null)
+	// 			mainCenterline = new InternalCenterline();
+	// 		return mainCenterline;
+	// 	}
+	// }
 
-	public List<Vector3> ControlPoints {
-		get {
-			return MainCenterline.ControlPoints;
-		}
-		set {
-			MainCenterline.ControlPoints = value;
-		}
-	}
-	public List<Vector3> LinePoints {
-		get {
-			return MainCenterline.LinePoints;
-		}
-		set {
-			MainCenterline.LinePoints = value;
-		}
-	}
+	// public List<Vector3> ControlPoints {
+	// 	get {
+	// 		return MainCenterline.ControlPoints;
+	// 	}
+	// 	set {
+	// 		MainCenterline.ControlPoints = value;
+	// 	}
+	// }
+	// public List<Vector3> LinePoints {
+	// 	get {
+	// 		return MainCenterline.LinePoints;
+	// 	}
+	// 	set {
+	// 		MainCenterline.LinePoints = value;
+	// 	}
+	// }
 
 	public List<InternalCenterline> Forks = new List<InternalCenterline>();
 
-	public int Resolution {
-		get {
-			return MainCenterline.Resolution;
-		}
-		set {
-			MainCenterline.Resolution = value;
-		}
-	}
+	// public int Resolution {
+	// 	get {
+	// 		return MainCenterline.Resolution;
+	// 	}
+	// 	set {
+	// 		MainCenterline.Resolution = value;
+	// 	}
+	// }
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
 	// TODO: use centerline to pull car towards center of road as a handicap option
@@ -77,10 +78,10 @@ public class CenterlineScript : MonoBehaviour {
 	void OnDrawGizmos() {
 		UnityEditor.Handles.color = Color.white;
 
-		for (int i = 1; i < LinePoints.Count; i++) {
+		for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {
 			UnityEditor.Handles.DrawLine(
-				transform.TransformPoint(LinePoints[i - 1]),
-				transform.TransformPoint(LinePoints[i])
+				transform.TransformPoint(MainCenterline.LinePoints[i - 1]),
+				transform.TransformPoint(MainCenterline.LinePoints[i])
 			);
 		}
 
@@ -184,10 +185,10 @@ public class CenterlineScript : MonoBehaviour {
 
 	public void GenerateLinePoints() {
 
-		LinePoints = GenerateLinePoints(null, ControlPoints, Resolution);
+		MainCenterline.LinePoints = GenerateLinePoints(null, MainCenterline.ControlPoints, MainCenterline.Resolution);
 
 		foreach (var fork in Forks) {
-			Vector3 startPoint = LinePoints != null && LinePoints.Count> fork.StartIndex && fork.StartIndex >=0 ? LinePoints[fork.StartIndex] : Vector3.zero;
+			Vector3 startPoint = MainCenterline.LinePoints != null && MainCenterline.LinePoints.Count> fork.StartIndex && fork.StartIndex >=0 ? MainCenterline.LinePoints[fork.StartIndex] : Vector3.zero;
 			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution);
 		}
 
@@ -206,8 +207,8 @@ public class CenterlineScript : MonoBehaviour {
 		int index = closestLineIndex;
 		float distanceAheadSqr = distanceAhead * distanceAhead;
 		float distanceTraveledSqr = 0;
-		for (int i = index + 1; i < LinePoints.Count; i++) {
-			float distanceSqr = (LinePoints[i] - closestPos).sqrMagnitude;
+		for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
+			float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
 			distanceTraveledSqr += distanceSqr;
 			if (distanceTraveledSqr < distanceAheadSqr) {
 				continue;
@@ -215,11 +216,11 @@ public class CenterlineScript : MonoBehaviour {
 				compareLineIndex = i;
 
 				Quaternion outRot =
-				Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1], Vector3.up)
+				Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
 
 				*
 				Quaternion.Inverse(
-					Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index], Vector3.up)
+					Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up)
 					);
 
 				return outRot;
@@ -251,14 +252,14 @@ public class CenterlineScript : MonoBehaviour {
 
 		indexAtEnd = -1;
 
-		for (int i = index + 1; i < LinePoints.Count; i++) {
-			float distanceSqr = (LinePoints[i] - closestPos).sqrMagnitude;
+		for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
+			float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
 			distanceTraveledSqr += distanceSqr;
 			Quaternion outRot =
-					Quaternion.LookRotation(LinePoints[i] - LinePoints[i - 1], Vector3.up)
-					* Quaternion.Inverse(
-						Quaternion.LookRotation(LinePoints[index + 1] - LinePoints[index], Vector3.up)
-					);
+				Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+				* Quaternion.Inverse(
+					Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up)
+				);
 
 			float angle = Quaternion.Angle(Quaternion.identity, outRot);
 			if (greatestDeltaAngle < angle) {
@@ -284,19 +285,19 @@ public class CenterlineScript : MonoBehaviour {
 		int lineIndex = 0;
 
 
-		for (int i = 1; i < LinePoints.Count; i++) {
-			float distance = distanceToSegment(LinePoints[i - 1], LinePoints[i], pos);
+		for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {
+			float distance = distanceToSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
 
 			if (i == 1) {
 				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(LinePoints[i - 1], LinePoints[i], pos);
+				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
 				lineIndex = 0;
 				continue;
 			}
 
 			if (distance < currentClosestDistance) {
 				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(LinePoints[i - 1], LinePoints[i], pos);
+				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
 				lineIndex = i - 1;
 			}
 		}

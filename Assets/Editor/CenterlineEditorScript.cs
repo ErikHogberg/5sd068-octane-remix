@@ -9,7 +9,8 @@ using System.Collections;
 public class CenterlineEditorScript : Editor {
 	SerializedProperty controlPoints;
 
-	float handleSize = .04f;
+	float controlHandleSize = .4f;
+	float lineHandleSize = .1f;
 	// int maxResolution = 100;
 	bool overrideResolutionMax = false;
 
@@ -17,9 +18,12 @@ public class CenterlineEditorScript : Editor {
 	float distanceThreshold = 10f;
 
 	Color mainLineHandleColor = Color.gray;
-	Color forkLineHandleColor = new Color(.7f,.7f,.7f,1f);
+	Color forkLineHandleColor = new Color(.8f, .8f, .7f, 1f);
 	Color mainControlHandleColor = Color.blue;
-	Color forkControlHandleColor = new Color(.2f,.2f,.7f,1f);
+	Color forkControlHandleColor = new Color(.3f, .2f, .6f, 1f);
+
+	bool showPoints = true;
+	bool showForks = false;
 
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
@@ -31,18 +35,18 @@ public class CenterlineEditorScript : Editor {
 
 		Handles.color = mainLineHandleColor;
 
-		for (int i = 1; i < centerlineScript.LinePoints.Count - 1; i++) {
+		for (int i = 1; i < centerlineScript.MainCenterline.LinePoints.Count - 1; i++) {
 			EditorGUI.BeginChangeCheck();
 
 			Transform handleTransform = centerlineScript.transform;
 			Quaternion handleRotation = centerlineScript.transform.rotation;
-			Vector3 pos = handleTransform.TransformPoint(centerlineScript.LinePoints[i]);
-			pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
+			Vector3 pos = handleTransform.TransformPoint(centerlineScript.MainCenterline.LinePoints[i]);
+			pos = Handles.FreeMoveHandle(pos, handleRotation, lineHandleSize, Vector3.one, Handles.DotHandleCap);
 
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(centerlineScript, "Moved centerline control point");
 				EditorUtility.SetDirty(centerlineScript);
-				centerlineScript.LinePoints[i] = handleTransform.InverseTransformPoint(pos);
+				centerlineScript.MainCenterline.LinePoints[i] = handleTransform.InverseTransformPoint(pos);
 			}
 		}
 
@@ -55,7 +59,7 @@ public class CenterlineEditorScript : Editor {
 				Transform handleTransform = centerlineScript.transform;
 				Quaternion handleRotation = centerlineScript.transform.rotation;
 				Vector3 pos = handleTransform.TransformPoint(centerlineScript.Forks[forkIndex].LinePoints[i]);
-				pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
+				pos = Handles.FreeMoveHandle(pos, handleRotation, lineHandleSize, Vector3.one, Handles.DotHandleCap);
 
 				if (EditorGUI.EndChangeCheck()) {
 					Undo.RecordObject(centerlineScript, "Moved centerline control point");
@@ -67,35 +71,35 @@ public class CenterlineEditorScript : Editor {
 
 		Handles.color = mainControlHandleColor;
 
-		for (int i = 0; i < centerlineScript.ControlPoints.Count; i++) {
+		for (int i = 0; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
 
 			EditorGUI.BeginChangeCheck();
 
 			Transform handleTransform = centerlineScript.transform;
 			Quaternion handleRotation = centerlineScript.transform.rotation;
-			Vector3 pos = handleTransform.TransformPoint(centerlineScript.ControlPoints[i]);
-			pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
+			Vector3 pos = handleTransform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i]);
+			pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
 
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(centerlineScript, "Moved centerline control point");
 				EditorUtility.SetDirty(centerlineScript);
 				// IDEA: create new control point if start or end point is moved too far away from the next/previous point
-				int count = centerlineScript.ControlPoints.Count;
+				int count = centerlineScript.MainCenterline.ControlPoints.Count;
 				if (addPointOnDrag && i > 0 && i == count - 1) {
-					if ((centerlineScript.ControlPoints[count - 1] - centerlineScript.ControlPoints[count - 2]).sqrMagnitude > distanceThreshold * distanceThreshold) {
-						centerlineScript.ControlPoints.Add(centerlineScript.ControlPoints[count - 1]);
+					if ((centerlineScript.MainCenterline.ControlPoints[count - 1] - centerlineScript.MainCenterline.ControlPoints[count - 2]).sqrMagnitude > distanceThreshold * distanceThreshold) {
+						centerlineScript.MainCenterline.ControlPoints.Add(centerlineScript.MainCenterline.ControlPoints[count - 1]);
 						// FIXME: handle holds second last point after point is added
 						// TODO: add when dragging start point
-						centerlineScript.ControlPoints[i + 1] = handleTransform.InverseTransformPoint(pos);
+						centerlineScript.MainCenterline.ControlPoints[i + 1] = handleTransform.InverseTransformPoint(pos);
 						centerlineScript.GenerateLinePoints();
 						break;
 					} else {
-						centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+						centerlineScript.MainCenterline.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
 					}
 
 				} else {
 
-					centerlineScript.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
+					centerlineScript.MainCenterline.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
 				}
 				centerlineScript.GenerateLinePoints();
 			}
@@ -110,7 +114,7 @@ public class CenterlineEditorScript : Editor {
 				Transform handleTransform = centerlineScript.transform;
 				Quaternion handleRotation = centerlineScript.transform.rotation;
 				Vector3 pos = handleTransform.TransformPoint(centerlineScript.Forks[forkIndex].ControlPoints[i]);
-				pos = Handles.FreeMoveHandle(pos, handleRotation, handleSize, Vector3.one, Handles.DotHandleCap);
+				pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
 
 				if (EditorGUI.EndChangeCheck()) {
 					Undo.RecordObject(centerlineScript, "Moved centerline control point");
@@ -154,65 +158,71 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUI.BeginChangeCheck();
 
-		for (int i = 0; i < centerlineScript.ControlPoints.Count; i++) {
-			EditorGUILayout.BeginHorizontal();
-			centerlineScript.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i}", centerlineScript.ControlPoints[i]);
-			if (GUILayout.Button("Remove", GUILayout.Width(70))) {
-				centerlineScript.ControlPoints.RemoveAt(i);
-			}
-			EditorGUILayout.EndHorizontal();
-		}
-		if (GUILayout.Button("Add Control Point")) {
-			if (centerlineScript.ControlPoints.Count > 0) {
-				centerlineScript.ControlPoints.Add(centerlineScript.ControlPoints[centerlineScript.ControlPoints.Count - 1]);
-			} else {
-				centerlineScript.ControlPoints.Add(Vector3.zero);
-			}
-		}
-
-		EditorGUIUtility.labelWidth = 150;
+		EditorGUIUtility.labelWidth = 200;
 
 		// EditorGUILayout.BeginHorizontal();
 		if (overrideResolutionMax) {
-			centerlineScript.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.Resolution);
+			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.MainCenterline.Resolution);
 		} else {
-			centerlineScript.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.Resolution, 0, 250);
+			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 0, 250);
 		}
 		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
 		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
 		// EditorGUILayout.EndHorizontal();
 
-		EditorGUI.indentLevel += 1;
-		for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
-			centerlineScript.Forks[forkIndex].Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", centerlineScript.Forks[forkIndex].Resolution, 0, 250);
-			centerlineScript.Forks[forkIndex].StartIndex = EditorGUILayout.IntField("Start index", centerlineScript.Forks[forkIndex].StartIndex);
-			if (centerlineScript.Forks[forkIndex].StartIndex >= centerlineScript.LinePoints.Count) {
-				centerlineScript.Forks[forkIndex].StartIndex = centerlineScript.ControlPoints.Count - 1;
-			} else if (centerlineScript.Forks[forkIndex].StartIndex < 0) {
-				centerlineScript.Forks[forkIndex].StartIndex = 0;
-			}
-
-			for (int i = 0; i < centerlineScript.Forks[forkIndex].ControlPoints.Count; i++) {
+		showPoints = EditorGUILayout.Foldout(showPoints, "Control Points");
+		if (showPoints) {
+			for (int i = 0; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
 				EditorGUILayout.BeginHorizontal();
-				centerlineScript.Forks[forkIndex].ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", centerlineScript.Forks[forkIndex].ControlPoints[i]);
+				centerlineScript.MainCenterline.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i}", centerlineScript.MainCenterline.ControlPoints[i]);
 				if (GUILayout.Button("Remove", GUILayout.Width(70))) {
-					centerlineScript.Forks[forkIndex].ControlPoints.RemoveAt(i);
+					centerlineScript.MainCenterline.ControlPoints.RemoveAt(i);
 				}
 				EditorGUILayout.EndHorizontal();
 			}
-			if (GUILayout.Button("Add Fork Control Point")) {
-				if (centerlineScript.Forks[forkIndex].ControlPoints.Count > 0) {
-					centerlineScript.Forks[forkIndex].ControlPoints.Add(centerlineScript.Forks[forkIndex].ControlPoints[centerlineScript.Forks[forkIndex].ControlPoints.Count - 1]);
+			if (GUILayout.Button("Add Control Point")) {
+				if (centerlineScript.MainCenterline.ControlPoints.Count > 0) {
+					centerlineScript.MainCenterline.ControlPoints.Add(centerlineScript.MainCenterline.ControlPoints[centerlineScript.MainCenterline.ControlPoints.Count - 1]);
 				} else {
-					centerlineScript.Forks[forkIndex].ControlPoints.Add(Vector3.zero);
+					centerlineScript.MainCenterline.ControlPoints.Add(Vector3.zero);
 				}
 			}
 		}
 
-		if (GUILayout.Button("Add Fork")) {
-			centerlineScript.Forks.Add(new CenterlineScript.InternalCenterline());
+		showForks = EditorGUILayout.Foldout(showForks, "Forks");
+		if (showForks) {
+			EditorGUI.indentLevel += 1;
+			for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
+				centerlineScript.Forks[forkIndex].Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", centerlineScript.Forks[forkIndex].Resolution, 0, 250);
+				centerlineScript.Forks[forkIndex].StartIndex = EditorGUILayout.IntField("Start index", centerlineScript.Forks[forkIndex].StartIndex);
+				if (centerlineScript.Forks[forkIndex].StartIndex >= centerlineScript.MainCenterline.LinePoints.Count) {
+					centerlineScript.Forks[forkIndex].StartIndex = centerlineScript.MainCenterline.ControlPoints.Count - 1;
+				} else if (centerlineScript.Forks[forkIndex].StartIndex < 0) {
+					centerlineScript.Forks[forkIndex].StartIndex = 0;
+				}
+
+				for (int i = 0; i < centerlineScript.Forks[forkIndex].ControlPoints.Count; i++) {
+					EditorGUILayout.BeginHorizontal();
+					centerlineScript.Forks[forkIndex].ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", centerlineScript.Forks[forkIndex].ControlPoints[i]);
+					if (GUILayout.Button("Remove", GUILayout.Width(70))) {
+						centerlineScript.Forks[forkIndex].ControlPoints.RemoveAt(i);
+					}
+					EditorGUILayout.EndHorizontal();
+				}
+				if (GUILayout.Button("Add Fork Control Point")) {
+					if (centerlineScript.Forks[forkIndex].ControlPoints.Count > 0) {
+						centerlineScript.Forks[forkIndex].ControlPoints.Add(centerlineScript.Forks[forkIndex].ControlPoints[centerlineScript.Forks[forkIndex].ControlPoints.Count - 1]);
+					} else {
+						centerlineScript.Forks[forkIndex].ControlPoints.Add(Vector3.zero);
+					}
+				}
+			}
+
+			if (GUILayout.Button("Add Fork")) {
+				centerlineScript.Forks.Add(new CenterlineScript.InternalCenterline());
+			}
+			EditorGUI.indentLevel -= 1;
 		}
-		EditorGUI.indentLevel -= 1;
 
 
 		if (EditorGUI.EndChangeCheck()) {
@@ -221,15 +231,22 @@ public class CenterlineEditorScript : Editor {
 			EditorUtility.SetDirty(centerlineScript);
 		}
 
-		float oldHandleSize = handleSize;
-		handleSize = EditorGUILayout.Slider("Handle Size", handleSize, 0.01f, 1f);
+		EditorGUI.BeginChangeCheck();
 
-		if (oldHandleSize != handleSize) {
+		controlHandleSize = EditorGUILayout.Slider("Control Point Handle Size", controlHandleSize, 0.01f, 1f);
+		lineHandleSize = EditorGUILayout.Slider("Line Point Handle Size", lineHandleSize, 0.01f, 1f);
+
+		mainLineHandleColor = EditorGUILayout.ColorField("Main Line Handle Color", mainLineHandleColor);
+		forkLineHandleColor = EditorGUILayout.ColorField("Fork Line Handle Color", forkLineHandleColor);
+		mainControlHandleColor = EditorGUILayout.ColorField("Main Control Point Handle Color", mainControlHandleColor);
+		forkControlHandleColor = EditorGUILayout.ColorField("Fork Control Point Handle Color", forkControlHandleColor);
+
+		if (EditorGUI.EndChangeCheck())
 			SceneView.RepaintAll();
-		}
 
 		addPointOnDrag = EditorGUILayout.Toggle("Add new point by dragging", addPointOnDrag);
-		distanceThreshold = EditorGUILayout.FloatField("Drag distance threshold", distanceThreshold);
+		if (addPointOnDrag)
+			distanceThreshold = EditorGUILayout.FloatField("Drag distance threshold", distanceThreshold);
 
 		serializedObject.ApplyModifiedProperties();
 	}
