@@ -36,10 +36,10 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			var rots = Centerline.GetRotationDeltaAhead(closestPos, closestIndex, DistanceAhead);
 			// * closestLineRot * Quaternion.Inverse(transform.rotation);
-			if (rots.Any()) {
-				Quaternion rot = rots.First().Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
-				int index = rots.First().Item1;
-				int forkIndex = rots.First().Item2;
+			foreach (var rotOut in rots) {
+				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
+				int index = rotOut.Item1;
+				int forkIndex = rotOut.Item2;
 
 				Gizmos.color = Color.green;
 				if (index < 0) index = 0;
@@ -51,10 +51,10 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			var rots2 = Centerline.GetGreatestRotationDeltaAhead(closestPos, closestIndex, DistanceAhead);
 			// * closestLineRot * Quaternion.Inverse(transform.rotation);
-			if (rots2.Any()) {
-				Quaternion rot = rots2.First().Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
-				int indexAtEnd = rots2.First().Item1;
-				int indexAtGreatestDelta = rots2.First().Item2;
+			foreach (var rotOut in rots) {
+				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
+				int indexAtEnd = rotOut.Item1;
+				int indexAtGreatestDelta = rotOut.Item2;
 
 				Gizmos.color = Color.cyan;
 				if (indexAtEnd < 0) indexAtEnd = 0;

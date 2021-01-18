@@ -20,6 +20,7 @@ public class CenterlineScript : MonoBehaviour {
 
 	public InternalCenterline MainCenterline = new InternalCenterline();
 	public List<InternalCenterline> Forks = new List<InternalCenterline>();
+	// IDEA: make forks forkable?
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
 	// TODO: use centerline to pull car towards center of road as a handicap option
@@ -169,22 +170,72 @@ public class CenterlineScript : MonoBehaviour {
 		// TODO: search backwards if distance is negative
 		// TODO: handle forks
 
-		int index = closestLineIndex;
 		float distanceAheadSqr = distanceAhead * distanceAhead;
-		float distanceTraveledSqr = 0;
-		for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
-			float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
-			distanceTraveledSqr += distanceSqr;
-			if (distanceTraveledSqr < distanceAheadSqr) {
-				continue;
-			} else {
-				int compareLineIndex = i;
+		int index = closestLineIndex;
+		Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
 
-				Quaternion outRot = Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
-					* Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
+		if (startFork < 0) {
 
-				yield return (compareLineIndex, -1, outRot);
-				break;
+			float distanceTraveledSqr = 0;
+			for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
+				float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
+				distanceTraveledSqr += distanceSqr;
+				if (distanceTraveledSqr < distanceAheadSqr) {
+					continue;
+				} else {
+					int compareLineIndex = i;
+
+					Quaternion outRot = Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+						* inverseRot;
+
+					yield return (compareLineIndex, -1, outRot);
+					break;
+				}
+			}
+
+			distanceTraveledSqr = 0;
+			for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
+				if (Forks[forkIndex].StartIndex < index) {
+					continue;
+				}
+				// TODO: add to accumulator distance from start on centerline until start of fork
+				for (int i = index + 1; i < Forks[forkIndex].StartIndex; i++) {
+					float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
+					distanceTraveledSqr += distanceSqr;
+				}
+
+				for (int i = index + 1; i < Forks[forkIndex].LinePoints.Count; i++) {
+					float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
+					distanceTraveledSqr += distanceSqr;
+					if (distanceTraveledSqr < distanceAheadSqr) {
+						continue;
+					} else {
+						int compareLineIndex = i;
+
+						Quaternion outRot = Quaternion.LookRotation(Forks[forkIndex].LinePoints[i] - Forks[forkIndex].LinePoints[i - 1], Vector3.up)
+							* inverseRot;
+
+						yield return (compareLineIndex, forkIndex, outRot);
+						break;
+					}
+				}
+			}
+		} else {
+			float distanceTraveledSqr = 0;
+			for (int i = index + 1; i < Forks[startFork].LinePoints.Count; i++) {
+				float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
+				distanceTraveledSqr += distanceSqr;
+				if (distanceTraveledSqr < distanceAheadSqr) {
+					continue;
+				} else {
+					int compareLineIndex = i;
+
+					Quaternion outRot = Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+						* inverseRot;
+
+					yield return (compareLineIndex, -1, outRot);
+					break;
+				}
 			}
 		}
 
@@ -234,7 +285,7 @@ public class CenterlineScript : MonoBehaviour {
 	}
 
 	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out int closestForkIndex, out float closestDistance) {
-		
+
 		pos = transform.InverseTransformPoint(pos);
 
 		Vector3 currentClosest = Vector3.zero;
@@ -301,7 +352,7 @@ public class CenterlineScript : MonoBehaviour {
 		float currentClosestDistance = 0;
 		int lineIndex = 0;
 
-		float distanceAccumulatorSqr = 0;
+		// float distanceAccumulatorSqr = 0;
 
 		// TODO: check forks too
 		// TODO: handle starting/relative index on fork
