@@ -15,45 +15,11 @@ public class CenterlineScript : MonoBehaviour {
 		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
+		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
 	}
 
-	// private InternalCenterline mainCenterline = new InternalCenterline();
 	public InternalCenterline MainCenterline = new InternalCenterline();
-	// public InternalCenterline MainCenterline {
-	// 	get {
-	// 		if (mainCenterline == null)
-	// 			mainCenterline = new InternalCenterline();
-	// 		return mainCenterline;
-	// 	}
-	// }
-
-	// public List<Vector3> ControlPoints {
-	// 	get {
-	// 		return MainCenterline.ControlPoints;
-	// 	}
-	// 	set {
-	// 		MainCenterline.ControlPoints = value;
-	// 	}
-	// }
-	// public List<Vector3> LinePoints {
-	// 	get {
-	// 		return MainCenterline.LinePoints;
-	// 	}
-	// 	set {
-	// 		MainCenterline.LinePoints = value;
-	// 	}
-	// }
-
 	public List<InternalCenterline> Forks = new List<InternalCenterline>();
-
-	// public int Resolution {
-	// 	get {
-	// 		return MainCenterline.Resolution;
-	// 	}
-	// 	set {
-	// 		MainCenterline.Resolution = value;
-	// 	}
-	// }
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
 	// TODO: use centerline to pull car towards center of road as a handicap option
@@ -62,7 +28,6 @@ public class CenterlineScript : MonoBehaviour {
 
 	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
 	// TODO: figure out way to make cheat mitigation (using index counting) work with forks/multiple lines
-	// TODO: static versions of methods for checking all lines instead of one line
 
 	// private void Awake() {
 	// 	if(!Instances.Contains(this)){
@@ -188,21 +153,21 @@ public class CenterlineScript : MonoBehaviour {
 		MainCenterline.LinePoints = GenerateLinePoints(null, MainCenterline.ControlPoints, MainCenterline.Resolution);
 
 		foreach (var fork in Forks) {
-			Vector3 startPoint = MainCenterline.LinePoints != null && MainCenterline.LinePoints.Count> fork.StartIndex && fork.StartIndex >=0 ? MainCenterline.LinePoints[fork.StartIndex] : Vector3.zero;
+			Vector3 startPoint = MainCenterline.LinePoints != null && MainCenterline.LinePoints.Count > fork.StartIndex && fork.StartIndex >= 0 ? MainCenterline.LinePoints[fork.StartIndex] : Vector3.zero;
 			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution);
 		}
 
 	}
 
-	public Quaternion GetRotationDeltaAhead(Vector3 pos, float distanceAhead, out int compareLineIndex) {
-		Vector3 closestPos = GetClosestPoint(pos, out int index, out float distance);
-		Quaternion outRot = GetRotationDeltaAhead(closestPos, index, distanceAhead, out int outCompareLineIndex);
-		compareLineIndex = outCompareLineIndex;
+	public IEnumerable<(int, int, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead) {
+		Vector3 closestPos = GetClosestPoint(pos, out int index, out int forkIndex, out float distance);
+		var outRot = GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
 		return outRot;
 	}
 
-	public Quaternion GetRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, out int compareLineIndex) {
+	public IEnumerable<(int, int, Quaternion)> GetRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, int startFork = -1) {
 		// TODO: search backwards if distance is negative
+		// TODO: handle forks
 
 		int index = closestLineIndex;
 		float distanceAheadSqr = distanceAhead * distanceAhead;
@@ -213,44 +178,33 @@ public class CenterlineScript : MonoBehaviour {
 			if (distanceTraveledSqr < distanceAheadSqr) {
 				continue;
 			} else {
-				compareLineIndex = i;
+				int compareLineIndex = i;
 
-				Quaternion outRot =
-				Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+				Quaternion outRot = Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+					* Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
 
-				*
-				Quaternion.Inverse(
-					Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up)
-					);
-
-				return outRot;
+				yield return (compareLineIndex, -1, outRot);
+				break;
 			}
 		}
 
-		compareLineIndex = -1;
-		return Quaternion.identity;
+		// compareLineIndex = -1;
+		// yield return Quaternion.identity;
 	}
 
-	public Quaternion GetRotationDeltaAhead(Vector3 pos, float distanceAhead, out int indexAtEnd, out int indexAtGreatestDelta) {
-		Vector3 closestPos = GetClosestPoint(pos, out int index, out float distance);
-		Quaternion outRot = GetGreatestRotationDeltaAhead(closestPos, index, distanceAhead, out int outIndexAtEnd, out int outIndexAtGreatestDelta);
-		indexAtEnd = outIndexAtEnd;
-		indexAtGreatestDelta = outIndexAtGreatestDelta;
-		return outRot;
-	}
-
-	public Quaternion GetGreatestRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, out int indexAtEnd, out int indexAtGreatestDelta) {
+	public IEnumerable<(int, int, Quaternion)> GetGreatestRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead) {
 		// TODO: search backwards if distance is negative
 		// TODO: option to ignore some distance at the start in front of the car
+		// TODO: handle forks
 
 		int index = closestLineIndex;
 		float distanceAheadSqr = distanceAhead * distanceAhead;
 		float distanceTraveledSqr = 0;
 		Quaternion greatestDelta = Quaternion.identity;
 		float greatestDeltaAngle = 0;
-		indexAtGreatestDelta = -1;
+		int indexAtGreatestDelta = -1;
 
-		indexAtEnd = -1;
+		int indexAtEnd = -1;
 
 		for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
 			float distanceSqr = (MainCenterline.LinePoints[i] - closestPos).sqrMagnitude;
@@ -272,17 +226,21 @@ public class CenterlineScript : MonoBehaviour {
 				continue;
 			} else {
 				indexAtEnd = i;
-				return greatestDelta;
+				yield return (indexAtEnd, indexAtGreatestDelta, greatestDelta);
 			}
 		}
 
-		return Quaternion.identity;
+		// return Quaternion.identity;
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out float closestDistance) {
+	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out int closestForkIndex, out float closestDistance) {
+		
+		pos = transform.InverseTransformPoint(pos);
+
 		Vector3 currentClosest = Vector3.zero;
 		float currentClosestDistance = 0;
 		int lineIndex = 0;
+		closestForkIndex = -1;
 
 
 		for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {
@@ -302,25 +260,86 @@ public class CenterlineScript : MonoBehaviour {
 			}
 		}
 
+
+		for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
+			for (int i = 1; i < Forks[forkIndex].LinePoints.Count; i++) {
+				float distance = distanceToSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
+
+				if (distance < currentClosestDistance) {
+					currentClosestDistance = distance;
+					currentClosest = ProjectPointOnLineSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
+					lineIndex = i - 1;
+					closestForkIndex = forkIndex;
+				}
+			}
+		}
+
 		closestDistance = currentClosestDistance;
 		closestLineIndex = lineIndex;
 		return currentClosest;
 	}
 
 	public Vector3 GetClosestPoint(Vector3 pos) {
-		return GetClosestPoint(pos, out int _index, out float _closestDistance);
+		return GetClosestPoint(pos, out int _index, out int _forkIndex, out float _closestDistance);
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex) {
-		Vector3 outPos = GetClosestPoint(pos, out int index, out float _closestDistance);
+	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out int closestForkIndex) {
+		Vector3 outPos = GetClosestPoint(pos, out int index, out int forkIndex, out float _closestDistance);
 		closestLineIndex = index;
+		closestForkIndex = forkIndex;
 		return outPos;
 	}
 
 	public Vector3 GetClosestPoint(Vector3 pos, out float closestDistance) {
-		Vector3 outPos = GetClosestPoint(pos, out int _index, out float distance);
+		Vector3 outPos = GetClosestPoint(pos, out int _index, out int _forkIndex, out float distance);
 		closestDistance = distance;
 		return outPos;
+	}
+
+	public Vector3 GetClosestPointWithinRangeToIndex(Vector3 pos, int relativeIndex, int relativeForkIndex, float maxCurveDistanceAhead, out int closestLineIndex, out float closestDistance) {
+		Vector3 currentClosest = Vector3.zero;
+		float currentClosestDistance = 0;
+		int lineIndex = 0;
+
+		float distanceAccumulatorSqr = 0;
+
+		// TODO: check forks too
+		// TODO: handle starting/relative index on fork
+
+		for (int i = relativeIndex; i < MainCenterline.LinePoints.Count; i++) {
+			float distance = distanceToSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+			// TODO: add distance between line points to accumulator, stop if accumulator passes max curve distance
+
+			if (i == 1) {
+				currentClosestDistance = distance;
+				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+				lineIndex = 0;
+				continue;
+			}
+
+			if (distance < currentClosestDistance) {
+				currentClosestDistance = distance;
+				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+				lineIndex = i - 1;
+			}
+		}
+
+		for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
+			for (int i = relativeIndex; i < MainCenterline.LinePoints.Count; i++) {
+				float distance = distanceToSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
+				// TODO: add distance between line points to accumulator, stop if accumulator passes max curve distance
+
+				if (distance < currentClosestDistance) {
+					currentClosestDistance = distance;
+					currentClosest = ProjectPointOnLineSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
+					lineIndex = i - 1;
+				}
+			}
+		}
+
+		closestDistance = currentClosestDistance;
+		closestLineIndex = lineIndex;
+		return currentClosest;
 	}
 
 	public static float distanceToSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 pos) {
