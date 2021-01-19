@@ -34,9 +34,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			Quaternion closestLineRot = Quaternion.LookRotation(delta, Vector3.forward);
 			Gizmos.DrawLine(transform.position, transform.TransformPoint(closestLineRot * Vector3.forward * ArrowLength));
 
-			var rots = Centerline.GetRotationDeltaAhead(closestPos, closestIndex, DistanceAhead);
-			// * closestLineRot * Quaternion.Inverse(transform.rotation);
-			foreach (var rotOut in rots) {
+			foreach (var rotOut in Centerline.GetRotationDeltaAhead(closestPos, closestIndex, DistanceAhead, closestForkIndex)) {
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
 				int forkIndex = rotOut.Item2;
@@ -49,18 +47,17 @@ public class CenterlineTestScript : MonoBehaviour {
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 			}
 
-			var rots2 = Centerline.GetGreatestRotationDeltaAhead(closestPos, closestIndex, DistanceAhead);
-			// * closestLineRot * Quaternion.Inverse(transform.rotation);
-			foreach (var rotOut in rots) {
-				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
+			foreach (var rotOut in Centerline.GetGreatestRotationDeltaAhead(closestIndex, closestForkIndex, DistanceAhead)) {
+				Quaternion rot = rotOut.Item4 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int indexAtEnd = rotOut.Item1;
 				int indexAtGreatestDelta = rotOut.Item2;
+				int forkIndex = rotOut.Item3;
 
 				Gizmos.color = Color.cyan;
 				if (indexAtEnd < 0) indexAtEnd = 0;
 				if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
-				// cubeCenter = closestForkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[closestForkIndex].LinePoints[indexAtGreatestDelta];
-				Gizmos.DrawCube(Centerline.transform.TransformPoint(Centerline.MainCenterline.LinePoints[indexAtGreatestDelta]), Vector3.one * .9f);
+				Vector3 cubeCenter = closestForkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[closestForkIndex].LinePoints[indexAtGreatestDelta];
+				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .9f);
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 			}
 
