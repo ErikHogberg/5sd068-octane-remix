@@ -15,6 +15,7 @@ public class CenterlineTestScript : MonoBehaviour {
 	public float DistanceAhead = 1;
 	public float ArrowLength = 5;
 
+
 	void OnDrawGizmos() {
 		if (Centerline && Centerline.MainCenterline.LinePoints.Count > 1) {
 			Gizmos.color = LineColor;
@@ -56,8 +57,8 @@ public class CenterlineTestScript : MonoBehaviour {
 				Gizmos.color = Color.cyan;
 				if (indexAtEnd < 0) indexAtEnd = 0;
 				if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
-				Vector3 cubeCenter = closestForkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[closestForkIndex].LinePoints[indexAtGreatestDelta];
-				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .9f);
+				Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[forkIndex].LinePoints[indexAtGreatestDelta];
+				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .7f);
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 			}
 

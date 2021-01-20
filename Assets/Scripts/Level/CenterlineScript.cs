@@ -168,7 +168,7 @@ public class CenterlineScript : MonoBehaviour {
 
 	public IEnumerable<(int, int, Quaternion)> GetRotationDeltaAhead(Vector3 closestPos, int closestLineIndex, float distanceAhead, int startFork = -1) {
 		// TODO: search backwards if distance is negative
-		// TODO: handle forks
+
 
 		float distanceAheadSqr = distanceAhead * distanceAhead;
 		int index = closestLineIndex;
@@ -176,6 +176,7 @@ public class CenterlineScript : MonoBehaviour {
 
 		if (startFork < 0) {
 
+			// FIXME: distance ahead increases significantly as line resolution increases
 			float distanceTraveledSqr = 0;
 			for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
 				float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
@@ -193,12 +194,13 @@ public class CenterlineScript : MonoBehaviour {
 				}
 			}
 
-			distanceTraveledSqr = 0;
 			for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
 				if (Forks[forkIndex].StartIndex <= index) {
 					continue;
 				}
-				// TODO: add to accumulator distance from start on centerline until start of fork
+
+				distanceTraveledSqr = 0;
+
 				for (int i = index + 1; i < Forks[forkIndex].StartIndex; i++) {
 					float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
 					distanceTraveledSqr += distanceSqr;
@@ -252,6 +254,7 @@ public class CenterlineScript : MonoBehaviour {
 		// TODO: handle forks
 		// IDEA: only return once with greatest delta of any fork
 		// IDEA: return greatest delta of each fork
+		// IDEA: bool to choose either of?
 
 		int index = closestLineIndex;
 		float distanceAheadSqr = distanceAhead * distanceAhead;
@@ -260,34 +263,108 @@ public class CenterlineScript : MonoBehaviour {
 		float greatestDeltaAngle = 0;
 		int indexAtGreatestDelta = -1;
 
-		int indexAtEnd = -1;
+		Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
 
 		// TODO: check forks too if on main centerline
-		InternalCenterline line = closestForkIndex < 0 ? MainCenterline : Forks[closestForkIndex];
 
-		for (int i = index + 1; i < line.LinePoints.Count; i++) {
-			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-			distanceTraveledSqr += distanceSqr;
-			Quaternion outRot =
-				Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
-				* Quaternion.Inverse(
-					Quaternion.LookRotation(line.LinePoints[index + 1] - line.LinePoints[index], Vector3.up)
-				);
+		if (closestForkIndex < 0) {
+			for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
+				float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
+				distanceTraveledSqr += distanceSqr;
+				Quaternion outRot =
+					Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
+					* inverseRot;
 
-			float angle = Quaternion.Angle(Quaternion.identity, outRot);
-			if (greatestDeltaAngle < angle) {
-				greatestDeltaAngle = angle;
-				greatestDelta = outRot;
-				indexAtGreatestDelta = i;
+				float angle = Quaternion.Angle(Quaternion.identity, outRot);
+				if (greatestDeltaAngle < angle) {
+					greatestDeltaAngle = angle;
+					greatestDelta = outRot;
+					indexAtGreatestDelta = i;
+				}
+
+				if (distanceTraveledSqr < distanceAheadSqr) {
+					continue;
+				} else {
+					yield return (i, indexAtGreatestDelta, -1, greatestDelta);
+					break;
+				}
 			}
 
-			if (distanceTraveledSqr < distanceAheadSqr) {
-				continue;
-			} else {
-				indexAtEnd = i;
-				yield return (indexAtEnd, indexAtGreatestDelta, -1, greatestDelta);
-				break;
+
+			for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
+				if (Forks[forkIndex].StartIndex <= index) {
+					continue;
+				}
+
+				InternalCenterline line = Forks[forkIndex];
+				distanceTraveledSqr = 0;
+				greatestDeltaAngle = 0;
+
+				for (int i = index + 1; i < Forks[forkIndex].StartIndex; i++) {
+					float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
+					distanceTraveledSqr += distanceSqr;
+				}
+
+				for (int i = index - Forks[forkIndex].StartIndex; i < line.LinePoints.Count; i++) {
+
+					if (i < 0) i = 0;
+					Vector3 prevPos = i <= 1 ? MainCenterline.LinePoints[Forks[forkIndex].StartIndex] : line.LinePoints[i - 1];
+
+					float distanceSqr = (line.LinePoints[i] - prevPos).sqrMagnitude;
+					distanceTraveledSqr += distanceSqr;
+
+					Vector3 lineDir = line.LinePoints[i] - prevPos;
+					if (lineDir == Vector3.zero)
+						continue;
+
+					Quaternion outRot =
+						Quaternion.LookRotation(lineDir, Vector3.up)
+						* inverseRot;
+
+					float angle = Quaternion.Angle(Quaternion.identity, outRot);
+					if (greatestDeltaAngle < angle) {
+						greatestDeltaAngle = angle;
+						greatestDelta = outRot;
+						indexAtGreatestDelta = i;
+					}
+
+					if (distanceTraveledSqr < distanceAheadSqr) {
+						continue;
+					} else {
+						if (i < 1) break;
+						yield return (i, indexAtGreatestDelta, forkIndex, greatestDelta);
+						break;
+					}
+				}
+
 			}
+
+
+		} else {
+			InternalCenterline line = Forks[closestForkIndex];
+
+			for (int i = index + 1; i < line.LinePoints.Count; i++) {
+				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+				distanceTraveledSqr += distanceSqr;
+				Quaternion outRot =
+					Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
+					* inverseRot;
+
+				float angle = Quaternion.Angle(Quaternion.identity, outRot);
+				if (greatestDeltaAngle < angle) {
+					greatestDeltaAngle = angle;
+					greatestDelta = outRot;
+					indexAtGreatestDelta = i;
+				}
+
+				if (distanceTraveledSqr < distanceAheadSqr) {
+					continue;
+				} else {
+					yield return (i, indexAtGreatestDelta, closestForkIndex, greatestDelta);
+					break;
+				}
+			}
+
 		}
 
 		// return Quaternion.identity;
