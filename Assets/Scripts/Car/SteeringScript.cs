@@ -335,7 +335,7 @@ public class SteeringScript : MonoBehaviour {
 	private IEnumerable<WheelCollider> allWheelColliders;
 	private IEnumerable<GameObject> allWheelModels;
 
-	[Header("Key bindings")]
+	// [Header("Key bindings")]
 	public InputActionReference SteeringKeyBinding;
 	public InputActionReference GasKeyBinding;
 	public InputActionReference BrakeKeyBinding;
@@ -348,6 +348,8 @@ public class SteeringScript : MonoBehaviour {
 	public InputActionReference LeftRotateToggleKeyBinding;
 	public InputActionReference LeftYawKeyBinding;
 	public InputActionReference LeftPitchKeyBinding;
+
+	public InputActionReference ChangeCameraKeyBinding;
 
 	#endregion
 
@@ -387,6 +389,11 @@ public class SteeringScript : MonoBehaviour {
 				item.Notify(lapsCompleted);
 		}
 	}
+
+	public List<Camera> Cameras = new List<Camera>();
+	// public Camera CurrentCamera = null;
+	public int CurrentCameraIndex = 0;
+	public Camera CurrentCamera => Cameras != null && Cameras.Count > 0 ? Cameras[CurrentCameraIndex] : null;
 
 
 	void Start() {
@@ -763,6 +770,9 @@ public class SteeringScript : MonoBehaviour {
 
 		ResetKeyBinding.action.performed += Reset;
 
+		if (ChangeCameraKeyBinding)
+			ChangeCameraKeyBinding.action.performed += NextCamera;
+
 		// adds release actions
 		SteeringKeyBinding.action.canceled += SetSteering;
 		GasKeyBinding.action.canceled += SetGas;
@@ -790,6 +800,8 @@ public class SteeringScript : MonoBehaviour {
 		LeftYawKeyBinding.action.Enable();
 		LeftPitchKeyBinding.action.Enable();
 		LeftRotateToggleKeyBinding.action.Enable();
+
+		ChangeCameraKeyBinding?.action.Enable();
 	}
 
 	private void DisableInput() {
@@ -805,6 +817,8 @@ public class SteeringScript : MonoBehaviour {
 		LeftYawKeyBinding.action.Disable();
 		LeftPitchKeyBinding.action.Disable();
 		LeftRotateToggleKeyBinding.action.Disable();
+
+		ChangeCameraKeyBinding?.action.Disable();
 	}
 
 	#endregion
@@ -1173,9 +1187,13 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	public void CallResetObservers() {
-		foreach (var observer in ResetObservers)
-			// TODO: use exactly car camera instead of global current camera, in case there are multiple cars
-			observer.Notify(Camera.main);
+		foreach (var observer in ResetObservers) {
+			if (CurrentCamera) {
+				observer.Notify(CurrentCamera);
+			} else {
+				observer.Notify(Camera.main);
+			}
+		}
 	}
 
 	public void Reset(Vector3 pos, Quaternion rot) {
@@ -1315,6 +1333,25 @@ public class SteeringScript : MonoBehaviour {
 	public void DontZeroNextOnAir() {
 		ignoreNextOnAirZeroing = true;
 	}
+
+	public void NextCamera() {
+		if (Cameras == null || Cameras.Count < 1)
+			return;
+
+		CurrentCameraIndex++;
+		if (CurrentCameraIndex >= Cameras.Count)
+			CurrentCameraIndex = 0;
+
+		for (int i = 0; i < Cameras.Count; i++) {
+			Cameras[i].gameObject.SetActive(i == CurrentCameraIndex);
+		}
+		
+	}
+
+	public void NextCamera(CallbackContext _callback) {
+		NextCamera();
+	}
+
 
 	// Recording
 

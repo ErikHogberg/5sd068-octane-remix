@@ -23,6 +23,36 @@ public class SteeringScriptEditor : Editor {
 	bool showInputBindings = false;
 	bool showCameras = false;
 
+	/*
+	[Header("Key bindings")]
+	public InputActionReference SteeringKeyBinding;
+	public InputActionReference GasKeyBinding;
+	public InputActionReference BrakeKeyBinding;
+	[Space]
+	public InputActionReference BoostKeyBinding;
+	public InputActionReference ResetKeyBinding;
+	[Space]
+	public InputActionReference YawKeyBinding;
+	public InputActionReference PitchKeyBinding;
+	public InputActionReference LeftRotateToggleKeyBinding;
+	public InputActionReference LeftYawKeyBinding;
+	public InputActionReference LeftPitchKeyBinding;
+	*/
+
+	SerializedProperty steeringKeyBinding;
+	SerializedProperty gasKeyBinding;
+	SerializedProperty brakeKeyBinding;
+	SerializedProperty boostKeyBinding;
+	SerializedProperty resetKeyBinding;
+	SerializedProperty yawKeyBinding;
+	SerializedProperty pitchKeyBinding;
+	SerializedProperty leftRotateToggleKeyBinding;
+	SerializedProperty leftYawKeyBinding;
+	SerializedProperty leftPitchKeyBinding;
+	SerializedProperty changeCameraKeyBinding;
+
+	Camera emptyCameraField;
+
 	void OnEnable() {
 		// cellSize = serializedObject.FindProperty("CellSize");
 	}
@@ -41,6 +71,18 @@ public class SteeringScriptEditor : Editor {
 
 		// oppositeCorner = serializedObject.FindProperty("OppositeCorner");
 		// cellPrefab = serializedObject.FindProperty("CellPrefab");
+
+		steeringKeyBinding = serializedObject.FindProperty("SteeringKeyBinding");
+		gasKeyBinding = serializedObject.FindProperty("GasKeyBinding");
+		brakeKeyBinding = serializedObject.FindProperty("BrakeKeyBinding");
+		boostKeyBinding = serializedObject.FindProperty("BoostKeyBinding");
+		resetKeyBinding = serializedObject.FindProperty("ResetKeyBinding");
+		yawKeyBinding = serializedObject.FindProperty("YawKeyBinding");
+		pitchKeyBinding = serializedObject.FindProperty("PitchKeyBinding");
+		leftRotateToggleKeyBinding = serializedObject.FindProperty("LeftRotateToggleKeyBinding");
+		leftYawKeyBinding = serializedObject.FindProperty("LeftYawKeyBinding");
+		leftPitchKeyBinding = serializedObject.FindProperty("LeftPitchKeyBinding");
+		changeCameraKeyBinding = serializedObject.FindProperty("ChangeCameraKeyBinding");
 
 		SteeringScript steeringScript = (SteeringScript)target;
 
@@ -259,18 +301,127 @@ public class SteeringScriptEditor : Editor {
 
 		showRequired = EditorGUILayout.Foldout(showRequired, "Required Objects");
 		if (showRequired) {
-			// TODO: Required objects
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Front Wheels");
+			if (GUILayout.Button("Add")) {
+				steeringScript.FrontWheelColliders.Add(null);
+				steeringScript.FrontWheelModels.Add(null);
+			}
+			EditorGUILayout.EndHorizontal();
+			if (steeringScript.FrontWheelColliders.Count != steeringScript.FrontWheelModels.Count) {
+				EditorGUILayout.LabelField("Warning: collider and model count doesn't match");
+				if (GUILayout.Button("Resolve")) {
+					int diff = steeringScript.FrontWheelColliders.Count - steeringScript.FrontWheelModels.Count;
+					if (diff > 0) {
+						for (int i = 0; i < diff; i++) {
+							steeringScript.FrontWheelModels.Add(null);
+						}
+					} else {
+						diff *= -1;
+						for (int i = 0; i < diff; i++) {
+							steeringScript.FrontWheelColliders.Add(null);
+						}
+					}
+				}
+			} else {
+				for (int i = 0; i < steeringScript.FrontWheelColliders.Count; i++) {
+					EditorGUILayout.BeginHorizontal();
+					EditorGUILayout.LabelField("Wheel " + i);
+					if (GUILayout.Button("Remove")) {
+						steeringScript.RearWheelColliders.RemoveAt(i);
+						steeringScript.RearWheelModels.RemoveAt(i);
+					}
+					EditorGUILayout.EndHorizontal();
+					EditorGUI.indentLevel += 1;
+					steeringScript.FrontWheelColliders[i] = (WheelCollider)EditorGUILayout.ObjectField("Collider", steeringScript.FrontWheelColliders[i], typeof(WheelCollider), true);
+					steeringScript.FrontWheelModels[i] = (GameObject)EditorGUILayout.ObjectField("Model", steeringScript.FrontWheelModels[i], typeof(GameObject), true);
+					EditorGUI.indentLevel -= 1;
+				}
+			}
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Rear Wheels");
+			if (GUILayout.Button("Add")) {
+				// TODO: add one collider and one model
+				steeringScript.RearWheelColliders.Add(null);
+				steeringScript.RearWheelModels.Add(null);
+			}
+			EditorGUILayout.EndHorizontal();
+			if (steeringScript.RearWheelColliders.Count != steeringScript.RearWheelModels.Count) {
+				EditorGUILayout.LabelField("Warning: collider and model count doesn't match");
+				if (GUILayout.Button("Resolve")) {
+					int diff = steeringScript.RearWheelColliders.Count - steeringScript.RearWheelModels.Count;
+					if (diff > 0) {
+						for (int i = 0; i < diff; i++) {
+							steeringScript.RearWheelModels.Add(null);
+						}
+					} else {
+						diff *= -1;
+						for (int i = 0; i < diff; i++) {
+							steeringScript.RearWheelColliders.Add(null);
+						}
+					}
+				}
+			} else {
+				for (int i = 0; i < steeringScript.RearWheelColliders.Count; i++) {
+					EditorGUILayout.BeginHorizontal();
+					EditorGUILayout.LabelField("Wheel " + i);
+					if (GUILayout.Button("Remove")) {
+						steeringScript.RearWheelColliders.RemoveAt(i);
+						steeringScript.RearWheelModels.RemoveAt(i);
+					}
+					EditorGUILayout.EndHorizontal();
+					EditorGUI.indentLevel += 1;
+					steeringScript.RearWheelColliders[i] = (WheelCollider)EditorGUILayout.ObjectField("Collider", steeringScript.RearWheelColliders[i], typeof(WheelCollider), true);
+					steeringScript.RearWheelModels[i] = (GameObject)EditorGUILayout.ObjectField("Model", steeringScript.RearWheelModels[i], typeof(GameObject), true);
+					EditorGUI.indentLevel -= 1;
+				}
+			}
+
+
 		}
 
 		showInputBindings = EditorGUILayout.Foldout(showInputBindings, "Key Bindings");
 		if (showInputBindings) {
-			// TODO: Key bindings
+			EditorGUILayout.PropertyField(steeringKeyBinding);
+			EditorGUILayout.PropertyField(gasKeyBinding);
+			EditorGUILayout.PropertyField(brakeKeyBinding);
+			EditorGUILayout.PropertyField(boostKeyBinding);
+			EditorGUILayout.PropertyField(resetKeyBinding);
+			EditorGUILayout.PropertyField(yawKeyBinding);
+			EditorGUILayout.PropertyField(pitchKeyBinding);
+			EditorGUILayout.PropertyField(leftRotateToggleKeyBinding);
+			EditorGUILayout.PropertyField(leftYawKeyBinding);
+			EditorGUILayout.PropertyField(leftPitchKeyBinding);
+			EditorGUILayout.PropertyField(changeCameraKeyBinding);
 		}
 
+		showCameras = EditorGUILayout.Foldout(showCameras, "Cameras");
 		if (showCameras) {
 			// TODO: cameras
 			// IDEA: draw one extra empty camera field, one more than current amount of cameras. if field is filled, then another empty field will be added below
 			// IDEA: auto remove empty fields other than last
+			for (int i = 0; i < steeringScript.Cameras.Count; i++) {
+				EditorGUILayout.BeginHorizontal();
+				bool isCurrentCamera = steeringScript.Cameras[i] == steeringScript.CurrentCamera;
+				bool toggle = EditorGUILayout.Toggle(isCurrentCamera);
+				if (toggle && !isCurrentCamera) {
+					steeringScript.CurrentCameraIndex = i;
+				}
+				steeringScript.Cameras[i] = (Camera)EditorGUILayout.ObjectField(steeringScript.Cameras[i], typeof(Camera), true);
+				// if (GUILayout.Button("Remove")) {
+				if (!steeringScript.Cameras[i]) {
+					steeringScript.Cameras.RemoveAt(i);
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+
+			emptyCameraField = (Camera)EditorGUILayout.ObjectField(emptyCameraField, typeof(Camera), true);
+			if (emptyCameraField) {
+				steeringScript.Cameras.Add(emptyCameraField);
+				emptyCameraField = null;
+			}
+
 		}
 
 		if (EditorGUI.EndChangeCheck()) {
