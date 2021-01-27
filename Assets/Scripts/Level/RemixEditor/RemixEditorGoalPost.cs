@@ -78,7 +78,9 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 			print("finish spot null in check transition");
 		}
 
-		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
+		// TODO: use centerline to check transition instead
+		// return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
+		return true;
 	}
 
 	public static bool AttemptTransition(LevelPieceSuperClass targetSegment) {
@@ -92,7 +94,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 				MoveCarToStart();
 			}
 		} else {
-			LevelPieceSuperClass.ResetToCurrentSegment();
+			// LevelPieceSuperClass.ResetToCurrentSegment();
 		}
 
 		return success;

@@ -25,6 +25,10 @@ public class CenterlineScript : MonoBehaviour {
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
 	// TODO: use centerline to pull car towards center of road as a handicap option
 	// TODO: use centerline as respawn when falling off track
+	//UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
+	//ResetToCurrentSegment();
+	// TODO: wire up goal posts to use centerline instead of road segments for catching skipping of goal posts and reversing into goal post
+
 	// TODO: use centerline as cheat mitigation
 
 	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
@@ -42,6 +46,25 @@ public class CenterlineScript : MonoBehaviour {
 
 #if UNITY_EDITOR
 	void OnDrawGizmos() {
+		UnityEditor.Handles.color = Color.blue;
+
+		for (int i = 1; i < MainCenterline.ControlPoints.Count; i++) {
+			UnityEditor.Handles.DrawLine(
+				transform.TransformPoint(MainCenterline.ControlPoints[i - 1]),
+				transform.TransformPoint(MainCenterline.ControlPoints[i])
+			);
+		}
+		
+		foreach (var fork in Forks) {
+			for (int i = 1; i < fork.ControlPoints.Count; i++) {
+				Vector3 prevPoint = i == 1 ? MainCenterline.LinePoints[fork.StartIndex] : fork.ControlPoints[i - 1];
+				UnityEditor.Handles.DrawLine(
+					transform.TransformPoint(prevPoint),
+					transform.TransformPoint(fork.ControlPoints[i])
+				);
+			}
+		}
+
 		UnityEditor.Handles.color = Color.white;
 
 		for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {

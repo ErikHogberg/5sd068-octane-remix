@@ -20,7 +20,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		}
 		// if (ParentSegment)
 		// 	ParentSegment.LeaveSegmentObservers.Add(this);
-		LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
+		// LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
 		print("leave observer registered");
 
 		RemixEditorGoalPost.UpdateGoalPost();
@@ -30,7 +30,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		if (IsMainInstance) {
 			MainInstance = null;
 		}
-		LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
+		// LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
 	private bool readyOnAnyNextNotify = false;

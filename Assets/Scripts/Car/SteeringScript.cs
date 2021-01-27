@@ -1222,8 +1222,8 @@ public class SteeringScript : MonoBehaviour {
 			item.brakeTorque = 0;
 		}
 
-		if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
-		) {
+		// if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
+		// ) {
 			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 			rb.velocity = Vector3.zero;
@@ -1238,7 +1238,7 @@ public class SteeringScript : MonoBehaviour {
 
 			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
 			//CarRBHandler.Instance.FreezeRB(2.0f);
-		}
+		// }
 	}
 
 	private void Reset(CallbackContext _) {

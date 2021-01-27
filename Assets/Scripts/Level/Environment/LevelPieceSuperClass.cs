@@ -11,23 +11,10 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public static LevelPieceSuperClass CurrentSegment = null;
 
-	[Tooltip("In which order this segment is expected, if a segment is too much out of order, then the car will be reset to the last segment")]
-	public int SegmentOrder;
-
-	[Tooltip("Override which segment was before this one, instead of assuming (segment order - 1)")]
-	public bool OverridePreviousSegment = false;
-	[Tooltip("Which segments were before this one, requires the override to be checked to be used")]
-	public List<int> PreviousSegments;
-
-	[Tooltip("Which segment the car will land on when resetting at this segment, this segment if null")]
-	public LevelPieceSuperClass SegmentOnReset;
-
-	public Transform RespawnSpot;
-
-	[Tooltip("If entering this segment should change the speed profile of the car")]
-	public bool SetSpeedProfile = false;
-	[Tooltip("Which speed profile to change to")]
-	public int SpeedProfileIndex = 0;
+	// [Tooltip("If entering this segment should change the speed profile of the car")]
+	// public bool SetSpeedProfile = false;
+	// [Tooltip("Which speed profile to change to")]
+	// public int SpeedProfileIndex = 0;
 
 	// IDEA: empty level segment type for optional spots for adding roads
 	// IDEA: mark road as "hideable" to show a toggle in editor? too easy to miss that you have the option? 
@@ -39,9 +26,13 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	public ObjectSelectorScript Obstacles { get; private set; }
 
-	public static List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
+	// public static List<IObserver<LevelPieceSuperClass>> LeaveSegmentObservers = new List<IObserver<LevelPieceSuperClass>>();
 
-	// TODO: observers for remix editors for refreshing when a new segment is added
+	// TODO: remove segment order field
+	// TODO: figure out other way to decide order of segments in UI
+	// IDEA: use position of segment to decide order. distance from start line?
+	public int SegmentOrder;
+
 	// sends new total number of segments
 	public static List<IObserver<int>> AddSegmentObservers = new List<IObserver<int>>();
 
@@ -75,57 +66,6 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		}
 	}
 
-	// If a transition to this segment is allowed
-	public bool CheckValidProgression() {
-
-		if (!(SteeringScript.MainInstance?.EnableCheatMitigation ?? true)) {
-			return true;
-		}
-
-		// NOTE: always returns true if current segment is null
-		bool validProgression = !CurrentSegment;
-		if (OverridePreviousSegment)
-			validProgression = validProgression || PreviousSegments.Contains(CurrentSegment.SegmentOrder);
-		else
-			validProgression = validProgression
-				|| (SegmentOrder <= CurrentSegment.SegmentOrder + 1
-					&& SegmentOrder > CurrentSegment.SegmentOrder);
-
-		return validProgression;
-	}
-
-	public bool AttemptTransition() {
-		bool validProgression = CheckValidProgression();
-		if (validProgression) {
-			// if (CurrentSegment)
-
-			LevelPieceSuperClass prevSegment = CurrentSegment;
-			CurrentSegment = this;
-
-			foreach (var observer in LeaveSegmentObservers)
-				observer.Notify(prevSegment);
-
-			if (SetSpeedProfile) {
-				// bool changedProfileSuccessfully = 
-				SteeringScript.MainInstance?.SetProfile(SpeedProfileIndex, false);// ?? false;
-			}
-
-			// print("current segment: " + CurrentSegment.SegmentOrder);
-		} else {
-			UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
-			ResetToCurrentSegment();
-		}
-
-		return validProgression;
-	}
-
-	private void OnTriggerEnter(Collider other) {
-		if (!other.CompareTag("Player") || CurrentSegment == this)
-			return;
-
-		AttemptTransition();
-	}
-
 	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {
 		if (!CurrentSegment)
 			return true;
@@ -133,27 +73,12 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 		return CurrentSegment == segmentToCheck;
 	}
 
-	public static bool ResetToCurrentSegment() {
-		if (!CurrentSegment)
-			return false;
-
-		if (CurrentSegment.RespawnSpot) {
-			if (CurrentSegment.SegmentOnReset)
-				CurrentSegment = CurrentSegment.SegmentOnReset;
-
-			SteeringScript.MainInstance?.Reset(CurrentSegment.RespawnSpot.position, CurrentSegment.RespawnSpot.rotation);
-		} else {
-			return false;
-		}
-
-		return true;
-	}
 
 	public static void ClearCurrentSegment(bool notifyLeaving = false) {
-		if (notifyLeaving && CurrentSegment) {
-			foreach (var observer in LeaveSegmentObservers)
-				observer.Notify(CurrentSegment);
-		}
+		// if (notifyLeaving && CurrentSegment) {
+		// 	foreach (var observer in LeaveSegmentObservers)
+		// 		observer.Notify(CurrentSegment);
+		// }
 
 		CurrentSegment = null;
 	}
