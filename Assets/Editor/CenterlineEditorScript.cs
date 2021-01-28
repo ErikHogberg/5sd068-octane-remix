@@ -25,6 +25,8 @@ public class CenterlineEditorScript : Editor {
 	bool showPoints = true;
 	bool showForks = false;
 
+	bool drawControlPointLines = true;
+
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
 	}
@@ -32,6 +34,29 @@ public class CenterlineEditorScript : Editor {
 	private void OnSceneGUI() {
 
 		CenterlineScript centerlineScript = (CenterlineScript)target;
+
+		if (drawControlPointLines) {
+
+			UnityEditor.Handles.color = Color.blue;
+
+			for (int i = 1; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
+				UnityEditor.Handles.DrawLine(
+					centerlineScript.transform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i - 1]),
+					centerlineScript.transform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i])
+				);
+			}
+
+			foreach (var fork in centerlineScript.Forks) {
+				for (int i = 1; i < fork.ControlPoints.Count; i++) {
+					Vector3 prevPoint = i == 1 ? centerlineScript.MainCenterline.LinePoints[fork.StartIndex] : fork.ControlPoints[i - 1];
+					UnityEditor.Handles.DrawLine(
+						centerlineScript.transform.TransformPoint(prevPoint),
+						centerlineScript.transform.TransformPoint(fork.ControlPoints[i])
+					);
+				}
+			}
+		}
+
 
 		Handles.color = mainLineHandleColor;
 
@@ -164,11 +189,13 @@ public class CenterlineEditorScript : Editor {
 		if (overrideResolutionMax) {
 			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.MainCenterline.Resolution);
 		} else {
-			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 0, 250);
+			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 2, 250);
 		}
 		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
 		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
 		// EditorGUILayout.EndHorizontal();
+		centerlineScript.MainCenterline.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.MainCenterline.BezierSplitExponent);
+
 
 		showPoints = EditorGUILayout.Foldout(showPoints, "Control Points");
 		if (showPoints) {
@@ -193,8 +220,16 @@ public class CenterlineEditorScript : Editor {
 		if (showForks) {
 			EditorGUI.indentLevel += 1;
 			for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
-				centerlineScript.Forks[forkIndex].Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", centerlineScript.Forks[forkIndex].Resolution, 0, 250);
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField($"Fork {forkIndex}");
+				if (GUILayout.Button("Remove Fork")) {
+					centerlineScript.Forks.RemoveAt(forkIndex);
+				}
+				EditorGUILayout.EndHorizontal();
+
+				centerlineScript.Forks[forkIndex].Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", centerlineScript.Forks[forkIndex].Resolution, 2, 250);
 				centerlineScript.Forks[forkIndex].StartIndex = EditorGUILayout.IntField("Start index", centerlineScript.Forks[forkIndex].StartIndex);
+				centerlineScript.Forks[forkIndex].BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.Forks[forkIndex].BezierSplitExponent);
 				if (centerlineScript.Forks[forkIndex].StartIndex >= centerlineScript.MainCenterline.LinePoints.Count) {
 					centerlineScript.Forks[forkIndex].StartIndex = centerlineScript.MainCenterline.ControlPoints.Count - 1;
 				} else if (centerlineScript.Forks[forkIndex].StartIndex < 0) {
@@ -233,13 +268,14 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUI.BeginChangeCheck();
 
-		controlHandleSize = EditorGUILayout.Slider("Control Point Handle Size", controlHandleSize, 0.01f, 1f);
-		lineHandleSize = EditorGUILayout.Slider("Line Point Handle Size", lineHandleSize, 0.01f, 1f);
+		controlHandleSize = EditorGUILayout.Slider("Control Point Handle Size", controlHandleSize, 0.01f, 5f);
+		lineHandleSize = EditorGUILayout.Slider("Line Point Handle Size", lineHandleSize, 0.01f, 5f);
 
 		mainLineHandleColor = EditorGUILayout.ColorField("Main Line Handle Color", mainLineHandleColor);
 		forkLineHandleColor = EditorGUILayout.ColorField("Fork Line Handle Color", forkLineHandleColor);
 		mainControlHandleColor = EditorGUILayout.ColorField("Main Control Point Handle Color", mainControlHandleColor);
 		forkControlHandleColor = EditorGUILayout.ColorField("Fork Control Point Handle Color", forkControlHandleColor);
+		drawControlPointLines = EditorGUILayout.Toggle("Draw Control Point Lines", drawControlPointLines);
 
 		if (EditorGUI.EndChangeCheck())
 			SceneView.RepaintAll();

@@ -16,6 +16,7 @@ public class CenterlineScript : MonoBehaviour {
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
 		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
+		public float BezierSplitExponent = 10f;
 	}
 
 	public InternalCenterline MainCenterline = new InternalCenterline();
@@ -46,24 +47,6 @@ public class CenterlineScript : MonoBehaviour {
 
 #if UNITY_EDITOR
 	void OnDrawGizmos() {
-		UnityEditor.Handles.color = Color.blue;
-
-		for (int i = 1; i < MainCenterline.ControlPoints.Count; i++) {
-			UnityEditor.Handles.DrawLine(
-				transform.TransformPoint(MainCenterline.ControlPoints[i - 1]),
-				transform.TransformPoint(MainCenterline.ControlPoints[i])
-			);
-		}
-		
-		foreach (var fork in Forks) {
-			for (int i = 1; i < fork.ControlPoints.Count; i++) {
-				Vector3 prevPoint = i == 1 ? MainCenterline.LinePoints[fork.StartIndex] : fork.ControlPoints[i - 1];
-				UnityEditor.Handles.DrawLine(
-					transform.TransformPoint(prevPoint),
-					transform.TransformPoint(fork.ControlPoints[i])
-				);
-			}
-		}
 
 		UnityEditor.Handles.color = Color.white;
 
@@ -89,84 +72,82 @@ public class CenterlineScript : MonoBehaviour {
 	}
 #endif
 
-	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution) {
+	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution, float BezierSplitExponent = 10f) {
 		List<Vector3> LinePoints = new List<Vector3>();
 
 		int controlPointCount = ControlPoints.Count;
 
-		if (startControlPoint is Vector3 start) {
-			if (controlPointCount < 1)
-				return LinePoints;
+		IEnumerable<Vector3> controlPoints = ControlPoints;
 
-			if (controlPointCount == 1) {
-				LinePoints.Add(start);
-				LinePoints.Add(ControlPoints[0]);
-				return LinePoints;
+		if (startControlPoint is Vector3 startTemp) {
+			controlPoints = controlPoints.Prepend(startTemp);
+			controlPointCount++;
+		}
+
+		Vector3 lastCurveEndDelta = Vector3.zero;
+
+		int i = 0;
+		while (i < controlPointCount) {
+			int diff = controlPointCount - i;
+
+			if (diff < 3) {
+				if (controlPointCount == 1) {
+					// return LinePoints;
+					LinePoints.Add(ControlPoints[i]);
+				}
+
+				if (controlPointCount == 2) {
+					LinePoints.Add(ControlPoints[i]);
+					LinePoints.Add(ControlPoints[i + 1]);
+				}
+
+				if (controlPointCount == 3) {
+					LinePoints.AddRange(Bezier.CubicBezierRender(
+						ControlPoints[i],
+						ControlPoints[i + 1],
+						ControlPoints[i + 1],
+						ControlPoints[i + 2],
+						Resolution
+					));
+				}
+
+				break;
 			}
 
-
-			if (controlPointCount == 2) {
-				LinePoints = Bezier.CubicBezierRender(
-					start,
-					ControlPoints[0],
-					ControlPoints[0],
-					ControlPoints[1],
-					Resolution
-				);
-			}
-
-			if (controlPointCount == 3) {
-				LinePoints = Bezier.CubicBezierRender(
-					start,
-					ControlPoints[0],
-					ControlPoints[1],
-					ControlPoints[2],
-					Resolution
-				);
-			}
-
-			if (controlPointCount > 3) {
-				LinePoints = Bezier.CubicBezierRender(
-					ControlPoints.Prepend(start).ToList(),
-					Resolution
-				);
-			}
-		} else {
-			if (controlPointCount < 2)
-				return LinePoints;
-
-			if (controlPointCount == 2) {
-				LinePoints.Add(ControlPoints[0]);
-				LinePoints.Add(ControlPoints[1]);
-				return LinePoints;
-			}
-
-			if (controlPointCount == 3) {
-				LinePoints = Bezier.CubicBezierRender(
-					ControlPoints[0],
-					ControlPoints[1],
-					ControlPoints[1],
-					ControlPoints[2],
-					Resolution
-				);
-			}
-
-			if (controlPointCount == 4) {
-				LinePoints = Bezier.CubicBezierRender(
+			if (i == 0) {
+				LinePoints.AddRange(Bezier.CubicBezierRender(
 					ControlPoints[0],
 					ControlPoints[1],
 					ControlPoints[2],
 					ControlPoints[3],
 					Resolution
-				);
+				));
+				i += 3;
+
+				lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
+				// if (delta == Vector3.zero)
+				// return;
+				continue;
 			}
 
-			if (controlPointCount > 4) {
-				LinePoints = Bezier.CubicBezierRender(
-					ControlPoints,
-					Resolution
-				);
-			}
+			// TODO: generate first point from direction of last 2 line points
+			// IDEA: cache last 2 line points generated, or angle between them
+			Vector3 controlPoint1 = ControlPoints[i];
+			Vector3 controlPoint2 = ControlPoints[i] + lastCurveEndDelta.normalized * BezierSplitExponent;
+			Vector3 controlPoint3 = ControlPoints[i + 1];
+			Vector3 controlPoint4 = ControlPoints[i + 2];
+
+			LinePoints.AddRange(Bezier.CubicBezierRender(
+				controlPoint1,
+				controlPoint2,
+				controlPoint3,
+				controlPoint4,
+				Resolution
+			));
+
+			i += 2;
+			lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
+
 		}
 
 		return LinePoints;
@@ -174,11 +155,11 @@ public class CenterlineScript : MonoBehaviour {
 
 	public void GenerateLinePoints() {
 
-		MainCenterline.LinePoints = GenerateLinePoints(null, MainCenterline.ControlPoints, MainCenterline.Resolution);
+		MainCenterline.LinePoints = GenerateLinePoints(null, MainCenterline.ControlPoints, MainCenterline.Resolution, MainCenterline.BezierSplitExponent);
 
 		foreach (var fork in Forks) {
 			Vector3 startPoint = MainCenterline.LinePoints != null && MainCenterline.LinePoints.Count > fork.StartIndex && fork.StartIndex >= 0 ? MainCenterline.LinePoints[fork.StartIndex] : Vector3.zero;
-			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution);
+			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution, fork.BezierSplitExponent);
 		}
 
 	}
