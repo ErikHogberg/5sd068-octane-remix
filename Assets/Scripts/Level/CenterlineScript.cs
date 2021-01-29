@@ -77,38 +77,52 @@ public class CenterlineScript : MonoBehaviour {
 
 		int controlPointCount = ControlPoints.Count;
 
-		IEnumerable<Vector3> controlPoints = ControlPoints;
+		// IEnumerable<Vector3> controlPoints = ControlPoints;
 
 		if (startControlPoint is Vector3 startTemp) {
-			controlPoints = controlPoints.Prepend(startTemp);
+			ControlPoints = ControlPoints.Prepend(startTemp).ToList();
 			controlPointCount++;
 		}
 
-		Vector3 lastCurveEndDelta = Vector3.zero;
+		// Vector3 lastCurveEndDelta = Vector3.zero;
 
 		int i = 0;
 		while (i < controlPointCount) {
 			int diff = controlPointCount - i;
 
 			if (diff < 3) {
-				if (controlPointCount == 1) {
-					// return LinePoints;
-					LinePoints.Add(ControlPoints[i]);
-				}
+				if (i == 0) {
+					if (controlPointCount == 1) {
+						// return LinePoints;
+						LinePoints.Add(ControlPoints[i]);
+					}
 
-				if (controlPointCount == 2) {
-					LinePoints.Add(ControlPoints[i]);
-					LinePoints.Add(ControlPoints[i + 1]);
-				}
+					if (controlPointCount == 2) {
+						LinePoints.Add(ControlPoints[i]);
+						LinePoints.Add(ControlPoints[i + 1]);
+					}
 
-				if (controlPointCount == 3) {
-					LinePoints.AddRange(Bezier.CubicBezierRender(
-						ControlPoints[i],
-						ControlPoints[i + 1],
-						ControlPoints[i + 1],
-						ControlPoints[i + 2],
-						Resolution
-					));
+				} else {
+					if (diff == 2) {
+						Vector3 delta1 = ControlPoints[i] - ControlPoints[i - 1];
+						// Vector3 delta2 = ControlPoints[i-1] - ControlPoints[i-2];
+						Vector3 controlPoint1 = ControlPoints[i];
+						Vector3 controlPoint2 = ControlPoints[i]
+						 //  + delta1.normalized*delta2.magnitude;
+						 + delta1;
+						//lastCurveEndDelta.normalized * BezierSplitExponent;
+						Vector3 controlPoint3 = controlPoint2;
+						// Vector3 controlPoint3 = ControlPoints[i + 1];
+						Vector3 controlPoint4 = ControlPoints[i + 1];
+
+						LinePoints.AddRange(Bezier.CubicBezierRender(
+							controlPoint1,
+							controlPoint2,
+							controlPoint3,
+							controlPoint4,
+							Resolution
+						));
+					}
 				}
 
 				break;
@@ -118,35 +132,44 @@ public class CenterlineScript : MonoBehaviour {
 				LinePoints.AddRange(Bezier.CubicBezierRender(
 					ControlPoints[0],
 					ControlPoints[1],
+					ControlPoints[1],
 					ControlPoints[2],
-					ControlPoints[3],
 					Resolution
 				));
-				i += 3;
+				i += 2;
 
-				lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
+				// lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
 				// if (delta == Vector3.zero)
 				// return;
 				continue;
 			}
 
-			// TODO: generate first point from direction of last 2 line points
-			// IDEA: cache last 2 line points generated, or angle between them
-			Vector3 controlPoint1 = ControlPoints[i];
-			Vector3 controlPoint2 = ControlPoints[i] + lastCurveEndDelta.normalized * BezierSplitExponent;
-			Vector3 controlPoint3 = ControlPoints[i + 1];
-			Vector3 controlPoint4 = ControlPoints[i + 2];
 
-			LinePoints.AddRange(Bezier.CubicBezierRender(
-				controlPoint1,
-				controlPoint2,
-				controlPoint3,
-				controlPoint4,
-				Resolution
-			));
+			{
+				// TODO: generate first point from direction of last 2 line points
+				// IDEA: cache last 2 line points generated, or angle between them
+				// IDEA: use previous control points delta instead
+				Vector3 delta1 = ControlPoints[i] - ControlPoints[i - 1];
+				// Vector3 delta2 = ControlPoints[i-1] - ControlPoints[i-2];
+				Vector3 controlPoint1 = ControlPoints[i];
+				Vector3 controlPoint2 = ControlPoints[i]
+				 //  + delta1.normalized*delta2.magnitude;
+				 + delta1;
+				//lastCurveEndDelta.normalized * BezierSplitExponent;
+				Vector3 controlPoint3 = ControlPoints[i + 1];
+				Vector3 controlPoint4 = ControlPoints[i + 2];
 
-			i += 2;
-			lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
+				LinePoints.AddRange(Bezier.CubicBezierRender(
+					controlPoint1,
+					controlPoint2,
+					controlPoint3,
+					controlPoint4,
+					Resolution
+				));
+
+				i += 2;
+				// lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
+			}
 
 		}
 
@@ -159,6 +182,7 @@ public class CenterlineScript : MonoBehaviour {
 
 		foreach (var fork in Forks) {
 			Vector3 startPoint = MainCenterline.LinePoints != null && MainCenterline.LinePoints.Count > fork.StartIndex && fork.StartIndex >= 0 ? MainCenterline.LinePoints[fork.StartIndex] : Vector3.zero;
+			// fork.LinePoints = GenerateLinePoints(null, fork.ControlPoints, fork.Resolution, fork.BezierSplitExponent);
 			fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution, fork.BezierSplitExponent);
 		}
 
