@@ -77,7 +77,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			childCount = n.Forks.Count,
 			indexOfFirstChild = SerializedLines.Count + 1
 		};
-		
+
 		SerializedLines.Add(serializedNode);
 		foreach (var child in n.Forks)
 			AddNodeToSerializedNodes(child);
@@ -122,25 +122,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		UnityEditor.Handles.color = Color.white;
 
 		DrawLine(MainCenterline);
-
-		// for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {
-		// 	UnityEditor.Handles.DrawLine(
-		// 		transform.TransformPoint(MainCenterline.LinePoints[i - 1]),
-		// 		transform.TransformPoint(MainCenterline.LinePoints[i])
-		// 	);
-		// }
-
-		// foreach (var fork in Forks) {
-		// 	if (fork.LinePoints.Count < 1)
-		// 		continue;
-
-		// 	for (int i = 1; i < fork.LinePoints.Count; i++) {
-		// 		UnityEditor.Handles.DrawLine(
-		// 			transform.TransformPoint(fork.LinePoints[i - 1]),
-		// 			transform.TransformPoint(fork.LinePoints[i])
-		// 		);
-		// 	}
-		// }
 
 	}
 
@@ -345,77 +326,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		// if (startFork < 0) {
-
-		// 	// FIXME: distance ahead increases significantly as line resolution increases
-		// 	float distanceTraveledSqr = 0;
-		// 	for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
-		// 		float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-		// 		if (distanceTraveledSqr < distanceAheadSqr) {
-		// 			continue;
-		// 		} else {
-		// 			int compareLineIndex = i;
-
-		// 			Quaternion outRot = Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
-		// 				* inverseRot;
-
-		// 			yield return (compareLineIndex, -1, outRot);
-		// 			break;
-		// 		}
-		// 	}
-
-		// 	for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
-		// 		if (Forks[forkIndex].StartIndex <= index) {
-		// 			continue;
-		// 		}
-
-		// 		distanceTraveledSqr = 0;
-
-		// 		for (int i = index + 1; i < Forks[forkIndex].StartIndex; i++) {
-		// 			float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
-		// 			distanceTraveledSqr += distanceSqr;
-		// 		}
-
-		// 		for (int i = index - Forks[forkIndex].StartIndex; i < Forks[forkIndex].LinePoints.Count; i++) {
-		// 			if (i < 0) i = 0;
-		// 			Vector3 prevPos = i <= 1 ? MainCenterline.LinePoints[Forks[forkIndex].StartIndex] : Forks[forkIndex].LinePoints[i - 1];
-		// 			float distanceSqr = (Forks[forkIndex].LinePoints[i] - prevPos).sqrMagnitude;
-		// 			distanceTraveledSqr += distanceSqr;
-		// 			if (distanceTraveledSqr < distanceAheadSqr) {
-		// 				continue;
-		// 			} else {
-		// 				// FIXME: returns fork first line pos one step on main line too early
-		// 				if (i < 1) break;
-		// 				Quaternion outRot = Quaternion.LookRotation(Forks[forkIndex].LinePoints[i] - prevPos, Vector3.up)
-		// 					* inverseRot;
-
-		// 				yield return (i, forkIndex, outRot);
-		// 				break;
-		// 			}
-		// 		}
-		// 	}
-		// } else {
-		// 	float distanceTraveledSqr = 0;
-
-		// 	// FIXME: index out of bound at end, but only sometimes?
-		// 	for (int i = index + 1; i < Forks[startFork].LinePoints.Count; i++) {
-		// 		float distanceSqr = (Forks[startFork].LinePoints[i] - Forks[startFork].LinePoints[i - 1]).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-		// 		if (distanceTraveledSqr < distanceAheadSqr) {
-		// 			continue;
-		// 		} else {
-		// 			Quaternion outRot = Quaternion.LookRotation(Forks[startFork].LinePoints[i] - Forks[startFork].LinePoints[i - 1], Vector3.up)
-		// 				* inverseRot;
-
-		// 			yield return (i, startFork, outRot);
-		// 			break;
-		// 		}
-		// 	}
-		// }
-
-		// compareLineIndex = -1;
-		// yield return Quaternion.identity;
 	}
 
 	/// Gets all greatest rotation deltas of paths ahead (current line + any new forks in the distance ahead). 
@@ -487,110 +397,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				yield return forkResult;
 		}
 
-		// if (closestForkIndex < 0) {
-		// 	for (int i = index + 1; i < MainCenterline.LinePoints.Count; i++) {
-		// 		float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-		// 		Quaternion outRot =
-		// 			Quaternion.LookRotation(MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1], Vector3.up)
-		// 			* inverseRot;
-
-		// 		float angle = Quaternion.Angle(Quaternion.identity, outRot);
-		// 		if (greatestDeltaAngle < angle) {
-		// 			greatestDeltaAngle = angle;
-		// 			greatestDelta = outRot;
-		// 			indexAtGreatestDelta = i;
-		// 		}
-
-		// 		if (distanceTraveledSqr < distanceAheadSqr) {
-		// 			continue;
-		// 		} else {
-		// 			yield return (i, indexAtGreatestDelta, -1, greatestDelta);
-		// 			break;
-		// 		}
-		// 	}
-
-
-		// for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
-		// 	if (Forks[forkIndex].StartIndex <= index) {
-		// 		continue;
-		// 	}
-
-		// 	InternalCenterline line = Forks[forkIndex];
-		// 	distanceTraveledSqr = 0;
-		// 	greatestDeltaAngle = 0;
-
-		// 	for (int i = index + 1; i < Forks[forkIndex].StartIndex; i++) {
-		// 		float distanceSqr = (MainCenterline.LinePoints[i] - MainCenterline.LinePoints[i - 1]).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-		// 	}
-
-		// 	for (int i = index - Forks[forkIndex].StartIndex; i < line.LinePoints.Count; i++) {
-
-		// 		if (i < 0) i = 0;
-		// 		Vector3 prevPos = i <= 1 ? MainCenterline.LinePoints[Forks[forkIndex].StartIndex] : line.LinePoints[i - 1];
-
-		// 		float distanceSqr = (line.LinePoints[i] - prevPos).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-
-		// 		Vector3 lineDir = line.LinePoints[i] - prevPos;
-		// 		if (lineDir == Vector3.zero)
-		// 			continue;
-
-		// 		Quaternion outRot =
-		// 			Quaternion.LookRotation(lineDir, Vector3.up)
-		// 			* inverseRot;
-
-		// 		float angle = Quaternion.Angle(Quaternion.identity, outRot);
-		// 		if (greatestDeltaAngle < angle) {
-		// 			greatestDeltaAngle = angle;
-		// 			greatestDelta = outRot;
-		// 			indexAtGreatestDelta = i;
-		// 		}
-
-		// 		if (distanceTraveledSqr < distanceAheadSqr) {
-		// 			continue;
-		// 		} else {
-		// 			if (i < 1) break;
-		// 			yield return (i, indexAtGreatestDelta, forkIndex, greatestDelta);
-		// 			break;
-		// 		}
-		// 	}
-
-		// }
-
-
-		// } else {
-		// 	InternalCenterline line = Forks[closestForkIndex];
-
-		// 	for (int i = index + 1; i < line.LinePoints.Count; i++) {
-		// 		float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-		// 		distanceTraveledSqr += distanceSqr;
-		// 		Quaternion outRot =
-		// 			Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
-		// 			* inverseRot;
-
-		// 		float angle = Quaternion.Angle(Quaternion.identity, outRot);
-		// 		if (greatestDeltaAngle < angle) {
-		// 			greatestDeltaAngle = angle;
-		// 			greatestDelta = outRot;
-		// 			indexAtGreatestDelta = i;
-		// 		}
-
-		// 		if (distanceTraveledSqr < distanceAheadSqr) {
-		// 			continue;
-		// 		} else {
-		// 			yield return (i, indexAtGreatestDelta, closestForkIndex, greatestDelta);
-		// 			break;
-		// 		}
-		// 	}
-
-		// }
-
-		// return Quaternion.identity;
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, int depth = 0) {
+	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance) {
+		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance);
+	}
+
+	public static Vector3 GetClosestPoint(Vector3 pos, InternalCenterline line, Transform transform, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, int depth = 0) {
 
 		pos = transform.InverseTransformPoint(pos);
 
@@ -598,23 +411,23 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float currentClosestDistance = 0;
 		int lineIndex = 0;
 		// closestForkIndex = -1;
-		closestLine = MainCenterline;
+		closestLine = line;
 
 
 
-		for (int i = 1; i < MainCenterline.LinePoints.Count; i++) {
-			float distance = distanceToSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+		for (int i = 1; i < line.LinePoints.Count; i++) {
+			float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 
 			if (i == 1) {
 				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+				currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 				lineIndex = 0;
 				continue;
 			}
 
 			if (distance < currentClosestDistance) {
 				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
+				currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 				lineIndex = i - 1;
 			}
 		}
@@ -638,6 +451,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// 			closestForkIndex = forkIndex;
 		// 		}
 		// 	}
+		// }
+
+		// foreach (var fork in collection) {
+
 		// }
 
 		closestDistance = currentClosestDistance;
