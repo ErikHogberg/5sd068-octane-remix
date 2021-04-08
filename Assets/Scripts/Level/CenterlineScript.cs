@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
-	const int MAX_DEPTH = 3;
+	public const int MAX_DEPTH = 5;
 
 	public class InternalCenterline {
 		public int StartIndex = 0;
@@ -27,26 +27,21 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public class SerializableInternalCenterline {
 		public int StartIndex = 0;
 		public List<Vector3> ControlPoints = new List<Vector3>();
-		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
-		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
 		public float BezierSplitExponent = 10f;
 
 		[HideInInspector]
 		public bool ForksInspectorFoldState = false;
-		// public List<InternalCenterline> Forks = new List<InternalCenterline>();
 		public int childCount;
 		public int indexOfFirstChild;
 	}
 
-
 	public InternalCenterline MainCenterline = new InternalCenterline();
-	// public List<InternalCenterline> Forks = new List<InternalCenterline>();
-
-	public List<SerializableInternalCenterline> SerializedLines;// = new List<SerializableInternalCenterline>();
+	public List<SerializableInternalCenterline> SerializedLines;
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
+	// IDEA: visualize the 2d direction of the upcoming bend relative to the facing of the car by just applying the delta quaternion to a forward vector and then projecting it onto the up/right (x/y) plane to get the vector2 direction (with appropriate exponent) of the ui arrow
 	// TODO: use centerline to pull car towards center of road as a handicap option
 	// TODO: use centerline as respawn when falling off track
 	//UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
@@ -73,7 +68,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			Resolution = n.Resolution,
 			BezierSplitExponent = n.BezierSplitExponent,
 			ForksInspectorFoldState = n.ForksInspectorFoldState,
-			// interestingValue = n.interestingValue,
 			childCount = n.Forks.Count,
 			indexOfFirstChild = SerializedLines.Count + 1
 		};
@@ -93,7 +87,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	int ReadNodeFromSerializedNodes(int index, out InternalCenterline node) {
 		var serializedLine = SerializedLines[index];
-		// Transfer the deserialized data into the internal Node class
 		InternalCenterline newLine = new InternalCenterline() {
 			StartIndex = serializedLine.StartIndex,
 			ControlPoints = serializedLine.ControlPoints,
@@ -101,12 +94,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			Resolution = serializedLine.Resolution,
 			BezierSplitExponent = serializedLine.BezierSplitExponent,
 			ForksInspectorFoldState = serializedLine.ForksInspectorFoldState,
-			// interestingValue = serializedNode.interestingValue,
-			// children = new List<Node>()
 			Forks = new List<InternalCenterline>()
 		};
 
-		// The tree needs to be read in depth-first, since that's how we wrote it out.
 		for (int i = 0; i != serializedLine.childCount; i++) {
 			InternalCenterline childNode;
 			index = ReadNodeFromSerializedNodes(++index, out childNode);
@@ -274,14 +264,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 
 	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead), measured between closest point on line and point that is the given distance ahead
+	/// (Index at end, line at end, rotation delta)
 	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead) {
 		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance);
 		// return GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
-		return GetRotationDeltaAhead(line, distanceAhead, index);
+		return GetRotationDeltaAhead(line, distanceAhead * distanceAhead, index);
 	}
 
-	/// (Index at end, fork index, rotation delta)
-	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(InternalCenterline line, float distanceAhead, int startIndex = 0, Quaternion? compareRot = null, int depth = 0) {
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(InternalCenterline line, float distanceAheadSqr, int startIndex = 0, Quaternion? compareRot = null, int depth = 0) {
 		// IDEA: search backwards if distance is negative
 
 		if (depth > MAX_DEPTH) {
@@ -291,23 +281,30 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
-		float distanceAheadSqr = distanceAhead * distanceAhead;
+		// float distanceAheadSqr = distanceAhead * distanceAhead;
 		// int index = closestLineIndex;
 		// Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
 
 
 		float distanceTraveledSqr = 0;
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
-			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+			// calculate distance from previous point
+			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
+																							// accumulate distance traveled so far
 			distanceTraveledSqr += distanceSqr;
+
 			if (distanceTraveledSqr < distanceAheadSqr) {
+				// keep on going if accumulated distance has not yet passed distance ahead to measure
+				// NOTE: wont return any value if the distance ahead to measure overshoots the remaining length of the line
 				continue;
 			} else {
 				int compareLineIndex = i;
 
+				// get psuedo-tangent of the curve at this point (by measuring direction from the previous point)
 				Quaternion outRot = Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
 					// * inverseRot
 					;
+
 
 				yield return (compareLineIndex, line, outRot);
 				break;
@@ -318,10 +315,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (fork.StartIndex < startIndex)
 				continue;
 
-			// TODO: subtract distance between measure start and fork start
-			// TODO: ignore forks that start beyond measurement distance
-			float forkDistanceAhead = distanceAhead;
-			foreach (var forkResult in GetRotationDeltaAhead(fork, forkDistanceAhead, 0, compareRotValue, depth + 1)) {
+			float forkDistanceAheadSqr = distanceAheadSqr;
+			for (int i = startIndex + 1; i <= fork.StartIndex; i++) {
+				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
+				forkDistanceAheadSqr -= distanceSqr;
+			}
+
+			if (forkDistanceAheadSqr < 0)
+				continue;
+
+			foreach (var forkResult in GetRotationDeltaAhead(fork, forkDistanceAheadSqr, 0, compareRotValue, depth + 1)) {
 				yield return forkResult;
 			}
 		}
@@ -331,7 +334,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	/// Gets all greatest rotation deltas of paths ahead (current line + any new forks in the distance ahead). 
 	/// Measured between closest point on line and point that has the greatest rotation delta im the given distance ahead
 	/// (Index at end, index at greates delta, fork index, rotation delta)
-	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(InternalCenterline line, float distanceAhead, int startIndex = 0, Quaternion? compareRot = null, int depth = 0) {
+	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(InternalCenterline line, float distanceAheadSqr, 
+		int startIndex = 0, 
+		Quaternion? compareRot = null, 
+		int depth = 0
+	) {
+		
 		// IDEA: search backwards if distance is negative?
 		// IDEA: option to ignore some distance at the start in front of the car
 
@@ -346,7 +354,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		// int index = closestLineIndex;
-		float distanceAheadSqr = distanceAhead * distanceAhead;
+		// float distanceAheadSqr = distanceAhead * distanceAhead;
 		float distanceTraveledSqr = 0;
 		Quaternion greatestDelta = Quaternion.identity;
 		float greatestDeltaAngle = 0;
@@ -390,10 +398,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (fork.StartIndex < startIndex)
 				continue;
 
-			// TODO: subtract distance between measure start and fork start
-			// TODO: ignore forks that start beyond measurement distance
-			float forkDistanceAhead = distanceAhead;
-			foreach (var forkResult in GetGreatestRotationDeltasAhead(fork, forkDistanceAhead, 0, compareRotValue, depth + 1))
+			float forkDistanceAheadSqr = distanceAheadSqr;
+			for (int i = startIndex + 1; i <= fork.StartIndex; i++) {
+				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
+				forkDistanceAheadSqr -= distanceSqr;
+			}
+
+			if (forkDistanceAheadSqr < 0)
+				continue;
+
+			foreach (var forkResult in GetGreatestRotationDeltasAhead(fork, forkDistanceAheadSqr, 0, compareRotValue, depth + 1))
 				yield return forkResult;
 		}
 
@@ -403,7 +417,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance);
 	}
 
-	public static Vector3 GetClosestPoint(Vector3 pos, InternalCenterline line, Transform transform, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, int depth = 0) {
+	public static Vector3 GetClosestPoint(Vector3 pos, InternalCenterline line, Transform transform,
+		out int closestLineIndex,
+		out InternalCenterline closestLine,
+		out float closestDistance,
+		int depth = 0
+	) {
 
 		pos = transform.InverseTransformPoint(pos);
 
@@ -432,30 +451,25 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		if (depth > 10) {
+		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get closest point recursion too deep");
 			closestDistance = currentClosestDistance;
 			closestLineIndex = lineIndex;
 			return currentClosest;
 		}
 
-		// TODO: recursively check forks for closest
-		// for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
-		// 	for (int i = 1; i < Forks[forkIndex].LinePoints.Count; i++) {
-		// 		float distance = distanceToSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
-
-		// 		if (distance < currentClosestDistance) {
-		// 			currentClosestDistance = distance;
-		// 			currentClosest = ProjectPointOnLineSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
-		// 			lineIndex = i - 1;
-		// 			closestForkIndex = forkIndex;
-		// 		}
-		// 	}
-		// }
-
-		// foreach (var fork in collection) {
-
-		// }
+		foreach (var fork in line.Forks) {
+			int forkClosestIndex;
+			InternalCenterline forkClosestLine;
+			float forkClosestDistance;
+			Vector3 forkClosestPos = GetClosestPoint(pos, fork, transform, out forkClosestIndex, out forkClosestLine, out forkClosestDistance);
+			if (forkClosestDistance < currentClosestDistance) {
+				currentClosestDistance = forkClosestDistance;
+				currentClosest = forkClosestPos;
+				closestLine = forkClosestLine;
+				lineIndex = forkClosestIndex;
+			}
+		}
 
 		closestDistance = currentClosestDistance;
 		closestLineIndex = lineIndex;

@@ -23,7 +23,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(closestPos));
 
 			Gizmos.color = Color.white;
-			Vector3 delta = 
+			Vector3 delta =
 				closestFork.LinePoints[closestIndex + 1] - closestFork.LinePoints[closestIndex];
 			// closestForkIndex < 0 ?
 			// 	Centerline.MainCenterline.LinePoints[closestIndex + 1] - Centerline.MainCenterline.LinePoints[closestIndex]
@@ -37,13 +37,15 @@ public class CenterlineTestScript : MonoBehaviour {
 			Quaternion closestLineRot = Quaternion.LookRotation(delta, Vector3.forward);
 			Gizmos.DrawLine(transform.position, transform.TransformPoint(closestLineRot * Vector3.forward * ArrowLength));
 
-			foreach (var rotOut in CenterlineScript.GetRotationDeltaAhead(closestFork, DistanceAhead,closestIndex)) {
+			bool foundNoDeltas = true;
+			Gizmos.color = Color.green;
+			foreach (var rotOut in CenterlineScript.GetRotationDeltaAhead(closestFork, DistanceAhead, closestIndex)) {
+				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
 				// int forkIndex = rotOut.Item2;
 				CenterlineScript.InternalCenterline fork = rotOut.Item2;
 
-				Gizmos.color = Color.green;
 				if (index < 0) index = 0;
 				// Vector3 cubeCenter = closestForkIndex < 0 ? Centerline.MainCenterline.LinePoints[index] : Centerline.Forks[forkIndex].LinePoints[index];
 				// Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[index] : Centerline.Forks[forkIndex].LinePoints[index];
@@ -52,14 +54,19 @@ public class CenterlineTestScript : MonoBehaviour {
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 			}
 
+			if (foundNoDeltas)
+				Gizmos.DrawCube(transform.position, Vector3.one);
+
+			Gizmos.color = Color.cyan;
+			foundNoDeltas = true;
 			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(closestFork, DistanceAhead, closestIndex)) {
+				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item4 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int indexAtEnd = rotOut.Item1;
 				int indexAtGreatestDelta = rotOut.Item2;
 				// int forkIndex = rotOut.Item3;
 				CenterlineScript.InternalCenterline fork = rotOut.Item3;
 
-				Gizmos.color = Color.cyan;
 				if (indexAtEnd < 0) indexAtEnd = 0;
 				if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
 				// Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[forkIndex].LinePoints[indexAtGreatestDelta];
@@ -67,6 +74,10 @@ public class CenterlineTestScript : MonoBehaviour {
 				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .7f);
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
 			}
+
+			if (foundNoDeltas)
+				Gizmos.DrawCube(transform.position, Vector3.one * .7f);
+
 
 		}
 	}

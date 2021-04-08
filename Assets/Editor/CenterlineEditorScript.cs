@@ -8,7 +8,7 @@ using System.Collections;
 [CanEditMultipleObjects]
 public class CenterlineEditorScript : Editor {
 
-	const int MAX_DEPTH = 3;
+	// const int MAX_DEPTH = 5;
 
 	
 	SerializedProperty controlPoints;
@@ -38,7 +38,7 @@ public class CenterlineEditorScript : Editor {
 	}
 
 	static void DrawLine(CenterlineScript.InternalCenterline line, Transform transform, int depth = 0) {
-		if (depth > MAX_DEPTH) {
+		if (depth > CenterlineScript.MAX_DEPTH) {
 			Debug.LogError("Scene GUI line draw recursion too deep");
 			return;
 		}
@@ -56,7 +56,7 @@ public class CenterlineEditorScript : Editor {
 	}
 
 	void DrawLineHandles(CenterlineScript.InternalCenterline line, int depth = 0) {
-		if (depth > MAX_DEPTH) {
+		if (depth > CenterlineScript.MAX_DEPTH) {
 			Debug.LogError("Line handle draw recursion too deep");
 			return;
 		}
@@ -83,7 +83,7 @@ public class CenterlineEditorScript : Editor {
 
 	void DrawControlHandles(CenterlineScript.InternalCenterline line, int depth = 0) {
 
-		if (depth > MAX_DEPTH) {
+		if (depth > CenterlineScript.MAX_DEPTH) {
 			Debug.LogError("Control handle draw recursion too deep");
 			return;
 		}
