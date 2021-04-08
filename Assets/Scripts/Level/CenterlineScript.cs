@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
-	public const int MAX_DEPTH = 5;
+	public const int MAX_DEPTH = 10;
 
 	public class InternalCenterline {
 		public int StartIndex = 0;
@@ -15,7 +15,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
 		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
-		public float BezierSplitExponent = 10f;
 
 		[HideInInspector]
 		public bool ForksInspectorFoldState = false;
@@ -29,7 +28,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
-		public float BezierSplitExponent = 10f;
 
 		[HideInInspector]
 		public bool ForksInspectorFoldState = false;
@@ -66,7 +64,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			ControlPoints = n.ControlPoints,
 			LinePoints = n.LinePoints,
 			Resolution = n.Resolution,
-			BezierSplitExponent = n.BezierSplitExponent,
 			ForksInspectorFoldState = n.ForksInspectorFoldState,
 			childCount = n.Forks.Count,
 			indexOfFirstChild = SerializedLines.Count + 1
@@ -92,7 +89,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			ControlPoints = serializedLine.ControlPoints,
 			LinePoints = serializedLine.LinePoints,
 			Resolution = serializedLine.Resolution,
-			BezierSplitExponent = serializedLine.BezierSplitExponent,
 			ForksInspectorFoldState = serializedLine.ForksInspectorFoldState,
 			Forks = new List<InternalCenterline>()
 		};
@@ -137,19 +133,15 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 #endif
 
-	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution, float BezierSplitExponent = 10f) {
+	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution) {
 		List<Vector3> LinePoints = new List<Vector3>();
 
 		int controlPointCount = ControlPoints.Count;
-
-		// IEnumerable<Vector3> controlPoints = ControlPoints;
 
 		if (startControlPoint is Vector3 startTemp) {
 			ControlPoints = ControlPoints.Prepend(startTemp).ToList();
 			controlPointCount++;
 		}
-
-		// Vector3 lastCurveEndDelta = Vector3.zero;
 
 		int i = 0;
 		while (i < controlPointCount) {
@@ -158,7 +150,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (diff < 3) {
 				if (i == 0) {
 					if (controlPointCount == 1) {
-						// return LinePoints;
 						LinePoints.Add(ControlPoints[i]);
 					}
 
@@ -170,14 +161,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				} else {
 					if (diff == 2) {
 						Vector3 delta1 = ControlPoints[i] - ControlPoints[i - 1];
-						// Vector3 delta2 = ControlPoints[i-1] - ControlPoints[i-2];
 						Vector3 controlPoint1 = ControlPoints[i];
 						Vector3 controlPoint2 = ControlPoints[i]
-						 //  + delta1.normalized*delta2.magnitude;
 						 + delta1;
-						//lastCurveEndDelta.normalized * BezierSplitExponent;
 						Vector3 controlPoint3 = controlPoint2;
-						// Vector3 controlPoint3 = ControlPoints[i + 1];
 						Vector3 controlPoint4 = ControlPoints[i + 1];
 
 						LinePoints.AddRange(Bezier.CubicBezierRender(
@@ -203,9 +190,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				));
 				i += 2;
 
-				// lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
-				// if (delta == Vector3.zero)
-				// return;
 				continue;
 			}
 
@@ -215,12 +199,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				// IDEA: cache last 2 line points generated, or angle between them
 				// IDEA: use previous control points delta instead
 				Vector3 delta1 = ControlPoints[i] - ControlPoints[i - 1];
-				// Vector3 delta2 = ControlPoints[i-1] - ControlPoints[i-2];
 				Vector3 controlPoint1 = ControlPoints[i];
 				Vector3 controlPoint2 = ControlPoints[i]
-				 //  + delta1.normalized*delta2.magnitude;
 				 + delta1;
-				//lastCurveEndDelta.normalized * BezierSplitExponent;
 				Vector3 controlPoint3 = ControlPoints[i + 1];
 				Vector3 controlPoint4 = ControlPoints[i + 2];
 
@@ -233,7 +214,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				));
 
 				i += 2;
-				// lastCurveEndDelta = LinePoints[LinePoints.Count - 1] - LinePoints[LinePoints.Count - 2];
 			}
 
 		}
@@ -252,18 +232,17 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			return;
 		}
 
-		line.LinePoints = GenerateLinePoints(lineStartPoint, line.ControlPoints, line.Resolution, line.BezierSplitExponent);
+		line.LinePoints = GenerateLinePoints(lineStartPoint, line.ControlPoints, line.Resolution);
 
 		foreach (var fork in line.Forks) {
 			Vector3 forkStartPoint = line.LinePoints != null && line.LinePoints.Count > fork.StartIndex && fork.StartIndex >= 0 ? line.LinePoints[fork.StartIndex] : Vector3.zero;
 			GenerateLinePoints(fork, forkStartPoint, depth + 1);
-			// fork.LinePoints = GenerateLinePoints(null, fork.ControlPoints, fork.Resolution, fork.BezierSplitExponent);
-			// fork.LinePoints = GenerateLinePoints(startPoint, fork.ControlPoints, fork.Resolution, fork.BezierSplitExponent);
 		}
 
 	}
 
-	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead), measured between closest point on line and point that is the given distance ahead
+	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead)
+	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, line at end, rotation delta)
 	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead) {
 		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance);
@@ -281,16 +260,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
-		// float distanceAheadSqr = distanceAhead * distanceAhead;
-		// int index = closestLineIndex;
-		// Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
-
-
 		float distanceTraveledSqr = 0;
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			// calculate distance from previous point
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
-																							// accumulate distance traveled so far
+
+			// accumulate distance traveled so far
 			distanceTraveledSqr += distanceSqr;
 
 			if (distanceTraveledSqr < distanceAheadSqr) {
@@ -331,41 +306,31 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 
-	/// Gets all greatest rotation deltas of paths ahead (current line + any new forks in the distance ahead). 
-	/// Measured between closest point on line and point that has the greatest rotation delta im the given distance ahead
+	/// Gets all of the *greatest* rotation deltas of the paths ahead (current line + any new forks in the distance ahead). 
+	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, index at greates delta, fork index, rotation delta)
-	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(InternalCenterline line, float distanceAheadSqr, 
-		int startIndex = 0, 
-		Quaternion? compareRot = null, 
+	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(InternalCenterline line, float distanceAheadSqr,
+		int startIndex = 0,
+		Quaternion? compareRot = null,
 		int depth = 0
 	) {
-		
+
 		// IDEA: search backwards if distance is negative?
 		// IDEA: option to ignore some distance at the start in front of the car
 
-		// TODO: handle forks
-		// IDEA: only return once with greatest delta of any fork
-		// IDEA: return greatest delta of each fork
-		// IDEA: bool to choose either of?
+		// IDEA: option to only return once with greatest delta of all forks
 
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get greatest rotation delta recursion too deep");
 			yield break;
 		}
 
-		// int index = closestLineIndex;
-		// float distanceAheadSqr = distanceAhead * distanceAhead;
 		float distanceTraveledSqr = 0;
 		Quaternion greatestDelta = Quaternion.identity;
 		float greatestDeltaAngle = 0;
 		int indexAtGreatestDelta = -1;
 
-		// Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(MainCenterline.LinePoints[index + 1] - MainCenterline.LinePoints[index], Vector3.up));
-		// Quaternion inverseRot = Quaternion.Inverse(Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up));
-
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
-
-		// TODO: check forks too if on main centerline
 
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;

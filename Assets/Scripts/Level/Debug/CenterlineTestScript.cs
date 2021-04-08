@@ -25,11 +25,6 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.color = Color.white;
 			Vector3 delta =
 				closestFork.LinePoints[closestIndex + 1] - closestFork.LinePoints[closestIndex];
-			// closestForkIndex < 0 ?
-			// 	Centerline.MainCenterline.LinePoints[closestIndex + 1] - Centerline.MainCenterline.LinePoints[closestIndex]
-			// 	:
-			// 	Centerline.Forks[closestForkIndex].LinePoints[closestIndex + 1] - Centerline.MainCenterline.LinePoints[closestIndex]
-			// 	;
 
 			if (delta == Vector3.zero)
 				return;

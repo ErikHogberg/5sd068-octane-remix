@@ -8,9 +8,6 @@ using System.Collections;
 [CanEditMultipleObjects]
 public class CenterlineEditorScript : Editor {
 
-	// const int MAX_DEPTH = 5;
-
-	
 	SerializedProperty controlPoints;
 
 	CenterlineScript centerlineScript;
@@ -27,9 +24,6 @@ public class CenterlineEditorScript : Editor {
 	Color forkLineHandleColor = new Color(.8f, .8f, .7f, 1f);
 	Color mainControlHandleColor = Color.blue;
 	Color forkControlHandleColor = new Color(.3f, .2f, .6f, 1f);
-
-	// bool showPoints = true;
-	// bool showForks = false;
 
 	bool drawControlPointLines = true;
 
@@ -132,144 +126,15 @@ public class CenterlineEditorScript : Editor {
 		centerlineScript = (CenterlineScript)target;
 
 		if (drawControlPointLines) {
-
 			UnityEditor.Handles.color = Color.blue;
-
 			DrawLine(centerlineScript.MainCenterline, centerlineScript.transform);
-			// for (int i = 1; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
-			// 	UnityEditor.Handles.DrawLine(
-			// 		centerlineScript.transform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i - 1]),
-			// 		centerlineScript.transform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i])
-			// 	);
-			// }
-
-			// foreach (var fork in centerlineScript.Forks) {
-			// 	for (int i = 1; i < fork.ControlPoints.Count; i++) {
-			// 		Vector3 prevPoint = i == 1 ? centerlineScript.MainCenterline.LinePoints[fork.StartIndex] : fork.ControlPoints[i - 1];
-			// 		UnityEditor.Handles.DrawLine(
-			// 			centerlineScript.transform.TransformPoint(prevPoint),
-			// 			centerlineScript.transform.TransformPoint(fork.ControlPoints[i])
-			// 		);
-			// 	}
-			// }
 		}
 
-
 		Handles.color = mainLineHandleColor;
-
 		DrawLineHandles(centerlineScript.MainCenterline);
 
-		// for (int i = 1; i < centerlineScript.MainCenterline.LinePoints.Count - 1; i++) {
-		// 	EditorGUI.BeginChangeCheck();
-
-		// 	Transform handleTransform = centerlineScript.transform;
-		// 	Quaternion handleRotation = centerlineScript.transform.rotation;
-		// 	Vector3 pos = handleTransform.TransformPoint(centerlineScript.MainCenterline.LinePoints[i]);
-		// 	pos = Handles.FreeMoveHandle(pos, handleRotation, lineHandleSize, Vector3.one, Handles.DotHandleCap);
-
-		// 	if (EditorGUI.EndChangeCheck()) {
-		// 		Undo.RecordObject(centerlineScript, "Moved centerline control point");
-		// 		EditorUtility.SetDirty(centerlineScript);
-		// 		centerlineScript.MainCenterline.LinePoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 	}
-		// }
-
-		// Handles.color = forkLineHandleColor;
-
-		// for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
-		// 	for (int i = 1; i < centerlineScript.Forks[forkIndex].LinePoints.Count - 1; i++) {
-		// 		EditorGUI.BeginChangeCheck();
-
-		// 		Transform handleTransform = centerlineScript.transform;
-		// 		Quaternion handleRotation = centerlineScript.transform.rotation;
-		// 		Vector3 pos = handleTransform.TransformPoint(centerlineScript.Forks[forkIndex].LinePoints[i]);
-		// 		pos = Handles.FreeMoveHandle(pos, handleRotation, lineHandleSize, Vector3.one, Handles.DotHandleCap);
-
-		// 		if (EditorGUI.EndChangeCheck()) {
-		// 			Undo.RecordObject(centerlineScript, "Moved centerline control point");
-		// 			EditorUtility.SetDirty(centerlineScript);
-		// 			centerlineScript.Forks[forkIndex].LinePoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 		}
-		// 	}
-		// }
-
 		Handles.color = mainControlHandleColor;
-
 		DrawControlHandles(centerlineScript.MainCenterline);
-
-		// for (int i = 0; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
-
-		// 	EditorGUI.BeginChangeCheck();
-
-		// 	Transform handleTransform = centerlineScript.transform;
-		// 	Quaternion handleRotation = centerlineScript.transform.rotation;
-		// 	Vector3 pos = handleTransform.TransformPoint(centerlineScript.MainCenterline.ControlPoints[i]);
-		// 	pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
-
-		// 	if (EditorGUI.EndChangeCheck()) {
-		// 		Undo.RecordObject(centerlineScript, "Moved centerline control point");
-		// 		EditorUtility.SetDirty(centerlineScript);
-		// 		// IDEA: create new control point if start or end point is moved too far away from the next/previous point
-		// 		int count = centerlineScript.MainCenterline.ControlPoints.Count;
-		// 		if (addPointOnDrag && i > 0 && i == count - 1) {
-		// 			if ((centerlineScript.MainCenterline.ControlPoints[count - 1] - centerlineScript.MainCenterline.ControlPoints[count - 2]).sqrMagnitude > distanceThreshold * distanceThreshold) {
-		// 				centerlineScript.MainCenterline.ControlPoints.Add(centerlineScript.MainCenterline.ControlPoints[count - 1]);
-		// 				// FIXME: handle holds second last point after point is added
-		// 				// TODO: add when dragging start point
-		// 				centerlineScript.MainCenterline.ControlPoints[i + 1] = handleTransform.InverseTransformPoint(pos);
-		// 				centerlineScript.GenerateLinePoints();
-		// 				break;
-		// 			} else {
-		// 				centerlineScript.MainCenterline.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 			}
-
-		// 		} else {
-
-		// 			centerlineScript.MainCenterline.ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 		}
-		// 		centerlineScript.GenerateLinePoints();
-		// 	}
-		// }
-
-		// Handles.color = forkControlHandleColor;
-
-		// for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
-		// 	for (int i = 0; i < centerlineScript.Forks[forkIndex].ControlPoints.Count; i++) {
-		// 		EditorGUI.BeginChangeCheck();
-
-		// 		Transform handleTransform = centerlineScript.transform;
-		// 		Quaternion handleRotation = centerlineScript.transform.rotation;
-		// 		Vector3 pos = handleTransform.TransformPoint(centerlineScript.Forks[forkIndex].ControlPoints[i]);
-		// 		pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
-
-		// 		if (EditorGUI.EndChangeCheck()) {
-		// 			Undo.RecordObject(centerlineScript, "Moved centerline control point");
-		// 			EditorUtility.SetDirty(centerlineScript);
-		// 			// IDEA: create new control point if start or end point is moved too far away from the next/previous point
-		// 			int count = centerlineScript.Forks[forkIndex].ControlPoints.Count;
-		// 			if (addPointOnDrag && i > 0 && i == count - 1) {
-		// 				if ((centerlineScript.Forks[forkIndex].ControlPoints[count - 1] - centerlineScript.Forks[forkIndex].ControlPoints[count - 2]).sqrMagnitude > distanceThreshold * distanceThreshold) {
-		// 					centerlineScript.Forks[forkIndex].ControlPoints.Add(centerlineScript.Forks[forkIndex].ControlPoints[count - 1]);
-		// 					// FIXME: handle holds second last point after point is added
-		// 					// TODO: add when dragging start point
-		// 					centerlineScript.Forks[forkIndex].ControlPoints[i + 1] = handleTransform.InverseTransformPoint(pos);
-		// 					centerlineScript.GenerateLinePoints();
-		// 					break;
-		// 				} else {
-		// 					centerlineScript.Forks[forkIndex].ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 				}
-
-		// 			} else {
-
-		// 				centerlineScript.Forks[forkIndex].ControlPoints[i] = handleTransform.InverseTransformPoint(pos);
-		// 			}
-		// 			centerlineScript.GenerateLinePoints();
-		// 		}
-		// 	}
-		// }
-
-
-
 
 	}
 
@@ -284,16 +149,16 @@ public class CenterlineEditorScript : Editor {
 				return;
 			}
 		}
-
 		EditorGUILayout.EndHorizontal();
 
 		line.Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", line.Resolution, 2, 250);
-		line.StartIndex = EditorGUILayout.IntField("Start index", line.StartIndex);
-		line.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", line.BezierSplitExponent);
-		if (line.StartIndex >= line.LinePoints.Count) {
-			line.StartIndex = line.ControlPoints.Count - 1;
-		} else if (line.StartIndex < 0) {
-			line.StartIndex = 0;
+		if (parent != null) {
+			line.StartIndex = EditorGUILayout.IntField("Start index", line.StartIndex);
+			if (line.StartIndex >= parent.LinePoints.Count) {
+				line.StartIndex = parent.LinePoints.Count - 1;
+			} else if (line.StartIndex < 0) {
+				line.StartIndex = 0;
+			}
 		}
 
 		for (int i = 0; i < line.ControlPoints.Count; i++) {
@@ -338,80 +203,17 @@ public class CenterlineEditorScript : Editor {
 		EditorGUIUtility.labelWidth = 200;
 
 		// EditorGUILayout.BeginHorizontal();
-		if (overrideResolutionMax) {
-			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.MainCenterline.Resolution);
-		} else {
-			centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 2, 250);
-		}
+		// if (overrideResolutionMax) {
+		// 	centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.MainCenterline.Resolution);
+		// } else {
+		// 	centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 2, 250);
+		// }
 		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
 		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
 		// EditorGUILayout.EndHorizontal();
-		centerlineScript.MainCenterline.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.MainCenterline.BezierSplitExponent);
+		// centerlineScript.MainCenterline.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.MainCenterline.BezierSplitExponent);
 
 		DrawLineInspector(centerlineScript.MainCenterline, null);
-
-		// showPoints = EditorGUILayout.Foldout(showPoints, "Control Points");
-		// if (showPoints) {
-		// 	for (int i = 0; i < centerlineScript.MainCenterline.ControlPoints.Count; i++) {
-		// 		EditorGUILayout.BeginHorizontal();
-		// 		centerlineScript.MainCenterline.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i}", centerlineScript.MainCenterline.ControlPoints[i]);
-		// 		if (GUILayout.Button("Remove", GUILayout.Width(70))) {
-		// 			centerlineScript.MainCenterline.ControlPoints.RemoveAt(i);
-		// 		}
-		// 		EditorGUILayout.EndHorizontal();
-		// 	}
-		// 	if (GUILayout.Button("Add Control Point")) {
-		// 		if (centerlineScript.MainCenterline.ControlPoints.Count > 0) {
-		// 			centerlineScript.MainCenterline.ControlPoints.Add(centerlineScript.MainCenterline.ControlPoints[centerlineScript.MainCenterline.ControlPoints.Count - 1]);
-		// 		} else {
-		// 			centerlineScript.MainCenterline.ControlPoints.Add(Vector3.zero);
-		// 		}
-		// 	}
-		// }
-
-		// showForks = EditorGUILayout.Foldout(showForks, "Forks");
-		// if (showForks) {
-		// 	EditorGUI.indentLevel += 1;
-		// 	for (int forkIndex = 0; forkIndex < centerlineScript.Forks.Count; forkIndex++) {
-		// 		EditorGUILayout.BeginHorizontal();
-		// 		EditorGUILayout.LabelField($"Fork {forkIndex}");
-		// 		if (GUILayout.Button("Remove Fork")) {
-		// 			centerlineScript.Forks.RemoveAt(forkIndex);
-		// 		}
-		// 		EditorGUILayout.EndHorizontal();
-
-		// 		centerlineScript.Forks[forkIndex].Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", centerlineScript.Forks[forkIndex].Resolution, 2, 250);
-		// 		centerlineScript.Forks[forkIndex].StartIndex = EditorGUILayout.IntField("Start index", centerlineScript.Forks[forkIndex].StartIndex);
-		// 		centerlineScript.Forks[forkIndex].BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.Forks[forkIndex].BezierSplitExponent);
-		// 		if (centerlineScript.Forks[forkIndex].StartIndex >= centerlineScript.MainCenterline.LinePoints.Count) {
-		// 			centerlineScript.Forks[forkIndex].StartIndex = centerlineScript.MainCenterline.ControlPoints.Count - 1;
-		// 		} else if (centerlineScript.Forks[forkIndex].StartIndex < 0) {
-		// 			centerlineScript.Forks[forkIndex].StartIndex = 0;
-		// 		}
-
-		// 		for (int i = 0; i < centerlineScript.Forks[forkIndex].ControlPoints.Count; i++) {
-		// 			EditorGUILayout.BeginHorizontal();
-		// 			centerlineScript.Forks[forkIndex].ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", centerlineScript.Forks[forkIndex].ControlPoints[i]);
-		// 			if (GUILayout.Button("Remove", GUILayout.Width(70))) {
-		// 				centerlineScript.Forks[forkIndex].ControlPoints.RemoveAt(i);
-		// 			}
-		// 			EditorGUILayout.EndHorizontal();
-		// 		}
-		// 		if (GUILayout.Button("Add Fork Control Point")) {
-		// 			if (centerlineScript.Forks[forkIndex].ControlPoints.Count > 0) {
-		// 				centerlineScript.Forks[forkIndex].ControlPoints.Add(centerlineScript.Forks[forkIndex].ControlPoints[centerlineScript.Forks[forkIndex].ControlPoints.Count - 1]);
-		// 			} else {
-		// 				centerlineScript.Forks[forkIndex].ControlPoints.Add(Vector3.zero);
-		// 			}
-		// 		}
-		// 	}
-
-		// 	if (GUILayout.Button("Add Fork")) {
-		// 		centerlineScript.Forks.Add(new CenterlineScript.InternalCenterline());
-		// 	}
-		// 	EditorGUI.indentLevel -= 1;
-		// }
-
 
 		if (EditorGUI.EndChangeCheck()) {
 			centerlineScript.GenerateLinePoints();
