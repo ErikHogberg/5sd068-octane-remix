@@ -9,6 +9,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public const int MAX_DEPTH = 10;
 
 	public class InternalCenterline {
+
+		// TODO: active toggle for hiding branches from calculations at runtime due branching path circumventing the goal post
+		// IDEA: dont serialize active state, because it is only used at runtime
+		// TODO: tree-wide method for calculating which forks circumvent the finish line
+
 		public int StartIndex = 0;
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
@@ -39,7 +44,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public List<SerializableInternalCenterline> SerializedLines;
 
 	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
-	// IDEA: visualize the 2d direction of the upcoming bend relative to the facing of the car by just applying the delta quaternion to a forward vector and then projecting it onto the up/right (x/y) plane to get the vector2 direction (with appropriate exponent) of the ui arrow
 	// TODO: use centerline to pull car towards center of road as a handicap option
 	// TODO: use centerline as respawn when falling off track
 	//UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
@@ -276,10 +280,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				int compareLineIndex = i;
 
 				// get psuedo-tangent of the curve at this point (by measuring direction from the previous point)
-				Quaternion outRot = Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
-					// * inverseRot
-					;
-
+				Quaternion outRot = Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up);
 
 				yield return (compareLineIndex, line, outRot);
 				break;
@@ -503,6 +504,18 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		closestDistance = currentClosestDistance;
 		closestLineIndex = lineIndex;
 		return currentClosest;
+	}
+
+	public Vector2 GetUIArrowDir(Quaternion rot){
+		Vector3 direction = rot * Vector3.forward;
+		Vector3 projection = Vector3.ProjectOnPlane(direction, Vector3.back);
+
+		return new Vector2(projection.x, projection.y);
+	}
+
+	public Vector2 GetUIArrowDir(Quaternion fromRot, Quaternion toRot){
+		Quaternion rot = toRot * Quaternion.Inverse(fromRot);
+		return GetUIArrowDir(rot);
 	}
 
 	public static float distanceToSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 pos) {
