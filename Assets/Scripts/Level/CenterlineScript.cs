@@ -11,7 +11,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public class InternalCenterline {
 
 		// TODO: active toggle for hiding branches from calculations at runtime due branching path circumventing the goal post
-		// IDEA: dont serialize active state, because it is only used at runtime
+		// NOTE: dont serialize active state, because it is only used at runtime
 		// TODO: tree-wide method for calculating which forks circumvent the finish line
 
 		public string Name = "";
@@ -321,13 +321,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead) {
 		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance);
 		// return GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
-		return GetRotationDeltaAhead(line, distanceAhead * distanceAhead, index);
+		return GetRotationDeltasAhead(line, distanceAhead * distanceAhead, index);
 	}
 
-	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(
-		InternalCenterline line, 
-		float distanceAheadSqr, 
-		int startIndex = 0, 
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltasAhead(
+		InternalCenterline line,
+		float distanceAheadSqr,
+		int startIndex = 0,
 		// Quaternion? compareRot = null, 
 		int depth = 0
 	) {
@@ -363,6 +363,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
+		if (distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
+			foreach (var rejoinResult in GetRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, depth + 1))
+				yield return rejoinResult;
+		}
+
 		foreach (var fork in line.Forks) {
 			if (fork.StartIndex < startIndex)
 				continue;
@@ -376,10 +381,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (forkDistanceAheadSqr < 0)
 				continue;
 
-			foreach (var forkResult in GetRotationDeltaAhead(
-				fork, 
-				forkDistanceAheadSqr, 
-				0, 
+			foreach (var forkResult in GetRotationDeltasAhead(
+				fork,
+				forkDistanceAheadSqr,
+				0,
 				// compareRotValue, 
 				depth + 1
 				)) {
@@ -392,7 +397,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	/// Gets all of the *greatest* rotation deltas of the paths ahead (current line + any new forks in the distance ahead). 
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, index at greates delta, fork index, rotation delta)
-	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(InternalCenterline line, float distanceAheadSqr,
+	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(
+		InternalCenterline line,
+		float distanceAheadSqr,
 		int startIndex = 0,
 		Quaternion? compareRot = null,
 		int depth = 0
@@ -417,9 +424,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-			if (distanceSqr == 0) {
-				yield break;
-			}
+			// if (distanceSqr == 0) {
+			// 	yield break;
+			// }
+
+			// FIXME: returns early without results when close to end of line
 
 			distanceTraveledSqr += distanceSqr;
 			Quaternion outRot =
@@ -446,6 +455,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
+		if (distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
+			foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, compareRot, depth + 1))
+				yield return rejoinResult;
+		}
+
 		foreach (var fork in line.Forks) {
 			if (fork.StartIndex < startIndex)
 				continue;
@@ -455,8 +469,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 				forkDistanceAheadSqr -= distanceSqr;
 			}
-
-			// TODO: continue onto rejoin line on reaching end
 
 			if (forkDistanceAheadSqr < 0)
 				continue;

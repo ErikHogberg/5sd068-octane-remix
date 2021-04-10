@@ -39,7 +39,7 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			bool foundNoDeltas = true;
 			Gizmos.color = Color.green;
-			foreach (var rotOut in CenterlineScript.GetRotationDeltaAhead(closestFork, DistanceAhead, closestIndex)) {
+			foreach (var rotOut in CenterlineScript.GetRotationDeltasAhead(closestFork, DistanceAhead, closestIndex)) {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
