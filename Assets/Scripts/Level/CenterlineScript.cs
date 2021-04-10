@@ -31,6 +31,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	[Serializable]
 	public class SerializableInternalCenterline {
+		public int serializationID = -1;
+
 		public int StartIndex = 0;
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		public List<Vector3> LinePoints = new List<Vector3>();
@@ -69,16 +71,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 
 	void AddNodeToSerializedNodes(InternalCenterline n,
-	Dictionary<InternalCenterline, int> referenceIndexTable = null,
-	List<(SerializableInternalCenterline, InternalCenterline)> rejoinReferenceResolutionQueue = null
+		List<(InternalCenterline, SerializableInternalCenterline)> rejoinRefResolveQueue = null,
+		Dictionary<InternalCenterline, int> refCache = null
 	) {
 
-		if (referenceIndexTable == null)
-			referenceIndexTable = new Dictionary<InternalCenterline, int>();
-
-		if (rejoinReferenceResolutionQueue == null)
-			rejoinReferenceResolutionQueue = new List<(SerializableInternalCenterline, InternalCenterline)>(); // IDEA: use (requested line, target serializable line) as kv instead?
-
+		if (rejoinRefResolveQueue == null) rejoinRefResolveQueue = new List<(InternalCenterline, SerializableInternalCenterline)>();
+		if (refCache == null) refCache = new Dictionary<InternalCenterline, int>();
 
 		var serializedNode = new SerializableInternalCenterline() {
 			StartIndex = n.StartIndex,
@@ -88,22 +86,28 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			ForksInspectorFoldState = n.ForksInspectorFoldState,
 			childCount = n.Forks.Count,
 			indexOfFirstChild = SerializedLines.Count + 1,
-			RejoinIndex = n.RejoinIndex
+			RejoinIndex = n.RejoinIndex,
 		};
 
-		if (referenceIndexTable.TryGetValue(n.RejoinLine, out int rejoinLineIndex)) {
+		for (int i = rejoinRefResolveQueue.Count - 1; i >= 0; i--) {
+			if (rejoinRefResolveQueue[i].Item1 != n)
+				continue;
 
+			rejoinRefResolveQueue[i].Item2.indexOfRejoinLine = SerializedLines.Count;
+			rejoinRefResolveQueue.RemoveAt(i);
 		}
 
-		referenceIndexTable.Add(n, SerializedLines.Count);
-
-		for (int i = rejoinReferenceResolutionQueue.Count - 1; i >= 0; i--) {
-
+		if (refCache.TryGetValue(n.RejoinLine, out int rejoinLineIndex)) {
+			serializedNode.indexOfRejoinLine = rejoinLineIndex;
+		} else {
+			rejoinRefResolveQueue.Add((n.RejoinLine, serializedNode));
 		}
+
+		refCache.Add(n, SerializedLines.Count);
 
 		SerializedLines.Add(serializedNode);
 		foreach (var child in n.Forks)
-			AddNodeToSerializedNodes(child, referenceIndexTable);
+			AddNodeToSerializedNodes(child, rejoinRefResolveQueue);
 	}
 
 	public void OnAfterDeserialize() {
@@ -115,6 +119,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 
 	int ReadNodeFromSerializedNodes(int index, out InternalCenterline node) {
+
 		var serializedLine = SerializedLines[index];
 		InternalCenterline newLine = new InternalCenterline() {
 			StartIndex = serializedLine.StartIndex,
@@ -122,7 +127,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			LinePoints = serializedLine.LinePoints,
 			Resolution = serializedLine.Resolution,
 			ForksInspectorFoldState = serializedLine.ForksInspectorFoldState,
-			Forks = new List<InternalCenterline>()
+			Forks = new List<InternalCenterline>(),
+			RejoinIndex = serializedLine.RejoinIndex
 		};
 
 		for (int i = 0; i != serializedLine.childCount; i++) {
@@ -130,6 +136,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			index = ReadNodeFromSerializedNodes(++index, out childNode);
 			newLine.Forks.Add(childNode);
 		}
+
 		node = newLine;
 		return index;
 	}
