@@ -14,6 +14,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// IDEA: dont serialize active state, because it is only used at runtime
 		// TODO: tree-wide method for calculating which forks circumvent the finish line
 
+		public string Name = "";
 		public int StartIndex = 0;
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
@@ -21,7 +22,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public int Resolution = 10;
 		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
 
-		// [HideInInspector]
 		public bool ForksInspectorFoldState = false;
 		public List<InternalCenterline> Forks = new List<InternalCenterline>();
 		public InternalCenterline RejoinLine = null;
@@ -31,14 +31,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	[Serializable]
 	public class SerializableInternalCenterline {
-		public int serializationID = -1;
 
+		public string Name = "";
 		public int StartIndex = 0;
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		public List<Vector3> LinePoints = new List<Vector3>();
 		public int Resolution = 10;
 
-		[HideInInspector]
 		public bool ForksInspectorFoldState = false;
 		public int childCount;
 		public int indexOfFirstChild;
@@ -79,6 +78,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (refCache == null) refCache = new Dictionary<InternalCenterline, int>();
 
 		var serializedNode = new SerializableInternalCenterline() {
+			Name = n.Name,
 			StartIndex = n.StartIndex,
 			ControlPoints = n.ControlPoints,
 			LinePoints = n.LinePoints,
@@ -97,10 +97,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			rejoinRefResolveQueue.RemoveAt(i);
 		}
 
-		if (refCache.TryGetValue(n.RejoinLine, out int rejoinLineIndex)) {
-			serializedNode.indexOfRejoinLine = rejoinLineIndex;
-		} else {
-			rejoinRefResolveQueue.Add((n.RejoinLine, serializedNode));
+		if (n.RejoinLine != null) {
+			if (refCache.TryGetValue(n.RejoinLine, out int rejoinLineIndex)) {
+				serializedNode.indexOfRejoinLine = rejoinLineIndex;
+			} else {
+				rejoinRefResolveQueue.Add((n.RejoinLine, serializedNode));
+			}
 		}
 
 		refCache.Add(n, SerializedLines.Count);
@@ -112,16 +114,23 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public void OnAfterDeserialize() {
 		if (SerializedLines.Count > 0) {
-			ReadNodeFromSerializedNodes(0, out MainCenterline);
+			ReadNodeFromSerializedNodes(out MainCenterline);
 		} else {
 			MainCenterline = new InternalCenterline();
 		}
 	}
 
-	int ReadNodeFromSerializedNodes(int index, out InternalCenterline node) {
+	int ReadNodeFromSerializedNodes(out InternalCenterline node, int index = 0,
+		List<(int, InternalCenterline)> rejoinRefResolveQueue = null,
+		Dictionary<int, InternalCenterline> refCache = null
+	) {
+
+		if (rejoinRefResolveQueue == null) rejoinRefResolveQueue = new List<(int, InternalCenterline)>();
+		if (refCache == null) refCache = new Dictionary<int, InternalCenterline>();
 
 		var serializedLine = SerializedLines[index];
 		InternalCenterline newLine = new InternalCenterline() {
+			Name = serializedLine.Name,
 			StartIndex = serializedLine.StartIndex,
 			ControlPoints = serializedLine.ControlPoints,
 			LinePoints = serializedLine.LinePoints,
@@ -131,9 +140,25 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			RejoinIndex = serializedLine.RejoinIndex
 		};
 
+		for (int i = rejoinRefResolveQueue.Count - 1; i >= 0; i--) {
+			if (rejoinRefResolveQueue[i].Item1 != serializedLine.indexOfRejoinLine)
+				continue;
+
+			rejoinRefResolveQueue[i].Item2.RejoinLine = newLine;
+			rejoinRefResolveQueue.RemoveAt(i);
+		}
+
+		refCache.Add(index, newLine);
+
+		if (refCache.TryGetValue(serializedLine.indexOfRejoinLine, out InternalCenterline rejoinLine)) {
+			newLine.RejoinLine = rejoinLine;
+		} else {
+			rejoinRefResolveQueue.Add((serializedLine.indexOfRejoinLine, newLine));
+		}
+
 		for (int i = 0; i != serializedLine.childCount; i++) {
 			InternalCenterline childNode;
-			index = ReadNodeFromSerializedNodes(++index, out childNode);
+			index = ReadNodeFromSerializedNodes(out childNode, index + 1, rejoinRefResolveQueue, refCache);
 			newLine.Forks.Add(childNode);
 		}
 
@@ -172,15 +197,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 #endif
 
-	public static List<Vector3> GenerateLinePoints(Vector3? startControlPoint, List<Vector3> ControlPoints, int Resolution) {
+	public static List<Vector3> GenerateLinePoints(List<Vector3> ControlPoints, int Resolution) {
 		List<Vector3> LinePoints = new List<Vector3>();
 
 		int controlPointCount = ControlPoints.Count;
-
-		if (startControlPoint is Vector3 startTemp) {
-			ControlPoints = ControlPoints.Prepend(startTemp).ToList();
-			controlPointCount++;
-		}
 
 		int i = 0;
 		while (i < controlPointCount) {
@@ -271,7 +291,22 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			return;
 		}
 
-		line.LinePoints = GenerateLinePoints(lineStartPoint, line.ControlPoints, line.Resolution);
+		List<Vector3> controlPoints = line.ControlPoints;
+		if (lineStartPoint is Vector3 startPoint) {
+			// controlPoints = new List<Vector3>{startPoint}.AddRange(controlPoints);
+			if (line.RejoinLine != null) {
+				int rejoinIndex = line.RejoinIndex >= line.RejoinLine.LinePoints.Count ? line.RejoinLine.LinePoints.Count - 1 : line.RejoinIndex;
+				controlPoints = controlPoints.Prepend(startPoint).Append(line.RejoinLine.LinePoints[rejoinIndex]).ToList();
+			} else {
+				// TODO: check performance impact, find better alternative of altering list
+				controlPoints = controlPoints.Prepend(startPoint).ToList();
+			}
+		} else if (line.RejoinLine != null) {
+			int rejoinIndex = line.RejoinIndex >= line.RejoinLine.LinePoints.Count ? line.RejoinLine.LinePoints.Count - 1 : line.RejoinIndex;
+			controlPoints = controlPoints.Append(line.RejoinLine.LinePoints[rejoinIndex]).ToList();
+		}
+
+		line.LinePoints = GenerateLinePoints(controlPoints, line.Resolution);
 
 		foreach (var fork in line.Forks) {
 			Vector3 forkStartPoint = line.LinePoints != null && line.LinePoints.Count > fork.StartIndex && fork.StartIndex >= 0 ? line.LinePoints[fork.StartIndex] : Vector3.zero;
@@ -289,7 +324,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return GetRotationDeltaAhead(line, distanceAhead * distanceAhead, index);
 	}
 
-	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(InternalCenterline line, float distanceAheadSqr, int startIndex = 0, Quaternion? compareRot = null, int depth = 0) {
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(
+		InternalCenterline line, 
+		float distanceAheadSqr, 
+		int startIndex = 0, 
+		// Quaternion? compareRot = null, 
+		int depth = 0
+	) {
 		// IDEA: search backwards if distance is negative
 
 		if (depth > MAX_DEPTH) {
@@ -297,7 +338,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			yield break;
 		}
 
-		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
+		// Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		float distanceTraveledSqr = 0;
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
@@ -335,7 +376,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (forkDistanceAheadSqr < 0)
 				continue;
 
-			foreach (var forkResult in GetRotationDeltaAhead(fork, forkDistanceAheadSqr, 0, compareRotValue, depth + 1)) {
+			foreach (var forkResult in GetRotationDeltaAhead(
+				fork, 
+				forkDistanceAheadSqr, 
+				0, 
+				// compareRotValue, 
+				depth + 1
+				)) {
 				yield return forkResult;
 			}
 		}
@@ -370,6 +417,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+			if (distanceSqr == 0) {
+				yield break;
+			}
+
 			distanceTraveledSqr += distanceSqr;
 			Quaternion outRot =
 				Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
@@ -404,6 +455,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 				forkDistanceAheadSqr -= distanceSqr;
 			}
+
+			// TODO: continue onto rejoin line on reaching end
 
 			if (forkDistanceAheadSqr < 0)
 				continue;

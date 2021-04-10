@@ -23,6 +23,11 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(closestPos));
 
 			Gizmos.color = Color.white;
+
+			if (closestFork.LinePoints.Count < 2) {
+				return;
+			}
+
 			Vector3 delta =
 				closestFork.LinePoints[closestIndex + 1] - closestFork.LinePoints[closestIndex];
 

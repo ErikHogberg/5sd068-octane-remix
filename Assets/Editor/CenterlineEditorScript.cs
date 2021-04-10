@@ -15,7 +15,7 @@ public class CenterlineEditorScript : Editor {
 	float controlHandleSize = .4f;
 	float lineHandleSize = .1f;
 	// int maxResolution = 100;
-	bool overrideResolutionMax = false;
+	// bool overrideResolutionMax = false;
 
 	bool addPointOnDrag = false;
 	float distanceThreshold = 10f;
@@ -25,7 +25,11 @@ public class CenterlineEditorScript : Editor {
 	Color mainControlHandleColor = Color.blue;
 	Color forkControlHandleColor = new Color(.3f, .2f, .6f, 1f);
 
+	public bool UseAnchors = false;
+
 	bool drawControlPointLines = true;
+
+	CenterlineScript.InternalCenterline selectedLine = null;
 
 	void OnEnable() {
 		controlPoints = serializedObject.FindProperty("ControlPoints");
@@ -89,7 +93,11 @@ public class CenterlineEditorScript : Editor {
 			Transform handleTransform = centerlineScript.transform;
 			Quaternion handleRotation = centerlineScript.transform.rotation;
 			Vector3 pos = handleTransform.TransformPoint(line.ControlPoints[i]);
-			pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
+
+			if (UseAnchors)
+				pos = Handles.PositionHandle(pos, Quaternion.identity);
+			else
+				pos = Handles.FreeMoveHandle(pos, handleRotation, controlHandleSize, Vector3.one, Handles.DotHandleCap);
 
 			if (EditorGUI.EndChangeCheck()) {
 				Undo.RecordObject(centerlineScript, "Moved centerline control point");
@@ -139,9 +147,16 @@ public class CenterlineEditorScript : Editor {
 	}
 
 
-	static void DrawLineInspector(CenterlineScript.InternalCenterline line, CenterlineScript.InternalCenterline parent, int depth = 1) {
+	void DrawLineInspector(CenterlineScript.InternalCenterline line, CenterlineScript.InternalCenterline parent, int depth = 1) {
 		EditorGUILayout.BeginHorizontal();
-		EditorGUILayout.LabelField($"Fork depth {depth}");
+		// EditorGUILayout.LabelField($"Fork depth {depth}");
+		line.Name = EditorGUILayout.TextField("Name", line.Name);
+
+		bool wasSelected = selectedLine != null && line == selectedLine;
+		bool isSelected = EditorGUILayout.Toggle("selected", wasSelected);
+		if (!wasSelected && isSelected) {
+			selectedLine = line;
+		}
 
 		if (parent != null) {
 			if (GUILayout.Button("Remove Fork")) {
@@ -149,6 +164,7 @@ public class CenterlineEditorScript : Editor {
 				return;
 			}
 		}
+
 		EditorGUILayout.EndHorizontal();
 
 		line.Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", line.Resolution, 2, 250);
@@ -161,11 +177,22 @@ public class CenterlineEditorScript : Editor {
 			}
 		}
 
+		EditorGUILayout.BeginHorizontal();
+		EditorGUILayout.LabelField($"Rejoin line: {(line.RejoinLine != null ? line.RejoinLine.Name : "none")}");
+		if (GUILayout.Button("Join selected line") && selectedLine != null) {
+			line.RejoinLine = selectedLine;
+		}
+		EditorGUILayout.EndHorizontal();
+		line.RejoinIndex = EditorGUILayout.IntField("Rejoin index", line.RejoinIndex);
+		if (line.RejoinIndex < 0) line.RejoinIndex = 0;
+
 		for (int i = 0; i < line.ControlPoints.Count; i++) {
 			EditorGUILayout.BeginHorizontal();
 			line.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", line.ControlPoints[i]);
 			if (GUILayout.Button("Remove", GUILayout.Width(70))) {
 				line.ControlPoints.RemoveAt(i);
+				EditorGUILayout.EndHorizontal();
+				return;
 			}
 			EditorGUILayout.EndHorizontal();
 		}
@@ -180,12 +207,14 @@ public class CenterlineEditorScript : Editor {
 		line.ForksInspectorFoldState = EditorGUILayout.Foldout(line.ForksInspectorFoldState, "Forks");
 		if (line.ForksInspectorFoldState) {
 			EditorGUI.indentLevel += 1;
-			foreach (var fork in line.Forks) {
-				DrawLineInspector(fork, line, depth + 1);
+			// foreach (var fork in line.Forks) {
+			for (int i = line.Forks.Count - 1; i >= 0; i--) {
+				DrawLineInspector(line.Forks[i], line, depth + 1);
+				if(line.Forks[i] == null) line.Forks.RemoveAt(i);
 			}
 			EditorGUI.indentLevel -= 1;
 
-			if (GUILayout.Button("Add Fork")) {
+			if (GUILayout.Button($"Add Fork (depth {depth})")) {
 				line.Forks.Add(new CenterlineScript.InternalCenterline());
 			}
 		}
@@ -212,6 +241,9 @@ public class CenterlineEditorScript : Editor {
 		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
 		// EditorGUILayout.EndHorizontal();
 		// centerlineScript.MainCenterline.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.MainCenterline.BezierSplitExponent);
+
+		UseAnchors = EditorGUILayout.Toggle("Use Anchors", UseAnchors);
+		EditorGUILayout.LabelField($"Selected line: {(selectedLine != null ? selectedLine.Name : "none")}");
 
 		DrawLineInspector(centerlineScript.MainCenterline, null);
 
