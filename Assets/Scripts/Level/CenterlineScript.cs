@@ -21,9 +21,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public int Resolution = 10;
 		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
 
-		[HideInInspector]
+		// [HideInInspector]
 		public bool ForksInspectorFoldState = false;
 		public List<InternalCenterline> Forks = new List<InternalCenterline>();
+		public InternalCenterline RejoinLine = null;
+		public int RejoinIndex = 0;
 
 	}
 
@@ -38,6 +40,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public bool ForksInspectorFoldState = false;
 		public int childCount;
 		public int indexOfFirstChild;
+
+		public int indexOfRejoinLine;
+		public int RejoinIndex;
+
 	}
 
 	public InternalCenterline MainCenterline = new InternalCenterline();
@@ -62,7 +68,18 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		AddNodeToSerializedNodes(MainCenterline);
 	}
 
-	void AddNodeToSerializedNodes(InternalCenterline n) {
+	void AddNodeToSerializedNodes(InternalCenterline n,
+	Dictionary<InternalCenterline, int> referenceIndexTable = null,
+	List<(SerializableInternalCenterline, InternalCenterline)> rejoinReferenceResolutionQueue = null
+	) {
+
+		if (referenceIndexTable == null)
+			referenceIndexTable = new Dictionary<InternalCenterline, int>();
+
+		if (rejoinReferenceResolutionQueue == null)
+			rejoinReferenceResolutionQueue = new List<(SerializableInternalCenterline, InternalCenterline)>(); // IDEA: use (requested line, target serializable line) as kv instead?
+
+
 		var serializedNode = new SerializableInternalCenterline() {
 			StartIndex = n.StartIndex,
 			ControlPoints = n.ControlPoints,
@@ -70,12 +87,23 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			Resolution = n.Resolution,
 			ForksInspectorFoldState = n.ForksInspectorFoldState,
 			childCount = n.Forks.Count,
-			indexOfFirstChild = SerializedLines.Count + 1
+			indexOfFirstChild = SerializedLines.Count + 1,
+			RejoinIndex = n.RejoinIndex
 		};
+
+		if (referenceIndexTable.TryGetValue(n.RejoinLine, out int rejoinLineIndex)) {
+
+		}
+
+		referenceIndexTable.Add(n, SerializedLines.Count);
+
+		for (int i = rejoinReferenceResolutionQueue.Count - 1; i >= 0; i--) {
+
+		}
 
 		SerializedLines.Add(serializedNode);
 		foreach (var child in n.Forks)
-			AddNodeToSerializedNodes(child);
+			AddNodeToSerializedNodes(child, referenceIndexTable);
 	}
 
 	public void OnAfterDeserialize() {
@@ -506,14 +534,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return currentClosest;
 	}
 
-	public Vector2 GetUIArrowDir(Quaternion rot){
+	public Vector2 GetUIArrowDir(Quaternion rot) {
 		Vector3 direction = rot * Vector3.forward;
 		Vector3 projection = Vector3.ProjectOnPlane(direction, Vector3.back);
 
 		return new Vector2(projection.x, projection.y);
 	}
 
-	public Vector2 GetUIArrowDir(Quaternion fromRot, Quaternion toRot){
+	public Vector2 GetUIArrowDir(Quaternion fromRot, Quaternion toRot) {
 		Quaternion rot = toRot * Quaternion.Inverse(fromRot);
 		return GetUIArrowDir(rot);
 	}
