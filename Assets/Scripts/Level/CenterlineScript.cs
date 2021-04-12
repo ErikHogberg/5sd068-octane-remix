@@ -10,9 +10,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public class InternalCenterline {
 
+		public bool Active = true;
+
 		// TODO: active toggle for hiding branches from calculations at runtime due branching path circumventing the goal post
 		// NOTE: dont serialize active state, because it is only used at runtime
 		// TODO: tree-wide method for calculating which forks circumvent the finish line
+		// IDEA: method for calculating line length
 
 		public string Name = "";
 		public int StartIndex = 0;
@@ -338,6 +341,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			yield break;
 		}
 
+		if (startIndex < 0) startIndex = 0;
+
 		// Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		float distanceTraveledSqr = 0;
@@ -369,7 +374,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		foreach (var fork in line.Forks) {
-			if (fork.StartIndex < startIndex)
+			if (fork.StartIndex < startIndex || fork.StartIndex > line.LinePoints.Count)
 				continue;
 
 			float forkDistanceAheadSqr = distanceAheadSqr;
@@ -415,6 +420,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			yield break;
 		}
 
+		if (startIndex < 0) startIndex = 0;
+
 		float distanceTraveledSqr = 0;
 		Quaternion greatestDelta = Quaternion.identity;
 		float greatestDeltaAngle = 0;
@@ -424,7 +431,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-			
+
 			distanceTraveledSqr += distanceSqr;
 			Quaternion outRot =
 				Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
@@ -452,6 +459,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		if (distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
 			foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, compareRot, depth + 1))
+				// foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, Mathf.Pow(Mathf.Sqrt(distanceAheadSqr) - Mathf.Sqrt(distanceTraveledSqr),2), line.RejoinIndex, compareRot, depth + 1))
 				yield return rejoinResult;
 		}
 
@@ -611,6 +619,34 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public Vector2 GetUIArrowDir(Quaternion fromRot, Quaternion toRot) {
 		Quaternion rot = toRot * Quaternion.Inverse(fromRot);
 		return GetUIArrowDir(rot);
+	}
+
+	public bool DisableAllUnreachable(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, InternalCenterline currentLine = null) {
+		if (currentLine == null) currentLine = fromLine;
+
+		// TODO: detect endless loops
+
+		if (currentLine == toLine){
+			return true;
+		}
+
+		bool foundAny = false;
+		foreach (var item in currentLine.Forks) {
+			// TODO: skip forks that start before fromIndex
+			// TODO: skip forks that rejoin after toIndex
+			bool success = DisableAllUnreachable(fromLine, fromIndex, toLine, toIndex, item);
+			if (success) foundAny = true;
+		}
+
+		if (foundAny)
+			return true;
+
+		currentLine.Active = false;
+		return false;
+	}
+
+	public void EnableAllReachable(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex) {
+
 	}
 
 	public static float distanceToSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 pos) {
