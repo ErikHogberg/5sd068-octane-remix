@@ -186,7 +186,8 @@ public class CenterlineEditorScript : Editor {
 		line.RejoinIndex = EditorGUILayout.IntField("Rejoin index", line.RejoinIndex);
 		if (line.RejoinIndex < 0) line.RejoinIndex = 0;
 
-		for (int i = 0; i < line.ControlPoints.Count; i++) {
+		for (int i = line.ControlPoints.Count - 1; i >= 0; i--) {
+			// for (int i = 0; i < line.ControlPoints.Count; i++) {
 			EditorGUILayout.BeginHorizontal();
 			line.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", line.ControlPoints[i]);
 			if (GUILayout.Button("Remove", GUILayout.Width(70))) {
@@ -210,7 +211,7 @@ public class CenterlineEditorScript : Editor {
 			// foreach (var fork in line.Forks) {
 			for (int i = line.Forks.Count - 1; i >= 0; i--) {
 				DrawLineInspector(line.Forks[i], line, depth + 1);
-				if(line.Forks[i] == null) line.Forks.RemoveAt(i);
+				// if(line.Forks[i] == null) line.Forks.RemoveAt(i);
 			}
 			EditorGUI.indentLevel -= 1;
 
@@ -227,29 +228,18 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUIUtility.labelWidth = 30;
 
-		EditorGUI.BeginChangeCheck();
 
 		EditorGUIUtility.labelWidth = 200;
-
-		// EditorGUILayout.BeginHorizontal();
-		// if (overrideResolutionMax) {
-		// 	centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntField("Resolution/Line Count", centerlineScript.MainCenterline.Resolution);
-		// } else {
-		// 	centerlineScript.MainCenterline.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", centerlineScript.MainCenterline.Resolution, 2, 250);
-		// }
-		// FIXME: deselecting and selecting again will set the resolution back to below/at limit if it was above limit
-		// overrideResolutionMax = EditorGUILayout.Toggle("Override max resolution", overrideResolutionMax);
-		// EditorGUILayout.EndHorizontal();
-		// centerlineScript.MainCenterline.BezierSplitExponent = EditorGUILayout.FloatField("Split Exponent", centerlineScript.MainCenterline.BezierSplitExponent);
-
 		UseAnchors = EditorGUILayout.Toggle("Use Anchors", UseAnchors);
 		EditorGUILayout.LabelField($"Selected line: {(selectedLine != null ? selectedLine.Name : "none")}");
+
+		EditorGUI.BeginChangeCheck();
 
 		DrawLineInspector(centerlineScript.MainCenterline, null);
 
 		if (EditorGUI.EndChangeCheck()) {
 			centerlineScript.GenerateLinePoints();
-			Undo.RecordObject(centerlineScript, "Changed centerline control points");
+			Undo.RecordObject(centerlineScript, "Changed centerline through inspector");
 			EditorUtility.SetDirty(centerlineScript);
 		}
 

@@ -424,12 +424,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-			// if (distanceSqr == 0) {
-			// 	yield break;
-			// }
-
-			// FIXME: returns early without results when close to end of line
-
+			
 			distanceTraveledSqr += distanceSqr;
 			Quaternion outRot =
 				Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
@@ -441,7 +436,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				compareRotValue,
 				outRot
 				);
-			if (greatestDeltaAngle < angle) {
+			if (greatestDeltaAngle <= angle) {
 				greatestDeltaAngle = angle;
 				greatestDelta = outRot;
 				indexAtGreatestDelta = i;
