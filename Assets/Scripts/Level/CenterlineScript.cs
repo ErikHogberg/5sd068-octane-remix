@@ -172,7 +172,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 #if UNITY_EDITOR
 	void OnDrawGizmos() {
 
-		UnityEditor.Handles.color = Color.white;
+		// UnityEditor.Handles.color = Color.white;
 
 		DrawLine(MainCenterline);
 
@@ -186,6 +186,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		if (line.LinePoints.Count < 1)
 			return;
+
+		if (line.Active)
+			UnityEditor.Handles.color = Color.white;
+		else
+			UnityEditor.Handles.color = Color.gray;
+
 
 		for (int i = 1; i < line.LinePoints.Count; i++) {
 			UnityEditor.Handles.DrawLine(
@@ -621,32 +627,49 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return GetUIArrowDir(rot);
 	}
 
-	public bool DisableAllUnreachable(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, InternalCenterline currentLine = null) {
-		if (currentLine == null) currentLine = fromLine;
+	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
+		List<InternalCenterline> visited = new List<InternalCenterline>() { fromLine };
 
-		// TODO: detect endless loops
+		foreach (var item in fromLine.Forks) {
+			if (item.StartIndex >= fromIndex)
+				SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
+		}
 
-		if (currentLine == toLine){
+
+	}
+	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, bool setActive, bool setInactive) {
+
+		// TODO: detect endless loops. is visited list check enough?
+		// TODO: disable lines that are never visited? not needed because cars can never transition to them?
+		// TODO: check if end line is even reachable from start
+
+		if (visited.Contains(currentLine)) {
+			return true;
+		}
+
+		visited.Add(currentLine);
+
+		if (currentLine == toLine) {
+			if (currentLine.StartIndex < toIndex)
+				return false;
 			return true;
 		}
 
 		bool foundAny = false;
 		foreach (var item in currentLine.Forks) {
-			// TODO: skip forks that start before fromIndex
-			// TODO: skip forks that rejoin after toIndex
-			bool success = DisableAllUnreachable(fromLine, fromIndex, toLine, toIndex, item);
+			bool success = SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
 			if (success) foundAny = true;
 		}
 
-		if (foundAny)
+		if (foundAny) {
+			if (setActive)
+				currentLine.Active = true;
 			return true;
+		}
 
-		currentLine.Active = false;
+		if (setInactive)
+			currentLine.Active = false;
 		return false;
-	}
-
-	public void EnableAllReachable(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex) {
-
 	}
 
 	public static float distanceToSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 pos) {

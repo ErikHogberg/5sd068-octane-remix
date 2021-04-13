@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,9 @@ public class CenterlineTestScript : MonoBehaviour {
 
 	public float DistanceAhead = 1;
 	public float ArrowLength = 5;
+
+	public bool SetActive = false;
+	public bool SetInactive = false;
 
 
 	void OnDrawGizmos() {
@@ -78,6 +82,13 @@ public class CenterlineTestScript : MonoBehaviour {
 			if (foundNoDeltas)
 				Gizmos.DrawCube(transform.position, Vector3.one * .7f);
 
+			if(SetActive || SetInactive){
+				Centerline.SetReachableActive(closestFork, closestIndex, closestFork, closestIndex, SetActive, SetInactive);
+				var view = EditorWindow.GetWindow<SceneView>();
+				if(view){
+					view.Repaint();
+				}
+			}
 
 		}
 	}
