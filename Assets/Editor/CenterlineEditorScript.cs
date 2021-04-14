@@ -2,8 +2,6 @@
 using UnityEngine;
 using System.Collections;
 
-// Custom Editor using SerializedProperties.
-// Automatic handling of multi-object editing, undo, and Prefab overrides.
 [CustomEditor(typeof(CenterlineScript))]
 [CanEditMultipleObjects]
 public class CenterlineEditorScript : Editor {

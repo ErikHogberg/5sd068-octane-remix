@@ -4,34 +4,48 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// Cyclical tree data structure containing bezier curves, representing the 3D paths a car is allowed to take through a track
+/// Meant to be used as a replacement for the old track progression, cheat mitigation, moving goal post, and reset systems
+/// Features this system is also planned to add is generating rally co-driver cars (warnings of curves and dangers ahead), 
+/// a handicap system that pull the car towards the center of the road, 
 public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public const int MAX_DEPTH = 10;
 
+	// non-serialized run-time data container
 	public class InternalCenterline {
 
+		// runtime-only, non-serialized active state which includes/excludes the line from queries
 		public bool Active = true;
 
-		// TODO: active toggle for hiding branches from calculations at runtime due branching path circumventing the goal post
-		// NOTE: dont serialize active state, because it is only used at runtime
-		// TODO: tree-wide method for calculating which forks circumvent the finish line
-		// IDEA: method for calculating line length
+		// IDEA: method for calculating line length. Could be used for menu UI, showing the length differences between each path to the player. 
+		// IDEA: method measure the distance between 2 indices on a line.
+		// IDEA: method for measuring all paths available between 2 indices (which might be on different lines)
 
+		// name which is only used in the editor window atm
 		public string Name = "";
+		// at which line point index of its parent line this line forks away at
 		public int StartIndex = 0;
+		// the points that the bezier curves are calculated from
 		public List<Vector3> ControlPoints = new List<Vector3>();
+		// the points outputted from the bezier curve calculation. cached and serialized
 		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
 		public List<Vector3> LinePoints = new List<Vector3>();
+		// how many snapshots are used for each generated bezier curve, this combined with the number of control points decides how many line points are generated
 		public int Resolution = 10;
-		// IDEA: define rejoin index for defining where the line will end, on what index on a line (along with fork index for said line). used for looping lines or rejoining forks
 
+		// cached editor window fold state for keeping the foldout showing the child lines/forks opened or closes when deselecting and reselecting the line in the editor
 		public bool ForksInspectorFoldState = false;
+		// the child lines/forks, branches of the tree node. each line in this list is unique and is not referenced by any other fork lists.
 		public List<InternalCenterline> Forks = new List<InternalCenterline>();
+		// cyclical tree node reference. can be null, meaning that the line ends in the air instead or rejoining any line
 		public InternalCenterline RejoinLine = null;
+		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
 		public int RejoinIndex = 0;
 
 	}
 
+	// serializable version of the class which is only used for saving the line to the scene
 	[Serializable]
 	public class SerializableInternalCenterline {
 
@@ -45,26 +59,31 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public int childCount;
 		public int indexOfFirstChild;
 
+		// index to the serialized line in the flattened tree list which corresponds to the rejoin line (cyclical tree reference)
 		public int indexOfRejoinLine;
 		public int RejoinIndex;
 
 	}
 
+	// root of tree
 	public InternalCenterline MainCenterline = new InternalCenterline();
+	// cache of serialized flattened tree. is only used when saving. can be safely cleared or otherwise altered without affecting anything
 	public List<SerializableInternalCenterline> SerializedLines;
 
-	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point
-	// TODO: use centerline to pull car towards center of road as a handicap option
-	// TODO: use centerline as respawn when falling off track
-	//UINotificationSystem.Notify("Illegal shortcut!", Color.yellow, 1.5f);
-	//ResetToCurrentSegment();
-	// TODO: wire up goal posts to use centerline instead of road segments for catching skipping of goal posts and reversing into goal post
+	// TODO: generate co-driver calls based on angle delta of set distance ahead of closest point. will probably be implemented in a different class/monobehaviour for the UI, or in the steering script.
+	// TODO: use centerline to pull car towards center of road as a handicap option. will probably be implemented in the steering script
+	// TODO: use centerline as respawn when falling off track. will probably be implemented in the steering script
 
-	// TODO: use centerline as cheat mitigation
+	// TODO: wire up goal posts to use centerline instead of road segments for catching skipping of goal posts and reversing into goal post
+	// IDEA: do all lap queries and teleportation through the centerline system, instead of triggering it using collision with the goal post trigger colliders
 
 	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
-	// TODO: figure out way to make cheat mitigation (using index counting) work with forks/multiple lines
 
+	// TODO: use centerline as cheat mitigation, resetting car to last valid point on line when skipping too far ahead
+	// IDEA: provide delta time in delta position queries, calculate car speed and compare it against a set max allowed speed limit
+
+
+	// Custom serialization
 	public void OnBeforeSerialize() {
 		if (SerializedLines == null) SerializedLines = new List<SerializableInternalCenterline>();
 		if (MainCenterline == null) MainCenterline = new InternalCenterline();
@@ -178,6 +197,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 
+	// Draw the lines between the line points. recursive
 	void DrawLine(InternalCenterline line, int depth = 0) {
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Gizmo line draw recursion too deep");
@@ -206,6 +226,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 #endif
 
+	// Calculate bezier line points from control points and resolution
 	public static List<Vector3> GenerateLinePoints(List<Vector3> ControlPoints, int Resolution) {
 		List<Vector3> LinePoints = new List<Vector3>();
 
