@@ -18,10 +18,8 @@ public class CenterlineEditorScript : Editor {
 	bool addPointOnDrag = false;
 	float distanceThreshold = 10f;
 
-	Color mainLineHandleColor = Color.gray;
-	Color forkLineHandleColor = new Color(.8f, .8f, .7f, 1f);
-	Color mainControlHandleColor = Color.blue;
-	Color forkControlHandleColor = new Color(.3f, .2f, .6f, 1f);
+	Color lineHandleColor = Color.gray;
+	Color controlHandleColor = Color.blue;
 
 	public bool UseAnchors = false;
 
@@ -136,10 +134,10 @@ public class CenterlineEditorScript : Editor {
 			DrawLine(centerlineScript.MainCenterline, centerlineScript.transform);
 		}
 
-		Handles.color = mainLineHandleColor;
+		Handles.color = lineHandleColor;
 		DrawLineHandles(centerlineScript.MainCenterline);
 
-		Handles.color = mainControlHandleColor;
+		Handles.color = controlHandleColor;
 		DrawControlHandles(centerlineScript.MainCenterline);
 
 	}
@@ -246,11 +244,13 @@ public class CenterlineEditorScript : Editor {
 		controlHandleSize = EditorGUILayout.Slider("Control Point Handle Size", controlHandleSize, 0.01f, 5f);
 		lineHandleSize = EditorGUILayout.Slider("Line Point Handle Size", lineHandleSize, 0.01f, 5f);
 
-		mainLineHandleColor = EditorGUILayout.ColorField("Main Line Handle Color", mainLineHandleColor);
-		forkLineHandleColor = EditorGUILayout.ColorField("Fork Line Handle Color", forkLineHandleColor);
-		mainControlHandleColor = EditorGUILayout.ColorField("Main Control Point Handle Color", mainControlHandleColor);
-		forkControlHandleColor = EditorGUILayout.ColorField("Fork Control Point Handle Color", forkControlHandleColor);
+		lineHandleColor = EditorGUILayout.ColorField("Main Line Handle Color", lineHandleColor);
+		controlHandleColor = EditorGUILayout.ColorField("Main Control Point Handle Color", controlHandleColor);
 		drawControlPointLines = EditorGUILayout.Toggle("Draw Control Point Lines", drawControlPointLines);
+
+		centerlineScript.LineThickness = EditorGUILayout.FloatField("Line thickness", centerlineScript.LineThickness);
+		centerlineScript.ActiveLineColor = EditorGUILayout.ColorField("Active line color", centerlineScript.ActiveLineColor);
+		centerlineScript.InactiveLineColor = EditorGUILayout.ColorField("Inactive line color", centerlineScript.InactiveLineColor);
 
 		if (EditorGUI.EndChangeCheck())
 			SceneView.RepaintAll();

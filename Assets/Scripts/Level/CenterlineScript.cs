@@ -22,14 +22,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// IDEA: method measure the distance between 2 indices on a line.
 		// IDEA: method for measuring all paths available between 2 indices (which might be on different lines)
 
-		// name which is only used in the editor window atm
+		// name which is only used in the editor window at the moment
 		public string Name = "";
 		// at which line point index of its parent line this line forks away at
 		public int StartIndex = 0;
 		// the points that the bezier curves are calculated from
 		public List<Vector3> ControlPoints = new List<Vector3>();
 		// the points outputted from the bezier curve calculation. cached and serialized
-		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline
+		// IDEA: spatially partition line points for optimizing access and comparison operations, such as getting closest point on polyline. might require redundant caching
 		public List<Vector3> LinePoints = new List<Vector3>();
 		// how many snapshots are used for each generated bezier curve, this combined with the number of control points decides how many line points are generated
 		public int Resolution = 10;
@@ -43,6 +43,20 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
 		public int RejoinIndex = 0;
 
+		public void SetActiveRecursive(bool active) {
+			Active = active;
+			foreach (var fork in Forks)
+				fork.SetActiveRecursive(active);
+		}
+
+		public void PopulateFlattenedTree(ref List<InternalCenterline> flatTree) {
+			if (flatTree == null) flatTree = new List<InternalCenterline>();
+
+			flatTree.Add(this);
+
+			foreach (var fork in Forks)
+				fork.PopulateFlattenedTree(ref flatTree);
+		}
 	}
 
 	// serializable version of the class which is only used for saving the line to the scene
@@ -82,6 +96,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	// TODO: use centerline as cheat mitigation, resetting car to last valid point on line when skipping too far ahead
 	// IDEA: provide delta time in delta position queries, calculate car speed and compare it against a set max allowed speed limit
 
+	public float LineThickness = 1f;
+	public Color ActiveLineColor = Color.white;
+	public Color InactiveLineColor = Color.gray;
 
 	// Custom serialization
 	public void OnBeforeSerialize() {
@@ -208,15 +225,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			return;
 
 		if (line.Active)
-			UnityEditor.Handles.color = Color.white;
+			UnityEditor.Handles.color = ActiveLineColor;
 		else
-			UnityEditor.Handles.color = Color.gray;
+			UnityEditor.Handles.color = InactiveLineColor;
 
 
 		for (int i = 1; i < line.LinePoints.Count; i++) {
 			UnityEditor.Handles.DrawLine(
 				transform.TransformPoint(line.LinePoints[i - 1]),
-				transform.TransformPoint(line.LinePoints[i])
+				transform.TransformPoint(line.LinePoints[i]),
+				LineThickness
 			);
 		}
 
@@ -651,6 +669,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
 		List<InternalCenterline> visited = new List<InternalCenterline>() { fromLine };
 
+		// disable all lines
+		if (setInactive)
+			MainCenterline.SetActiveRecursive(false);
+
+		// List<InternalCenterline> allLines = new List<InternalCenterline>();
+		// MainCenterline.PopulateFlattenedTree(ref allLines);
+
 		foreach (var item in fromLine.Forks) {
 			if (item.StartIndex >= fromIndex)
 				SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
@@ -658,6 +683,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 
 	}
+
 	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, bool setActive, bool setInactive) {
 
 		// TODO: detect endless loops. is visited list check enough?
@@ -665,31 +691,64 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// TODO: check if end line is even reachable from start
 
 		if (visited.Contains(currentLine)) {
-			return true;
+			return currentLine.Active;
 		}
 
 		visited.Add(currentLine);
 
-		if (currentLine == toLine) {
-			if (currentLine.StartIndex < toIndex)
-				return false;
-			return true;
+		if (currentLine.RejoinLine == null) {
+			if (setInactive)
+				currentLine.Active = false;
+			return false;
 		}
 
-		bool foundAny = false;
-		foreach (var item in currentLine.Forks) {
-			bool success = SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
-			if (success) foundAny = true;
-		}
-
-		if (foundAny) {
+		if (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex) {
 			if (setActive)
 				currentLine.Active = true;
 			return true;
 		}
 
-		if (setInactive)
-			currentLine.Active = false;
+
+
+		bool anyForkSucceeded = false;
+		foreach (var fork in currentLine.Forks) {
+			bool success = SetReachableActive(visited, toLine, toIndex, fork, setActive, setInactive);
+			if (success)
+				anyForkSucceeded = true;
+		}
+
+		if (anyForkSucceeded) {
+			if (setActive)
+				currentLine.Active = true;
+			return true;
+		}
+
+		// if (visited.Contains(currentLine)) {
+		// 	return true;
+		// }
+
+		// visited.Add(currentLine);
+
+		// if (currentLine == toLine) {
+		// 	if (currentLine.StartIndex < toIndex)
+		// 		return false;
+		// 	return true;
+		// }
+
+		// bool foundAny = false;
+		// foreach (var item in currentLine.Forks) {
+		// 	bool success = SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
+		// 	if (success) foundAny = true;
+		// }
+
+		// if (foundAny) {
+		// 	if (setActive)
+		// 		currentLine.Active = true;
+		// 	return true;
+		// }
+
+		// if (setInactive)
+		// 	currentLine.Active = false;
 		return false;
 	}
 

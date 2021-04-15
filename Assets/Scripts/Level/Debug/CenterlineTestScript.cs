@@ -19,21 +19,26 @@ public class CenterlineTestScript : MonoBehaviour {
 	public bool SetActive = false;
 	public bool SetInactive = false;
 
+	public CenterlineTestScript OtherTestObject;
+
+	public Vector3 ClosestPos;
+	public CenterlineScript.InternalCenterline ClosestFork;
+	public int ClosestIndex;
 
 	void OnDrawGizmos() {
 		if (Centerline && Centerline.MainCenterline.LinePoints.Count > 1) {
 			Gizmos.color = LineColor;
-			Vector3 closestPos = Centerline.GetClosestPoint(transform.position, out int closestIndex, out CenterlineScript.InternalCenterline closestFork);
-			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(closestPos));
+			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork);
+			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(ClosestPos));
 
 			Gizmos.color = Color.white;
 
-			if (closestFork.LinePoints.Count < 2) {
+			if (ClosestFork.LinePoints.Count < 2) {
 				return;
 			}
 
 			Vector3 delta =
-				closestFork.LinePoints[closestIndex + 1] - closestFork.LinePoints[closestIndex];
+				ClosestFork.LinePoints[ClosestIndex + 1] - ClosestFork.LinePoints[ClosestIndex];
 
 			if (delta == Vector3.zero)
 				return;
@@ -43,7 +48,7 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			bool foundNoDeltas = true;
 			Gizmos.color = Color.green;
-			foreach (var rotOut in CenterlineScript.GetRotationDeltasAhead(closestFork, DistanceAhead, closestIndex)) {
+			foreach (var rotOut in CenterlineScript.GetRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex)) {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
@@ -63,7 +68,7 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			Gizmos.color = Color.cyan;
 			foundNoDeltas = true;
-			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(closestFork, DistanceAhead, closestIndex)) {
+			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex)) {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item4 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int indexAtEnd = rotOut.Item1;
@@ -82,12 +87,15 @@ public class CenterlineTestScript : MonoBehaviour {
 			if (foundNoDeltas)
 				Gizmos.DrawCube(transform.position, Vector3.one * .7f);
 
-			if(SetActive || SetInactive){
-				Centerline.SetReachableActive(closestFork, closestIndex, closestFork, closestIndex, SetActive, SetInactive);
-				var view = EditorWindow.GetWindow<SceneView>();
-				if(view){
-					view.Repaint();
+			if (SetActive || SetInactive) {
+				if (OtherTestObject != null && OtherTestObject.ClosestFork != null) {
+					Gizmos.DrawSphere(OtherTestObject.ClosestPos, 2);
+					Centerline.SetReachableActive(ClosestFork, ClosestIndex, OtherTestObject.ClosestFork, OtherTestObject.ClosestIndex, SetActive, SetInactive);
+				} else {
+
+					Centerline.SetReachableActive(ClosestFork, ClosestIndex, ClosestFork, ClosestIndex, SetActive, SetInactive);
 				}
+				SceneView.RepaintAll();
 			}
 
 		}
