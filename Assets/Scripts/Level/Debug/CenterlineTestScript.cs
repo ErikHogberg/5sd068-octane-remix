@@ -20,6 +20,7 @@ public class CenterlineTestScript : MonoBehaviour {
 	public bool SetInactive = false;
 
 	public CenterlineTestScript OtherTestObject;
+	public float OtherClosestPosSize = 1f;
 
 	public Vector3 ClosestPos;
 	public CenterlineScript.InternalCenterline ClosestFork;
@@ -70,13 +71,10 @@ public class CenterlineTestScript : MonoBehaviour {
 			foundNoDeltas = true;
 			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex)) {
 				foundNoDeltas = false;
-				Quaternion rot = rotOut.Item4 * closestLineRot * Quaternion.Inverse(transform.rotation);
-				int indexAtEnd = rotOut.Item1;
-				int indexAtGreatestDelta = rotOut.Item2;
-				// int forkIndex = rotOut.Item3;
-				CenterlineScript.InternalCenterline fork = rotOut.Item3;
+				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
+				int indexAtGreatestDelta = rotOut.Item1;
+				CenterlineScript.InternalCenterline fork = rotOut.Item2;
 
-				if (indexAtEnd < 0) indexAtEnd = 0;
 				if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
 				// Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[forkIndex].LinePoints[indexAtGreatestDelta];
 				Vector3 cubeCenter = fork.LinePoints[indexAtGreatestDelta];
@@ -89,7 +87,7 @@ public class CenterlineTestScript : MonoBehaviour {
 
 			if (SetActive || SetInactive) {
 				if (OtherTestObject != null && OtherTestObject.ClosestFork != null) {
-					Gizmos.DrawSphere(OtherTestObject.ClosestPos, 2);
+					Gizmos.DrawSphere(OtherTestObject.ClosestPos, OtherClosestPosSize);
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, OtherTestObject.ClosestFork, OtherTestObject.ClosestIndex, SetActive, SetInactive);
 				} else {
 

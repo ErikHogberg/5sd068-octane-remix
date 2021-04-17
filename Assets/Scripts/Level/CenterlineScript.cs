@@ -22,6 +22,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// IDEA: method measure the distance between 2 indices on a line.
 		// IDEA: method for measuring all paths available between 2 indices (which might be on different lines)
 
+		// IDEA: use centerline to check if car is going the wrong direction. compare velocity direction (if magnitude is above a threshold) against direction from closest point to next?
+
 		// name which is only used in the editor window at the moment
 		public string Name = "";
 		// at which line point index of its parent line this line forks away at
@@ -244,7 +246,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 #endif
 
-	// Calculate bezier line points from control points and resolution
+	// Calculate bezier line points from control points and resolution, populates line point list
 	public static List<Vector3> GenerateLinePoints(List<Vector3> ControlPoints, int Resolution) {
 		List<Vector3> LinePoints = new List<Vector3>();
 
@@ -446,8 +448,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	/// Gets all of the *greatest* rotation deltas of the paths ahead (current line + any new forks in the distance ahead). 
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
-	/// (Index at end, index at greates delta, fork index, rotation delta)
-	public static IEnumerable<(int, int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(
+	/// returns IEnumerable<(index at greates delta, which fork this result applies to, rotation delta)>
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(
 		InternalCenterline line,
 		float distanceAheadSqr,
 		int startIndex = 0,
@@ -460,6 +462,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		// IDEA: option to only return once with greatest delta of all forks
 
+		// abort if recursive call is too deep
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get greatest rotation delta recursion too deep");
 			yield break;
@@ -472,22 +475,30 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float greatestDeltaAngle = 0;
 		int indexAtGreatestDelta = -1;
 
+		// set rotation to compare against to be the start point on the first line in the call chain, meaning that child lines/forks also compare against this same rotation
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
+		// step through the line points, from the given start point to the end of the line
 		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
 
+			// accumulate distance between line points to keep track of distance traveled since start index
 			distanceTraveledSqr += distanceSqr;
+
+			// direction from previous line point
 			Quaternion outRot =
 				Quaternion.LookRotation(line.LinePoints[i] - line.LinePoints[i - 1], Vector3.up)
 				// * inverseRot
 				;
 
+			// get largest delta angle on any axis
 			float angle = Quaternion.Angle(
 				// Quaternion.identity, 
 				compareRotValue,
 				outRot
-				);
+			);
+
+			// check if new delta is largest found so far
 			if (greatestDeltaAngle <= angle) {
 				greatestDeltaAngle = angle;
 				greatestDelta = outRot;
@@ -495,29 +506,40 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 
 			if (distanceTraveledSqr < distanceAheadSqr) {
+				// continue searching for larger deltas if there is still distance left to search
 				continue;
 			} else {
-				yield return (i, indexAtGreatestDelta, line, greatestDelta);
+				// return largest delta found if the end of the measurment distance has been reached
+				yield return (indexAtGreatestDelta, line, greatestDelta);
 				break;
 			}
 		}
 
-		if (distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
-			foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, compareRot, depth + 1))
-				// foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, Mathf.Pow(Mathf.Sqrt(distanceAheadSqr) - Mathf.Sqrt(distanceTraveledSqr),2), line.RejoinIndex, compareRot, depth + 1))
-				yield return rejoinResult;
+		if (distanceTraveledSqr < distanceAheadSqr) {
+			// return largest delta found if the end of the line has been found
+			yield return (indexAtGreatestDelta, line, greatestDelta);
+
+			if (line.RejoinLine != null) {
+				// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
+				foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, compareRot, depth + 1))
+					yield return rejoinResult;
+			}
 		}
 
+		// check any forks whose starting/forking point is within the measuring distance
 		foreach (var fork in line.Forks) {
+			// check if forking point is after measurement starting point
 			if (fork.StartIndex < startIndex)
 				continue;
 
+			// calculate how far into the next fork will be measured
 			float forkDistanceAheadSqr = distanceAheadSqr;
 			for (int i = startIndex + 1; i <= fork.StartIndex; i++) {
 				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 				forkDistanceAheadSqr -= distanceSqr;
 			}
 
+			// check if forking point is before end of measurement distance
 			if (forkDistanceAheadSqr < 0)
 				continue;
 
@@ -525,6 +547,26 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				yield return forkResult;
 		}
 
+	}
+
+	/// returns only the one point with the single largest rotation delta of all forks measured within the search distance
+	public static (int, InternalCenterline, Quaternion) GetSingleGreatestRotationDelta(
+		InternalCenterline line,
+		float distanceAheadSqr,
+		int startIndex = 0,
+		Quaternion? compareRot = null
+	) {
+
+		(int,InternalCenterline, Quaternion) currentGreatest = (0, line, Quaternion.identity);
+
+		float currentGreatestAngle = 0;
+
+		foreach (var result in GetGreatestRotationDeltasAhead(line, distanceAheadSqr)) {
+			if (Quaternion.Angle(Quaternion.identity, result.Item3) >= currentGreatestAngle) 
+				currentGreatest = result;
+		}
+
+		return currentGreatest;
 	}
 
 	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance) {
@@ -543,10 +585,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Vector3 currentClosest = Vector3.zero;
 		float currentClosestDistance = 0;
 		int lineIndex = 0;
-		// closestForkIndex = -1;
 		closestLine = line;
-
-
 
 		for (int i = 1; i < line.LinePoints.Count; i++) {
 			float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
@@ -690,6 +729,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// TODO: disable lines that are never visited? not needed because cars can never transition to them?
 		// TODO: check if end line is even reachable from start
 
+
 		if (visited.Contains(currentLine)) {
 			return currentLine.Active;
 		}
@@ -709,7 +749,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 
-
 		bool anyForkSucceeded = false;
 		foreach (var fork in currentLine.Forks) {
 			bool success = SetReachableActive(visited, toLine, toIndex, fork, setActive, setInactive);
@@ -717,38 +756,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				anyForkSucceeded = true;
 		}
 
-		if (anyForkSucceeded) {
+		// FIXME: not active when end is after start on the same line
+		if (anyForkSucceeded || currentLine == toLine) {
 			if (setActive)
 				currentLine.Active = true;
 			return true;
 		}
 
-		// if (visited.Contains(currentLine)) {
-		// 	return true;
-		// }
-
-		// visited.Add(currentLine);
-
-		// if (currentLine == toLine) {
-		// 	if (currentLine.StartIndex < toIndex)
-		// 		return false;
-		// 	return true;
-		// }
-
-		// bool foundAny = false;
-		// foreach (var item in currentLine.Forks) {
-		// 	bool success = SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
-		// 	if (success) foundAny = true;
-		// }
-
-		// if (foundAny) {
-		// 	if (setActive)
-		// 		currentLine.Active = true;
-		// 	return true;
-		// }
-
-		// if (setInactive)
-		// 	currentLine.Active = false;
 		return false;
 	}
 

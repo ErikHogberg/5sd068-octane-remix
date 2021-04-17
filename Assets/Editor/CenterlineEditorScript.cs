@@ -248,7 +248,7 @@ public class CenterlineEditorScript : Editor {
 		controlHandleColor = EditorGUILayout.ColorField("Main Control Point Handle Color", controlHandleColor);
 		drawControlPointLines = EditorGUILayout.Toggle("Draw Control Point Lines", drawControlPointLines);
 
-		centerlineScript.LineThickness = EditorGUILayout.FloatField("Line thickness", centerlineScript.LineThickness);
+		centerlineScript.LineThickness = EditorGUILayout.Slider("Line thickness", centerlineScript.LineThickness, .01f, 50f);
 		centerlineScript.ActiveLineColor = EditorGUILayout.ColorField("Active line color", centerlineScript.ActiveLineColor);
 		centerlineScript.InactiveLineColor = EditorGUILayout.ColorField("Inactive line color", centerlineScript.InactiveLineColor);
 
