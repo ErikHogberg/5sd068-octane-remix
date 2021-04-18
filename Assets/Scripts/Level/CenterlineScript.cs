@@ -718,30 +718,24 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
 		List<InternalCenterline> visited = new List<InternalCenterline>() { fromLine };
-		visited.Add(fromLine);
+		// visited.Add(fromLine);
 
 		// disable all lines
 		if (setInactive)
 			MainCenterline.SetActiveRecursive(false);
 
-		// List<InternalCenterline> allLines = new List<InternalCenterline>();
-		// MainCenterline.PopulateFlattenedTree(ref allLines);
+		// fromLine.Active = fromLine == toLine;// && (fromLine.RejoinLine == fromLine || fromIndex < toIndex);
 
-		fromLine.Active = fromLine == toLine && (fromLine.RejoinLine == fromLine || fromIndex < toIndex);
+		// foreach (var item in fromLine.Forks) {
+		// 	if (item.StartIndex >= fromIndex)
+		// 		fromLine.Active = fromLine.Active || SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
+		// }
 
-		foreach (var item in fromLine.Forks) {
-			if (item.StartIndex >= fromIndex)
-				fromLine.Active = fromLine.Active || SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
-		}
-
+		SetReachableActive(visited, toLine, toIndex, fromLine, fromIndex, setActive, setInactive);
 
 	}
 
-	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, bool setActive, bool setInactive) {
-
-		// TODO: detect endless loops. is visited list check enough?
-		// TODO: disable lines that are never visited? not needed because cars can never transition to them?
-		// TODO: check if end line is even reachable from start
+	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, int startIndex, bool setActive, bool setInactive) {
 
 		if (visited.Contains(currentLine))
 			return currentLine.Active;
@@ -750,23 +744,40 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		bool anyForkSucceeded = false;
 		foreach (var fork in currentLine.Forks) {
-			bool success = SetReachableActive(visited, toLine, toIndex, fork, setActive, setInactive);
-			if (success)
+			if (fork.StartIndex < startIndex)
+				continue;
+
+			bool success = SetReachableActive(visited, toLine, toIndex, fork, 0, setActive, setInactive);
+			if (success) {
+				if (currentLine.EarlyEndIndex < fork.StartIndex)
+					currentLine.EarlyEndIndex = fork.StartIndex;
 				anyForkSucceeded = true;
+			}
 		}
 
-		if(currentLine.RejoinLine != null){
-			bool success = SetReachableActive(visited, toLine, toIndex, currentLine.RejoinLine, setActive, setInactive);
-			if (success)
+		if (currentLine.RejoinLine != null) {
+			if (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex) {
+				if (setActive)
+					currentLine.Active = true;
+
+				return true;
+			}
+
+			bool success = SetReachableActive(visited, toLine, toIndex, currentLine.RejoinLine, currentLine.RejoinIndex, setActive, setInactive);
+			if (success) {
+				currentLine.EarlyEndIndex = -1;
 				anyForkSucceeded = true;
+			}
 		}
+
 
 		if (anyForkSucceeded
 		|| currentLine == toLine
-		|| (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex)
+		// || (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex)
 		) {
 			if (setActive)
 				currentLine.Active = true;
+
 			return true;
 		}
 

@@ -86,18 +86,31 @@ public class CenterlineTestScript : MonoBehaviour {
 			if (SetActive || SetInactive) {
 				if (OtherTestObject != null && OtherTestObject.ClosestFork != null) {
 					Gizmos.DrawSphere(OtherTestObject.ClosestPos, OtherClosestPosSize);
-					
-					Gizmos.color = Color.green;
-					Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.First(), OtherClosestPosSize);
-					Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.Last(), OtherClosestPosSize);
-					Gizmos.color = Color.yellow;
-					Gizmos.DrawSphere(ClosestFork.LinePoints.First(), OtherClosestPosSize);
-					Gizmos.DrawSphere(ClosestFork.LinePoints.Last(), OtherClosestPosSize);
+
+					// Gizmos.color = Color.green;
+					// Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.First(), OtherClosestPosSize);
+					// Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.Last(), OtherClosestPosSize);
+					// Gizmos.color = Color.yellow;
+					// Gizmos.DrawSphere(ClosestFork.LinePoints.First(), OtherClosestPosSize);
+					// Gizmos.DrawSphere(ClosestFork.LinePoints.Last(), OtherClosestPosSize);
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, OtherTestObject.ClosestFork, OtherTestObject.ClosestIndex, SetActive, SetInactive);
+
+					Gizmos.color = Color.white;
+					if (ClosestFork.EarlyEndIndex >= 0){
+						Debug.Log($"early end: {ClosestFork.EarlyEndIndex}");
+						Gizmos.DrawSphere(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex], OtherClosestPosSize);
+					}
+					if (OtherTestObject.ClosestFork.EarlyEndIndex >= 0)
+						Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints[OtherTestObject.ClosestFork.EarlyEndIndex], OtherClosestPosSize);
+
 
 				} else {
 
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, ClosestFork, ClosestIndex, SetActive, SetInactive);
+					Gizmos.color = Color.white;
+					if (ClosestFork.EarlyEndIndex >= 0)
+						Gizmos.DrawSphere(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex], OtherClosestPosSize);
+					
 				}
 				SceneView.RepaintAll();
 			}
