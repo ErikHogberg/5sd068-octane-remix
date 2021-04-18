@@ -163,7 +163,7 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUILayout.EndHorizontal();
 
-		line.Resolution = EditorGUILayout.IntSlider("Fork Resolution/Line Count", line.Resolution, 2, 250);
+		line.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", line.Resolution, 2, 250);
 		if (parent != null) {
 			line.StartIndex = EditorGUILayout.IntField("Start index", line.StartIndex);
 			if (line.StartIndex >= parent.LinePoints.Count) {
@@ -193,7 +193,7 @@ public class CenterlineEditorScript : Editor {
 			}
 			EditorGUILayout.EndHorizontal();
 		}
-		if (GUILayout.Button("Add Fork Control Point")) {
+		if (GUILayout.Button("Add Control Point")) {
 			if (line.ControlPoints.Count > 0) {
 				line.ControlPoints.Add(line.ControlPoints[line.ControlPoints.Count - 1]);
 			} else {

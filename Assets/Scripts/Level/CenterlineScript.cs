@@ -16,7 +16,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public class InternalCenterline {
 
 		// runtime-only, non-serialized active state which includes/excludes the line from queries
+		// TODO: implement queries responding to active state
 		public bool Active = true;
+		// runtime-only, non-serialized line index which causes the part of the line past this index to be excluded from queries (disabled if index is below 0)
+		// TODO: 
+		// TODO: implement queries responding to early end index
+		public int EarlyEndIndex = -1;
 
 		// IDEA: method for calculating line length. Could be used for menu UI, showing the length differences between each path to the player. 
 		// IDEA: method measure the distance between 2 indices on a line.
@@ -40,6 +45,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public bool ForksInspectorFoldState = false;
 		// the child lines/forks, branches of the tree node. each line in this list is unique and is not referenced by any other fork lists.
 		public List<InternalCenterline> Forks = new List<InternalCenterline>();
+
+		// IDEA: 	no rejoin line, use forks instead, and limit forks to only be able to start at end of parent instead of anywhere on parent. 
+		//			would solve problem of parent lines of lines containing the goalpost potentially leading players into (and locking them into) a dead end
+		// IDEA: alternatively define an optional early end line index for each line which limits queries from searching past that index
+
+
 		// cyclical tree node reference. can be null, meaning that the line ends in the air instead or rejoining any line
 		public InternalCenterline RejoinLine = null;
 		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
@@ -557,12 +568,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Quaternion? compareRot = null
 	) {
 
-		(int,InternalCenterline, Quaternion) currentGreatest = (0, line, Quaternion.identity);
+		(int, InternalCenterline, Quaternion) currentGreatest = (0, line, Quaternion.identity);
 
 		float currentGreatestAngle = 0;
 
 		foreach (var result in GetGreatestRotationDeltasAhead(line, distanceAheadSqr)) {
-			if (Quaternion.Angle(Quaternion.identity, result.Item3) >= currentGreatestAngle) 
+			if (Quaternion.Angle(Quaternion.identity, result.Item3) >= currentGreatestAngle)
 				currentGreatest = result;
 		}
 
@@ -707,6 +718,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
 		List<InternalCenterline> visited = new List<InternalCenterline>() { fromLine };
+		visited.Add(fromLine);
 
 		// disable all lines
 		if (setInactive)
@@ -715,9 +727,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// List<InternalCenterline> allLines = new List<InternalCenterline>();
 		// MainCenterline.PopulateFlattenedTree(ref allLines);
 
+		fromLine.Active = fromLine == toLine && (fromLine.RejoinLine == fromLine || fromIndex < toIndex);
+
 		foreach (var item in fromLine.Forks) {
 			if (item.StartIndex >= fromIndex)
-				SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
+				fromLine.Active = fromLine.Active || SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
 		}
 
 
@@ -729,25 +743,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// TODO: disable lines that are never visited? not needed because cars can never transition to them?
 		// TODO: check if end line is even reachable from start
 
-
-		if (visited.Contains(currentLine)) {
+		if (visited.Contains(currentLine))
 			return currentLine.Active;
-		}
 
 		visited.Add(currentLine);
-
-		if (currentLine.RejoinLine == null) {
-			if (setInactive)
-				currentLine.Active = false;
-			return false;
-		}
-
-		if (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex) {
-			if (setActive)
-				currentLine.Active = true;
-			return true;
-		}
-
 
 		bool anyForkSucceeded = false;
 		foreach (var fork in currentLine.Forks) {
@@ -756,13 +755,29 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				anyForkSucceeded = true;
 		}
 
-		// FIXME: not active when end is after start on the same line
-		if (anyForkSucceeded || currentLine == toLine) {
+		if(currentLine.RejoinLine != null){
+			bool success = SetReachableActive(visited, toLine, toIndex, currentLine.RejoinLine, setActive, setInactive);
+			if (success)
+				anyForkSucceeded = true;
+		}
+
+		if (anyForkSucceeded
+		|| currentLine == toLine
+		|| (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex)
+		) {
 			if (setActive)
 				currentLine.Active = true;
 			return true;
 		}
 
+		// if (currentLine.RejoinLine == null) {
+		// 	if (setInactive)
+		// 		currentLine.Active = false;
+		// 	return false;
+		// }
+
+		if (setInactive)
+			currentLine.Active = false;
 		return false;
 	}
 

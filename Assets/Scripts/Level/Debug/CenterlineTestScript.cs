@@ -31,6 +31,8 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.color = LineColor;
 			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork);
 			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(ClosestPos));
+			if (OtherTestObject != null)
+				Gizmos.DrawSphere(ClosestPos, OtherClosestPosSize);
 
 			Gizmos.color = Color.white;
 
@@ -53,12 +55,9 @@ public class CenterlineTestScript : MonoBehaviour {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
-				// int forkIndex = rotOut.Item2;
 				CenterlineScript.InternalCenterline fork = rotOut.Item2;
 
 				if (index < 0) index = 0;
-				// Vector3 cubeCenter = closestForkIndex < 0 ? Centerline.MainCenterline.LinePoints[index] : Centerline.Forks[forkIndex].LinePoints[index];
-				// Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[index] : Centerline.Forks[forkIndex].LinePoints[index];
 				Vector3 cubeCenter = fork.LinePoints[index];
 				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one);
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
@@ -76,7 +75,6 @@ public class CenterlineTestScript : MonoBehaviour {
 				CenterlineScript.InternalCenterline fork = rotOut.Item2;
 
 				if (indexAtGreatestDelta < 0) indexAtGreatestDelta = 0;
-				// Vector3 cubeCenter = forkIndex < 0 ? Centerline.MainCenterline.LinePoints[indexAtGreatestDelta] : Centerline.Forks[forkIndex].LinePoints[indexAtGreatestDelta];
 				Vector3 cubeCenter = fork.LinePoints[indexAtGreatestDelta];
 				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .7f);
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
@@ -88,7 +86,15 @@ public class CenterlineTestScript : MonoBehaviour {
 			if (SetActive || SetInactive) {
 				if (OtherTestObject != null && OtherTestObject.ClosestFork != null) {
 					Gizmos.DrawSphere(OtherTestObject.ClosestPos, OtherClosestPosSize);
+					
+					Gizmos.color = Color.green;
+					Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.First(), OtherClosestPosSize);
+					Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints.Last(), OtherClosestPosSize);
+					Gizmos.color = Color.yellow;
+					Gizmos.DrawSphere(ClosestFork.LinePoints.First(), OtherClosestPosSize);
+					Gizmos.DrawSphere(ClosestFork.LinePoints.Last(), OtherClosestPosSize);
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, OtherTestObject.ClosestFork, OtherTestObject.ClosestIndex, SetActive, SetInactive);
+
 				} else {
 
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, ClosestFork, ClosestIndex, SetActive, SetInactive);
