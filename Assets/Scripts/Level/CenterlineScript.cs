@@ -52,6 +52,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 
 		// cyclical tree node reference. can be null, meaning that the line ends in the air instead or rejoining any line
+		// FIXME: rejoin line set to main line on deserialization(?)
 		public InternalCenterline RejoinLine = null;
 		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
 		public int RejoinIndex = 0;
@@ -242,18 +243,27 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		else
 			UnityEditor.Handles.color = InactiveLineColor;
 
+		// for (int i = 1; i < line.LinePoints.Count; i++) {
+		// 	UnityEditor.Handles.DrawLine(
+		// 		transform.TransformPoint(line.LinePoints[i - 1]),
+		// 		transform.TransformPoint(line.LinePoints[i]),
+		// 		LineThickness
+		// 	);
+		// }
 
-		for (int i = 1; i < line.LinePoints.Count; i++) {
-			UnityEditor.Handles.DrawLine(
-				transform.TransformPoint(line.LinePoints[i - 1]),
-				transform.TransformPoint(line.LinePoints[i]),
-				LineThickness
-			);
-		}
+		UnityEditor.Handles.lighting = false;
+
+		UnityEditor.Handles.DrawAAPolyLine(LineThickness,
+			// UnityEditor.Handles.DrawPolyLine(
+			line.LinePoints
+				.Select(vector => transform.TransformPoint(vector))
+				.ToArray()
+		);
 
 		foreach (var fork in line.Forks) {
 			DrawLine(fork, depth + 1);
 		}
+
 	}
 #endif
 
@@ -717,19 +727,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 
 	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
-		List<InternalCenterline> visited = new List<InternalCenterline>() { fromLine };
-		// visited.Add(fromLine);
+		List<InternalCenterline> visited = new List<InternalCenterline>();
 
 		// disable all lines
 		if (setInactive)
 			MainCenterline.SetActiveRecursive(false);
-
-		// fromLine.Active = fromLine == toLine;// && (fromLine.RejoinLine == fromLine || fromIndex < toIndex);
-
-		// foreach (var item in fromLine.Forks) {
-		// 	if (item.StartIndex >= fromIndex)
-		// 		fromLine.Active = fromLine.Active || SetReachableActive(visited, toLine, toIndex, item, setActive, setInactive);
-		// }
 
 		SetReachableActive(visited, toLine, toIndex, fromLine, fromIndex, setActive, setInactive);
 
@@ -737,10 +739,27 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, int startIndex, bool setActive, bool setInactive) {
 
+
 		if (visited.Contains(currentLine))
 			return currentLine.Active;
 
 		visited.Add(currentLine);
+		currentLine.EarlyEndIndex = -1;
+
+		if (currentLine == toLine) {
+			// NOTE: might not catch reentry onto line at point past finishline?
+
+			if (setActive)
+				currentLine.Active = true;
+
+			foreach (var fork in currentLine.Forks) {
+				if (fork.StartIndex < toIndex)
+					SetReachableActive(visited, toLine, toIndex, fork, 0, setActive, setInactive);
+			}
+
+
+			return true;
+		}
 
 		bool anyForkSucceeded = false;
 		foreach (var fork in currentLine.Forks) {
@@ -755,12 +774,19 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		if (currentLine.RejoinLine != null) {
-			if (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex) {
-				if (setActive)
-					currentLine.Active = true;
+		// FIXME: not checking forks of self rejoining lines which start checking past the start of the forks, but rejoins before the start of the forks
 
-				return true;
+		if (currentLine.RejoinLine != null) {
+			if (currentLine.RejoinLine == toLine) {
+				if (currentLine.RejoinIndex < toIndex) {
+					if (setActive)
+						currentLine.Active = true;
+					return true;
+				}
+
+				if (setInactive)
+					currentLine.Active = false;
+				return false;
 			}
 
 			bool success = SetReachableActive(visited, toLine, toIndex, currentLine.RejoinLine, currentLine.RejoinIndex, setActive, setInactive);
@@ -772,7 +798,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 
 		if (anyForkSucceeded
-		|| currentLine == toLine
+		// || currentLine == toLine
 		// || (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex)
 		) {
 			if (setActive)

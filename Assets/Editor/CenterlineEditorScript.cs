@@ -174,7 +174,11 @@ public class CenterlineEditorScript : Editor {
 		}
 
 		EditorGUILayout.BeginHorizontal();
+
 		EditorGUILayout.LabelField($"Rejoin line: {(line.RejoinLine != null ? line.RejoinLine.Name : "none")}");
+		if (GUILayout.Button("Disconnect line end")) {
+			line.RejoinLine = null;
+		}
 		if (GUILayout.Button("Join selected line") && selectedLine != null) {
 			line.RejoinLine = selectedLine;
 		}

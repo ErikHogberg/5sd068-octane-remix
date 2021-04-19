@@ -31,8 +31,11 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.color = LineColor;
 			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork);
 			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(ClosestPos));
-			if (OtherTestObject != null)
+			if (OtherTestObject != null) {
 				Gizmos.DrawSphere(ClosestPos, OtherClosestPosSize);
+				Handles.Label(ClosestPos, "Start Line");
+				Handles.Label(OtherTestObject.ClosestPos, "Finish Line");
+			}
 
 			Gizmos.color = Color.white;
 
@@ -96,21 +99,25 @@ public class CenterlineTestScript : MonoBehaviour {
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, OtherTestObject.ClosestFork, OtherTestObject.ClosestIndex, SetActive, SetInactive);
 
 					Gizmos.color = Color.white;
-					if (ClosestFork.EarlyEndIndex >= 0){
-						Debug.Log($"early end: {ClosestFork.EarlyEndIndex}");
+					if (ClosestFork.EarlyEndIndex >= 0) {
+						// Debug.Log($"early end: {ClosestFork.EarlyEndIndex}");
+
+						Handles.Label(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex], $"early end: {ClosestFork.EarlyEndIndex}");
 						Gizmos.DrawSphere(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex], OtherClosestPosSize);
 					}
-					if (OtherTestObject.ClosestFork.EarlyEndIndex >= 0)
-						Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints[OtherTestObject.ClosestFork.EarlyEndIndex], OtherClosestPosSize);
+					// if (OtherTestObject.ClosestFork.EarlyEndIndex >= 0)
+					// 	Gizmos.DrawSphere(OtherTestObject.ClosestFork.LinePoints[OtherTestObject.ClosestFork.EarlyEndIndex], OtherClosestPosSize);
 
 
 				} else {
 
 					Centerline.SetReachableActive(ClosestFork, ClosestIndex, ClosestFork, ClosestIndex, SetActive, SetInactive);
 					Gizmos.color = Color.white;
-					if (ClosestFork.EarlyEndIndex >= 0)
+					if (ClosestFork.EarlyEndIndex >= 0) {
+						Handles.Label(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex] + Vector3.right * 30f, $"early end: {ClosestFork.EarlyEndIndex}");
 						Gizmos.DrawSphere(ClosestFork.LinePoints[ClosestFork.EarlyEndIndex], OtherClosestPosSize);
-					
+					}
+
 				}
 				SceneView.RepaintAll();
 			}
