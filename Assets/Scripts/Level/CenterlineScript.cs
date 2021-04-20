@@ -411,6 +411,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	) {
 		// IDEA: search backwards if distance is negative
 
+		// TODO: implement ignoring inactive lines/forks
+
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get rotation delta recursion too deep");
 			yield break;
@@ -421,7 +423,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		float distanceTraveledSqr = 0;
-		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
+		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
+		for (int i = startIndex + 1; i < lineEndIndex; i++) {
 			// calculate distance from previous point
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 
@@ -490,6 +493,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		// IDEA: option to only return once with greatest delta of all forks
 
+		// TODO: implement ignoring inactive lines/forks
+
 		// abort if recursive call is too deep
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get greatest rotation delta recursion too deep");
@@ -507,7 +512,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		// step through the line points, from the given start point to the end of the line
-		for (int i = startIndex + 1; i < line.LinePoints.Count; i++) {
+		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
+		for (int i = startIndex + 1; i < lineEndIndex; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
 
 			// accumulate distance between line points to keep track of distance traveled since start index
@@ -608,6 +614,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		int depth = 0
 	) {
 
+		// TODO: implement ignoring inactive lines/forks
+		
 		pos = transform.InverseTransformPoint(pos);
 
 		Vector3 currentClosest = Vector3.zero;
@@ -615,7 +623,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		int lineIndex = 0;
 		closestLine = line;
 
-		for (int i = 1; i < line.LinePoints.Count; i++) {
+
+		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
+		for (int i = 1; i < lineEndIndex; i++) {
 			float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 
 			if (i == 1) {
