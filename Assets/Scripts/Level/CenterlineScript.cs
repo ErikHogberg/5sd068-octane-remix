@@ -156,6 +156,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			} else {
 				rejoinRefResolveQueue.Add((n.RejoinLine, serializedNode));
 			}
+		} else {
+			serializedNode.indexOfRejoinLine = -1;
 		}
 
 		refCache.Add(n, SerializedLines.Count);
@@ -193,6 +195,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			RejoinIndex = serializedLine.RejoinIndex
 		};
 
+
 		for (int i = rejoinRefResolveQueue.Count - 1; i >= 0; i--) {
 			if (rejoinRefResolveQueue[i].Item1 != serializedLine.indexOfRejoinLine)
 				continue;
@@ -203,10 +206,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		refCache.Add(index, newLine);
 
-		if (refCache.TryGetValue(serializedLine.indexOfRejoinLine, out InternalCenterline rejoinLine)) {
-			newLine.RejoinLine = rejoinLine;
+		if (serializedLine.indexOfRejoinLine < 0) {
+			newLine.RejoinLine = null;
 		} else {
-			rejoinRefResolveQueue.Add((serializedLine.indexOfRejoinLine, newLine));
+			if (refCache.TryGetValue(serializedLine.indexOfRejoinLine, out InternalCenterline rejoinLine)) {
+				newLine.RejoinLine = rejoinLine;
+			} else {
+				rejoinRefResolveQueue.Add((serializedLine.indexOfRejoinLine, newLine));
+			}
 		}
 
 		for (int i = 0; i != serializedLine.childCount; i++) {
@@ -774,7 +781,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		// FIXME: not checking forks of self rejoining lines which start checking past the start of the forks, but rejoins before the start of the forks
+		// FIXME: not checking forks of self rejoining lines which start checking past the start of the forks but also rejoins before the start of the forks
 
 		if (currentLine.RejoinLine != null) {
 			if (currentLine.RejoinLine == toLine) {
