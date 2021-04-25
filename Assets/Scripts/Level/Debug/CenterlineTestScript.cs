@@ -22,6 +22,9 @@ public class CenterlineTestScript : MonoBehaviour {
 	public CenterlineTestScript OtherTestObject;
 	public float OtherClosestPosSize = 1f;
 
+	public bool IgnoreEarlyEnd = false;
+	public bool IncludeInactive = false;	
+
 	public Vector3 ClosestPos;
 	public CenterlineScript.InternalCenterline ClosestFork;
 	public int ClosestIndex;
@@ -31,7 +34,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			Gizmos.color = LineColor;
 
 			// query centerline for closest line point, meaning that the precision of the closest position to curve depends on the resolution of the line
-			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork);
+			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork, IgnoreEarlyEnd, IncludeInactive);
 
 			// draw the line between the test object and the closest line point
 			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(ClosestPos));
@@ -63,7 +66,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			// query and visualize the total change in direction over the defined distance ahead, for all forks within that distance from the closest line point along the line
 			bool foundNoDeltas = true;
 			Gizmos.color = Color.green;
-			foreach (var rotOut in CenterlineScript.GetRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex)) {
+			foreach (var rotOut in CenterlineScript.GetRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex, IgnoreEarlyEnd, IncludeInactive)) {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int index = rotOut.Item1;
@@ -84,7 +87,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			// query and visualize the greatest change in direction over the defined distance ahead, for all forks within that distance from the closest line point along the line
 			Gizmos.color = Color.cyan;
 			foundNoDeltas = true;
-			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex)) {
+			foreach (var rotOut in CenterlineScript.GetGreatestRotationDeltasAhead(ClosestFork, DistanceAhead, ClosestIndex, IgnoreEarlyEnd, IncludeInactive)) {
 				foundNoDeltas = false;
 				Quaternion rot = rotOut.Item3 * closestLineRot * Quaternion.Inverse(transform.rotation);
 				int indexAtGreatestDelta = rotOut.Item1;

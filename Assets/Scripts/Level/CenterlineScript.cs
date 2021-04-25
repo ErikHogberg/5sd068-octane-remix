@@ -16,18 +16,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public class InternalCenterline {
 
 		// runtime-only, non-serialized active state which includes/excludes the line from queries
-		// TODO: implement queries responding to active state
 		public bool Active = true;
 		// runtime-only, non-serialized line index which causes the part of the line past this index to be excluded from queries (disabled if index is below 0)
-		// TODO: 
-		// TODO: implement queries responding to early end index
 		public int EarlyEndIndex = -1;
 
 		// IDEA: method for calculating line length. Could be used for menu UI, showing the length differences between each path to the player. 
 		// IDEA: method measure the distance between 2 indices on a line.
 		// IDEA: method for measuring all paths available between 2 indices (which might be on different lines)
-
-		// IDEA: use centerline to check if car is going the wrong direction. compare velocity direction (if magnitude is above a threshold) against direction from closest point to next?
 
 		// name which is only used in the editor window at the moment
 		public string Name = "";
@@ -46,13 +41,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// the child lines/forks, branches of the tree node. each line in this list is unique and is not referenced by any other fork lists.
 		public List<InternalCenterline> Forks = new List<InternalCenterline>();
 
-		// IDEA: 	no rejoin line, use forks instead, and limit forks to only be able to start at end of parent instead of anywhere on parent. 
-		//			would solve problem of parent lines of lines containing the goalpost potentially leading players into (and locking them into) a dead end
-		// IDEA: alternatively define an optional early end line index for each line which limits queries from searching past that index
-
-
 		// cyclical tree node reference. can be null, meaning that the line ends in the air instead or rejoining any line
-		// FIXME: rejoin line set to main line on deserialization(?)
 		public InternalCenterline RejoinLine = null;
 		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
 		public int RejoinIndex = 0;
@@ -104,6 +93,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	// TODO: wire up goal posts to use centerline instead of road segments for catching skipping of goal posts and reversing into goal post
 	// IDEA: do all lap queries and teleportation through the centerline system, instead of triggering it using collision with the goal post trigger colliders
+	// IDEA: have a span of a few indices where a goal post collider is allowed to be hit, otherwise triggering the cheat mitigation system and resetting the car
+	// IDEA: give time and/or score penalty if no goal post collision call was received before leaving the span, implying that the car missed the goal post without going too far off the track to reset
+
+	// IDEA: use centerline to check if car is going the wrong direction. compare velocity direction (if magnitude is above a threshold) against direction from closest point to next?
+
 
 	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
 
@@ -285,6 +279,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			int diff = controlPointCount - i;
 
 			if (diff < 3) {
+				// manually add remainders
 				if (i == 0) {
 					if (controlPointCount == 1) {
 						LinePoints.Add(ControlPoints[i]);
@@ -362,6 +357,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		GenerateLinePoints(MainCenterline);
 	}
 
+	// calls line point generation method on all forks recursively
 	static void GenerateLinePoints(InternalCenterline line, Vector3? lineStartPoint = null, int depth = 0) {
 
 		if (depth > MAX_DEPTH) {
@@ -396,10 +392,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead)
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, line at end, rotation delta)
-	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead) {
-		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance);
+	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance, includeInactive, ignoreEarlyEnd);
 		// return GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
-		return GetRotationDeltasAhead(line, distanceAhead * distanceAhead, index);
+		return GetRotationDeltasAhead(line, distanceAhead * distanceAhead, index, ignoreEarlyEnd, includeInactive);
 	}
 
 	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltasAhead(
@@ -407,11 +403,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float distanceAheadSqr,
 		int startIndex = 0,
 		// Quaternion? compareRot = null, 
+		bool ignoreEarlyEnd = false,
+		bool includeInactive = false,
 		int depth = 0
 	) {
 		// IDEA: search backwards if distance is negative
 
-		// TODO: implement ignoring inactive lines/forks
+		// ignore deactivated lines
+		// FIXME: ignores forks too?
+		if (!includeInactive && !line.Active)
+			yield break;
 
 		if (depth > MAX_DEPTH) {
 			Debug.LogError("Get rotation delta recursion too deep");
@@ -423,7 +424,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		float distanceTraveledSqr = 0;
-		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
+		int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 		for (int i = startIndex + 1; i < lineEndIndex; i++) {
 			// calculate distance from previous point
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
@@ -446,8 +447,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		if (distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
-			foreach (var rejoinResult in GetRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, depth + 1))
+		if ((ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr && line.RejoinLine != null) {
+			foreach (var rejoinResult in GetRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, ignoreEarlyEnd, includeInactive, depth + 1))
 				yield return rejoinResult;
 		}
 
@@ -469,6 +470,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				forkDistanceAheadSqr,
 				0,
 				// compareRotValue, 
+				ignoreEarlyEnd,
+				includeInactive,
 				depth + 1
 				)) {
 				yield return forkResult;
@@ -484,16 +487,19 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		InternalCenterline line,
 		float distanceAheadSqr,
 		int startIndex = 0,
+		bool ignoreEarlyEnd = false,
+		bool includeInactive = false,
 		Quaternion? compareRot = null,
 		int depth = 0
 	) {
-
 		// IDEA: search backwards if distance is negative?
 		// IDEA: option to ignore some distance at the start in front of the car
 
 		// IDEA: option to only return once with greatest delta of all forks
 
-		// TODO: implement ignoring inactive lines/forks
+		// ignore deactivated lines
+		if (!includeInactive && !line.Active)
+			yield break;
 
 		// abort if recursive call is too deep
 		if (depth > MAX_DEPTH) {
@@ -512,7 +518,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
 
 		// step through the line points, from the given start point to the end of the line
-		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
+		int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 		for (int i = startIndex + 1; i < lineEndIndex; i++) {
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
 
@@ -549,13 +555,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-		if (distanceTraveledSqr < distanceAheadSqr) {
+		if ((ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr) {
 			// return largest delta found if the end of the line has been found
 			yield return (indexAtGreatestDelta, line, greatestDelta);
 
 			if (line.RejoinLine != null) {
 				// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
-				foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, compareRot, depth + 1))
+				foreach (var rejoinResult in GetGreatestRotationDeltasAhead(line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, line.RejoinIndex, ignoreEarlyEnd, includeInactive, compareRot, depth + 1))
 					yield return rejoinResult;
 			}
 		}
@@ -577,7 +583,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (forkDistanceAheadSqr < 0)
 				continue;
 
-			foreach (var forkResult in GetGreatestRotationDeltasAhead(fork, forkDistanceAheadSqr, 0, compareRotValue, depth + 1))
+			foreach (var forkResult in GetGreatestRotationDeltasAhead(fork, forkDistanceAheadSqr, 0, ignoreEarlyEnd, includeInactive, compareRotValue, depth + 1))
 				yield return forkResult;
 		}
 
@@ -603,42 +609,47 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return currentGreatest;
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance) {
-		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance);
+	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
 	}
 
+	/// Gets the position of the closest line point on the line and any of its child lines/forks
 	public static Vector3 GetClosestPoint(Vector3 pos, InternalCenterline line, Transform transform,
 		out int closestLineIndex,
 		out InternalCenterline closestLine,
 		out float closestDistance,
+		bool ignoreEarlyEnd = false,
+		bool includeInactive = false,
 		int depth = 0
 	) {
 
-		// TODO: implement ignoring inactive lines/forks
-		
+
 		pos = transform.InverseTransformPoint(pos);
 
 		Vector3 currentClosest = Vector3.zero;
-		float currentClosestDistance = 0;
+		float currentClosestDistance = float.MaxValue;
 		int lineIndex = 0;
 		closestLine = line;
 
 
-		int lineEndIndex = line.EarlyEndIndex < 0 ? line.LinePoints.Count : line.EarlyEndIndex;
-		for (int i = 1; i < lineEndIndex; i++) {
-			float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+		// TODO: implement ignoring inactive lines/forks
+		if (includeInactive || line.Active) {
+			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
+			for (int i = 1; i < lineEndIndex; i++) {
+				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 
-			if (i == 1) {
-				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
-				lineIndex = 0;
-				continue;
-			}
+				// if (i == 1) {
+				// 	currentClosestDistance = distance;
+				// 	currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+				// 	lineIndex = 0;
+				// 	continue;
+				// }
 
-			if (distance < currentClosestDistance) {
-				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
-				lineIndex = i - 1;
+				if (distance < currentClosestDistance) {
+					currentClosestDistance = distance;
+					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+					lineIndex = i - 1;
+				}
 			}
 		}
 
@@ -650,10 +661,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		foreach (var fork in line.Forks) {
-			int forkClosestIndex;
-			InternalCenterline forkClosestLine;
-			float forkClosestDistance;
-			Vector3 forkClosestPos = GetClosestPoint(pos, fork, transform, out forkClosestIndex, out forkClosestLine, out forkClosestDistance);
+			Vector3 forkClosestPos = GetClosestPoint(pos, fork, transform,
+				out int forkClosestIndex,
+				out InternalCenterline forkClosestLine,
+				out float forkClosestDistance,
+				ignoreEarlyEnd, includeInactive, depth
+			);
+
 			if (forkClosestDistance < currentClosestDistance) {
 				currentClosestDistance = forkClosestDistance;
 				currentClosest = forkClosestPos;
@@ -667,19 +681,19 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return currentClosest;
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos) {
-		return GetClosestPoint(pos, out int _index, out InternalCenterline _line, out float _closestDistance);
+	public Vector3 GetClosestPoint(Vector3 pos, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		return GetClosestPoint(pos, out int _index, out InternalCenterline _line, out float _closestDistance, ignoreEarlyEnd, includeInactive);
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestFork) {
-		Vector3 outPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float _closestDistance);
+	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestFork, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		Vector3 outPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float _closestDistance, ignoreEarlyEnd, includeInactive);
 		closestLineIndex = index;
 		closestFork = line;
 		return outPos;
 	}
 
-	public Vector3 GetClosestPoint(Vector3 pos, out float closestDistance) {
-		Vector3 outPos = GetClosestPoint(pos, out int _index, out InternalCenterline _line, out float distance);
+	public Vector3 GetClosestPoint(Vector3 pos, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		Vector3 outPos = GetClosestPoint(pos, out int _index, out InternalCenterline _line, out float distance, ignoreEarlyEnd, includeInactive);
 		closestDistance = distance;
 		return outPos;
 	}
