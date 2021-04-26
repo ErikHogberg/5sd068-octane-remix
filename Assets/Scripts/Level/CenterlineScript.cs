@@ -12,6 +12,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public const int MAX_DEPTH = 10;
 
+	public static CenterlineScript MainInstance = null;
+
 	// non-serialized run-time data container
 	public class InternalCenterline {
 
@@ -76,7 +78,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public int childCount;
 		public int indexOfFirstChild;
 
-		// index to the serialized line in the flattened tree list which corresponds to the rejoin line (cyclical tree reference)
+		// index to the serialized line in the flattened tree list which corresponds to the rejoin line (cyclical tree reference), if any
 		public int indexOfRejoinLine;
 		public int RejoinIndex;
 
@@ -244,6 +246,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		else
 			UnityEditor.Handles.color = InactiveLineColor;
 
+		// old intended style, but bad performance
 		// for (int i = 1; i < line.LinePoints.Count; i++) {
 		// 	UnityEditor.Handles.DrawLine(
 		// 		transform.TransformPoint(line.LinePoints[i - 1]),
@@ -254,8 +257,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		UnityEditor.Handles.lighting = false;
 
-		UnityEditor.Handles.DrawAAPolyLine(LineThickness,
-			// UnityEditor.Handles.DrawPolyLine(
+		UnityEditor.Handles.DrawAAPolyLine(LineThickness, // looks weird, but works
+														  // UnityEditor.Handles.DrawPolyLine( // cant set thickness?
 			line.LinePoints
 				.Select(vector => transform.TransformPoint(vector))
 				.ToArray()
@@ -267,6 +270,15 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 #endif
+
+	private void Awake() {
+		MainInstance = this;
+	}
+
+	private void OnDestroy() {
+		if (MainInstance == this)
+			MainInstance = null;
+	}
 
 	// Calculate bezier line points from control points and resolution, populates line point list
 	public static List<Vector3> GenerateLinePoints(List<Vector3> ControlPoints, int Resolution) {
@@ -392,6 +404,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead)
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, line at end, rotation delta)
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAheadStatic(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		if (MainInstance == null)
+			yield break;
+		else
+			MainInstance.GetRotationDeltaAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
+
+	}
+
 	public IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAhead(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
 		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance, includeInactive, ignoreEarlyEnd);
 		// return GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
@@ -483,6 +503,24 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	/// Gets all of the *greatest* rotation deltas of the paths ahead (current line + any new forks in the distance ahead). 
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// returns IEnumerable<(index at greates delta, which fork this result applies to, rotation delta)>
+	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAheadStatic(
+		Vector3 pos,
+		float distanceAhead,
+		bool ignoreEarlyEnd = false,
+		bool includeInactive = false
+	) {
+		if (MainInstance == null)
+			yield break;
+		else
+			MainInstance.GetGreatestRotationDeltasAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
+	}
+
+	public IEnumerable<(int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		Vector3 closestPos = GetClosestPoint(pos, out int index, out InternalCenterline line, out float distance, includeInactive, ignoreEarlyEnd);
+		// return GetRotationDeltaAhead(closestPos, index, distanceAhead, forkIndex);
+		return GetGreatestRotationDeltasAhead(line, distanceAhead * distanceAhead, index, ignoreEarlyEnd, includeInactive);
+	}
+
 	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(
 		InternalCenterline line,
 		float distanceAheadSqr,
@@ -609,6 +647,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return currentGreatest;
 	}
 
+	public static Vector3 GetClosestPointStatic(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
+		if(MainInstance == null){
+			closestLineIndex = -1;
+			closestLine = null;
+			closestDistance = -1;
+			return pos;
+		} 
+
+		return MainInstance.GetClosestPoint(pos, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
+	}
 	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
 		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
 	}
