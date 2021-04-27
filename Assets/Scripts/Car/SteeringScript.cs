@@ -24,7 +24,7 @@ public class SteeringScript : MonoBehaviour {
 	public static bool EnableProfileChange = true;
 
 	// TODO: efficient way to store and share replays
-	// TODO: option to dynamically speed up or slow down replays depending on distance to active player car
+	// IDEA: option to dynamically speed up or slow down replays depending on distance to active player car, keeping the ghost close to the player regardless of how far ahead it actually is
 	private class GhostData {
 		public Vector3 Position;
 		public Quaternion Rotation;
@@ -151,6 +151,9 @@ public class SteeringScript : MonoBehaviour {
 
 	public static SteeringScript MainInstance;
 	private static bool freezeNextFrame = false;
+
+	private Vector3 emergencyResetPos = Vector3.zero;
+	private Quaternion emergencyResetRot = Quaternion.identity;
 
 	public int CurrentProfileIndex = 0;
 	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
@@ -386,6 +389,9 @@ public class SteeringScript : MonoBehaviour {
 			Physics.gravity = Physics.gravity.normalized * GravityOverride;
 		}
 
+		emergencyResetPos = transform.position;
+		emergencyResetRot = transform.rotation;
+
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
@@ -538,6 +544,15 @@ public class SteeringScript : MonoBehaviour {
 
 		Rumble();
 
+		// IDEA: dont check every frame, define a cheat check interval
+		if (CenterlineScript.IsInitialized) {
+			Vector3 closestPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
+			float resetDistance = CenterlineScript.ResetDistanceStatic;
+			if (resetDistance > 0 && distance > resetDistance)
+				Reset();
+		}
+
+
 	}
 
 	//To avoid jittery number updates on the UI
@@ -552,7 +567,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private bool CheckIfTouchingGround() {
-
+		// NOTE: also sets sound parameter
 		foreach (WheelCollider wheelCollider in allWheelColliders) {
 			if (wheelCollider.isGrounded) {
 				carSound.RecieveGroundedData(true);
@@ -740,13 +755,15 @@ public class SteeringScript : MonoBehaviour {
 
 	// A button, kbd spacebar
 	public void OnBoost(InputValue value) {
-		if (value.Get<float>() > 0f)
+		if (value.Get<float>() > 0)
 			StartBoost();
+		else
+			StopBoost();
 	}
 
 	public void OnHandbrake(InputValue value) {
 		// if (value.Get<float>() > 0f)
-			
+
 	}
 
 	// Select button, kbd backspace
@@ -1154,10 +1171,12 @@ public class SteeringScript : MonoBehaviour {
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
+
 		// rb.MovePosition(pos);
 		// rb.MoveRotation(rot);
 		transform.position = pos;
 		transform.rotation = rot;
+
 
 		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 	}
@@ -1173,13 +1192,21 @@ public class SteeringScript : MonoBehaviour {
 
 		// if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
 		// ) {
-		Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
 
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
-		rb.MovePosition(resetSpot.position);
-		rb.MoveRotation(resetSpot.rotation);
+		if (CenterlineScript.IsInitialized) {
+			transform.position =
+			CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
+
+			if (line.LinePoints.Count < 2 && index < line.LinePoints.Count - 1)
+				transform.rotation = Quaternion.LookRotation(line.LinePoints[index + 1] - line.LinePoints[index], Vector3.up);
+
+		} else {
+			rb.MovePosition(emergencyResetPos);
+			rb.MoveRotation(emergencyResetRot);
+		}
 
 		CallResetObservers();
 		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);

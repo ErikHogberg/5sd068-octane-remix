@@ -10,9 +10,12 @@ using UnityEngine;
 /// a handicap system that pull the car towards the center of the road, 
 public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
+	// Tree recursion limit
 	public const int MAX_DEPTH = 10;
 
-	public static CenterlineScript MainInstance = null;
+	private static CenterlineScript mainInstance = null;
+	public static bool IsInitialized => mainInstance != null;
+	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance: -1f;
 
 	// non-serialized run-time data container
 	public class InternalCenterline {
@@ -105,6 +108,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	// TODO: use centerline as cheat mitigation, resetting car to last valid point on line when skipping too far ahead
 	// IDEA: provide delta time in delta position queries, calculate car speed and compare it against a set max allowed speed limit
+
+	// how far away car can be from the closest point on the line before triggering a reset
+	// IDEA: give each line in the tree its own optional reset distance which overrides this tree-wide distance
+	public float ResetDistance = 0;
+
 
 	public float LineThickness = 1f;
 	public Color ActiveLineColor = Color.white;
@@ -272,12 +280,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 #endif
 
 	private void Awake() {
-		MainInstance = this;
+		mainInstance = this;
 	}
 
 	private void OnDestroy() {
-		if (MainInstance == this)
-			MainInstance = null;
+		if (mainInstance == this)
+			mainInstance = null;
 	}
 
 	// Calculate bezier line points from control points and resolution, populates line point list
@@ -401,14 +409,16 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 
+	#region Rotation delta queries
+
 	/// Gets all rotation deltas of paths ahead (current line + any new forks in the distance ahead)
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// (Index at end, line at end, rotation delta)
 	public static IEnumerable<(int, InternalCenterline, Quaternion)> GetRotationDeltaAheadStatic(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
-		if (MainInstance == null)
+		if (mainInstance == null)
 			yield break;
 		else
-			MainInstance.GetRotationDeltaAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
+			mainInstance.GetRotationDeltaAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
 
 	}
 
@@ -500,6 +510,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 
+
 	/// Gets all of the *greatest* rotation deltas of the paths ahead (current line + any new forks in the distance ahead). 
 	/// Measured between the direction of closest point on line towards the next point after it, and the direction of the given other point on the line towards the previous point behind it.
 	/// returns IEnumerable<(index at greates delta, which fork this result applies to, rotation delta)>
@@ -509,10 +520,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		bool ignoreEarlyEnd = false,
 		bool includeInactive = false
 	) {
-		if (MainInstance == null)
+		if (mainInstance == null)
 			yield break;
 		else
-			MainInstance.GetGreatestRotationDeltasAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
+			mainInstance.GetGreatestRotationDeltasAhead(pos, distanceAhead, ignoreEarlyEnd, includeInactive);
 	}
 
 	public IEnumerable<(int, InternalCenterline, Quaternion)> GetGreatestRotationDeltasAhead(Vector3 pos, float distanceAhead, bool ignoreEarlyEnd = false, bool includeInactive = false) {
@@ -646,22 +657,30 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		return currentGreatest;
 	}
+	#endregion
 
-	public static Vector3 GetClosestPointStatic(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
-		if(MainInstance == null){
+	#region GetClosestPoint
+	/// Gets the position of the closest line point on the line and any of its child lines/forks
+	public static Vector3 GetClosestPointStatic(Vector3 pos, 
+		out int closestLineIndex, 
+		out InternalCenterline closestLine, 
+		out float closestDistance, 
+		bool ignoreEarlyEnd = false, bool includeInactive = false
+	) {
+		if (mainInstance == null) {
 			closestLineIndex = -1;
 			closestLine = null;
 			closestDistance = -1;
 			return pos;
-		} 
+		}
 
-		return MainInstance.GetClosestPoint(pos, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
+		return mainInstance.GetClosestPoint(pos, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
 	}
+
 	public Vector3 GetClosestPoint(Vector3 pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, bool ignoreEarlyEnd = false, bool includeInactive = false) {
-		return GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive);
+		return transform.TransformPoint(GetClosestPoint(pos, MainCenterline, transform, out closestLineIndex, out closestLine, out closestDistance, ignoreEarlyEnd, includeInactive));
 	}
 
-	/// Gets the position of the closest line point on the line and any of its child lines/forks
 	public static Vector3 GetClosestPoint(Vector3 pos, InternalCenterline line, Transform transform,
 		out int closestLineIndex,
 		out InternalCenterline closestLine,
@@ -754,7 +773,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// float distanceAccumulatorSqr = 0;
 
 
-
 		for (int i = relativeIndex; i < MainCenterline.LinePoints.Count; i++) {
 			float distance = distanceToSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
 			// TODO: add distance between line points to accumulator, stop if accumulator passes max curve distance
@@ -792,6 +810,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		closestLineIndex = lineIndex;
 		return currentClosest;
 	}
+	#endregion
 
 	public Vector2 GetUIArrowDir(Quaternion rot) {
 		Vector3 direction = rot * Vector3.forward;

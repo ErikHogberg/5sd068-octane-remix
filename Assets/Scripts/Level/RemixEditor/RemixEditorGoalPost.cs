@@ -90,9 +90,9 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		bool success = CheckTransition(targetSegment);
 
 		if (success) {
-			if (FinishSpot != StartSpot) {
-				MoveCarToStart();
-			}
+			// if (FinishSpot != null && StartSpot != null && FinishSpot != StartSpot) {
+			// 	MoveCarToStart();
+			// }
 		} else {
 			// LevelPieceSuperClass.ResetToCurrentSegment();
 		}
@@ -102,6 +102,7 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 
 	public static void MoveCarToStart() {
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
+		// TODO: delete all cheat mitigation methods from the segment system, rewire to new system
 		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: false);
 	}
 

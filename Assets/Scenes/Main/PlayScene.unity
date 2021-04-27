@@ -7635,6 +7635,99 @@ Transform:
   m_Father: {fileID: 1472195900}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1562030753 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6965392442423324092, guid: 91559f98cc78a754caf47ea69824d6f6,
+    type: 3}
+  m_PrefabInstance: {fileID: 6965392441755571428}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1562030754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562030753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: a8607000f05afde459be885d75c1936b,
+    type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e4ac1e7a-68fa-48e8-9aaa-3dbbdc697988
+    m_ActionName: Driving/Steer[/DualShock4GamepadHID/leftStick/x,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6285b65f-bd44-41f8-8daa-bd4636a20049
+    m_ActionName: Driving/Gas[/DualShock4GamepadHID/rightTrigger,/Keyboard/w]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 417f2267-e50b-4df5-95d6-89e5a773470f
+    m_ActionName: Driving/Brake[/DualShock4GamepadHID/leftTrigger,/Keyboard/s]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 872fdf3b-2fa8-4283-820d-b94860bf4a70
+    m_ActionName: Driving/Handbrake[/DualShock4GamepadHID/buttonWest,/Keyboard/leftCtrl]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: dcd0d9e2-c4d4-46ea-b05b-6bda223aae50
+    m_ActionName: Driving/Jump[/DualShock4GamepadHID/dpad/down]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 24d07cf7-3324-4b44-a856-08245062d1ca
+    m_ActionName: Driving/Yaw[/DualShock4GamepadHID/rightStick/x,/Keyboard/leftArrow,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 314a832d-f82a-4ef0-9873-e6d81fb695f1
+    m_ActionName: Driving/Pitch[/DualShock4GamepadHID/rightStick/y,/Keyboard/downArrow,/Keyboard/upArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d1f8dfbf-b687-4c90-a3cf-8354a5e28689
+    m_ActionName: Driving/Pause[/DualShock4GamepadHID/start,/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0a3cff01-7d30-4402-8694-1d2eea901c0c
+    m_ActionName: Driving/Reset[/DualShock4GamepadHID/select,/Keyboard/backspace]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3c9455dd-4e80-46a4-abd9-29e4e654d663
+    m_ActionName: Driving/Boost[/DualShock4GamepadHID/buttonSouth,/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6070e6de-be4b-4299-9c0c-370f6d929a89
+    m_ActionName: Driving/Left Stick Yaw[/DualShock4GamepadHID/leftStick/x]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 28394430-286b-4865-b5e7-401733d31068
+    m_ActionName: Driving/Left Stick Pitch[/DualShock4GamepadHID/leftStick/y]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 388f2f85-d243-49db-8d4c-2aed155692f3
+    m_ActionName: Driving/Left Stick Toggle[/DualShock4GamepadHID/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1dc83fe5-dcf1-4c4a-8eca-118964ee473f
+    m_ActionName: Driving/Change Camera[/Keyboard/c]
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Driving
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &1595384415
 GameObject:
   m_ObjectHideFlags: 0

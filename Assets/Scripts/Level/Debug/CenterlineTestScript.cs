@@ -37,7 +37,7 @@ public class CenterlineTestScript : MonoBehaviour {
 			ClosestPos = Centerline.GetClosestPoint(transform.position, out ClosestIndex, out ClosestFork, IgnoreEarlyEnd, IncludeInactive);
 
 			// draw the line between the test object and the closest line point
-			Gizmos.DrawLine(transform.position, Centerline.transform.TransformPoint(ClosestPos));
+			Gizmos.DrawLine(transform.position, ClosestPos);
 
 			if (OtherTestObject != null) {
 				// Gizmos.DrawSphere(ClosestPos, OtherClosestPosSize);

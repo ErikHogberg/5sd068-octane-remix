@@ -235,6 +235,8 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUI.BeginChangeCheck();
 
+		centerlineScript.ResetDistance = EditorGUILayout.FloatField("Reset distance", centerlineScript.ResetDistance);
+
 		DrawLineInspector(centerlineScript.MainCenterline, null);
 
 		if (EditorGUI.EndChangeCheck()) {

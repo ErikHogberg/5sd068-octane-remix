@@ -13,6 +13,8 @@ public class RespawnTriggerScript : MonoBehaviour {
 		// 	RemixEditorGoalPost.MoveCarToStart();
 		// 	StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 		// }
+
+		SteeringScript.MainInstance?.Reset();
 		UINotificationSystem.Notify("You fell off the track!", notificationColor, 1.5f);
 
 	}
