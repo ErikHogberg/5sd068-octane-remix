@@ -44,15 +44,16 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 		ready = false;
 
-		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
-			print("invalid goal post transition!");
-			// LevelPieceSuperClass.ResetToCurrentSegment();
-			ready = true;
-			return;
-		} else {
-			print("any next notify set");
-			readyOnAnyNextNotify = true;
-		}
+		// TODO: notify/check the centerline system for finish line crossing validity
+		// if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
+		// 	print("invalid goal post transition!");
+		// 	// LevelPieceSuperClass.ResetToCurrentSegment();
+		// 	ready = true;
+		// 	return;
+		// } else {
+		// 	print("any next notify set");
+		// 	readyOnAnyNextNotify = true;
+		// }
 
 		// if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
 		// 	// Resets if entering from wrong segment
@@ -81,9 +82,10 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 			return;
 		}
 
-		if (!RemixEditorGoalPost.CheckTransition(segment)) {
-			return;
-		}
+		// TODO: notify/check the centerline system for finish line crossing validity
+		// if (!RemixEditorGoalPost.CheckTransition(segment)) {
+		// 	return;
+		// }
 
 		if (ready) {
 			// Registers lap if the car somehow missed the goal post

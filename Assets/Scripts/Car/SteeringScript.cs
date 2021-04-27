@@ -382,6 +382,18 @@ public class SteeringScript : MonoBehaviour {
 	public int CurrentCameraIndex = 0;
 	public Camera CurrentCamera => Cameras != null && Cameras.Count > 0 ? Cameras[CurrentCameraIndex] : null;
 
+#if UNITY_EDITOR
+	void OnDrawGizmos() {
+		if (CenterlineScript.IsInitialized) {
+			Gizmos.color = Color.magenta;
+
+			Vector3 closestPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var fork, out float distance);
+
+			// draw the line between the test object and the closest line point
+			Gizmos.DrawLine(transform.position, closestPos);
+		}
+	}
+#endif
 
 	void Start() {
 
@@ -1077,7 +1089,9 @@ public class SteeringScript : MonoBehaviour {
 		boostTimer = 0f;
 
 		boostWindupTimer = 0f;
-		Time.timeScale = 1f;
+
+		if(!StartCountdownScript.IsShown)
+			Time.timeScale = 1f;
 
 		effects?.StopBoost();
 
@@ -1200,7 +1214,9 @@ public class SteeringScript : MonoBehaviour {
 			transform.position =
 			CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
 
-			if (line.LinePoints.Count < 2 && index < line.LinePoints.Count - 1)
+			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line 
+
+			if (line.LinePoints.Count > 2 && index < line.LinePoints.Count - 1)
 				transform.rotation = Quaternion.LookRotation(line.LinePoints[index + 1] - line.LinePoints[index], Vector3.up);
 
 		} else {

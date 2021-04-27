@@ -68,42 +68,9 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		}
 	}
 
-	public static bool CheckTransition(LevelPieceSuperClass targetSegment) {
-		if (!targetSegment) {
-			print("target segment null in check transition");
-			return false;
-		}
-
-		if (!FinishSpot) {
-			print("finish spot null in check transition");
-		}
-
-		// TODO: use centerline to check transition instead
-		// return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
-		return true;
-	}
-
-	public static bool AttemptTransition(LevelPieceSuperClass targetSegment) {
-		if (targetSegment == null)
-			return true;
-
-		bool success = CheckTransition(targetSegment);
-
-		if (success) {
-			// if (FinishSpot != null && StartSpot != null && FinishSpot != StartSpot) {
-			// 	MoveCarToStart();
-			// }
-		} else {
-			// LevelPieceSuperClass.ResetToCurrentSegment();
-		}
-
-		return success;
-	}
-
 	public static void MoveCarToStart() {
+		// TODO: use centerline for start/finish line instead
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
-		// TODO: delete all cheat mitigation methods from the segment system, rewire to new system
-		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: false);
 	}
 
 	public static void UpdateGoalPost() {
