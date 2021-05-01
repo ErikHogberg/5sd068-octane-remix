@@ -23,11 +23,13 @@ public class CenterlineTestScript : MonoBehaviour {
 	public float OtherClosestPosSize = 1f;
 
 	public bool IgnoreEarlyEnd = false;
-	public bool IncludeInactive = false;	
+	public bool IncludeInactive = false;
 
 	public Vector3 ClosestPos;
 	public CenterlineScript.InternalCenterline ClosestFork;
 	public int ClosestIndex;
+
+	public bool CheckClosestPosWithinOther = false;
 
 	void OnDrawGizmos() {
 		if (Centerline && Centerline.MainCenterline.LinePoints.Count > 1) {
@@ -99,6 +101,25 @@ public class CenterlineTestScript : MonoBehaviour {
 				Gizmos.DrawCube(Centerline.transform.TransformPoint(cubeCenter), Vector3.one * .7f);
 				// visualize the greatest direction delta(s) as a cyan line from the test object
 				Gizmos.DrawLine(transform.position, transform.TransformPoint(rot * Vector3.forward * ArrowLength));
+			}
+
+			if (OtherTestObject != null && CheckClosestPosWithinOther) {
+				// query and visualize the greatest change in direction over the defined distance ahead, for all forks within that distance from the closest line point along the line
+				Gizmos.color = Color.yellow;
+
+				Vector3 closest = Centerline.GetClosestPointWithinRangeToIndex(
+					transform.position,
+					OtherTestObject.ClosestFork,
+					OtherTestObject.DistanceAhead,// * OtherTestObject.DistanceAhead,
+					out float distance,
+					out var linePoint,
+					IgnoreEarlyEnd,
+					IncludeInactive,
+					OtherTestObject.ClosestIndex
+				);
+
+				Gizmos.DrawLine(transform.position, closest);
+
 			}
 
 			if (foundNoDeltas)

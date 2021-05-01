@@ -15,7 +15,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	private static CenterlineScript mainInstance = null;
 	public static bool IsInitialized => mainInstance != null;
-	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance: -1f;
+	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
 
 	// non-serialized run-time data container
 	public class InternalCenterline {
@@ -437,7 +437,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		bool includeInactive = false,
 		int depth = 0
 	) {
-		// IDEA: search backwards if distance is negative
 
 		// ignore deactivated lines
 		// FIXME: ignores forks too?
@@ -456,7 +455,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float distanceTraveledSqr = 0;
 		int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 		for (int i = startIndex + 1; i < lineEndIndex; i++) {
+
 			// calculate distance from previous point
+			// FIXME: distance measurement seemingly affected by resolution of line. same measurement distance reaches further aling lines with higher resolutions 
 			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 
 			// accumulate distance traveled so far
@@ -541,10 +542,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Quaternion? compareRot = null,
 		int depth = 0
 	) {
-		// IDEA: search backwards if distance is negative?
-		// IDEA: option to ignore some distance at the start in front of the car
-
-		// IDEA: option to only return once with greatest delta of all forks
 
 		// ignore deactivated lines
 		if (!includeInactive && !line.Active)
@@ -569,8 +566,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// step through the line points, from the given start point to the end of the line
 		int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 		for (int i = startIndex + 1; i < lineEndIndex; i++) {
-			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
 
+			// FIXME: distance measurement seemingly affected by resolution of line. same measurement distance reaches further aling lines with higher resolutions 
+			float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
 			// accumulate distance between line points to keep track of distance traveled since start index
 			distanceTraveledSqr += distanceSqr;
 
@@ -661,10 +659,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	#region GetClosestPoint
 	/// Gets the position of the closest line point on the line and any of its child lines/forks
-	public static Vector3 GetClosestPointStatic(Vector3 pos, 
-		out int closestLineIndex, 
-		out InternalCenterline closestLine, 
-		out float closestDistance, 
+	public static Vector3 GetClosestPointStatic(Vector3 pos,
+		out int closestLineIndex,
+		out InternalCenterline closestLine,
+		out float closestDistance,
 		bool ignoreEarlyEnd = false, bool includeInactive = false
 	) {
 		if (mainInstance == null) {
@@ -765,49 +763,102 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return outPos;
 	}
 
-	public Vector3 GetClosestPointWithinRangeToIndex(Vector3 pos, int relativeIndex, int relativeForkIndex, float maxCurveDistanceAhead, out int closestLineIndex, out float closestDistance) {
+	// public Vector3 GetClosestPointWithinRangeToIndex(Vector3 pos, int startIndex, InternalCenterline startFork, float distanceAhead,
+	// 	out float closestDistance,
+	// 	out (int, InternalCenterline) closestLinePoint,
+	// 	bool ignoreEarlyEnd, bool includeInactive
+	// ) {
+	// 	closestDistance = -1;
+	// 	return GetClosestPointWithinRangeToIndex(pos, startFork, distanceAhead * distanceAhead, out closestDistance, out closestLinePoint, ignoreEarlyEnd, includeInactive, startIndex);
+	// }
+
+	public Vector3 GetClosestPointWithinRangeToIndex(
+		Vector3 pos,
+
+		InternalCenterline line,
+		float distanceAheadSqr,
+		out float closestDistance,
+		out (int, InternalCenterline) closestLinePoint,
+		bool ignoreEarlyEnd = false,
+		bool includeInactive = false,
+		int startIndex = 0,
+		int depth = 0
+	) {
+
+		pos = transform.InverseTransformPoint(pos);
+
 		Vector3 currentClosest = Vector3.zero;
-		float currentClosestDistance = 0;
+		float currentClosestDistance = float.MaxValue;
 		int lineIndex = 0;
+		int closestLineIndex = 0;
+		var closestLine = line;
 
-		// float distanceAccumulatorSqr = 0;
+		float distanceTraveledSqr = 0;
+
+		startIndex = startIndex < 0 ? 0 : startIndex;
+		int endIndex = 0;
+
+		if (includeInactive || line.Active) {
+			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0 || line.EarlyEndIndex > line.LinePoints.Count) ? line.LinePoints.Count : line.EarlyEndIndex + 1;
+			for (int i = startIndex + 1; i < lineEndIndex; i++) {
+				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+
+				distanceTraveledSqr += (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
+				endIndex = i;
 
 
-		for (int i = relativeIndex; i < MainCenterline.LinePoints.Count; i++) {
-			float distance = distanceToSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
-			// TODO: add distance between line points to accumulator, stop if accumulator passes max curve distance
+				if (distance < currentClosestDistance) {
+					currentClosestDistance = distance;
+					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+					lineIndex = i - 1;
+				}
+				if (distanceTraveledSqr > distanceAheadSqr)
+					break;
+			}
+		}
+		closestLineIndex = lineIndex;
 
-			if (i == 1) {
-				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
-				lineIndex = 0;
+		if (depth > MAX_DEPTH) {
+			Debug.LogError("Get closest point recursion too deep");
+			closestDistance = currentClosestDistance;
+			closestLinePoint = (closestLineIndex, closestLine);
+			return currentClosest;
+		}
+
+		foreach (var fork in line.Forks) {
+
+			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex)
 				continue;
+
+			// calculate how far into the next fork will be measured
+			float forkDistanceAheadSqr = distanceAheadSqr;
+			for (int i = startIndex + 1; i <= fork.StartIndex; i++) {
+				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
+				forkDistanceAheadSqr -= distanceSqr;
 			}
 
-			if (distance < currentClosestDistance) {
-				currentClosestDistance = distance;
-				currentClosest = ProjectPointOnLineSegment(MainCenterline.LinePoints[i - 1], MainCenterline.LinePoints[i], pos);
-				lineIndex = i - 1;
+			// check if forking point is before end of measurement distance
+			if (forkDistanceAheadSqr < 0)
+				continue;
+
+			Vector3 forkClosestPos = GetClosestPointWithinRangeToIndex(pos, fork,
+				forkDistanceAheadSqr,
+				out float forkClosestDistance,
+				out (int, InternalCenterline) forkClosestLinePoint,
+				ignoreEarlyEnd, includeInactive, depth
+			);
+
+			if (forkClosestDistance < currentClosestDistance) {
+				currentClosestDistance = forkClosestDistance;
+				currentClosest = forkClosestPos;
+				closestLineIndex = forkClosestLinePoint.Item1;
+				closestLine = forkClosestLinePoint.Item2;
+				closestLine = fork;
 			}
 		}
 
-		// TODO: check forks too
-		// TODO: handle starting/relative index on fork
-		// for (int forkIndex = 0; forkIndex < Forks.Count; forkIndex++) {
-		// 	for (int i = relativeIndex; i < MainCenterline.LinePoints.Count; i++) {
-		// 		float distance = distanceToSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
-		// 		// TODO: add distance between line points to accumulator, stop if accumulator passes max curve distance
-
-		// 		if (distance < currentClosestDistance) {
-		// 			currentClosestDistance = distance;
-		// 			currentClosest = ProjectPointOnLineSegment(Forks[forkIndex].LinePoints[i - 1], Forks[forkIndex].LinePoints[i], pos);
-		// 			lineIndex = i - 1;
-		// 		}
-		// 	}
-		// }
-
 		closestDistance = currentClosestDistance;
-		closestLineIndex = lineIndex;
+		closestLinePoint = (closestLineIndex, closestLine);
 		return currentClosest;
 	}
 	#endregion
@@ -894,22 +945,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 		}
 
-
 		if (anyForkSucceeded
-		// || currentLine == toLine
-		// || (currentLine.RejoinLine == toLine && currentLine.RejoinIndex < toIndex)
 		) {
 			if (setActive)
 				currentLine.Active = true;
 
 			return true;
 		}
-
-		// if (currentLine.RejoinLine == null) {
-		// 	if (setInactive)
-		// 		currentLine.Active = false;
-		// 	return false;
-		// }
 
 		if (setInactive)
 			currentLine.Active = false;
