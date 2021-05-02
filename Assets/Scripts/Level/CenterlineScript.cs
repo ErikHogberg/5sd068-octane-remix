@@ -839,18 +839,18 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr) {
-				// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
-				Vector3 rejoinClosestPos = GetClosestPointWithinRangeToIndex(pos, line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, 
-					out float rejoinClosestDistance, out var rejoinClosetLinePoint, 
-					ignoreEarlyEnd, includeInactive, 0, depth + 1
-				);
+			// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
+			Vector3 rejoinClosestPos = GetClosestPointWithinRangeToIndex(pos, line.RejoinLine, distanceAheadSqr - distanceTraveledSqr,
+				out float rejoinClosestDistance, out var rejoinClosetLinePoint,
+				ignoreEarlyEnd, includeInactive, line.RejoinIndex, depth + 1
+			);
 
-				if(rejoinClosestDistance < currentClosestDistance){
-					currentClosestDistance = rejoinClosestDistance;
-					currentClosest = rejoinClosestPos;
-					closestLineIndex = rejoinClosetLinePoint.Item1;
-					closestLine = rejoinClosetLinePoint.Item2;
-				}
+			if (rejoinClosestDistance < currentClosestDistance) {
+				currentClosestDistance = rejoinClosestDistance;
+				currentClosest = rejoinClosestPos;
+				closestLineIndex = rejoinClosetLinePoint.Item1;
+				closestLine = rejoinClosetLinePoint.Item2;
+			}
 		}
 
 		foreach (var fork in line.Forks) {
@@ -891,6 +891,52 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return currentClosest;
 	}
 	#endregion
+
+	// returns all earlier fork starts on the line (along with how far behind (squared distance) the start index it was found), within the given distance behind the given start index
+	// interprets the start index as the last index on the line if the input value is invalid
+	// NOTE: does not search lines that rejoin this line, potentially allowing cheating in niche situations by backtracking when rejoining a line to enter another fork which starts before where player enters the line
+	public static IEnumerable<(int,float)> GetForkStartsBehind(InternalCenterline line, float distanceBehind, int startIndex = -1) {
+		int pointCount = line.LinePoints.Count;
+		float distanceBehindSqr = distanceBehind * distanceBehind;
+
+		if (startIndex < 0 || startIndex >= pointCount) startIndex = pointCount - 1;
+
+		float distanceTraveledSqr = 0;
+
+		var forksBeforeStart = line.Forks.Where(f => f.StartIndex <= startIndex); // dunno if this saves any iterations, or if the filter is re-evaluated on each access
+
+		bool returnedAny = false;
+		for (int i = startIndex; i > 0; i--) {
+			float distanceToNext = (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
+			distanceTraveledSqr += distanceToNext;
+
+			if(forksBeforeStart.Any(f=> f.StartIndex >= i)){
+				returnedAny = true;
+				yield return (i, distanceTraveledSqr);
+			}
+
+			if (distanceTraveledSqr > distanceBehindSqr)
+				break;
+		}
+
+		if (!returnedAny)
+			yield return (startIndex, 0);
+	}
+
+	// returns the earliest fork start on the line (along with how far behind (squared distance) the start index it was found), within the given distance behind the given start index
+	// interprets the start index as the last index on the line if the input value is invalid
+	// returns the start index if no fork start was found
+	public static (int, float) GetEarliestForkStartBehind(InternalCenterline line, float distanceBehind, int startIndex = -1) {
+		float distanceBehindFound = 0;
+		int earliestForkStart = line.LinePoints.Count - 1;
+		foreach ((var forkStart, float howFar) in GetForkStartsBehind(line, distanceBehind, startIndex)) {
+			if (forkStart < earliestForkStart) {
+				earliestForkStart = forkStart;
+				distanceBehindFound = howFar;
+			};
+		}
+		return (earliestForkStart, distanceBehindFound);
+	}
 
 	public Vector2 GetUIArrowDir(Quaternion rot) {
 		Vector3 direction = rot * Vector3.forward;

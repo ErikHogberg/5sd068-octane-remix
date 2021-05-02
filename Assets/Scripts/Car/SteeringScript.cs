@@ -381,7 +381,8 @@ public class SteeringScript : MonoBehaviour {
 	int lastValidIndex = -1;
 	CenterlineScript.InternalCenterline lastValidLine = null;
 	private Vector3 resetPos = Vector3.zero;
-	public float CheatMitigationSearchDistance = 100;
+	public float CheatMitigationSearchDistance = 10;
+	public float CheatMitigationLookBehindDistance = 1;
 
 	public List<Camera> Cameras = new List<Camera>();
 	// public Camera CurrentCamera = null;
@@ -573,19 +574,25 @@ public class SteeringScript : MonoBehaviour {
 				if (resetDistance > 0 && distance > resetDistance)
 					Reset();
 			} else {
-				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
-					transform.position,
-					lastValidLine,
-					CheatMitigationSearchDistance * CheatMitigationSearchDistance,
-					out float distance,
-					out var linePoint,
-					lastValidIndex
-				);
 
-				lastValidIndex = linePoint.Item1;
-				lastValidLine = linePoint.Item2;
-				if (resetDistance > 0 && distance > resetDistance)
-					Reset();
+			
+					// FIXME: fork start backwards search only works when currently on the same parent line, doesnt check parent line of fork when on fork.
+					(int checkStartIndex, float distanceBehindFoundSqr) =  CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+
+					resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
+						transform.position,
+						lastValidLine,
+						CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr,
+						out float distance,
+						out var linePoint,
+						checkStartIndex
+					);
+
+					lastValidIndex = linePoint.Item1;
+					lastValidLine = linePoint.Item2;
+					if (resetDistance > 0 && distance > resetDistance)
+						Reset();
+				
 			}
 		}
 
