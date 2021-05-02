@@ -16,6 +16,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	private static CenterlineScript mainInstance = null;
 	public static bool IsInitialized => mainInstance != null;
 	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
+	public static Transform MainInstanceTransform => mainInstance.transform;
 
 	// non-serialized run-time data container
 	public class InternalCenterline {
@@ -763,14 +764,25 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return outPos;
 	}
 
-	// public Vector3 GetClosestPointWithinRangeToIndex(Vector3 pos, int startIndex, InternalCenterline startFork, float distanceAhead,
-	// 	out float closestDistance,
-	// 	out (int, InternalCenterline) closestLinePoint,
-	// 	bool ignoreEarlyEnd, bool includeInactive
-	// ) {
-	// 	closestDistance = -1;
-	// 	return GetClosestPointWithinRangeToIndex(pos, startFork, distanceAhead * distanceAhead, out closestDistance, out closestLinePoint, ignoreEarlyEnd, includeInactive, startIndex);
-	// }
+	// Get closest point within the distance ahead of a defined line point
+	public static Vector3 GetClosestPointWithinRangeToIndexStatic(
+			Vector3 pos,
+
+			InternalCenterline line,
+			float distanceAheadSqr,
+			out float closestDistance,
+			out (int, InternalCenterline) closestLinePoint,
+			int startIndex = 0,
+			bool ignoreEarlyEnd = false,
+			bool includeInactive = false
+
+		) {
+		if (mainInstance != null) {
+			return MainInstanceTransform.TransformPoint(mainInstance.GetClosestPointWithinRangeToIndex(pos, line, distanceAheadSqr, out closestDistance, out closestLinePoint, ignoreEarlyEnd, includeInactive, startIndex));
+		} else {
+			throw new UnityException("centerline singleton somehow not initialized");
+		}
+	}
 
 	public Vector3 GetClosestPointWithinRangeToIndex(
 		Vector3 pos,
@@ -785,7 +797,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		int depth = 0
 	) {
 
-		pos = transform.InverseTransformPoint(pos);
+		// IDEA: also return bool of if finish line was passed
+
+		Vector3 inverseGlobalPos = transform.InverseTransformPoint(pos);
 
 		Vector3 currentClosest = Vector3.zero;
 		float currentClosestDistance = float.MaxValue;
@@ -801,15 +815,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0 || line.EarlyEndIndex > line.LinePoints.Count) ? line.LinePoints.Count : line.EarlyEndIndex + 1;
 			for (int i = startIndex + 1; i < lineEndIndex; i++) {
-				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 
 				distanceTraveledSqr += (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
 				endIndex = i;
 
-
 				if (distance < currentClosestDistance) {
 					currentClosestDistance = distance;
-					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 					lineIndex = i - 1;
 				}
 				if (distanceTraveledSqr > distanceAheadSqr)
@@ -823,6 +836,21 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			closestDistance = currentClosestDistance;
 			closestLinePoint = (closestLineIndex, closestLine);
 			return currentClosest;
+		}
+
+		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr) {
+				// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
+				Vector3 rejoinClosestPos = GetClosestPointWithinRangeToIndex(pos, line.RejoinLine, distanceAheadSqr - distanceTraveledSqr, 
+					out float rejoinClosestDistance, out var rejoinClosetLinePoint, 
+					ignoreEarlyEnd, includeInactive, 0, depth + 1
+				);
+
+				if(rejoinClosestDistance < currentClosestDistance){
+					currentClosestDistance = rejoinClosestDistance;
+					currentClosest = rejoinClosestPos;
+					closestLineIndex = rejoinClosetLinePoint.Item1;
+					closestLine = rejoinClosetLinePoint.Item2;
+				}
 		}
 
 		foreach (var fork in line.Forks) {
@@ -853,9 +881,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				currentClosest = forkClosestPos;
 				closestLineIndex = forkClosestLinePoint.Item1;
 				closestLine = forkClosestLinePoint.Item2;
-				closestLine = fork;
+				// closestLine = fork;
 			}
 		}
+
 
 		closestDistance = currentClosestDistance;
 		closestLinePoint = (closestLineIndex, closestLine);

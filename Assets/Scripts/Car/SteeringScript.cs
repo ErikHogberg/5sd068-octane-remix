@@ -377,6 +377,12 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
+	// Cheat mitigation
+	int lastValidIndex = -1;
+	CenterlineScript.InternalCenterline lastValidLine = null;
+	private Vector3 resetPos = Vector3.zero;
+	public float CheatMitigationSearchDistance = 100;
+
 	public List<Camera> Cameras = new List<Camera>();
 	// public Camera CurrentCamera = null;
 	public int CurrentCameraIndex = 0;
@@ -391,6 +397,14 @@ public class SteeringScript : MonoBehaviour {
 
 			// draw the line between the test object and the closest line point
 			Gizmos.DrawLine(transform.position, closestPos);
+
+			if (lastValidLine != null)
+				Gizmos.DrawCube(CenterlineScript.MainInstanceTransform.TransformPoint(lastValidLine.LinePoints[lastValidIndex]), Vector3.one);
+
+			Gizmos.color = Color.green;
+			Gizmos.DrawLine(transform.position, resetPos);
+			Gizmos.DrawCube(resetPos, Vector3.one);
+
 		}
 	}
 #endif
@@ -541,13 +555,6 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.UpdateEffects(sqrVelocity, touchingGround);
 
-		// TODO: ambient engine rumble using controller rumble
-		// IDEA: curves and min/max values for both hi and lo freq motors
-		// IDEA: start with lo freq rumble when still, reduce lo and increase hi as velocity increases
-		// if (sqrVelocity > EngineRumbleSpeedMinMax.x) {
-		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity ); // not done
-		// }
-
 
 		//To keep the velocity needle moving smoothly
 		RefreshUI();
@@ -558,10 +565,28 @@ public class SteeringScript : MonoBehaviour {
 
 		// IDEA: dont check every frame, define a cheat check interval
 		if (CenterlineScript.IsInitialized) {
-			Vector3 closestPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
 			float resetDistance = CenterlineScript.ResetDistanceStatic;
-			if (resetDistance > 0 && distance > resetDistance)
-				Reset();
+			if (lastValidIndex < 0) {
+				resetPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
+				lastValidIndex = index;
+				lastValidLine = line;
+				if (resetDistance > 0 && distance > resetDistance)
+					Reset();
+			} else {
+				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
+					transform.position,
+					lastValidLine,
+					CheatMitigationSearchDistance * CheatMitigationSearchDistance,
+					out float distance,
+					out var linePoint,
+					lastValidIndex
+				);
+
+				lastValidIndex = linePoint.Item1;
+				lastValidLine = linePoint.Item2;
+				if (resetDistance > 0 && distance > resetDistance)
+					Reset();
+			}
 		}
 
 
@@ -1065,6 +1090,9 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	private void StartBoost() {
+		if (StartCountdownScript.IsShown)
+			return;
+
 		if (boostAmount < MinBoostLevel)
 			return;
 
@@ -1090,7 +1118,7 @@ public class SteeringScript : MonoBehaviour {
 
 		boostWindupTimer = 0f;
 
-		if(!StartCountdownScript.IsShown)
+		if (!StartCountdownScript.IsShown)
 			Time.timeScale = 1f;
 
 		effects?.StopBoost();
@@ -1210,14 +1238,17 @@ public class SteeringScript : MonoBehaviour {
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
-		if (CenterlineScript.IsInitialized) {
+		if (CenterlineScript.IsInitialized && lastValidIndex >= 0) {
 			transform.position =
-			CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
+				resetPos;
+			// CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
 
-			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line 
 
-			if (line.LinePoints.Count > 2 && index < line.LinePoints.Count - 1)
-				transform.rotation = Quaternion.LookRotation(line.LinePoints[index + 1] - line.LinePoints[index], Vector3.up);
+			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line
+
+			// if (line.LinePoints.Count > 2 && index < line.LinePoints.Count - 1)
+			if (lastValidLine.LinePoints.Count > 2 && lastValidIndex < lastValidLine.LinePoints.Count - 1)
+				transform.rotation = Quaternion.LookRotation(lastValidLine.LinePoints[lastValidIndex + 1] - lastValidLine.LinePoints[lastValidIndex], Vector3.up);
 
 		} else {
 			rb.MovePosition(emergencyResetPos);
