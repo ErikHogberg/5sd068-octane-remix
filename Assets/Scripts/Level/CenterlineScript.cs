@@ -895,7 +895,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	// returns all earlier fork starts on the line (along with how far behind (squared distance) the start index it was found), within the given distance behind the given start index
 	// interprets the start index as the last index on the line if the input value is invalid
 	// NOTE: does not search lines that rejoin this line, potentially allowing cheating in niche situations by backtracking when rejoining a line to enter another fork which starts before where player enters the line
-	public static IEnumerable<(int,float)> GetForkStartsBehind(InternalCenterline line, float distanceBehind, int startIndex = -1) {
+	public static IEnumerable<(int, float)> GetForkStartsBehind(InternalCenterline line, float distanceBehind, int startIndex = -1) {
 		int pointCount = line.LinePoints.Count;
 		float distanceBehindSqr = distanceBehind * distanceBehind;
 
@@ -910,17 +910,22 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			float distanceToNext = (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
 			distanceTraveledSqr += distanceToNext;
 
-			if(forksBeforeStart.Any(f=> f.StartIndex >= i)){
+			if (forksBeforeStart.Any(f => f.StartIndex >= i)) {
 				returnedAny = true;
 				yield return (i, distanceTraveledSqr);
 			}
 
 			if (distanceTraveledSqr > distanceBehindSqr)
 				break;
+
 		}
 
-		if (!returnedAny)
-			yield return (startIndex, 0);
+		if (!returnedAny) {
+			if (distanceTraveledSqr > distanceBehindSqr)
+				yield return (startIndex, 0);
+			else
+				yield return (-1, distanceTraveledSqr);
+		}
 	}
 
 	// returns the earliest fork start on the line (along with how far behind (squared distance) the start index it was found), within the given distance behind the given start index

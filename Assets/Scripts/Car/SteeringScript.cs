@@ -383,6 +383,8 @@ public class SteeringScript : MonoBehaviour {
 	private Vector3 resetPos = Vector3.zero;
 	public float CheatMitigationSearchDistance = 10;
 	public float CheatMitigationLookBehindDistance = 1;
+	private CenterlineScript.InternalCenterline lastForkParent = null;
+	public float CheatCheckPerSec = 5f;
 
 	public List<Camera> Cameras = new List<Camera>();
 	// public Camera CurrentCamera = null;
@@ -575,9 +577,35 @@ public class SteeringScript : MonoBehaviour {
 					Reset();
 			} else {
 
-			
-					// FIXME: fork start backwards search only works when currently on the same parent line, doesnt check parent line of fork when on fork.
-					(int checkStartIndex, float distanceBehindFoundSqr) =  CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+
+				(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+
+				// if(distanceBehindFoundSqr <= 0){
+				// 	lastForkParent = null;
+				// }
+
+				if (checkStartIndex < 0 && lastForkParent != null && lastForkParent != lastValidLine) {
+					resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
+						transform.position,
+						lastForkParent,
+						CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr, // FIXME: distance behind search is exponentially too much
+						out float distance,
+						out var linePoint,
+						lastValidLine.StartIndex
+					);
+
+					lastValidIndex = linePoint.Item1;
+					if (lastValidLine != linePoint.Item2) {
+						if (lastValidLine.Forks.Contains(linePoint.Item2))
+							lastForkParent = lastValidLine;
+						else
+							lastForkParent = null;
+					}
+					lastValidLine = linePoint.Item2;
+					if (resetDistance > 0 && distance > resetDistance)
+						Reset();
+
+				} else {
 
 					resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 						transform.position,
@@ -589,10 +617,17 @@ public class SteeringScript : MonoBehaviour {
 					);
 
 					lastValidIndex = linePoint.Item1;
+					if (lastValidLine != linePoint.Item2) {
+						if (lastValidLine.Forks.Contains(linePoint.Item2))
+							lastForkParent = lastValidLine;
+						else
+							lastForkParent = null;
+					}
 					lastValidLine = linePoint.Item2;
 					if (resetDistance > 0 && distance > resetDistance)
 						Reset();
-				
+				}
+
 			}
 		}
 
