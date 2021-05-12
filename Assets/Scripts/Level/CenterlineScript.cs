@@ -17,6 +17,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public static bool IsInitialized => mainInstance != null;
 	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
 	public static Transform MainInstanceTransform => mainInstance.transform;
+	public static InternalCenterline Root => mainInstance != null ? mainInstance.MainCenterline : null;
 
 	// non-serialized run-time data container
 	public class InternalCenterline {
@@ -104,16 +105,21 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	// IDEA: use centerline to check if car is going the wrong direction. compare velocity direction (if magnitude is above a threshold) against direction from closest point to next?
 
-
-	// TODO: method for getting closest point within defined index range ahead, or max distance ahead along curve
-
-	// TODO: use centerline as cheat mitigation, resetting car to last valid point on line when skipping too far ahead
-	// IDEA: provide delta time in delta position queries, calculate car speed and compare it against a set max allowed speed limit
+	// IDEA: provide delta time in cheat mitigation queries, calculate car speed and compare it against a set max allowed speed limit to decide if a reset should happen
 
 	// how far away car can be from the closest point on the line before triggering a reset
 	// IDEA: give each line in the tree its own optional reset distance which overrides this tree-wide distance
 	public float ResetDistance = 0;
 
+	// TODO: make queries respond to start and finish
+	// IDEA: dont check backwards if finish line is found ahead
+	// IDEA: dont chack backwards past start of finish
+	// TODO: runtime objects for setting start and finish on line
+	// IDEA: work similar to test script objects
+	private InternalCenterline StartLine = null;
+	private int StartIndex = -1;
+	private InternalCenterline FinishLine = null;
+	private int FinishIndex = -1;
 
 	public float LineThickness = 1f;
 	public Color ActiveLineColor = Color.white;
@@ -925,6 +931,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				yield return (startIndex, 0);
 			else
 				yield return (-1, distanceTraveledSqr);
+			// yield return (-1, 0);
 		}
 	}
 

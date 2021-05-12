@@ -577,56 +577,53 @@ public class SteeringScript : MonoBehaviour {
 					Reset();
 			} else {
 
+				int checkStartIndex = lastValidIndex; float distanceBehindFoundSqr = 0;
 
-				(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+				(checkStartIndex, distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+				// if (lastValidLine != CenterlineScript.Root)
 
 				// if(distanceBehindFoundSqr <= 0){
 				// 	lastForkParent = null;
 				// }
 
-				if (checkStartIndex < 0 && lastForkParent != null && lastForkParent != lastValidLine) {
+				float distance;
+				(int, CenterlineScript.InternalCenterline) linePoint;
+
+				// FIXME: distance behind search is exponentially too much 
+				if (checkStartIndex < 0
+				&& lastForkParent != null
+				&& lastForkParent != lastValidLine
+				) {
 					resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 						transform.position,
 						lastForkParent,
-						CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr, // FIXME: distance behind search is exponentially too much
-						out float distance,
-						out var linePoint,
+						CheatMitigationSearchDistance * CheatMitigationSearchDistance,
+						out distance,
+						out linePoint,
 						lastValidLine.StartIndex
 					);
-
-					lastValidIndex = linePoint.Item1;
-					if (lastValidLine != linePoint.Item2) {
-						if (lastValidLine.Forks.Contains(linePoint.Item2))
-							lastForkParent = lastValidLine;
-						else
-							lastForkParent = null;
-					}
-					lastValidLine = linePoint.Item2;
-					if (resetDistance > 0 && distance > resetDistance)
-						Reset();
-
 				} else {
-
+					if (checkStartIndex < 0) checkStartIndex = lastValidIndex;
 					resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 						transform.position,
 						lastValidLine,
 						CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr,
-						out float distance,
-						out var linePoint,
+						out distance,
+						out linePoint,
 						checkStartIndex
 					);
-
-					lastValidIndex = linePoint.Item1;
-					if (lastValidLine != linePoint.Item2) {
-						if (lastValidLine.Forks.Contains(linePoint.Item2))
-							lastForkParent = lastValidLine;
-						else
-							lastForkParent = null;
-					}
-					lastValidLine = linePoint.Item2;
-					if (resetDistance > 0 && distance > resetDistance)
-						Reset();
 				}
+
+				lastValidIndex = linePoint.Item1;
+				if (lastValidLine != linePoint.Item2) {
+					if (lastValidLine.Forks.Contains(linePoint.Item2))
+						lastForkParent = lastValidLine;
+					else
+						lastForkParent = null;
+				}
+				lastValidLine = linePoint.Item2;
+				if (resetDistance > 0 && distance > resetDistance)
+					Reset();
 
 			}
 		}

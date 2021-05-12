@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class RemixMapScript : MonoBehaviour {
@@ -55,32 +57,36 @@ public class RemixMapScript : MonoBehaviour {
 
 	private void Update() {
 
-		if (Input.GetMouseButtonUp(1))
+		if (EventSystem.current.IsPointerOverGameObject() && Mouse.current.rightButton.wasPressedThisFrame)
+			mouseDown = true;
+		else if (Mouse.current.rightButton.wasReleasedThisFrame)
 			mouseDown = false;
+		// mouseDown = Mouse.current.rightButton.isPressed;
 
 		if (mouseDown) {
+			RemixCameraRotateScript.StopStatic();
 
-			float mouseX = Input.mousePosition.x;
-			float delta = mouseX - mouseXBuffer;
+
+			// float mouseX = Mouse.current.position.x.ReadValue();//Input.mousePosition.x;
+			float delta = Mouse.current.delta.x.ReadValue(); //mouseX - mouseXBuffer;
 			// print("rotating "+ delta);
 			CameraPivot.transform.Rotate(Vector3.up, delta * CameraMouseSpeed, Space.World);
 
-			mouseXBuffer = mouseX;
+			// mouseXBuffer = mouseX;
 
 		}
 
 	}
 
-	public static void StartRotate() {
-		if (!mainInstance)
-			return;
+	// public static void StartRotate() {
+	// 	if (!mainInstance)
+	// 		return;
 
-		RemixCameraRotateScript.StopStatic();
+	// 	RemixCameraRotateScript.StopStatic();
 
-		mainInstance.mouseDown = true;
-		mainInstance.mouseXBuffer = Input.mousePosition.x;
-
-	}
+	// 	mainInstance.mouseDown = true;
+	// 	mainInstance.mouseXBuffer = Mouse.current.position.x.ReadValue();//Input.mousePosition.x;
+	// }
 
 	public static void Select(LevelPieceSuperClass segment) {
 		if (!mainInstance) {

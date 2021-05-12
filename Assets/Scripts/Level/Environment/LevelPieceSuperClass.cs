@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(ObjectSelectorScript))]
-public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass> {
+public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPieceSuperClass>, IPointerClickHandler, IPointerUpHandler, IPointerDownHandler {
 
 	public static List<LevelPieceSuperClass> Segments = new List<LevelPieceSuperClass>();
 
@@ -50,20 +51,21 @@ public abstract class LevelPieceSuperClass : MonoBehaviour, IComparable<LevelPie
 
 	}
 
-	private void OnMouseOver() {
-		if (EventSystem.current.IsPointerOverGameObject())
-			return;
+	public void OnPointerDown(PointerEventData eventData) {
 
-		// print("clicked " + gameObject.name);
-
-		if (Input.GetMouseButtonDown(0)) {
-			// print("left click");
+		if (Mouse.current.leftButton.wasPressedThisFrame) {
 			RemixMapScript.Select(this);
+
 		}
-		if (Input.GetMouseButtonDown(1)) {
-			// print("right click");
-			RemixMapScript.StartRotate();
-		}
+
+	}
+
+	public void OnPointerUp(PointerEventData eventData) {
+
+	}
+
+	public void OnPointerClick(PointerEventData eventData) {
+		
 	}
 
 	public static bool CheckCurrentSegment(LevelPieceSuperClass segmentToCheck) {

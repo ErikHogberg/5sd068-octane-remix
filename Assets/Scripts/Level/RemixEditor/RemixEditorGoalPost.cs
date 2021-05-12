@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPost> {
+public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPost>, IPointerDownHandler {
 	public static List<RemixEditorGoalPost> Instances = new List<RemixEditorGoalPost>();
 
 	public static RemixEditorGoalPost StartSpot = null;
@@ -54,18 +55,13 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		Instances.Remove(this);
 	}
 
-	private void OnMouseOver() {
+	public void OnPointerDown(PointerEventData eventData) {
 
-		if (EventSystem.current.IsPointerOverGameObject())
-			return;
-
-		if (Input.GetMouseButtonDown(0)) {
+		if (Mouse.current.leftButton.wasPressedThisFrame) {
 			RemixMapScript.Select(this);
+
 		}
 
-		if (Input.GetMouseButtonDown(1)) {
-			RemixMapScript.StartRotate();
-		}
 	}
 
 	public static void MoveCarToStart() {
