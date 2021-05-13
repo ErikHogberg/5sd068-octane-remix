@@ -14,6 +14,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public const int MAX_DEPTH = 10;
 
 	private static CenterlineScript mainInstance = null;
+	public static CenterlineScript MainInstance => mainInstance;
 	public static bool IsInitialized => mainInstance != null;
 	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
 	public static Transform MainInstanceTransform => mainInstance.transform;
@@ -962,7 +963,65 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return GetUIArrowDir(rot);
 	}
 
-	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = false) {
+	public Vector3 SetGoalPost(Vector3 pos, bool setStart, bool setFinish, out Quaternion lineDir) {
+
+		Vector3 closetPos = GetClosestPoint(pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, ignoreEarlyEnd: true, includeInactive: true);
+		if (closestLine.LinePoints.Count < 2) {
+			lineDir = Quaternion.identity;
+			Debug.LogWarning("centerline set goal post: closest line has too few line points to estimate a tangent direction");
+		} else {
+			if (closestLineIndex > 0)
+				lineDir = Quaternion.FromToRotation(Vector3.forward, closestLine.LinePoints[closestLineIndex - 1] - closestLine.LinePoints[closestLineIndex]);
+			else
+				lineDir = Quaternion.FromToRotation(Vector3.forward, closestLine.LinePoints[closestLineIndex] - closestLine.LinePoints[closestLineIndex + 1]);
+		}
+
+		if (setStart) {
+			StartLine = closestLine;
+			StartIndex = closestLineIndex;
+		}
+
+		if (setFinish) {
+			FinishLine = closestLine;
+			FinishIndex = closestLineIndex;
+		}
+
+		UpdateReachableActive();
+
+		return closetPos;
+	}
+
+	public void UpdateReachableActive() {
+
+		InternalCenterline startLine = StartLine;
+		InternalCenterline finishLine = FinishLine;
+		int startIndex = StartIndex;
+		int finishIndex = FinishIndex;
+
+		if (startLine == null) {
+			startLine = FinishLine;
+			startIndex = FinishIndex;
+		}
+		if (startLine == null) {
+			startLine = MainCenterline;
+			startIndex = 0;
+		}
+		if (startIndex < 0) startIndex = 0;
+
+		if (finishLine == null) {
+			finishLine = StartLine;
+			finishIndex = StartIndex;
+		}
+		if (finishLine == null) {
+			finishLine = MainCenterline;
+			finishIndex = 0;
+		}
+		if (finishIndex < 0) finishIndex = 0;
+
+		SetReachableActive(startLine, startIndex, finishLine, finishIndex);
+	}
+
+	public void SetReachableActive(InternalCenterline fromLine, int fromIndex, InternalCenterline toLine, int toIndex, bool setActive = true, bool setInactive = true) {
 		List<InternalCenterline> visited = new List<InternalCenterline>();
 
 		// disable all lines
@@ -973,8 +1032,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	}
 
-	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, int startIndex, bool setActive, bool setInactive) {
 
+	public bool SetReachableActive(List<InternalCenterline> visited, InternalCenterline toLine, int toIndex, InternalCenterline currentLine, int startIndex, bool setActive, bool setInactive) {
 
 		if (visited.Contains(currentLine))
 			return currentLine.Active;
