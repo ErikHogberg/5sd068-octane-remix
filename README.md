@@ -13,5 +13,5 @@ https://teamvelocita.itch.io/octane-remix
 "The game pushes your ability to learn and adapt your driving to real life environmental hazards escalating all the way up to conditions you wouldn’t dream of driving in or around; such as irregular gravity, laser beams, and full track loops to name a few. There would also a single player grand prix style campaign to play through races against AI with increasing difficulty."
 
 
-Orginially created by students at Campus Gotland, Uppsala University for the Gotland Game Conference 2020.
+Created by students at Campus Gotland, Uppsala University originially for the Gotland Game Conference 2020.
 As of May 2021 the game is still in active development.
