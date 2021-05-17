@@ -569,7 +569,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		int indexAtGreatestDelta = -1;
 
 		// set rotation to compare against to be the start point on the first line in the call chain, meaning that child lines/forks also compare against this same rotation
-		Quaternion compareRotValue = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
+		compareRot = compareRot ?? Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
+		if (!compareRot.HasValue)
+			yield break;
+		Quaternion compareRotValue = compareRot.Value;
 
 		// step through the line points, from the given start point to the end of the line
 		int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;

@@ -408,6 +408,12 @@ public class SteeringScript : MonoBehaviour {
 			Gizmos.DrawLine(transform.position, resetPos);
 			Gizmos.DrawCube(resetPos, Vector3.one);
 
+			foreach ((int endIndex, var line, _) in CenterlineScript.GetRotationDeltasAhead(fork, CoDriverUIScript.CheckAheadDistanceStatic, index)) {
+				Gizmos.color = Color.cyan;
+				Gizmos.DrawCube(CenterlineScript.MainInstanceTransform.TransformPoint(line.LinePoints[endIndex]), Vector3.one);
+
+			}
+
 		}
 	}
 #endif
@@ -430,6 +436,8 @@ public class SteeringScript : MonoBehaviour {
 
 		// SetProfile(CurrentProfileIndex);
 		UpdateWheelFriction();
+
+		// TODO: check if the below comments are still relevant, or were related to the now removed segment system based cheat mitigation system
 
 		// TODO: teleport car to start segment reset spot
 		// FIXME: reset triggers penalty popup, prematurely starting game
@@ -624,6 +632,11 @@ public class SteeringScript : MonoBehaviour {
 				lastValidLine = linePoint.Item2;
 				if (resetDistance > 0 && distance > resetDistance)
 					Reset();
+
+				float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
+
+				if (CoDriverCheckAheadDistanceSqr > 0)
+					CoDriverUIScript.UpdateArrowsStatic(linePoint.Item2, linePoint.Item1);
 
 			}
 		}
