@@ -954,7 +954,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return (earliestForkStart, distanceBehindFound);
 	}
 
-	public Vector2 GetUIArrowDir(Quaternion rot) {
+	public static Vector2 GetUIArrowDir(Quaternion rot) {
 		Vector3 direction = rot * Vector3.forward;
 		Vector3 projection = Vector3.ProjectOnPlane(direction, Vector3.back);
 

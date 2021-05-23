@@ -12,6 +12,8 @@ public class CoDriverUIScript : MonoBehaviour {
 	public float CheckAheadDistanceSqr = 1;
 	public float AngleThreshold = 20;
 
+	public List<GameObject> Arrows;
+
 	public static float CheckAheadDistanceStatic => mainInstance ? mainInstance.CheckAheadDistanceSqr : -1;
 
 	// Start is called before the first frame update
@@ -27,7 +29,7 @@ public class CoDriverUIScript : MonoBehaviour {
 	}
 
 	public static void UpdateArrowsStatic(CenterlineScript.InternalCenterline line, int startIndex) {
-		mainInstance?.UpdateArrows(line,startIndex);
+		mainInstance?.UpdateArrows(line, startIndex);
 	}
 
 	public void UpdateArrows(CenterlineScript.InternalCenterline line, int startIndex) {
@@ -49,6 +51,10 @@ public class CoDriverUIScript : MonoBehaviour {
 			closestRot = Quaternion.LookRotation(line.LinePoints[startIndex] - line.LinePoints[startIndex - 1], Vector3.up);
 
 		bool first = true;
+
+
+
+		int i = 0;
 		foreach ((_, _, var rot) in rotDeltas) {
 
 			Quaternion.LookRotation(line.LinePoints[startIndex + 1] - line.LinePoints[startIndex], Vector3.up);
@@ -62,6 +68,16 @@ public class CoDriverUIScript : MonoBehaviour {
 				outText.Append($"upcoming turn, {angle.ToString("000")} degrees");
 			}
 
+			if (i < Arrows.Count) {
+				Arrows[i].SetActive(true);
+				Arrows[i].transform.rotation = Quaternion.Euler(0, 0, Vector2.SignedAngle(Vector2.up, CenterlineScript.GetUIArrowDir(rot)));
+			}
+
+			i++;
+		}
+
+		for (; i < Arrows.Count; i++) {
+			Arrows[i].SetActive(false);
 		}
 
 		mainInstance.Text?.SetText(outText);
