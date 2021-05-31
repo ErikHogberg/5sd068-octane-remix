@@ -3024,7 +3024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &765965590
 Transform:
   m_ObjectHideFlags: 0
@@ -3466,8 +3466,7 @@ VFXRenderer:
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 0}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9157,8 +9156,7 @@ VFXRenderer:
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 0}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11478,6 +11476,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_MotionVectors
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4015429297106683220, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4015429297106683220, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
         type: 3}
@@ -14142,7 +14145,7 @@ PrefabInstance:
     - target: {fileID: 6343303310425016295, guid: 895a886dfd1336b479b77c8aea66f803,
         type: 3}
       propertyPath: CarToLoadIfNone
-      value: Michishige
+      value: Akash
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 895a886dfd1336b479b77c8aea66f803, type: 3}
