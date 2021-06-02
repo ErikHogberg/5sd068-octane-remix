@@ -6,7 +6,7 @@ using UnityEngine;
 using Assets.Scripts;
 using UnityEngine.Events;
 
-public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
+public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool>, IObserver<ContactPoint, float> {
 
 	// public static SurfaceDetectionScript MainInstance;
 
@@ -32,6 +32,18 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 		public UnityEvent endEvents;
 	}
 
+	[Serializable]
+	public class CollisionEffectCollection {
+		// [Tooltip("The tag of the road surface collider that enables the effects, leave field blank to always be active")]
+		// public string EnvironmentTag; // object tags that enable these effects
+		[Tooltip("At what speed the effects start and stop")]
+		public float StartVelocity;
+		public bool TurnToNormal = true;
+		public bool MoveToCollision = true;
+		public ParticleSystem[] particles;
+		public UnityEvent startEvents; // IDEA: contact point as argument
+	}
+
 	[Header("Empty tag = always on")]
 
 	public List<EnvironmentEffectCollection> DriftEffects;
@@ -42,6 +54,8 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 	public List<EnvironmentEffectCollection> CounterClockwiseYawEffects;
 
 	public List<EnvironmentEffectCollection> AlwaysOnEffects;
+
+	public List<CollisionEffectCollection> RockCollisionEffects;
 
 	private IEnumerable<EnvironmentEffectCollection> AllEffects =>
 		AlwaysOnEffects
@@ -79,6 +93,7 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	private void Awake() {
 		GetComponent<SteeringScript>().BoostStartObservers.Add(this);
+		GetComponent<TemperatureAndIntegrity>().RockCollisionObservers.Add(this);
 	}
 
 	// TODO: check that performance impact is not awful
@@ -296,6 +311,25 @@ public class CarParticleHandlerScript : MonoBehaviour, IObserver<bool> {
 
 	public void Notify(bool carIsInvulnerable) {
 		StartBoost(carIsInvulnerable);
+	}
+
+	public void Notify(ContactPoint contact, float sqrVelocity) {
+
+		foreach (var effect in RockCollisionEffects) {
+
+			// FIXME: reported velocity too low. reporting post-hit velocity?
+			// if (effect.StartVelocity < sqrVelocity) continue;
+
+			foreach (var particle in effect.particles) {
+				if (effect.MoveToCollision)
+					particle.transform.position = contact.point;
+				if (effect.TurnToNormal)
+					particle.transform.rotation = Quaternion.Euler(contact.normal);
+				particle.Play();
+			}
+
+			effect.startEvents.Invoke();
+		}
 	}
 
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.VFX;
 using UnityEngine.VFX.Utility;
 
@@ -96,6 +97,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	TemperatureUIScript temperatureUI;
 	IntegrityUIScript integrityUI;
 
+	[HideInInspector]
+	public List<IObserver<ContactPoint, float>> RockCollisionObservers = new List<IObserver<ContactPoint, float>>();
 
 	private void Start() {
 		carControls = GetComponent<SteeringScript>();
@@ -175,7 +178,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 
-	public void RockHit(float sqrImpactVelocity) {
+	public void RockHit(float sqrImpactVelocity, ContactPoint contact) {
 		float sqrVelocity = sqrImpactVelocity;//carControls.Velocity.sqrMagnitude;
 		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
 		if (damageTimer <= 0.0f && !carControls.IsInvulnerable && sqrVelocity > sqrMin) {
@@ -188,6 +191,9 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			currIntegrity -= rockIntegEffect * rockVelocityDamageCurve.Evaluate(percentage);
 			Hit();
 		}
+
+		foreach (var item in RockCollisionObservers)
+			item.Notify(contact, sqrImpactVelocity);
 	}
 
 	public void Instakill() {

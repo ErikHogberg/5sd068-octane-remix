@@ -20,7 +20,7 @@ public class RemixMapScript : MonoBehaviour {
 	public float CameraMouseSpeed = 1f;
 
 	private bool mouseDown = false;
-	private float mouseXBuffer = 0;
+	// private float mouseXBuffer = 0;
 
 	private void Awake() {
 		mainInstance = this;

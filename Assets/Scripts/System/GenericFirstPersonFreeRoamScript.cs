@@ -8,7 +8,7 @@ public class GenericFirstPersonFreeRoamScript : MonoBehaviour {
 	public float MoveSpeed = 100f;
 	public float MouseSpeed = 100f;
 
-	private bool mouseDown = false;
+	// private bool mouseDown = false;
 
 	Vector3 oldMousePos = Vector3.zero;
 
