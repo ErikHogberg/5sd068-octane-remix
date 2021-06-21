@@ -788,7 +788,18 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		) {
 		if (mainInstance != null) {
-			return MainInstanceTransform.TransformPoint(mainInstance.GetClosestPointWithinRangeToIndex(pos, line, distanceAheadSqr, out closestDistance, out closestLinePoint, ignoreEarlyEnd, includeInactive, startIndex));
+			return MainInstanceTransform.TransformPoint(
+				mainInstance.GetClosestPointWithinRangeToIndex(
+					pos, 
+					line, 
+					distanceAheadSqr, 
+					out closestDistance, 
+					out closestLinePoint, 
+					ignoreEarlyEnd, 
+					includeInactive, 
+					startIndex
+					)
+				);
 		} else {
 			throw new UnityException("centerline singleton somehow not initialized");
 		}
@@ -920,7 +931,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			float distanceToNext = (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
 			distanceTraveledSqr += distanceToNext;
 
-			if (forksBeforeStart.Any(f => f.StartIndex >= i)) {
+			if (forksBeforeStart.Any(f => f.StartIndex == i)) {
 				returnedAny = true;
 				yield return (i, distanceTraveledSqr);
 			}

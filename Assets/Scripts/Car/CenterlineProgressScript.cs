@@ -107,19 +107,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 		} else {
 
-			int checkStartIndex = lastValidIndex; float distanceBehindFoundSqr = 0;
-
-			(checkStartIndex, distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
-			// if (lastValidLine != CenterlineScript.Root)
-
-			// if(distanceBehindFoundSqr <= 0){
-			// 	lastForkParent = null;
-			// }
+			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
 
 			float distance;
 			(int, CenterlineScript.InternalCenterline) linePoint;
 
-			// FIXME: distance behind search is exponentially too much 
 			if (checkStartIndex < 0
 			&& lastForkParent != null
 			&& lastForkParent != lastValidLine
@@ -133,7 +125,9 @@ public class CenterlineProgressScript : MonoBehaviour {
 					lastValidLine.StartIndex
 				);
 			} else {
-				if (checkStartIndex < 0) checkStartIndex = lastValidIndex;
+				if (checkStartIndex < 0) {
+					checkStartIndex = lastValidIndex;
+				}
 				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 					transform.position,
 					lastValidLine,
@@ -145,6 +139,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 
 			lastValidIndex = linePoint.Item1;
+
 			if (lastValidLine != linePoint.Item2) {
 				if (lastValidLine.Forks.Contains(linePoint.Item2))
 					lastForkParent = lastValidLine;
@@ -165,5 +160,9 @@ public class CenterlineProgressScript : MonoBehaviour {
 		}
 
 		return true;
+	}
+
+	public void DebugPrint() {
+		Debug.Log("reset");
 	}
 }
