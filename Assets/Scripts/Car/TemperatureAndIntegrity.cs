@@ -254,6 +254,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			float smokePercent = 1f - (currIntegrity / maxIntegrity);
 			smokePercent = (smokePercent - SmokeMinIntegrity) / (SmokeMaxIntegrity - SmokeMinIntegrity);
 			float smokeIntensity = SmokeCurve.Evaluate(Mathf.Clamp01(smokePercent));
+			Smoke.enabled = smokeIntensity > 0;
 			Smoke.SetFloat(smokeValue, smokeIntensity);
 			// Debug.Log("smoke updated to " + smokeIntensity + ", " + smokePercent);
 		}
