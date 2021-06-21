@@ -356,9 +356,9 @@ public class SteeringScriptEditor : Editor {
 
 		}
 
-		EditorGUILayout.LabelField("Cheat mitigation");
-		steeringScript.CheatMitigationSearchDistance = EditorGUILayout.FloatField("Look ahead distance", steeringScript.CheatMitigationSearchDistance);
-		steeringScript.CheatMitigationLookBehindDistance= EditorGUILayout.FloatField("Look behind distance", steeringScript.CheatMitigationLookBehindDistance);
+		// EditorGUILayout.LabelField("Cheat mitigation");
+		// steeringScript.CheatMitigationSearchDistance = EditorGUILayout.FloatField("Look ahead distance", steeringScript.CheatMitigationSearchDistance);
+		// steeringScript.CheatMitigationLookBehindDistance= EditorGUILayout.FloatField("Look behind distance", steeringScript.CheatMitigationLookBehindDistance);
 
 		if (EditorGUI.EndChangeCheck()) {
 			// FIXME: folding counts as script change

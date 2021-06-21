@@ -3498,6 +3498,31 @@ VisualEffect:
       m_Array: []
     m_Bool:
       m_Array: []
+--- !u!1 &998081772 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9081913895796772989, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+    type: 3}
+  m_PrefabInstance: {fileID: 7087660588587705715}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &998081773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 998081772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45db2319d3cc3a4fb729f62fa2a7c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CheatMitigationSearchDistance: 5
+  CheatMitigationLookBehindDistance: 5
+  CheatCheckPerSec: 5
+  CheckInUpdate: 0
+  ResetEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1002332135
 GameObject:
   m_ObjectHideFlags: 0

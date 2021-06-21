@@ -200,7 +200,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		// if (!carControls.IsInvulnerable) {
 		// currIntegrity = 0;
 		UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
-		carControls.Reset();
+		carControls.ResetTransform();
+		carControls.CallResetEvents();
 		Reset();
 		// }
 	}
@@ -278,7 +279,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			// UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 5);
 			UINotificationSystem.Notify("Your car broke down! Restarting with penalty.", ExplodeColor, 5);
 			// TODO: time and/or score penalty
-			carControls.Reset();
+			carControls.ResetTransform();
+			carControls.CallResetEvents();
 			Reset();
 		}
 
