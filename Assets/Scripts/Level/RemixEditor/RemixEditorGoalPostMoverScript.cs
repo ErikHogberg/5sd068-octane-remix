@@ -16,6 +16,8 @@ public class RemixEditorGoalPostMoverScript : MonoBehaviour, IPointerDownHandler
 	[Tooltip("Object containing the finish line projector which will be placed on the closest position on the centerline")]
 	public GameObject LineProjector;
 
+	// TODO: portal
+
 	[Space]
 	public CenterlineScript Centerline;
 	bool moving = false;

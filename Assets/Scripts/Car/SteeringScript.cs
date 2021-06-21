@@ -322,7 +322,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// [Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	// public bool StartBeforeGoalPost = false;
-	private bool startBeforeGoalPost = false;
+	// private bool startBeforeGoalPost = false;
 
 	#region object refs and input bindings
 
@@ -365,11 +365,11 @@ public class SteeringScript : MonoBehaviour {
 	public int LapsCompleted {
 		get { return lapsCompleted; }
 		set {
-			if (startBeforeGoalPost) {
-				startBeforeGoalPost = false;
-				print("lap invalidated");
-				return;
-			}
+			// if (startBeforeGoalPost) {
+			// 	startBeforeGoalPost = false;
+			// 	print("lap invalidated");
+			// 	return;
+			// }
 
 			lapsCompleted = value;
 			foreach (var item in LapCompletedObservers)
@@ -427,9 +427,9 @@ public class SteeringScript : MonoBehaviour {
 		LevelPieceSuperClass.ClearCurrentSegment();
 
 		// RemixEditorGoalPost.MoveCarToStart();
-		startBeforeGoalPost = false;
-		if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
-			startBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
+		// startBeforeGoalPost = false;
+		// if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
+		// 	startBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 	}
 
 	void OnEnable() {
@@ -545,9 +545,11 @@ public class SteeringScript : MonoBehaviour {
 		Rumble();
 
 		// IDEA: dont check every frame, define a cheat check interval
-		if(progressScript && !progressScript.QueryProgress()){
+		if (progressScript && !progressScript.QueryProgress(out bool lapCompleted)) {
 			ResetTransform();
 			CallResetEvents();
+			if (lapCompleted)
+				LapsCompleted++;
 		}
 
 

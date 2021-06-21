@@ -3518,7 +3518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CheatMitigationSearchDistance: 5
   CheatMitigationLookBehindDistance: 5
-  CheatCheckPerSec: 5
+  CheatCheckPerSec: 10
   CheckInUpdate: 0
   ResetEvent:
     m_PersistentCalls:
@@ -16949,6 +16949,31 @@ Camera:
     type: 3}
   m_PrefabInstance: {fileID: 3041120996014153803}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3041120996014153807 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4541707378162166545, guid: aa81892c545e3bf48bdc0a147a7cc3ea,
+    type: 3}
+  m_PrefabInstance: {fileID: 3041120996014153803}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3041120996014153808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3041120996014153807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45db2319d3cc3a4fb729f62fa2a7c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CheatMitigationSearchDistance: 5
+  CheatMitigationLookBehindDistance: 5
+  CheatCheckPerSec: 10
+  CheckInUpdate: 0
+  ResetEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3062410861925024084
 GameObject:
   m_ObjectHideFlags: 0
@@ -18845,6 +18870,31 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6107030916648788793}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6107030916648788796 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2597371096964422254, guid: 2763359df68fbe84f8424990b9c144da,
+    type: 3}
+  m_PrefabInstance: {fileID: 6107030916648788793}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6107030916648788797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6107030916648788796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45db2319d3cc3a4fb729f62fa2a7c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CheatMitigationSearchDistance: 5
+  CheatMitigationLookBehindDistance: 5
+  CheatCheckPerSec: 10
+  CheckInUpdate: 0
+  ResetEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6108952381467515882
 GameObject:
   m_ObjectHideFlags: 0

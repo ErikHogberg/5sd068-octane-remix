@@ -21,13 +21,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 	public bool CheckInUpdate = false;
 
 	public UnityEvent ResetEvent;
+	public UnityEvent LapEvent;
 
-	// Start is called before the first frame update
-	void Start() {
-
-	}
-
-	// Update is called once per frame
 	void Update() {
 
 		if (!CheckInUpdate)
@@ -36,8 +31,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 		timer -= Time.deltaTime;
 		if (timer < 0) {
 			timer += 1f / CheatCheckPerSec;
-			if (!QueryProgress())
+			if (!QueryProgress(out bool lapCompleted)) {
 				ResetEvent.Invoke();
+				if (lapCompleted)
+					LapEvent.Invoke();
+			}
 		}
 
 	}
@@ -92,7 +90,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 	// returns true if progress is allowed. progress is always allowed if there is no centerline
-	public bool QueryProgress() {
+	public bool QueryProgress(out bool lapCompleted) {
+		lapCompleted = false;
+		// TODO: check if finish line was passed
+		// TODO: don't trigger lap completion if backtracking progress marker over finish line, which is possible when finish line is in look behind range of a fork start
+		// TODO: teleport car to start line if start line is separate from finish line
+
 		if (!CenterlineScript.IsInitialized)
 			return true;
 
