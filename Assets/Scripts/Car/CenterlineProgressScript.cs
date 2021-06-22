@@ -8,6 +8,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 	// Cheat mitigation
 	int lastValidIndex = -1;
 	CenterlineScript.InternalCenterline lastValidLine = null;
+
+	int furthestValidIndex = -1;
+	CenterlineScript.InternalCenterline furthestValidLine = null;
+
+
 	private Vector3 resetPos = Vector3.zero;
 
 	public float CheatMitigationSearchDistance = 10;
@@ -95,9 +100,13 @@ public class CenterlineProgressScript : MonoBehaviour {
 		// TODO: check if finish line was passed
 		// TODO: don't trigger lap completion if backtracking progress marker over finish line, which is possible when finish line is in look behind range of a fork start
 		// TODO: teleport car to start line if start line is separate from finish line
+		// IDEA: query centerline if allowed to finish lap when touching goal post object, increment lap anyway if skipping finish line and leaving allowed lap finish range (by query returning false next frame before getting a goal post collision signal)
 
 		if (!CenterlineScript.IsInitialized)
 			return true;
+
+		CenterlineScript.InternalCenterline preLine = lastValidLine;
+		int preIndex = lastValidIndex;
 
 		float resetDistance = CenterlineScript.ResetDistanceStatic;
 		if (lastValidIndex < 0) {
@@ -141,6 +150,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 				);
 			}
 
+
 			lastValidIndex = linePoint.Item1;
 
 			if (lastValidLine != linePoint.Item2) {
@@ -154,6 +164,13 @@ public class CenterlineProgressScript : MonoBehaviour {
 				// ResetTransform();
 				return false;
 			}
+
+			CenterlineScript.InternalCenterline postLine = lastValidLine;
+			int postIndex = lastValidIndex;
+
+
+			// if(postLine == CenterlineScript.)
+
 
 			float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
 

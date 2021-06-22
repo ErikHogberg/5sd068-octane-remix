@@ -790,13 +790,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (mainInstance != null) {
 			return MainInstanceTransform.TransformPoint(
 				mainInstance.GetClosestPointWithinRangeToIndex(
-					pos, 
-					line, 
-					distanceAheadSqr, 
-					out closestDistance, 
-					out closestLinePoint, 
-					ignoreEarlyEnd, 
-					includeInactive, 
+					pos,
+					line,
+					distanceAheadSqr,
+					out closestDistance,
+					out closestLinePoint,
+					ignoreEarlyEnd,
+					includeInactive,
 					startIndex
 					)
 				);
@@ -1003,6 +1003,26 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		UpdateReachableActive();
 
 		return closetPos;
+	}
+
+	// NOTE: might be theoretically possible to false negative by pre and post not being same line as goal post while still being a lines before and after the correct line
+	public bool CheckLap(InternalCenterline preLine, int preIndex, InternalCenterline postLine, int postIndex) {
+		if (preLine == FinishLine) {
+			if (preIndex > FinishIndex)
+				return false;
+
+			if (postLine == FinishLine.RejoinLine)
+				return true;
+			if (postLine == FinishLine && postIndex > FinishIndex)
+				return true;
+
+		} else {
+			if (postLine == FinishLine) {
+
+			}
+		}
+
+		return false;
 	}
 
 	public void UpdateReachableActive() {
