@@ -122,6 +122,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	private InternalCenterline FinishLine = null;
 	private int FinishIndex = -1;
 
+	public static bool HasStart => mainInstance != null && mainInstance.StartLine != null && mainInstance.StartIndex >= 0;
+	public static bool HasFinish => mainInstance != null && mainInstance.FinishLine != null && mainInstance.FinishIndex >= 0;
+
 	public float LineThickness = 1f;
 	public Color ActiveLineColor = Color.white;
 	public Color InactiveLineColor = Color.gray;
@@ -1006,7 +1009,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	}
 
 	// NOTE: might be theoretically possible to false negative by pre and post not being same line as goal post while still being a lines before and after the correct line
-	public bool CheckLap(InternalCenterline preLine, int preIndex, InternalCenterline postLine, int postIndex) {
+	public bool CheckLapCross(InternalCenterline preLine, int preIndex, InternalCenterline postLine, int postIndex) {
 		if (preLine == FinishLine) {
 			if (preIndex > FinishIndex)
 				return false;
@@ -1023,6 +1026,80 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		return false;
+	}
+
+	public bool CheckFinishInRange(InternalCenterline line, int index, float preRangeSqr, float postRangeSqr) {
+
+		if (line == FinishLine) {
+
+			if (FinishIndex == index) return true;
+
+			if (FinishIndex > index) {
+
+				var forksInRange = line.Forks.Where(f => f.StartIndex >= index && f.StartIndex <= FinishIndex);
+				List<(InternalCenterline, float)> foundForks = new List<(InternalCenterline, float)>();
+
+				float distanceTraveledSqr = 0;
+				// search forward from start index
+				for (int i = index; i < line.LinePoints.Count; i++) {
+					if (i > 0) {
+						distanceTraveledSqr += (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+					}
+
+					foreach (var fork in forksInRange.Where(f => f.StartIndex == i)) {
+						foundForks.Add((fork, distanceTraveledSqr));
+					}
+
+					// reached end of allowed distance
+					if (distanceTraveledSqr > preRangeSqr) {
+						// check if forks reach the finish line
+						foreach (var (fork, distance) in foundForks) {
+							if (CheckFinishInRange(fork, 0, preRangeSqr - distance, postRangeSqr))
+								return true;
+						}
+
+						return false;
+					}
+
+					// found finish line
+					if (i == FinishIndex)
+						return true;
+				}
+
+				// unreachable?
+
+			} else {
+				float distanceTraveledSqr = 0;
+
+				// search backwards from start index
+				for (int i = index - 2; i > 0; i--) {
+					if (i < line.LinePoints.Count) {
+						distanceTraveledSqr += (line.LinePoints[i + 1] - line.LinePoints[i]).sqrMagnitude;
+					}
+
+					// TODO: check forks
+					// TODO: check if finish line was reached
+				}
+			}
+		} else {
+			// TODO: check forks in range and possibly rejoin line if they reach finish line
+		}
+
+		return false;
+	}
+
+	public static (Vector3, Quaternion) GetStartPosRot() {
+		if (!mainInstance)
+			return (Vector3.zero, Quaternion.identity);
+
+		var startPos = MainInstanceTransform.TransformPoint(mainInstance.StartLine.LinePoints[mainInstance.StartIndex]);
+		var startRot = mainInstance.StartIndex > 0 ?
+			Quaternion.LookRotation(mainInstance.StartLine.LinePoints[mainInstance.StartIndex] - mainInstance.StartLine.LinePoints[mainInstance.StartIndex - 1], Vector3.up)
+			:
+			Quaternion.LookRotation(mainInstance.StartLine.LinePoints[mainInstance.StartIndex + 1] - mainInstance.StartLine.LinePoints[mainInstance.StartIndex], Vector3.up);
+		startRot *= MainInstanceTransform.rotation;
+
+		return (startPos, startRot);
 	}
 
 	public void UpdateReachableActive() {
