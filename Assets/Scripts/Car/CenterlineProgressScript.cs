@@ -12,11 +12,18 @@ public class CenterlineProgressScript : MonoBehaviour {
 	int furthestValidIndex = -1;
 	CenterlineScript.InternalCenterline furthestValidLine = null;
 
+	bool waitForFinish = false;
+	bool crossedFinish = false;
 
 	private Vector3 resetPos = Vector3.zero;
 
 	public float CheatMitigationSearchDistance = 10;
 	public float CheatMitigationLookBehindDistance = 1;
+
+	[Tooltip("largest valid distance from finishline in world space")]
+	public float FinishLineCheckWorldRangeSqr = 1;
+	[Tooltip("largest valid distance from finishline on the centerline")]
+	public float FinishLineCheckCenterlineRangeSqr = 1;
 
 	private CenterlineScript.InternalCenterline lastForkParent = null;
 	public float CheatCheckPerSec = 5f;
@@ -165,11 +172,18 @@ public class CenterlineProgressScript : MonoBehaviour {
 				return false;
 			}
 
+
 			CenterlineScript.InternalCenterline postLine = lastValidLine;
 			int postIndex = lastValidIndex;
 
-
-			// if(postLine == CenterlineScript.)
+			if (waitForFinish) {
+				if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+					waitForFinish = false;
+					crossedFinish = false;
+				}
+			} else if (CenterlineScript.CheckLapCrossStatic(preLine, preIndex, postLine, postIndex)) {
+				waitForFinish = true;
+			}
 
 
 			float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
@@ -178,6 +192,30 @@ public class CenterlineProgressScript : MonoBehaviour {
 				CoDriverUIScript.UpdateArrowsStatic(linePoint.Item2, linePoint.Item1);
 
 		}
+
+		return true;
+	}
+
+	public bool ValidateFinishCrossing() {
+
+		// check if at all close to the finish line
+		// if (!CenterlineScript.FinishLineInRangeStatic(transform.position, FinishLineCheckWorldRangeSqr)) {
+		// 	return false;
+		// }
+
+		// check that last valid pos is in range of finish line
+		if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
+			return false;
+		}
+
+		// if not in range ahead, check if finish line was recently passed
+		if (!waitForFinish) {
+			return false;
+		}
+
+		// TODO: make use of crossedFinish bool to invalidate a lap/finish crossing without resetting car
+
+		crossedFinish = true;
 
 		return true;
 	}

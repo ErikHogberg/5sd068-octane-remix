@@ -53,6 +53,8 @@ MonoBehaviour:
   - {fileID: 8926484042661614702}
   - {fileID: 8926484042661614704}
   - {fileID: 8926484042661614706}
+  - {fileID: 8926484042661614744}
+  - {fileID: 8926484042661614746}
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
@@ -60,7 +62,7 @@ MonoBehaviour:
   m_ParameterInfo:
   - name: target
     path: target
-    tooltip: boid target
+    tooltip: boid target, the position the particles are getting pulled towards
     sheetType: m_Vector3f
     realType: Vector3
     defaultValue:
@@ -88,7 +90,8 @@ MonoBehaviour:
     descendantCount: 0
   - name: killRadius
     path: killRadius
-    tooltip: 
+    tooltip: the size of the invisible ball at the target position that removes particles
+      on collision
     sheetType: m_Float
     realType: Single
     defaultValue:
@@ -102,7 +105,7 @@ MonoBehaviour:
     descendantCount: 0
   - name: spawnVelocityMagnitude
     path: spawnVelocityMagnitude
-    tooltip: 
+    tooltip: speed of the particles on spawn
     sheetType: m_Float
     realType: Single
     defaultValue:
@@ -116,7 +119,7 @@ MonoBehaviour:
     descendantCount: 0
   - name: pullMagnitude
     path: pullMagnitude
-    tooltip: 
+    tooltip: how strong the pull on the particles towards the target position is
     sheetType: m_Float
     realType: Single
     defaultValue:
@@ -130,7 +133,8 @@ MonoBehaviour:
     descendantCount: 0
   - name: spawnRate
     path: spawnRate
-    tooltip: 
+    tooltip: how many particles are spawned per second (note that max particles present
+      at a time is 2048 at the moment)
     sheetType: m_Float
     realType: Single
     defaultValue:
@@ -144,7 +148,9 @@ MonoBehaviour:
     descendantCount: 0
   - name: killSphereDistanceOffsetMul
     path: killSphereDistanceOffsetMul
-    tooltip: 
+    tooltip: where percentually the invisible despawning ball is between the spawn
+      point (at 0) and the target position (at 1). values above 1 places the ball
+      further away from the spawn position, on the opposite side of the target position.
     sheetType: m_Float
     realType: Single
     defaultValue:
@@ -156,10 +162,26 @@ MonoBehaviour:
     max: Infinity
     enumValues: []
     descendantCount: 0
+  - name: minY
+    path: minY
+    tooltip: what the lowest y direction the particles can spawn with, in practice
+      acting almost as a floor that can be raised or lowered which the particles
+      cannot go below
+    sheetType: m_Float
+    realType: Single
+    defaultValue:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: 0
+    min: -1
+    max: 1
+    enumValues: []
+    descendantCount: 0
   m_ImportDependencies: []
   m_GraphVersion: 6
   m_ResourceVersion: 1
-  m_saved: 0
+  m_saved: 1
   m_SubgraphDependencies: []
   m_CategoryPath: 
 --- !u!2058629511 &8926484042661614527
@@ -857,7 +879,7 @@ MonoBehaviour:
   m_Children:
   - {fileID: 8926484042661614576}
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_MasterSlot: {fileID: 8926484042661614575}
   m_MasterData:
@@ -866,7 +888,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEditor.VFX.Vector, Unity.VisualEffectGraph.Editor,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"vector":{"x":-1.0,"y":-1.0,"z":-1.0}}'
+      m_SerializableObject: '{"vector":{"x":-1.0,"y":0.0,"z":-1.0}}'
     m_Space: 0
   m_Property:
     name: B
@@ -874,8 +896,7 @@ MonoBehaviour:
       m_SerializableType: UnityEditor.VFX.Vector, Unity.VisualEffectGraph.Editor,
         Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Direction: 0
-  m_LinkedSlots:
-  - {fileID: 8926484042661614679}
+  m_LinkedSlots: []
 --- !u!114 &8926484042661614576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -895,7 +916,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614578}
   - {fileID: 8926484042661614579}
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_MasterSlot: {fileID: 8926484042661614575}
   m_MasterData:
@@ -944,7 +965,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 8926484042661614679}
 --- !u!114 &8926484042661614578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -977,7 +999,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 8926484042661614749}
 --- !u!114 &8926484042661614579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1010,7 +1033,8 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots: []
+  m_LinkedSlots:
+  - {fileID: 8926484042661614679}
 --- !u!114 &8926484042661614580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1440,7 +1464,7 @@ MonoBehaviour:
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots: []
   m_OutputSlots:
@@ -1460,7 +1484,7 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: boid target
+  m_Tooltip: boid target, the position the particles are getting pulled towards
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -1630,7 +1654,7 @@ MonoBehaviour:
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots: []
   m_OutputSlots:
@@ -3402,7 +3426,8 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: 
+  m_Tooltip: the size of the invisible ball at the target position that removes particles
+    on collision
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -3462,7 +3487,7 @@ MonoBehaviour:
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots: []
   m_OutputSlots:
@@ -3482,7 +3507,7 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: 
+  m_Tooltip: speed of the particles on spawn
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -3490,6 +3515,8 @@ MonoBehaviour:
       inputSlot: {fileID: 8926484042661614677}
     - outputSlot: {fileID: 8926484042661614675}
       inputSlot: {fileID: 8926484042661614570}
+    - outputSlot: {fileID: 8926484042661614675}
+      inputSlot: {fileID: 8926484042661614747}
     position: {x: 448, y: 226}
     expandedSlots: []
     expanded: 0
@@ -3529,6 +3556,7 @@ MonoBehaviour:
   m_LinkedSlots:
   - {fileID: 8926484042661614677}
   - {fileID: 8926484042661614570}
+  - {fileID: 8926484042661614747}
 --- !u!114 &8926484042661614676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3544,7 +3572,7 @@ MonoBehaviour:
   m_UIIgnoredErrors: []
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
-  m_UIPosition: {x: 678, y: 290}
+  m_UIPosition: {x: 678, y: 300}
   m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots:
@@ -3664,7 +3692,8 @@ MonoBehaviour:
         PublicKeyToken=b77a5c561934e089
   m_Direction: 1
   m_LinkedSlots:
-  - {fileID: 8926484042661614575}
+  - {fileID: 8926484042661614577}
+  - {fileID: 8926484042661614579}
 --- !u!114 &8926484042661614690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3681,7 +3710,7 @@ MonoBehaviour:
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
   m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
+  m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots: []
   m_OutputSlots:
@@ -3701,7 +3730,7 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: 
+  m_Tooltip: how strong the pull on the particles towards the target position is
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -3781,7 +3810,8 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: 
+  m_Tooltip: how many particles are spawned per second (note that max particles present
+    at a time is 2048 at the moment)
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -3861,7 +3891,9 @@ MonoBehaviour:
   m_IsOutput: 0
   m_EnumValues: []
   m_ValueFilter: 0
-  m_Tooltip: 
+  m_Tooltip: where percentually the invisible despawning ball is between the spawn
+    point (at 0) and the target position (at 1). values above 1 places the ball further
+    away from the spawn position, on the opposite side of the target position.
   m_Nodes:
   - m_Id: 0
     linkedSlots:
@@ -4276,40 +4308,6 @@ MonoBehaviour:
   Mode: 1
   ColorMode: 3
   channels: 2
---- !u!114 &8926484042661614741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_UIIgnoredErrors: []
-  m_Parent: {fileID: 0}
-  m_Children: []
-  m_UIPosition: {x: 0, y: 0}
-  m_UICollapsed: 1
-  m_UISuperCollapsed: 0
-  m_MasterSlot: {fileID: 8926484042661614741}
-  m_MasterData:
-    m_Owner: {fileID: 0}
-    m_Value:
-      m_Type:
-        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
-          PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 
-    m_Space: 2147483647
-  m_Property:
-    name: SampleTime
-    m_serializedType:
-      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-  m_Direction: 0
-  m_LinkedSlots: []
 --- !u!114 &8926484042661614742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4378,3 +4376,226 @@ MonoBehaviour:
         Culture=neutral, PublicKeyToken=null
   m_Direction: 0
   m_LinkedSlots: []
+--- !u!114 &8926484042661614744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e0fca1717dde4aaa144f48232aa64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 114350483966674976}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 0
+  m_UISuperCollapsed: 0
+  m_InputSlots: []
+  m_OutputSlots:
+  - {fileID: 8926484042661614745}
+  m_ExposedName: minY
+  m_Exposed: 1
+  m_Order: 7
+  m_Category: 
+  m_Min:
+    m_Type:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+    m_SerializableObject: -1
+  m_Max:
+    m_Type:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+    m_SerializableObject: 1
+  m_IsOutput: 0
+  m_EnumValues: []
+  m_ValueFilter: 1
+  m_Tooltip: what the lowest y direction the particles can spawn with, in practice
+    acting almost as a floor that can be raised or lowered which the particles cannot
+    go below
+  m_Nodes:
+  - m_Id: 0
+    linkedSlots:
+    - outputSlot: {fileID: 8926484042661614745}
+      inputSlot: {fileID: 8926484042661614578}
+    - outputSlot: {fileID: 8926484042661614745}
+      inputSlot: {fileID: 8926484042661614748}
+    position: {x: 456, y: 456}
+    expandedSlots: []
+    expanded: 1
+--- !u!114 &8926484042661614745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 0}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 1
+  m_UISuperCollapsed: 0
+  m_MasterSlot: {fileID: 8926484042661614745}
+  m_MasterData:
+    m_Owner: {fileID: 8926484042661614744}
+    m_Value:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: 0
+    m_Space: 2147483647
+  m_Property:
+    name: o
+    m_serializedType:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  m_Direction: 1
+  m_LinkedSlots:
+  - {fileID: 8926484042661614748}
+--- !u!114 &8926484042661614746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8ee8a7543fa09e42a7c8616f60d2ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 114350483966674976}
+  m_Children: []
+  m_UIPosition: {x: 640, y: 418}
+  m_UICollapsed: 0
+  m_UISuperCollapsed: 0
+  m_InputSlots:
+  - {fileID: 8926484042661614747}
+  - {fileID: 8926484042661614748}
+  m_OutputSlots:
+  - {fileID: 8926484042661614749}
+  m_Operands:
+  - name: a
+    type:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  - name: b
+    type:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+--- !u!114 &8926484042661614747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 0}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 1
+  m_UISuperCollapsed: 0
+  m_MasterSlot: {fileID: 8926484042661614747}
+  m_MasterData:
+    m_Owner: {fileID: 8926484042661614746}
+    m_Value:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: 1
+    m_Space: 2147483647
+  m_Property:
+    name: a
+    m_serializedType:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  m_Direction: 0
+  m_LinkedSlots:
+  - {fileID: 8926484042661614675}
+--- !u!114 &8926484042661614748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 0}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 1
+  m_UISuperCollapsed: 0
+  m_MasterSlot: {fileID: 8926484042661614748}
+  m_MasterData:
+    m_Owner: {fileID: 8926484042661614746}
+    m_Value:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: -1
+    m_Space: 2147483647
+  m_Property:
+    name: b
+    m_serializedType:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  m_Direction: 0
+  m_LinkedSlots:
+  - {fileID: 8926484042661614745}
+--- !u!114 &8926484042661614749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 0}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 1
+  m_UISuperCollapsed: 0
+  m_MasterSlot: {fileID: 8926484042661614749}
+  m_MasterData:
+    m_Owner: {fileID: 8926484042661614746}
+    m_Value:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: 
+    m_Space: 2147483647
+  m_Property:
+    name: 
+    m_serializedType:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  m_Direction: 1
+  m_LinkedSlots:
+  - {fileID: 8926484042661614578}

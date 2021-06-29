@@ -1028,65 +1028,87 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return false;
 	}
 
-	public bool CheckFinishInRange(InternalCenterline line, int index, float preRangeSqr, float postRangeSqr) {
+	public static bool CheckLapCrossStatic(InternalCenterline preLine, int preIndex, InternalCenterline postLine, int postIndex) {
+		if (!mainInstance)
+			return false;
 
-		if (line == FinishLine) {
+		return mainInstance.CheckLapCross(preLine, preIndex, postLine, postIndex);
+	}
 
-			if (FinishIndex == index) return true;
 
-			if (FinishIndex > index) {
+	public bool FinishLineInRange(Vector3 pos, float rangeSqr) {
 
-				var forksInRange = line.Forks.Where(f => f.StartIndex >= index && f.StartIndex <= FinishIndex);
-				List<(InternalCenterline, float)> foundForks = new List<(InternalCenterline, float)>();
+		if (FinishLine == null || FinishIndex < 0)
+			return false;
 
-				float distanceTraveledSqr = 0;
-				// search forward from start index
-				for (int i = index; i < line.LinePoints.Count; i++) {
-					if (i > 0) {
-						distanceTraveledSqr += (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-					}
+		return GetSqrDistance(transform.TransformPoint(FinishLine.LinePoints[FinishIndex]), pos) < rangeSqr;
+	}
 
-					foreach (var fork in forksInRange.Where(f => f.StartIndex == i)) {
-						foundForks.Add((fork, distanceTraveledSqr));
-					}
+	public bool FinishLineInRange(InternalCenterline line, int index, float rangeSqr) {
 
-					// reached end of allowed distance
-					if (distanceTraveledSqr > preRangeSqr) {
-						// check if forks reach the finish line
-						foreach (var (fork, distance) in foundForks) {
-							if (CheckFinishInRange(fork, 0, preRangeSqr - distance, postRangeSqr))
-								return true;
-						}
+		if (FinishLine == null || FinishIndex < 0)
+			return false;
 
-						return false;
-					}
+		float distanceTraveledSqr = 0;
+		for (int i = index + 1; i < line.LinePoints.Count; i++) {
 
-					// found finish line
-					if (i == FinishIndex)
-						return true;
-				}
+			float sqrDistance = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+			distanceTraveledSqr += sqrDistance;
+			if (distanceTraveledSqr > rangeSqr) {
+				return false;
+			}
+			if (line == FinishLine && index == FinishIndex)
+				return true;
 
-				// unreachable?
-
-			} else {
-				float distanceTraveledSqr = 0;
-
-				// search backwards from start index
-				for (int i = index - 2; i > 0; i--) {
-					if (i < line.LinePoints.Count) {
-						distanceTraveledSqr += (line.LinePoints[i + 1] - line.LinePoints[i]).sqrMagnitude;
-					}
-
-					// TODO: check forks
-					// TODO: check if finish line was reached
+			foreach (var fork in line.Forks) {
+				if (index == fork.StartIndex && FinishLineInRange(fork, 0, rangeSqr = distanceTraveledSqr)) {
+					return true;
 				}
 			}
-		} else {
-			// TODO: check forks in range and possibly rejoin line if they reach finish line
 		}
+
+		// return GetSqrDistance(transform.TransformPoint(FinishLine.LinePoints[FinishIndex]), pos) < rangeSqr;
 
 		return false;
 	}
+
+	public static bool FinishLineInRangeStatic(Vector3 pos, float rangeSqr) {
+		if (!mainInstance)
+			return false;
+
+		return mainInstance.FinishLineInRange(pos, rangeSqr);
+	}
+	public static bool FinishLineInRangeStatic(InternalCenterline line, int index, float rangeSqr) {
+		if (!mainInstance)
+			return false;
+
+		return mainInstance.FinishLineInRange(line, index, rangeSqr);
+	}
+
+	private static float GetSqrDistance(Vector3 a, Vector3 b) {
+		return (a - b).sqrMagnitude;
+	}
+
+	public static float GetSqrDistance(InternalCenterline line, int startIndex, int endIndex) {
+		if (startIndex == endIndex)
+			return 0;
+		if (startIndex > endIndex) {
+			int tempIndex = startIndex;
+			startIndex = endIndex;
+			endIndex = tempIndex;
+		}
+
+		float distanceTraveledSqr = 0;
+		for (int i = startIndex + 1; i <= endIndex; i++) {
+			float sqrDistance = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+			distanceTraveledSqr += sqrDistance;
+		}
+
+		return distanceTraveledSqr;
+
+		// return (a - b).sqrMagnitude;
+	}
+
 
 	public static (Vector3, Quaternion) GetStartPosRot() {
 		if (!mainInstance)
