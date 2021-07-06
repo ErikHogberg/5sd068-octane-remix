@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -35,6 +36,10 @@ public class CenterlineProgressScript : MonoBehaviour {
 	public UnityEvent ResetEvent;
 	public UnityEvent LapEvent;
 
+	// private void Start() {
+	// 	LapEvent.AddListener(IncLap);
+	// }
+
 	void Update() {
 
 		if (!CheckInUpdate)
@@ -45,11 +50,18 @@ public class CenterlineProgressScript : MonoBehaviour {
 			timer += 1f / CheatCheckPerSec;
 			if (!QueryProgress(out bool lapCompleted)) {
 				ResetEvent.Invoke();
-				if (lapCompleted)
+				if (lapCompleted) {
 					LapEvent.Invoke();
+					IncLap();
+				}
 			}
 		}
 
+	}
+
+	int laps = 0;
+	void IncLap() {
+		laps++;
 	}
 
 #if UNITY_EDITOR
@@ -60,6 +72,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			Vector3 closestPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var fork, out float distance);
 
 			// draw the line between the test object and the closest line point
+			// FIXME: sometimes returns wrong closest
 			Gizmos.DrawLine(transform.position, closestPos);
 
 			if (lastValidLine != null)
@@ -72,8 +85,10 @@ public class CenterlineProgressScript : MonoBehaviour {
 			foreach ((int endIndex, var line, _) in CenterlineScript.GetRotationDeltasAhead(fork, CoDriverUIScript.CheckAheadDistanceStatic, index)) {
 				Gizmos.color = Color.cyan;
 				Gizmos.DrawCube(CenterlineScript.MainInstanceTransform.TransformPoint(line.LinePoints[endIndex]), Vector3.one);
-
 			}
+
+			if (CheckInUpdate)
+				Handles.Label(transform.position, $"lap: {laps}");
 
 		}
 	}
@@ -183,6 +198,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 				}
 			} else if (CenterlineScript.CheckLapCrossStatic(preLine, preIndex, postLine, postIndex)) {
 				waitForFinish = true;
+				lapCompleted = true;
 			}
 
 

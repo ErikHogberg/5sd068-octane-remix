@@ -987,7 +987,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1150979065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1002,6 +1002,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CheatMitigationSearchDistance: 5
   CheatMitigationLookBehindDistance: 5
+  FinishLineCheckWorldRangeSqr: 1
+  FinishLineCheckCenterlineRangeSqr: 1
   CheatCheckPerSec: 20
   CheckInUpdate: 1
   ResetEvent:
@@ -1019,6 +1021,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  LapEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!23 &1150979067
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1077,7 +1082,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1150979064}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -84.3, y: 11.1, z: 8.5}
+  m_LocalPosition: {x: -79, y: 11.1, z: -31.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 59798538}
@@ -1090,7 +1095,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh29958
+  m_Name: pb_Mesh32706
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1322,7 +1327,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1561228567
 Transform:
   m_ObjectHideFlags: 0
@@ -1331,7 +1336,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1561228566}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -81.3, y: 28.3, z: -6.1}
+  m_LocalPosition: {x: -60.6, y: 28.3, z: -27.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 931881816}
@@ -1352,8 +1357,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cd6dfecbcfa6904183fadd0d2fa159a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SetStart: 0
-  SetFinish: 0
+  SetStart: 1
+  SetFinish: 1
   ArrowBody: {fileID: 931881815}
   ArrowHead: {fileID: 2121673143}
   LineProjector: {fileID: 648607470}
@@ -1918,9 +1923,9 @@ MonoBehaviour:
     indexOfRejoinLine: 0
     RejoinIndex: 115
   ResetDistance: 50
-  LineThickness: 1
+  LineThickness: 2.9
   ActiveLineColor: {r: 1, g: 1, b: 1, a: 1}
-  InactiveLineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  InactiveLineColor: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 1}
 --- !u!1001 &1757679215
 PrefabInstance:
   m_ObjectHideFlags: 0

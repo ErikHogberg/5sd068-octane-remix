@@ -33,6 +33,8 @@ public class SteeringScriptEditor : Editor {
 
 		SteeringScript steeringScript = (SteeringScript)target;
 
+		EditorGUILayout.LabelField($"lap {steeringScript.LapsCompleted}");
+
 		showSpeedProfiles = EditorGUILayout.Foldout(showSpeedProfiles, "Speed profiles");
 
 		EditorGUI.BeginChangeCheck();
@@ -369,6 +371,13 @@ public class SteeringScriptEditor : Editor {
 		// Apply changes to the serializedProperty - always do this in the end of OnInspectorGUI.
 		serializedObject.ApplyModifiedProperties();
 	}
+
+	// private void OnDrawGizmos() {
+	// 	SteeringScript steeringScript = (SteeringScript)target;
+		
+	// 	Handles.Label( steeringScript.transform.position, $"lap: {steeringScript.LapsCompleted}");
+		
+	// }
 
 }
 // */

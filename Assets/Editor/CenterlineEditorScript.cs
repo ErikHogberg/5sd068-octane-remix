@@ -232,6 +232,8 @@ public class CenterlineEditorScript : Editor {
 		EditorGUIUtility.labelWidth = 200;
 		UseAnchors = EditorGUILayout.Toggle("Use Anchors", UseAnchors);
 		EditorGUILayout.LabelField($"Selected line: {(selectedLine != null ? selectedLine.Name : "none")}");
+		EditorGUILayout.LabelField(centerlineScript.StartLineInfo);
+		EditorGUILayout.LabelField(centerlineScript.FinishLineInfo);
 
 		EditorGUI.BeginChangeCheck();
 

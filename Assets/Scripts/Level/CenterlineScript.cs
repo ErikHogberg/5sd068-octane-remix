@@ -122,6 +122,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	private InternalCenterline FinishLine = null;
 	private int FinishIndex = -1;
 
+	public string StartLineInfo => $"Start: {(StartLine == null ? "none" : StartLine.Name)}, {StartIndex}";
+	public string FinishLineInfo => $"Finish: {(FinishLine == null ? "none" : FinishLine.Name)}, {FinishIndex}";
+
 	public static bool HasStart => mainInstance != null && mainInstance.StartLine != null && mainInstance.StartIndex >= 0;
 	public static bool HasFinish => mainInstance != null && mainInstance.FinishLine != null && mainInstance.FinishIndex >= 0;
 
@@ -715,7 +718,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 			for (int i = 1; i < lineEndIndex; i++) {
-				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+				float distance = Line.distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 
 				// if (i == 1) {
 				// 	currentClosestDistance = distance;
@@ -726,7 +729,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 				if (distance < currentClosestDistance) {
 					currentClosestDistance = distance;
-					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+					currentClosest = Line.ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
 					lineIndex = i - 1;
 				}
 			}
@@ -839,14 +842,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0 || line.EarlyEndIndex > line.LinePoints.Count) ? line.LinePoints.Count : line.EarlyEndIndex + 1;
 			for (int i = startIndex + 1; i < lineEndIndex; i++) {
-				float distance = distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
+				float distance = Line.distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 
 				distanceTraveledSqr += (line.LinePoints[i - 1] - line.LinePoints[i]).sqrMagnitude;
 				endIndex = i;
 
 				if (distance < currentClosestDistance) {
 					currentClosestDistance = distance;
-					currentClosest = ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
+					currentClosest = Line.ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 					lineIndex = i - 1;
 				}
 				if (distanceTraveledSqr > distanceAheadSqr)
@@ -968,6 +971,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return (earliestForkStart, distanceBehindFound);
 	}
 
+	#region UI
 	public static Vector2 GetUIArrowDir(Quaternion rot) {
 		Vector3 direction = rot * Vector3.forward;
 		Vector3 projection = Vector3.ProjectOnPlane(direction, Vector3.back);
@@ -979,7 +983,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		Quaternion rot = toRot * Quaternion.Inverse(fromRot);
 		return GetUIArrowDir(rot);
 	}
+	#endregion
 
+	#region GoalPost
+	
 	public Vector3 SetGoalPost(Vector3 pos, bool setStart, bool setFinish, out Quaternion lineDir) {
 
 		Vector3 closetPos = GetClosestPoint(pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, ignoreEarlyEnd: true, includeInactive: true);
@@ -1021,7 +1028,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		} else {
 			if (postLine == FinishLine) {
-
+				return postIndex > FinishIndex;
 			}
 		}
 
@@ -1084,31 +1091,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		return mainInstance.FinishLineInRange(line, index, rangeSqr);
 	}
-
-	private static float GetSqrDistance(Vector3 a, Vector3 b) {
-		return (a - b).sqrMagnitude;
-	}
-
-	public static float GetSqrDistance(InternalCenterline line, int startIndex, int endIndex) {
-		if (startIndex == endIndex)
-			return 0;
-		if (startIndex > endIndex) {
-			int tempIndex = startIndex;
-			startIndex = endIndex;
-			endIndex = tempIndex;
-		}
-
-		float distanceTraveledSqr = 0;
-		for (int i = startIndex + 1; i <= endIndex; i++) {
-			float sqrDistance = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
-			distanceTraveledSqr += sqrDistance;
-		}
-
-		return distanceTraveledSqr;
-
-		// return (a - b).sqrMagnitude;
-	}
-
 
 	public static (Vector3, Quaternion) GetStartPosRot() {
 		if (!mainInstance)
@@ -1237,90 +1219,30 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return false;
 	}
 
-	public static float distanceToSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 pos) {
-		var startToEnd = lineEnd - lineStart;
+	#endregion
 
-		var startToPos = pos - lineStart;
-		if (Vector3.Dot(startToPos, startToEnd) <= 0f)
-			return startToPos.magnitude;
-
-		var endToPos = pos - lineEnd;
-		if (Vector3.Dot(endToPos, startToEnd) >= 0f)
-			return endToPos.magnitude;
-
-		return Vector3.Cross(startToEnd, startToPos).magnitude / startToEnd.magnitude;
+	private static float GetSqrDistance(Vector3 a, Vector3 b) {
+		return (a - b).sqrMagnitude;
 	}
 
-	// src: http://wiki.unity3d.com/index.php/3d_Math_functions
-	public static Vector3 ProjectPointOnLine(Vector3 linePoint, Vector3 lineVec, Vector3 point) {
-
-		//get vector from point on line to point in space
-		Vector3 linePointToPoint = point - linePoint;
-
-		float t = Vector3.Dot(linePointToPoint, lineVec);
-
-		return linePoint + lineVec * t;
-	}
-
-	// src: http://wiki.unity3d.com/index.php/3d_Math_functions
-	public static int PointOnWhichSideOfLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point) {
-
-		Vector3 lineVec = linePoint2 - linePoint1;
-		Vector3 pointVec = point - linePoint1;
-
-		float dot = Vector3.Dot(pointVec, lineVec);
-
-		//point is on side of linePoint2, compared to linePoint1
-		if (dot > 0) {
-
-			//point is on the line segment
-			if (pointVec.magnitude <= lineVec.magnitude) {
-
-				return 0;
-			}
-
-			//point is not on the line segment and it is on the side of linePoint2
-			else {
-
-				return 2;
-			}
+	public static float GetSqrDistance(InternalCenterline line, int startIndex, int endIndex) {
+		if (startIndex == endIndex)
+			return 0;
+		if (startIndex > endIndex) {
+			int tempIndex = startIndex;
+			startIndex = endIndex;
+			endIndex = tempIndex;
 		}
 
-		//Point is not on side of linePoint2, compared to linePoint1.
-		//Point is not on the line segment and it is on the side of linePoint1.
-		else {
-
-			return 1;
-		}
-	}
-
-	// src: http://wiki.unity3d.com/index.php/3d_Math_functions
-	public static Vector3 ProjectPointOnLineSegment(Vector3 linePoint1, Vector3 linePoint2, Vector3 point) {
-
-		Vector3 vector = linePoint2 - linePoint1;
-
-		Vector3 projectedPoint = ProjectPointOnLine(linePoint1, vector.normalized, point);
-
-		int side = PointOnWhichSideOfLineSegment(linePoint1, linePoint2, projectedPoint);
-
-		//The projected point is on the line segment
-		if (side == 0) {
-
-			return projectedPoint;
+		float distanceTraveledSqr = 0;
+		for (int i = startIndex + 1; i <= endIndex; i++) {
+			float sqrDistance = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude;
+			distanceTraveledSqr += sqrDistance;
 		}
 
-		if (side == 1) {
+		return distanceTraveledSqr;
 
-			return linePoint1;
-		}
-
-		if (side == 2) {
-
-			return linePoint2;
-		}
-
-		//output is invalid
-		return Vector3.zero;
+		// return (a - b).sqrMagnitude;
 	}
 
 }
