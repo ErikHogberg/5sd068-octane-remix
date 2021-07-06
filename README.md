@@ -14,4 +14,4 @@ https://teamvelocita.itch.io/octane-remix
 
 
 Created by students at Campus Gotland, Uppsala University originially for the Gotland Game Conference 2020.
-As of June 2021 the game is still in active development.
+As of July 2021 the game is still in active development.
