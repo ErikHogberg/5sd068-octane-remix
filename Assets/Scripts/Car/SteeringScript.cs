@@ -183,7 +183,7 @@ public class SteeringScript : MonoBehaviour {
 	private float boostLimitMax = 0.5f;
 
 	//Returns between 0.0 and -boostLimitMax
-	private float BoostLimit() { return (0.0f - (boostLimitMax * boostLimiter)); }
+	private float BoostLimit => (0.0f - (boostLimitMax * boostLimiter));
 	public void SetBoostLimit(float limit) { boostLimiter = limit; }
 
 
@@ -537,7 +537,7 @@ public class SteeringScript : MonoBehaviour {
 			effects.UpdateEffects(sqrVelocity, touchingGround);
 
 
-		//To keep the velocity needle moving smoothly
+		// To keep the velocity needle moving smoothly
 		RefreshUI();
 
 		// touchedGroundLastTick = false;
@@ -545,17 +545,20 @@ public class SteeringScript : MonoBehaviour {
 		Rumble();
 
 		// IDEA: dont check every frame, define a cheat check interval
-		if (progressScript && !progressScript.QueryProgress(out bool lapCompleted)) {
-			ResetTransform();
-			CallResetEvents();
-			if (lapCompleted)
-				LapsCompleted++;
+		if (progressScript) {
+			if (progressScript.QueryProgress(out bool lapCompleted)) {
+				if (lapCompleted)
+					LapsCompleted++;
+			} else {
+				ResetTransform();
+				CallResetEvents();
+			}
 		}
 
 
 	}
 
-	//To avoid jittery number updates on the UI
+	// To avoid jittery number updates on the UI
 	int updateCount = 0;
 	void LateUpdate() {
 		if (updateCount >= UIUpdateInterval) {
@@ -1047,7 +1050,7 @@ public class SteeringScript : MonoBehaviour {
 
 	private void AddBoost(float amount) {
 		boostAmount += amount;
-		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit());
+		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit);
 
 		BoostBarUIScript.SetBarPercentage((float)boostAmount);
 	}
@@ -1071,7 +1074,6 @@ public class SteeringScript : MonoBehaviour {
 	private void StopBoost() {
 
 		if (boostTimer > BoostTimeThreshold) {
-			// IDEA: make async call?
 			ScoreBoard boardOne = ScoreManager.Board(0);
 			if (boardOne != null) {
 				boardOne.AddSkill(ScoreSkill.BOOST, (int)(BoostScorePerSec * boostTimer));
@@ -1335,6 +1337,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// Recording
 
+	/*
 	// TODO: load ghost data
 	private Queue<GhostData> ghostRecording = new Queue<GhostData>();
 	private GhostData currentGhostData = null;
@@ -1374,5 +1377,6 @@ public class SteeringScript : MonoBehaviour {
 
 		ghostRecording.Enqueue(new GhostData(transform, GhostTimer));
 	}
+	// */
 
 }
