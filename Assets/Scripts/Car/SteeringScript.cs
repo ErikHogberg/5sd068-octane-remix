@@ -571,8 +571,9 @@ public class SteeringScript : MonoBehaviour {
 
 	private void OnTriggerEnter(Collider other) {
 		if (other.CompareTag("FinishLine")) {
+			// TODO: don't increment lap on start due to touching finish line at start line (due to them being the same line, etc.)
 			bool finishedLap = progressScript.ValidateFinishCrossing(out bool shouldReset);
-			
+
 			if (finishedLap)
 				lapsCompleted++;
 
