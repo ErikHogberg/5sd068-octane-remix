@@ -31,7 +31,10 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	private float timer = -1;
 
+	[Tooltip("If this component updates itself, querying progress every update")]
 	public bool CheckInUpdate = false;
+	[Tooltip("If laps aren't counted until the car touches a goal post trigger collider or goes too far from the finish line, as opposed to at the moment the centerline progress passes the finish line")]
+	public bool WaitForGoalPost = true;
 
 	public UnityEvent ResetEvent;
 	public UnityEvent LapEvent;
@@ -197,8 +200,14 @@ public class CenterlineProgressScript : MonoBehaviour {
 					crossedFinish = false;
 				}
 			} else if (CenterlineScript.CheckLapCrossStatic(preLine, preIndex, postLine, postIndex)) {
-				waitForFinish = true;
-				lapCompleted = true;
+				if (WaitForGoalPost) {
+					waitForFinish = true;
+					if (crossedFinish) {
+						lapCompleted = true;
+					}
+				} else {
+					lapCompleted = true;
+				}
 			}
 
 
@@ -212,7 +221,15 @@ public class CenterlineProgressScript : MonoBehaviour {
 		return true;
 	}
 
-	public bool ValidateFinishCrossing() {
+	public bool ValidateFinishCrossing(out bool shouldReset) {
+
+		if (!WaitForGoalPost) {
+			shouldReset = false;
+			return false;
+		}
+
+		shouldReset = true;
+
 
 		// check if at all close to the finish line
 		// if (!CenterlineScript.FinishLineInRangeStatic(transform.position, FinishLineCheckWorldRangeSqr)) {
@@ -224,19 +241,25 @@ public class CenterlineProgressScript : MonoBehaviour {
 			return false;
 		}
 
+		crossedFinish = true;
+
 		// if not in range ahead, check if finish line was recently passed
 		if (!waitForFinish) {
+			shouldReset = false;
 			return false;
 		}
 
-		// TODO: make use of crossedFinish bool to invalidate a lap/finish crossing without resetting car
+		// if (crossedFinish) {
+		// 	shouldReset = false;
+		// 	return false;
+		// }
 
-		crossedFinish = true;
-
+		shouldReset = false;
 		return true;
 	}
 
 	public void DebugPrint() {
 		Debug.Log("reset");
 	}
+
 }

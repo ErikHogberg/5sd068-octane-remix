@@ -202,7 +202,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
 		carControls.ResetTransform();
 		carControls.CallResetEvents();
-		Reset();
+		ResetTempAndInteg();
 		// }
 	}
 
@@ -281,7 +281,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			// TODO: time and/or score penalty
 			carControls.ResetTransform();
 			carControls.CallResetEvents();
-			Reset();
+			ResetTempAndInteg();
 		}
 
 		if (currTemp >= boostTempThreshold) {
@@ -300,7 +300,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 
-	private void Reset() {
+	private void ResetTempAndInteg() {
 		currIntegrity = maxIntegrity;
 		currTemp = 0.0f; goalTemp = 0.0f;
 		SetTempUI(); SetIntegUI();

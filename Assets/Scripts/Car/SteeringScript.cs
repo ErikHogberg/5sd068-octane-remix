@@ -569,6 +569,21 @@ public class SteeringScript : MonoBehaviour {
 		updateCount++;
 	}
 
+	private void OnTriggerEnter(Collider other) {
+		if (other.CompareTag("FinishLine")) {
+			bool finishedLap = progressScript.ValidateFinishCrossing(out bool shouldReset);
+			
+			if (finishedLap)
+				lapsCompleted++;
+
+			if (shouldReset) {
+				ResetTransform();
+				CallResetEvents();
+			}
+		}
+
+	}
+
 	private bool CheckIfTouchingGround() {
 		// NOTE: also sets sound parameter
 		foreach (WheelCollider wheelCollider in allWheelColliders) {

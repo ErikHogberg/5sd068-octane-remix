@@ -1021,8 +1021,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (preIndex > FinishIndex)
 				return false;
 
-			// FIXME: false positive on lines which rejoin itself (when preIndex is also before finish)
-			if (postLine == FinishLine.RejoinLine)
+			if (postLine == FinishLine.RejoinLine && preLine != postLine)
 				return true;
 			if (postLine == FinishLine && postIndex > FinishIndex)
 				return true;
