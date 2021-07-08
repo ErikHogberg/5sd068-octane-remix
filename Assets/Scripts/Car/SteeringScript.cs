@@ -416,6 +416,10 @@ public class SteeringScript : MonoBehaviour {
 		// RemixEditorGoalPost.MoveCarToStart();
 
 		progressScript = GetComponent<CenterlineProgressScript>();
+		CenterlineScript.InitProgressScript(progressScript);
+		// TODO: move car to start before countdown
+		progressScript.MoveToStartOnNextQuery = true;
+		// ResetTransform();
 
 	}
 
@@ -424,7 +428,8 @@ public class SteeringScript : MonoBehaviour {
 		carSound = GetComponent<CarSoundHandler>();
 
 		effects = GetComponent<CarParticleHandlerScript>();
-		LevelPieceSuperClass.ClearCurrentSegment();
+
+		// LevelPieceSuperClass.ClearCurrentSegment();
 
 		// RemixEditorGoalPost.MoveCarToStart();
 		// startBeforeGoalPost = false;

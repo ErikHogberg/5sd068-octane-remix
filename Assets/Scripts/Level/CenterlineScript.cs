@@ -16,7 +16,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	private static CenterlineScript mainInstance = null;
 	public static CenterlineScript MainInstance => mainInstance;
 	public static bool IsInitialized => mainInstance != null;
-	public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
+	// public static float ResetDistanceStatic => IsInitialized ? mainInstance.ResetDistance : -1f;
 	public static Transform MainInstanceTransform => mainInstance.transform;
 	public static InternalCenterline Root => mainInstance != null ? mainInstance.MainCenterline : null;
 
@@ -54,6 +54,10 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// on what line point index of its rejoin line it connects. the referenced line point will be used as a control point
 		public int RejoinIndex = 0;
 
+		// how far away car can be from the closest point on the line before triggering a reset
+		public float ResetDistance = 50;
+
+
 		public void SetActiveRecursive(bool active) {
 			Active = active;
 			foreach (var fork in Forks)
@@ -88,6 +92,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		public int indexOfRejoinLine;
 		public int RejoinIndex;
 
+		public float ResetDistance = 50;
+
 	}
 
 	// root of tree
@@ -110,17 +116,17 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	// how far away car can be from the closest point on the line before triggering a reset
 	// IDEA: give each line in the tree its own optional reset distance which overrides this tree-wide distance
-	public float ResetDistance = 0;
+	// public float ResetDistance = 0;
 
 	// TODO: make queries respond to start and finish
 	// IDEA: dont check backwards if finish line is found ahead
 	// IDEA: dont chack backwards past start of finish
 	// TODO: runtime objects for setting start and finish on line
 	// IDEA: work similar to test script objects
-	private InternalCenterline StartLine = null;
-	private int StartIndex = -1;
-	private InternalCenterline FinishLine = null;
-	private int FinishIndex = -1;
+	public InternalCenterline StartLine { get; private set; } = null;
+	public int StartIndex { get; private set; } = -1;
+	public InternalCenterline FinishLine { get; private set; } = null;
+	public int FinishIndex { get; private set; } = -1;
 
 	public string StartLineInfo => $"Start: {(StartLine == null ? "none" : StartLine.Name)}, {StartIndex}";
 	public string FinishLineInfo => $"Finish: {(FinishLine == null ? "none" : FinishLine.Name)}, {FinishIndex}";
@@ -158,6 +164,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			childCount = n.Forks.Count,
 			indexOfFirstChild = SerializedLines.Count + 1,
 			RejoinIndex = n.RejoinIndex,
+			ResetDistance = n.ResetDistance,
 		};
 
 		for (int i = rejoinRefResolveQueue.Count - 1; i >= 0; i--) {
@@ -210,7 +217,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			Resolution = serializedLine.Resolution,
 			ForksInspectorFoldState = serializedLine.ForksInspectorFoldState,
 			Forks = new List<InternalCenterline>(),
-			RejoinIndex = serializedLine.RejoinIndex
+			RejoinIndex = serializedLine.RejoinIndex,
+			ResetDistance = serializedLine.ResetDistance,
 		};
 
 
@@ -250,6 +258,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		// UnityEditor.Handles.color = Color.white;
 
 		DrawLine(MainCenterline);
+
+		Gizmos.DrawIcon(transform.position, "roadarrow.png");
 
 	}
 
@@ -986,7 +996,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	#endregion
 
 	#region GoalPost
-	
+
 	public Vector3 SetGoalPost(Vector3 pos, bool setStart, bool setFinish, out Quaternion lineDir) {
 
 		Vector3 closetPos = GetClosestPoint(pos, out int closestLineIndex, out InternalCenterline closestLine, out float closestDistance, ignoreEarlyEnd: true, includeInactive: true);
@@ -1013,6 +1023,23 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		UpdateReachableActive();
 
 		return closetPos;
+	}
+
+	public void SetGoalPost(InternalCenterline line, int index, bool setStart, bool setFinish, bool updateActiveForks) {
+		if (line == null || index < 0)
+			return;
+
+		if (setStart) {
+			StartLine = line;
+			StartIndex = index;
+		}
+
+		if (setFinish) {
+			FinishLine = line;
+			FinishIndex = index;
+		}
+
+		if (updateActiveForks) UpdateReachableActive();
 	}
 
 	// NOTE: might be theoretically possible to false negative by pre and post not being same line as goal post while still being a lines before and after the correct line
@@ -1217,6 +1244,18 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (setInactive)
 			currentLine.Active = false;
 		return false;
+	}
+
+	public static void InitProgressScript(CenterlineProgressScript progressScript) {
+		if (!mainInstance || !progressScript) {
+			Debug.LogWarning("centerline instance or progress script not assigned!");
+			return;
+		}
+
+		if (mainInstance.StartLine != null)
+			progressScript.SetLastValid(mainInstance.StartLine, mainInstance.StartIndex);
+		else if (mainInstance.FinishLine != null)
+			progressScript.SetLastValid(mainInstance.FinishLine, mainInstance.FinishIndex);
 	}
 
 	#endregion

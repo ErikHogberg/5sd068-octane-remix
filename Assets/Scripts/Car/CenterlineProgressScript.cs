@@ -10,8 +10,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 	int lastValidIndex = -1;
 	CenterlineScript.InternalCenterline lastValidLine = null;
 
-	int furthestValidIndex = -1;
-	CenterlineScript.InternalCenterline furthestValidLine = null;
+	// int furthestValidIndex = -1;
+	// CenterlineScript.InternalCenterline furthestValidLine = null;
 
 	bool waitForFinish = false;
 	bool crossedFinish = false;
@@ -38,6 +38,9 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	public UnityEvent ResetEvent;
 	public UnityEvent LapEvent;
+
+	[HideInInspector]
+	public bool MoveToStartOnNextQuery = false;
 
 	// private void Start() {
 	// 	LapEvent.AddListener(IncLap);
@@ -78,7 +81,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			// FIXME: sometimes returns wrong closest
 			Gizmos.DrawLine(transform.position, closestPos);
 
-			if (lastValidLine != null)
+			if (lastValidLine != null && lastValidIndex >= 0 && lastValidIndex < lastValidLine.LinePoints.Count)
 				Gizmos.DrawCube(CenterlineScript.MainInstanceTransform.TransformPoint(lastValidLine.LinePoints[lastValidIndex]), Vector3.one);
 
 			Gizmos.color = Color.green;
@@ -130,22 +133,35 @@ public class CenterlineProgressScript : MonoBehaviour {
 		if (!CenterlineScript.IsInitialized)
 			return true;
 
+		if (MoveToStartOnNextQuery) {
+			MoveToStartOnNextQuery = false;
+			var line = CenterlineScript.MainInstance.StartLine;
+			int index = CenterlineScript.MainInstance.StartIndex;
+			if (line != null && index >= 0 && index < line.LinePoints.Count) {
+				resetPos = CenterlineScript.MainInstanceTransform.TransformPoint(line.LinePoints[index]);
+				ResetTransform();
+			}
+		}
+
 		CenterlineScript.InternalCenterline preLine = lastValidLine;
 		int preIndex = lastValidIndex;
 
-		float resetDistance = CenterlineScript.ResetDistanceStatic;
-		if (lastValidIndex < 0) {
+		if (lastValidLine == null || lastValidIndex < 0) {
 			resetPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
 			lastValidIndex = index;
 			lastValidLine = line;
+			float resetDistance = lastValidLine.ResetDistance;//CenterlineScript.ResetDistanceStatic;
 			if (resetDistance > 0 && distance > resetDistance) {
 				// ResetTransform();
 				return false;
 			}
 		} else {
 
+			// FIXME: wont move onto forks after lookbehind distance has passed
+
 			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
 
+			float resetDistance = lastValidLine.ResetDistance;//CenterlineScript.ResetDistanceStatic;
 			float distance;
 			(int, CenterlineScript.InternalCenterline) linePoint;
 
@@ -256,6 +272,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 		shouldReset = false;
 		return true;
+	}
+
+	public void SetLastValid(CenterlineScript.InternalCenterline line, int index) {
+		lastValidLine = line;
+		lastValidIndex = index;
 	}
 
 	public void DebugPrint() {

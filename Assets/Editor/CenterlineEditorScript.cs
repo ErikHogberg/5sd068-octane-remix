@@ -164,6 +164,8 @@ public class CenterlineEditorScript : Editor {
 		EditorGUILayout.EndHorizontal();
 
 		line.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", line.Resolution, 2, 250);
+		line.ResetDistance = EditorGUILayout.FloatField("Reset distance", line.ResetDistance);
+
 		if (parent != null) {
 			line.StartIndex = EditorGUILayout.IntField("Start index", line.StartIndex);
 			if (line.StartIndex >= parent.LinePoints.Count) {
@@ -221,6 +223,8 @@ public class CenterlineEditorScript : Editor {
 		}
 	}
 
+	int selectedIndex = 0;
+
 	public override void OnInspectorGUI() {
 		serializedObject.Update();
 
@@ -235,9 +239,24 @@ public class CenterlineEditorScript : Editor {
 		EditorGUILayout.LabelField(centerlineScript.StartLineInfo);
 		EditorGUILayout.LabelField(centerlineScript.FinishLineInfo);
 
+		// EditorGUILayout.BeginHorizontal();
+
+		selectedIndex = EditorGUILayout.IntField("index", selectedIndex);
+		if (selectedIndex < 0) selectedIndex = 0;
+
 		EditorGUI.BeginChangeCheck();
 
-		centerlineScript.ResetDistance = EditorGUILayout.FloatField("Reset distance", centerlineScript.ResetDistance);
+		if (GUILayout.Button("Assign start to selected")) {
+			centerlineScript.SetGoalPost(selectedLine, selectedIndex, true, false, true);
+		}
+
+		if (GUILayout.Button("Assign finish to selected")) {
+			centerlineScript.SetGoalPost(selectedLine, selectedIndex, false, true, true);
+		}
+
+		// EditorGUILayout.EndHorizontal();
+
+		// centerlineScript.ResetDistance = EditorGUILayout.FloatField("Reset distance", centerlineScript.ResetDistance);
 
 		DrawLineInspector(centerlineScript.MainCenterline, null);
 
