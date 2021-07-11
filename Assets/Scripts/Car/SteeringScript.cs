@@ -412,7 +412,7 @@ public class SteeringScript : MonoBehaviour {
 		// IDEA: reset fn with option to disable penalty
 		// LevelPieceSuperClass.ResetToStart();
 
-		// FIXME: move car before freeze
+		// TODO: move car before freeze. in awake?
 		// RemixEditorGoalPost.MoveCarToStart();
 
 		progressScript = GetComponent<CenterlineProgressScript>();

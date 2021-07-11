@@ -133,6 +133,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 		if (!CenterlineScript.IsInitialized)
 			return true;
 
+		// move car/object to start line of centerline if it has been flagged for a reset, iff also the centerline has a start line assigned
+		// TODO: use centerline finish line as start line if start line is unassigned (but finish line isn't) 
 		if (MoveToStartOnNextQuery) {
 			MoveToStartOnNextQuery = false;
 			var line = CenterlineScript.MainInstance.StartLine;
@@ -147,9 +149,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 		int preIndex = lastValidIndex;
 
 		if (lastValidLine == null || lastValidIndex < 0) {
+			// start over progress with the closest point if the last valid point is unassigned
 			resetPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
 			lastValidIndex = index;
 			lastValidLine = line;
+
+			// still reset if the new start is too far away
 			float resetDistance = lastValidLine.ResetDistance;//CenterlineScript.ResetDistanceStatic;
 			if (resetDistance > 0 && distance > resetDistance) {
 				// ResetTransform();
@@ -169,6 +174,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			&& lastForkParent != null
 			&& lastForkParent != lastValidLine
 			) {
+				// check if within distance of any point in range ahead of the last fork start passed, iff last valid point is in range of it
 				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 					transform.position,
 					lastForkParent,
@@ -178,6 +184,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 					lastValidLine.StartIndex
 				);
 			} else {
+				// check if within distance of any point in range ahead of the last valid point
 				if (checkStartIndex < 0) {
 					checkStartIndex = lastValidIndex;
 				}
@@ -192,15 +199,16 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 
 
-			lastValidIndex = linePoint.Item1;
-
 			if (lastValidLine != linePoint.Item2) {
 				if (lastValidLine.Forks.Contains(linePoint.Item2))
 					lastForkParent = lastValidLine;
 				else
 					lastForkParent = null;
 			}
+			
+			lastValidIndex = linePoint.Item1;
 			lastValidLine = linePoint.Item2;
+
 			if (resetDistance > 0 && distance > resetDistance) {
 				// ResetTransform();
 				return false;
