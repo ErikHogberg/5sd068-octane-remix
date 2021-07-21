@@ -203,7 +203,10 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 			if (lastValidLine != linePoint.Item2) {
-				if (lastValidLine.Forks.Contains(linePoint.Item2))
+				if (
+					// lastValidLine.RejoinLine == linePoint.Item2 || 
+					lastValidLine.Forks.Contains(linePoint.Item2)
+					)
 					lastForkParent = lastValidLine;
 				else
 					lastForkParent = null;

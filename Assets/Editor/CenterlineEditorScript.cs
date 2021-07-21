@@ -146,7 +146,12 @@ public class CenterlineEditorScript : Editor {
 	void DrawLineInspector(CenterlineScript.InternalCenterline line, CenterlineScript.InternalCenterline parent, int depth = 1) {
 		EditorGUILayout.BeginHorizontal();
 		// EditorGUILayout.LabelField($"Fork depth {depth}");
-		line.Name = EditorGUILayout.TextField("Name", line.Name);
+
+		// EditorGUIUtility.fieldWidth = 20f;
+		EditorGUIUtility.labelWidth = 50f + EditorGUI.indentLevel * 15f;
+		line.Name = EditorGUILayout.TextField("Name:", line.Name);
+		EditorGUIUtility.labelWidth = 75f;
+		// EditorGUIUtility.fieldWidth = 0;
 
 		bool wasSelected = selectedLine != null && line == selectedLine;
 		bool isSelected = EditorGUILayout.Toggle("selected", wasSelected);
@@ -163,6 +168,8 @@ public class CenterlineEditorScript : Editor {
 
 		EditorGUILayout.EndHorizontal();
 
+		EditorGUIUtility.labelWidth = 150f;
+		
 		line.Resolution = EditorGUILayout.IntSlider("Resolution/Line Count", line.Resolution, 2, 250);
 		line.ResetDistance = EditorGUILayout.FloatField("Reset distance", line.ResetDistance);
 
@@ -191,6 +198,7 @@ public class CenterlineEditorScript : Editor {
 		for (int i = line.ControlPoints.Count - 1; i >= 0; i--) {
 			// for (int i = 0; i < line.ControlPoints.Count; i++) {
 			EditorGUILayout.BeginHorizontal();
+			EditorGUIUtility.labelWidth = 45f;
 			line.ControlPoints[i] = EditorGUILayout.Vector3Field($"p{i + 1}", line.ControlPoints[i]);
 			if (GUILayout.Button("Remove", GUILayout.Width(70))) {
 				line.ControlPoints.RemoveAt(i);
@@ -199,6 +207,7 @@ public class CenterlineEditorScript : Editor {
 			}
 			EditorGUILayout.EndHorizontal();
 		}
+
 		if (GUILayout.Button("Add Control Point")) {
 			if (line.ControlPoints.Count > 0) {
 				line.ControlPoints.Add(line.ControlPoints[line.ControlPoints.Count - 1]);
@@ -207,6 +216,7 @@ public class CenterlineEditorScript : Editor {
 			}
 		}
 
+		// EditorGUIUtility.labelWidth = 0;
 		line.ForksInspectorFoldState = EditorGUILayout.Foldout(line.ForksInspectorFoldState, "Forks");
 		if (line.ForksInspectorFoldState) {
 			EditorGUI.indentLevel += 1;
