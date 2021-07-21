@@ -162,9 +162,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 		} else {
 
-			// FIXME: wont move onto forks after lookbehind distance has passed
+			// FIXME: wont move onto rejoin line (unless rejoining self)
 
-			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex);
+			// check behind last valid point to see if there is a fork start in range
+			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(
+				lastValidLine, CheatMitigationLookBehindDistance, lastValidIndex
+			);
 
 			float resetDistance = lastValidLine.ResetDistance;//CenterlineScript.ResetDistanceStatic;
 			float distance;
@@ -172,13 +175,13 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			if (checkStartIndex < 0
 			&& lastForkParent != null
-			&& lastForkParent != lastValidLine
+			// && lastForkParent != lastValidLine
 			) {
-				// check if within distance of any point in range ahead of the last fork start passed, iff last valid point is in range of it
+				// check if within distance of any point in range ahead of the last fork start passed, iff last valid point is in range of it(?)
 				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 					transform.position,
 					lastForkParent,
-					CheatMitigationSearchDistance * CheatMitigationSearchDistance,
+					CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr,
 					out distance,
 					out linePoint,
 					lastValidLine.StartIndex

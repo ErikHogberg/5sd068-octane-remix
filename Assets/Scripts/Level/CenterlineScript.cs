@@ -949,6 +949,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 			if (forksBeforeStart.Any(f => f.StartIndex == i)) {
 				returnedAny = true;
+				// found/passed a fork start
 				yield return (i, distanceTraveledSqr);
 			}
 
@@ -959,8 +960,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		if (!returnedAny) {
 			if (distanceTraveledSqr > distanceBehindSqr)
+				// reached end of search distance without finding any fork starts. 
+				// return start index of search and a travel distance of 0 before quitting
 				yield return (startIndex, 0);
 			else
+				// reached start of line before end of search distance (without finding any fork starts). 
+				// return an invalid index and how far back the start of the line is before (traveled distance between search start and line start) quitting
 				yield return (-1, distanceTraveledSqr);
 			// yield return (-1, 0);
 		}
