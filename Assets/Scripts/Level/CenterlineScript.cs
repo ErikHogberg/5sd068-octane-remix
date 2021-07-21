@@ -847,7 +847,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float distanceTraveledSqr = 0;
 
 		startIndex = startIndex < 0 ? 0 : startIndex;
-		int endIndex = 0;
+		int endIndex = startIndex;
 
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0 || line.EarlyEndIndex > line.LinePoints.Count) ? line.LinePoints.Count : line.EarlyEndIndex + 1;

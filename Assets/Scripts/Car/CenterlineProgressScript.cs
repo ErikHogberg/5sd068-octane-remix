@@ -162,7 +162,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 		} else {
 
-			// FIXME: wont move onto rejoin line (unless rejoining self)
+			// FIXME: wont move onto forks which start at end of parent after lookbehind distance
 
 			// check behind last valid point to see if there is a fork start in range
 			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(
