@@ -712,9 +712,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		out float closestDistance,
 		bool ignoreEarlyEnd = false,
 		bool includeInactive = false,
-		int depth = 0
+		int depth = 0,
+		List<InternalCenterline> visited = null
 	) {
 
+		if (visited == null)
+			visited = new List<InternalCenterline>();
+
+		visited.Add(line);
 
 		pos = transform.InverseTransformPoint(pos);
 
@@ -724,7 +729,6 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		closestLine = line;
 
 
-		// TODO: implement ignoring inactive lines/forks
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 			for (int i = 1; i < lineEndIndex; i++) {
@@ -753,11 +757,31 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		}
 
 		foreach (var fork in line.Forks) {
+
+			if (visited.Contains(fork))
+				continue;
+
 			Vector3 forkClosestPos = GetClosestPoint(pos, fork, transform,
 				out int forkClosestIndex,
 				out InternalCenterline forkClosestLine,
 				out float forkClosestDistance,
-				ignoreEarlyEnd, includeInactive, depth
+				ignoreEarlyEnd, includeInactive, depth, visited
+			);
+
+			if (forkClosestDistance < currentClosestDistance) {
+				currentClosestDistance = forkClosestDistance;
+				currentClosest = forkClosestPos;
+				closestLine = forkClosestLine;
+				lineIndex = forkClosestIndex;
+			}
+		}
+
+		if (line.RejoinLine != null && !visited.Contains(line.RejoinLine)) {
+			Vector3 forkClosestPos = GetClosestPoint(pos, line.RejoinLine, transform,
+				out int forkClosestIndex,
+				out InternalCenterline forkClosestLine,
+				out float forkClosestDistance,
+				ignoreEarlyEnd, includeInactive, depth, visited
 			);
 
 			if (forkClosestDistance < currentClosestDistance) {
@@ -831,8 +855,14 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		bool ignoreEarlyEnd = false,
 		bool includeInactive = false,
 		int startIndex = 0,
-		int depth = 0
+		int depth = 0,
+		List<InternalCenterline> visited = null
 	) {
+
+		if (visited == null)
+			visited = new List<InternalCenterline>();
+
+		visited.Add(line);
 
 		// IDEA: also return bool of if finish line was passed
 
@@ -875,11 +905,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			return currentClosest;
 		}
 
-		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr) {
+		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr && !visited.Contains(line.RejoinLine)) {
 			// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
 			Vector3 rejoinClosestPos = GetClosestPointWithinRangeToIndex(pos, line.RejoinLine, distanceAheadSqr - distanceTraveledSqr,
 				out float rejoinClosestDistance, out var rejoinClosetLinePoint,
-				ignoreEarlyEnd, includeInactive, line.RejoinIndex, depth + 1
+				ignoreEarlyEnd, includeInactive, line.RejoinIndex, depth + 1, visited
 			);
 
 			if (rejoinClosestDistance < currentClosestDistance) {
@@ -892,7 +922,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		foreach (var fork in line.Forks) {
 
-			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex)
+			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex || visited.Contains(fork))
 				continue;
 
 			// calculate how far into the next fork will be measured
@@ -910,7 +940,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				forkDistanceAheadSqr,
 				out float forkClosestDistance,
 				out (int, InternalCenterline) forkClosestLinePoint,
-				ignoreEarlyEnd, includeInactive, depth
+				ignoreEarlyEnd, includeInactive, 0, depth, visited
 			);
 
 			if (forkClosestDistance < currentClosestDistance) {
@@ -940,7 +970,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		float distanceTraveledSqr = 0;
 
-		var forksBeforeStart = line.Forks.Where(f => f.StartIndex <= startIndex); // dunno if this saves any iterations, or if the filter is re-evaluated on each access
+		var forksBeforeStart = line.Forks.Where(f => f.StartIndex <= startIndex + 1); // dunno if this saves any iterations, or if the filter is re-evaluated on each access
 
 		bool returnedAny = false;
 		for (int i = startIndex; i > 0; i--) {
