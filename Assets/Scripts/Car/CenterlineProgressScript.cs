@@ -200,6 +200,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 				if (checkStartIndex < 0) {
 					checkStartIndex = lastValidIndex;
 				}
+				// NOTE: line point index might get stuck at 0 (or start index?) if search distance is too low compared to line points spacing
 				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 					transform.position,
 					lastValidLine,

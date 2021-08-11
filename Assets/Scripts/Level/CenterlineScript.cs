@@ -866,7 +866,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float currentClosestDistance = float.MaxValue;
 		int lineIndex = 0;
 		int closestLineIndex = 0;
-		var closestLine = line;
+		InternalCenterline closestLine = line;
 
 		float distanceTraveledSqr = 0;
 
@@ -884,7 +884,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 				if (distance < currentClosestDistance) {
 					currentClosestDistance = distance;
 					currentClosest = Line.ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
-					lineIndex = i - 1;
+					lineIndex = i - 1; // FIXME: will get stuck at 0 if search distance is too short compared to line point spacing
 				}
 				if (distanceTraveledSqr > distanceAheadSqr)
 					break;
@@ -918,6 +918,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex)
 				continue;
+
 
 			// calculate how far into the next fork will be measured
 			bool exit = false;
