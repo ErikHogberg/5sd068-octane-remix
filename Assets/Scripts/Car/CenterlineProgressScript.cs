@@ -93,6 +93,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 				Gizmos.DrawCube(CenterlineScript.MainInstanceTransform.TransformPoint(line.LinePoints[endIndex]), Vector3.one);
 			}
 
+			if (lastValidLine != null)
+				Handles.Label(transform.position, $"last valid: {lastValidLine.Name}, {lastValidIndex}");
+			if (lastForkParent != null)
+				Handles.Label(transform.position + Vector3.one * 5f, $"last fork parent: {lastForkParent.Name}");
+
+
 			if (CheckInUpdate)
 				Handles.Label(transform.position, $"lap: {laps}");
 
@@ -177,17 +183,20 @@ public class CenterlineProgressScript : MonoBehaviour {
 			&& lastForkParent != null
 			// && lastForkParent != lastValidLine
 			) {
-				// check if within distance of any point in range ahead of the last fork start passed, iff last valid point is in range of it(?)
+				// found fork start in range behind, and reference to last fork parent is valid
+
+				// measure from fork start
 				resetPos = CenterlineScript.GetClosestPointWithinRangeToIndexStatic(
 					transform.position,
 					lastForkParent,
-					CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr,
+					CheatMitigationSearchDistance * CheatMitigationSearchDistance + distanceBehindFoundSqr + CheatMitigationLookBehindDistance * CheatMitigationLookBehindDistance,
 					out distance,
 					out linePoint,
 					lastValidLine.StartIndex
 				);
 			} else {
-				// check if within distance of any point in range ahead of the last valid point
+
+				// measure from last valid point
 				if (checkStartIndex < 0) {
 					checkStartIndex = lastValidIndex;
 				}
@@ -211,7 +220,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 				else
 					lastForkParent = null;
 			}
-			
+
 			lastValidIndex = linePoint.Item1;
 			lastValidLine = linePoint.Item2;
 

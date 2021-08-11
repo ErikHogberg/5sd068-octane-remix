@@ -151,6 +151,7 @@ public class CenterlineEditorScript : Editor {
 		EditorGUIUtility.labelWidth = 50f + EditorGUI.indentLevel * 15f;
 		line.Name = EditorGUILayout.TextField("Name:", line.Name);
 		EditorGUIUtility.labelWidth = 75f;
+		EditorGUILayout.LabelField($"Active {line.Active}");
 		// EditorGUIUtility.fieldWidth = 0;
 
 		bool wasSelected = selectedLine != null && line == selectedLine;

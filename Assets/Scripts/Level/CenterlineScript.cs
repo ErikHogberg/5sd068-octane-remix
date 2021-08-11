@@ -721,7 +721,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		visited.Add(line);
 
-		pos = transform.InverseTransformPoint(pos);
+		Vector3 inverseGlobalPos = transform.InverseTransformPoint(pos);
 
 		Vector3 currentClosest = Vector3.zero;
 		float currentClosestDistance = float.MaxValue;
@@ -732,7 +732,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0) ? line.LinePoints.Count : line.EarlyEndIndex;
 			for (int i = 1; i < lineEndIndex; i++) {
-				float distance = Line.distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+				float distance = Line.distanceToSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 
 				// if (i == 1) {
 				// 	currentClosestDistance = distance;
@@ -743,7 +743,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 				if (distance < currentClosestDistance) {
 					currentClosestDistance = distance;
-					currentClosest = Line.ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], pos);
+					currentClosest = Line.ProjectPointOnLineSegment(line.LinePoints[i - 1], line.LinePoints[i], inverseGlobalPos);
 					lineIndex = i - 1;
 				}
 			}
@@ -855,14 +855,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		bool ignoreEarlyEnd = false,
 		bool includeInactive = false,
 		int startIndex = 0,
-		int depth = 0,
-		List<InternalCenterline> visited = null
+		int depth = 0
 	) {
-
-		if (visited == null)
-			visited = new List<InternalCenterline>();
-
-		visited.Add(line);
 
 		// IDEA: also return bool of if finish line was passed
 
@@ -877,7 +871,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		float distanceTraveledSqr = 0;
 
 		startIndex = startIndex < 0 ? 0 : startIndex;
-		int endIndex = startIndex;
+		int endIndex = startIndex + 1;
 
 		if (includeInactive || line.Active) {
 			int lineEndIndex = (ignoreEarlyEnd || line.EarlyEndIndex < 0 || line.EarlyEndIndex > line.LinePoints.Count) ? line.LinePoints.Count : line.EarlyEndIndex + 1;
@@ -905,11 +899,11 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			return currentClosest;
 		}
 
-		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr && !visited.Contains(line.RejoinLine)) {
+		if (line.RejoinLine != null && (ignoreEarlyEnd || line.EarlyEndIndex < 0) && distanceTraveledSqr < distanceAheadSqr) {
 			// continue searching the line that this line rejoins if the end of the line is reached before the end of the search distance
 			Vector3 rejoinClosestPos = GetClosestPointWithinRangeToIndex(pos, line.RejoinLine, distanceAheadSqr - distanceTraveledSqr,
 				out float rejoinClosestDistance, out var rejoinClosetLinePoint,
-				ignoreEarlyEnd, includeInactive, line.RejoinIndex, depth + 1, visited
+				ignoreEarlyEnd, includeInactive, line.RejoinIndex, depth + 1
 			);
 
 			if (rejoinClosestDistance < currentClosestDistance) {
@@ -922,25 +916,31 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		foreach (var fork in line.Forks) {
 
-			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex || visited.Contains(fork))
+			if (fork.StartIndex < startIndex || fork.StartIndex > endIndex)
 				continue;
 
 			// calculate how far into the next fork will be measured
+			bool exit = false;
 			float forkDistanceAheadSqr = distanceAheadSqr;
 			for (int i = startIndex + 1; i <= fork.StartIndex; i++) {
 				float distanceSqr = (line.LinePoints[i] - line.LinePoints[i - 1]).sqrMagnitude; // NOTE: does not use transform scale, distance ahead is relative to internal point measurement
 				forkDistanceAheadSqr -= distanceSqr;
+
+				// check if forking point is before end of measurement distance
+				if (forkDistanceAheadSqr < 0) {
+					exit = true;
+					break;
+				}
 			}
 
-			// check if forking point is before end of measurement distance
-			if (forkDistanceAheadSqr < 0)
+			if (exit)
 				continue;
 
 			Vector3 forkClosestPos = GetClosestPointWithinRangeToIndex(pos, fork,
 				forkDistanceAheadSqr,
 				out float forkClosestDistance,
 				out (int, InternalCenterline) forkClosestLinePoint,
-				ignoreEarlyEnd, includeInactive, 0, depth, visited
+				ignoreEarlyEnd, includeInactive, 0, depth + 1
 			);
 
 			if (forkClosestDistance < currentClosestDistance) {
