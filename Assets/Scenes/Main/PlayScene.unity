@@ -14569,7 +14569,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2065336765
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19653,7 +19653,7 @@ PrefabInstance:
     - target: {fileID: 6965392442423324092, guid: 91559f98cc78a754caf47ea69824d6f6,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6965392442423324093, guid: 91559f98cc78a754caf47ea69824d6f6,
         type: 3}
@@ -20122,6 +20122,16 @@ PrefabInstance:
         type: 3}
       propertyPath: FinishLineCheckWorldRangeSqr
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: CheatMitigationSearchDistance
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: CheatMitigationLookBehindDistance
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}

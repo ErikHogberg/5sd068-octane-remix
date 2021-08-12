@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
+public class GoalPostScript : MonoBehaviour {
 
 	public static GoalPostScript MainInstance;
 
@@ -10,7 +10,6 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	public GameObject PortalExit;
 	public GameObject PortalEffects;
 
-	private bool ready = true;
 
 	private void Awake() {
 		if (IsMainInstance) {
@@ -36,15 +35,23 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	private bool readyOnAnyNextNotify = false;
 
 	private void OnTriggerEnter(Collider other) {
-		if (!ready) {
-
-			print("goal post not ready!");
-			return;
-		}
-
-		ready = false;
 
 		// TODO: notify/check the centerline system for finish line crossing validity
+		if (other.TryGetComponent<SteeringScript>(out SteeringScript steeringScript)) {
+			bool cross = steeringScript.progressScript.ValidateFinishCrossing(out bool shouldReset);
+
+			if (cross) {
+				SteeringScript.MainInstance.LapsCompleted++;
+				print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
+			}
+
+			if (shouldReset) {
+				steeringScript.progressScript.ResetTransform();
+				steeringScript.CallResetEvents();
+			}
+
+
+		}
 		// if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
 		// 	print("invalid goal post transition!");
 		// 	// LevelPieceSuperClass.ResetToCurrentSegment();
@@ -67,45 +74,7 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		// 	}
 		// }
 
-		SteeringScript.MainInstance.LapsCompleted++;
-		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
 
-	}
-
-	// called when car leaves parent segment
-	public void Notify(LevelPieceSuperClass segment) {
-
-		if (readyOnAnyNextNotify) {
-			print("any next notify used");
-			ready = true;
-			readyOnAnyNextNotify = false;
-			return;
-		}
-
-		// TODO: notify/check the centerline system for finish line crossing validity
-		// if (!RemixEditorGoalPost.CheckTransition(segment)) {
-		// 	return;
-		// }
-
-		if (ready) {
-			// Registers lap if the car somehow missed the goal post
-			int oldLapsCompleted = SteeringScript.MainInstance.LapsCompleted;
-			SteeringScript.MainInstance.LapsCompleted++;
-			print("[Notify] Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
-
-			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted
-			&& RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
-				// RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment);
-				RemixEditorGoalPost.MoveCarToStart();
-				// RemixEditorGoalPost.MoveCarToStart();
-				ready = false;
-				readyOnAnyNextNotify = true;
-				print("[Notify] any next notify set");
-			}
-		} else {
-			ready = true;
-			print("goal post ready");
-		}
 
 	}
 
