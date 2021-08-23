@@ -102,6 +102,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 			if (CheckInUpdate)
 				Handles.Label(transform.position, $"lap: {laps}");
 
+
+			Handles.Label(transform.position + Vector3.one * 6f, $"wFF: {waitForFinish}");
+			Handles.Label(transform.position + Vector3.one * 7f, $"cF: {crossedFinish}");
+			Handles.Label(transform.position + Vector3.one * 8f, $"WFGP: {WaitForGoalPost}");
+			
+
 		}
 	}
 #endif
@@ -233,6 +239,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			CenterlineScript.InternalCenterline postLine = lastValidLine;
 			int postIndex = lastValidIndex;
+
+			// lap counting
 
 			if (waitForFinish) {
 				if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {

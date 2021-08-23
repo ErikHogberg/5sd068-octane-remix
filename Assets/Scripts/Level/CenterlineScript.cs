@@ -1108,10 +1108,17 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 	public bool FinishLineInRange(Vector3 pos, float rangeSqr) {
 
-		if (FinishLine == null || FinishIndex < 0)
-			return false;
+		Vector3 linePos;
+		if (FinishLine == null || FinishIndex < 0) {
+			if (StartLine == null || StartIndex < 0)
+				return false;
+			else
+				linePos = StartLine.LinePoints[StartIndex];
+		} else {
+			linePos = FinishLine.LinePoints[FinishIndex];
+		}
 
-		return GetSqrDistance(transform.TransformPoint(FinishLine.LinePoints[FinishIndex]), pos) < rangeSqr;
+		return GetSqrDistance(transform.TransformPoint(linePos), pos) < rangeSqr;
 	}
 
 	public bool FinishLineInRange(InternalCenterline line, int index, float rangeSqr) {

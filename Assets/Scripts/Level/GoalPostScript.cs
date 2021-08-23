@@ -32,11 +32,9 @@ public class GoalPostScript : MonoBehaviour {
 		// LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
-	private bool readyOnAnyNextNotify = false;
-
 	private void OnTriggerEnter(Collider other) {
 
-		// TODO: notify/check the centerline system for finish line crossing validity
+		// notify/check the centerline system for finish line crossing validity
 		if (other.TryGetComponent<SteeringScript>(out SteeringScript steeringScript)) {
 			bool cross = steeringScript.progressScript.ValidateFinishCrossing(out bool shouldReset);
 
@@ -52,29 +50,6 @@ public class GoalPostScript : MonoBehaviour {
 
 
 		}
-		// if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
-		// 	print("invalid goal post transition!");
-		// 	// LevelPieceSuperClass.ResetToCurrentSegment();
-		// 	ready = true;
-		// 	return;
-		// } else {
-		// 	print("any next notify set");
-		// 	readyOnAnyNextNotify = true;
-		// }
-
-		// if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
-		// 	// Resets if entering from wrong segment
-
-		// 	// LevelPieceSuperClass.ResetToCurrentSegment();
-
-		// 	bool transitionSucceeded = ParentSegment.AttemptTransition();
-
-		// 	if (!transitionSucceeded) {
-		// 		return;
-		// 	}
-		// }
-
-
 
 	}
 
