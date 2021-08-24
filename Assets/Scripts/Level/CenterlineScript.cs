@@ -123,9 +123,32 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	// IDEA: dont chack backwards past start of finish
 	// TODO: runtime objects for setting start and finish on line
 	// IDEA: work similar to test script objects
-	public InternalCenterline StartLine { get; private set; } = null;
+	private InternalCenterline startLine = null;
+	public InternalCenterline StartLine {
+		get {
+			if (startLine == null) {
+				startLine = MainCenterline;
+				StartIndex = 0;
+			}
+			return startLine;
+		}
+		private set { startLine = value; }
+	}
+
 	public int StartIndex { get; private set; } = -1;
-	public InternalCenterline FinishLine { get; private set; } = null;
+	private InternalCenterline finishLine = null;
+	public InternalCenterline FinishLine {
+		get {
+			if (finishLine == null){
+				finishLine = StartLine;
+				FinishIndex = 0;
+			}
+			return finishLine;
+		}
+		private set {
+			finishLine = value;
+		}
+	}
 	public int FinishIndex { get; private set; } = -1;
 
 	public string StartLineInfo => $"Start: {(StartLine == null ? "none" : StartLine.Name)}, {StartIndex}";

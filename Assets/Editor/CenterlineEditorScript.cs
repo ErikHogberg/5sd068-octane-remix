@@ -236,6 +236,7 @@ public class CenterlineEditorScript : Editor {
 	}
 
 	int selectedIndex = 0;
+	bool updateActiveForks = false;
 
 	public override void OnInspectorGUI() {
 		serializedObject.Update();
@@ -256,14 +257,17 @@ public class CenterlineEditorScript : Editor {
 		selectedIndex = EditorGUILayout.IntField("index", selectedIndex);
 		if (selectedIndex < 0) selectedIndex = 0;
 
+
+		updateActiveForks = EditorGUILayout.Toggle("set active",updateActiveForks);
+
 		EditorGUI.BeginChangeCheck();
 
 		if (GUILayout.Button("Assign start to selected")) {
-			centerlineScript.SetGoalPost(selectedLine, selectedIndex, true, false, true);
+			centerlineScript.SetGoalPost(selectedLine, selectedIndex, setStart: true, setFinish: false, updateActiveForks);
 		}
 
 		if (GUILayout.Button("Assign finish to selected")) {
-			centerlineScript.SetGoalPost(selectedLine, selectedIndex, false, true, true);
+			centerlineScript.SetGoalPost(selectedLine, selectedIndex, setStart: false, setFinish: true, updateActiveForks);
 		}
 
 		// EditorGUILayout.EndHorizontal();
