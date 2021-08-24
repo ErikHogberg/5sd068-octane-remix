@@ -144,6 +144,8 @@ public class CenterlineEditorScript : Editor {
 
 
 	void DrawLineInspector(CenterlineScript.InternalCenterline line, CenterlineScript.InternalCenterline parent, int depth = 1) {
+
+		EditorGUILayout.LabelField($"Active: {line.Active}");
 		EditorGUILayout.BeginHorizontal();
 		// EditorGUILayout.LabelField($"Fork depth {depth}");
 
@@ -151,7 +153,6 @@ public class CenterlineEditorScript : Editor {
 		EditorGUIUtility.labelWidth = 50f + EditorGUI.indentLevel * 15f;
 		line.Name = EditorGUILayout.TextField("Name:", line.Name);
 		EditorGUIUtility.labelWidth = 75f;
-		EditorGUILayout.LabelField($"Active {line.Active}");
 		// EditorGUIUtility.fieldWidth = 0;
 
 		bool wasSelected = selectedLine != null && line == selectedLine;

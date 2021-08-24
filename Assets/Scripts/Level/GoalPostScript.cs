@@ -17,10 +17,6 @@ public class GoalPostScript : MonoBehaviour {
 		} else {
 			ContainerObject.SetActive(false);
 		}
-		// if (ParentSegment)
-		// 	ParentSegment.LeaveSegmentObservers.Add(this);
-		// LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
-		print("leave observer registered");
 
 		RemixEditorGoalPost.UpdateGoalPost();
 	}
@@ -32,26 +28,22 @@ public class GoalPostScript : MonoBehaviour {
 		// LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
-	private void OnTriggerEnter(Collider other) {
+	// private void OnTriggerEnter(Collider other) {
+	// 	// notify/check the centerline system for finish line crossing validity
+	// 	if (other.TryGetComponent<SteeringScript>(out SteeringScript steeringScript)) {
+	// 		bool cross = steeringScript.progressScript.ValidateFinishCrossing(out bool shouldReset);
 
-		// notify/check the centerline system for finish line crossing validity
-		if (other.TryGetComponent<SteeringScript>(out SteeringScript steeringScript)) {
-			bool cross = steeringScript.progressScript.ValidateFinishCrossing(out bool shouldReset);
+	// 		if (cross) {
+	// 			SteeringScript.MainInstance.LapsCompleted++;
+	// 			print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
+	// 		}
 
-			if (cross) {
-				SteeringScript.MainInstance.LapsCompleted++;
-				print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
-			}
-
-			if (shouldReset) {
-				steeringScript.progressScript.ResetTransform();
-				steeringScript.CallResetEvents();
-			}
-
-
-		}
-
-	}
+	// 		if (shouldReset) {
+	// 			steeringScript.progressScript.ResetTransform();
+	// 			steeringScript.CallResetEvents();
+	// 		}
+	// 	}
+	// }
 
 	public void SetGoalPost(RemixEditorGoalPost goalPost) {
 		PortalExit.SetActive(false);

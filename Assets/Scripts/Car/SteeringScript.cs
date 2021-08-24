@@ -23,28 +23,6 @@ public class SteeringScript : MonoBehaviour {
 
 	public static bool EnableProfileChange = true;
 
-	// TODO: efficient way to store and share replays
-	// IDEA: option to dynamically speed up or slow down replays depending on distance to active player car, keeping the ghost close to the player regardless of how far ahead it actually is
-	private class GhostData {
-		public Vector3 Position;
-		public Quaternion Rotation;
-		public float TimeStamp;
-
-		// TODO: toggle effects
-
-		public GhostData(Vector3 pos, Quaternion rot, float time) {
-			Position = pos;
-			Rotation = rot;
-			TimeStamp = time;
-		}
-
-		public GhostData(Transform transform, float time) {
-			Position = transform.position;
-			Rotation = transform.rotation;
-			TimeStamp = time;
-		}
-	}
-
 	[Serializable]
 	public class SpeedProfile {
 

@@ -10,11 +10,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 	int lastValidIndex = -1;
 	CenterlineScript.InternalCenterline lastValidLine = null;
 
+	// lap counting
+	bool waitForFinish = false;
+
 	// int furthestValidIndex = -1;
 	// CenterlineScript.InternalCenterline furthestValidLine = null;
-
-	bool waitForFinish = false;
-	bool crossedFinish = false;
 
 	private Vector3 resetPos = Vector3.zero;
 
@@ -33,18 +33,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	[Tooltip("If this component updates itself, querying progress every update")]
 	public bool CheckInUpdate = false;
-	[Tooltip("If laps aren't counted until the car touches a goal post trigger collider or goes too far from the finish line, as opposed to at the moment the centerline progress passes the finish line")]
-	public bool WaitForGoalPost = true;
 
 	public UnityEvent ResetEvent;
 	public UnityEvent LapEvent;
 
 	[HideInInspector]
 	public bool MoveToStartOnNextQuery = false;
-
-	// private void Start() {
-	// 	LapEvent.AddListener(IncLap);
-	// }
 
 	void Update() {
 
@@ -78,7 +72,6 @@ public class CenterlineProgressScript : MonoBehaviour {
 			Vector3 closestPos = CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var fork, out float distance);
 
 			// draw the line between the test object and the closest line point
-			// FIXME: sometimes returns wrong closest
 			Gizmos.DrawLine(transform.position, closestPos);
 
 			if (lastValidLine != null && lastValidIndex >= 0 && lastValidIndex < lastValidLine.LinePoints.Count)
@@ -104,9 +97,6 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 			Handles.Label(transform.position + Vector3.one * 6f, $"wFF: {waitForFinish}");
-			Handles.Label(transform.position + Vector3.one * 7f, $"cF: {crossedFinish}");
-			Handles.Label(transform.position + Vector3.one * 8f, $"WFGP: {WaitForGoalPost}");
-			
 
 		}
 	}
@@ -119,7 +109,6 @@ public class CenterlineProgressScript : MonoBehaviour {
 			transform.position =
 				resetPos;
 			// CenterlineScript.GetClosestPointStatic(transform.position, out int index, out var line, out float distance);
-
 
 			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line
 
@@ -242,22 +231,20 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			// lap counting
 
-			if (waitForFinish) {
-				if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
-					waitForFinish = false;
-					crossedFinish = false;
-				}
-			} else if (CenterlineScript.CheckLapCrossStatic(preLine, preIndex, postLine, postIndex)) {
-				if (WaitForGoalPost) {
+
+
+			if (!waitForFinish) {
+				// check if finish line is in range ahead on along the centerline
+				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
 					waitForFinish = true;
-					if (crossedFinish) {
-						lapCompleted = true;
-					}
-				} else {
+				}
+			} else {
+				// check if finish line is still in range in world space
+				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+					waitForFinish = false;
 					lapCompleted = true;
 				}
 			}
-
 
 			float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
 
@@ -271,25 +258,12 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	public bool ValidateFinishCrossing(out bool shouldReset) {
 
-		if (!WaitForGoalPost) {
-			shouldReset = false;
-			return false;
-		}
-
 		shouldReset = true;
-
-
-		// check if at all close to the finish line
-		// if (!CenterlineScript.FinishLineInRangeStatic(transform.position, FinishLineCheckWorldRangeSqr)) {
-		// 	return false;
-		// }
 
 		// check that last valid pos is in range of finish line
 		if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
 			return false;
 		}
-
-		crossedFinish = true;
 
 		// if not in range ahead, check if finish line was recently passed
 		if (!waitForFinish) {
@@ -297,10 +271,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 			return false;
 		}
 
-		// if (crossedFinish) {
-		// 	shouldReset = false;
-		// 	return false;
-		// }
+		waitForFinish = false;
 
 		shouldReset = false;
 		return true;

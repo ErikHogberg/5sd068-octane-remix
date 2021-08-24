@@ -131,6 +131,9 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	public string StartLineInfo => $"Start: {(StartLine == null ? "none" : StartLine.Name)}, {StartIndex}";
 	public string FinishLineInfo => $"Finish: {(FinishLine == null ? "none" : FinishLine.Name)}, {FinishIndex}";
 
+	public Vector3 StartLinePos => transform.TransformPoint(StartLine.LinePoints[StartIndex]);
+	public Vector3 FinishLinePos => transform.TransformPoint(FinishLine.LinePoints[FinishIndex]);
+
 	public static bool HasStart => mainInstance != null && mainInstance.StartLine != null && mainInstance.StartIndex >= 0;
 	public static bool HasFinish => mainInstance != null && mainInstance.FinishLine != null && mainInstance.FinishIndex >= 0;
 
@@ -1113,12 +1116,12 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (StartLine == null || StartIndex < 0)
 				return false;
 			else
-				linePos = StartLine.LinePoints[StartIndex];
+				linePos = StartLinePos;
 		} else {
-			linePos = FinishLine.LinePoints[FinishIndex];
+			linePos = FinishLinePos;
 		}
 
-		return GetSqrDistance(transform.TransformPoint(linePos), pos) < rangeSqr;
+		return GetSqrDistance(linePos, pos) < rangeSqr;
 	}
 
 	public bool FinishLineInRange(InternalCenterline line, int index, float rangeSqr) {
@@ -1134,8 +1137,13 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			if (distanceTraveledSqr > rangeSqr) {
 				return false;
 			}
-			if (line == FinishLine && index == FinishIndex)
-				return true;
+			if (FinishLine != null) {
+				if (line == FinishLine && index == FinishIndex)
+					return true;
+			} else {
+				if (line == StartLine && index == StartIndex)
+					return true;
+			}
 
 			foreach (var fork in line.Forks) {
 				if (index == fork.StartIndex && FinishLineInRange(fork, 0, rangeSqr = distanceTraveledSqr)) {
