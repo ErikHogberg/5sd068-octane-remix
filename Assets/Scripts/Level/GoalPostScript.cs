@@ -10,6 +10,12 @@ public class GoalPostScript : MonoBehaviour {
 	public GameObject PortalExit;
 	public GameObject PortalEffects;
 
+	[Space]
+	[Tooltip("If centerline placement should be raycasted")]
+	public bool Raycast = true;
+	[Tooltip("Which layers placement raycast reacts to")]
+	public LayerMask HitMask;
+
 
 	private void Awake() {
 		if (IsMainInstance) {
@@ -74,6 +80,25 @@ public class GoalPostScript : MonoBehaviour {
 
 	public static void SetInstanceGoalPortal(RemixEditorGoalPost entrance, RemixEditorGoalPost exit) {
 		MainInstance?.SetGoalPortal(entrance, exit);
+	}
+
+	public void MoveTo(CenterlineScript.InternalCenterline line, int index) {
+		Vector3 pos = CenterlineScript.GetLinePointPos(line, index);
+		Quaternion rot = CenterlineScript.GetLinePointRot(line, index);
+
+		if (Raycast) {
+			Ray ray = new Ray(pos, Vector3.down);
+			if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, HitMask)) {
+				pos = hitInfo.point;
+			}
+		}
+
+		transform.position = pos;
+		transform.rotation = rot;
+	}
+
+	public static void MoveToStatic(CenterlineScript.InternalCenterline line, int index) {
+		MainInstance?.MoveTo(line, index);
 	}
 
 }

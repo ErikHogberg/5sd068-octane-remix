@@ -264,6 +264,7 @@ public class CenterlineEditorScript : Editor {
 
 		if (GUILayout.Button("Assign start to selected")) {
 			centerlineScript.SetGoalPost(selectedLine, selectedIndex, setStart: true, setFinish: false, updateActiveForks);
+			// GoalPostScript.MoveTo()
 		}
 
 		if (GUILayout.Button("Assign finish to selected")) {

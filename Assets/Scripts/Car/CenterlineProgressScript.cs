@@ -112,9 +112,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line
 
-			// if (line.LinePoints.Count > 2 && index < line.LinePoints.Count - 1)
-			if (lastValidLine.LinePoints.Count > 2 && lastValidIndex < lastValidLine.LinePoints.Count - 1)
-				transform.rotation = Quaternion.LookRotation(lastValidLine.LinePoints[lastValidIndex + 1] - lastValidLine.LinePoints[lastValidIndex], Vector3.up);
+			transform.rotation = CenterlineScript.GetLinePointRot(lastValidLine, lastValidIndex);			
 
 			return true;
 		}

@@ -139,7 +139,7 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 	private InternalCenterline finishLine = null;
 	public InternalCenterline FinishLine {
 		get {
-			if (finishLine == null){
+			if (finishLine == null) {
 				finishLine = StartLine;
 				FinishIndex = 0;
 			}
@@ -1357,5 +1357,31 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 
 		// return (a - b).sqrMagnitude;
 	}
+
+	public static Vector3 GetLinePointPos(InternalCenterline line, int index) {
+
+		Vector3 pos = line.LinePoints[index];
+
+		if(mainInstance)
+			pos = mainInstance.transform.TransformPoint(pos);
+
+		return pos;
+	}
+
+	public static Quaternion GetLinePointRot(InternalCenterline line, int index) {
+
+		Quaternion rot = Quaternion.identity;
+		if (line.LinePoints.Count > 2)
+			if (index < line.LinePoints.Count - 1)
+				rot = Quaternion.LookRotation(line.LinePoints[index + 1] - line.LinePoints[index], Vector3.up);
+			else
+				rot = Quaternion.LookRotation(line.LinePoints[index] - line.LinePoints[index - 1], Vector3.up);
+
+		if(mainInstance)
+			rot *= mainInstance.transform.rotation;
+
+		return rot;
+	}
+
 
 }
