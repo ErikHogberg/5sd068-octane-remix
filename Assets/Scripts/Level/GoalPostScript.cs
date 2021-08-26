@@ -24,7 +24,7 @@ public class GoalPostScript : MonoBehaviour {
 			ContainerObject.SetActive(false);
 		}
 
-		RemixEditorGoalPost.UpdateGoalPost();
+		// RemixEditorGoalPost.UpdateGoalPost();
 	}
 
 	private void OnDestroy() {
@@ -32,6 +32,12 @@ public class GoalPostScript : MonoBehaviour {
 			MainInstance = null;
 		}
 		// LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
+	}
+
+	private void Start() {
+		if (CenterlineScript.MainInstance) {
+			MoveTo(CenterlineScript.MainInstance.FinishLine, CenterlineScript.MainInstance.FinishIndex);
+		}
 	}
 
 	// private void OnTriggerEnter(Collider other) {
@@ -93,8 +99,8 @@ public class GoalPostScript : MonoBehaviour {
 			}
 		}
 
-		transform.position = pos;
-		transform.rotation = rot;
+		ContainerObject.transform.position = pos;
+		ContainerObject.transform.rotation = rot;
 	}
 
 	public static void MoveToStatic(CenterlineScript.InternalCenterline line, int index) {

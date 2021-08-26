@@ -45,8 +45,8 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		// 	StartSpot = this;
 		// }
 
-		if (FinishSpot)
-			UpdateGoalPost();
+		// if (FinishSpot)
+		// 	UpdateGoalPost();
 
 		GoalPost.gameObject.SetActive(false);
 	}

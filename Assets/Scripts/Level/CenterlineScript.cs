@@ -1101,6 +1101,8 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			FinishIndex = index;
 		}
 
+		GoalPostScript.MoveToStatic(FinishLine, FinishIndex);
+
 		if (updateActiveForks) UpdateReachableActive();
 	}
 
@@ -1180,12 +1182,15 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 		return false;
 	}
 
+	// If the finish line is in "bird path" range in world space of the given position
 	public static bool FinishLineInRangeStatic(Vector3 pos, float rangeSqr) {
 		if (!mainInstance)
 			return false;
 
 		return mainInstance.FinishLineInRange(pos, rangeSqr);
 	}
+
+	// If the finish line is in range ahead along the given centerline point
 	public static bool FinishLineInRangeStatic(InternalCenterline line, int index, float rangeSqr) {
 		if (!mainInstance)
 			return false;

@@ -12,6 +12,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	// lap counting
 	bool waitForFinish = false;
+	bool discardNextLap = true;
 
 	// int furthestValidIndex = -1;
 	// CenterlineScript.InternalCenterline furthestValidLine = null;
@@ -97,6 +98,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 			Handles.Label(transform.position + Vector3.one * 6f, $"wFF: {waitForFinish}");
+			Handles.Label(transform.position + Vector3.one * 7f, $"dNL: {discardNextLap}");
 
 		}
 	}
@@ -112,7 +114,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			// IDEA: instead of placing the car in the air, place the car close to the ground by raycasting below the closest position on the line
 
-			transform.rotation = CenterlineScript.GetLinePointRot(lastValidLine, lastValidIndex);			
+			transform.rotation = CenterlineScript.GetLinePointRot(lastValidLine, lastValidIndex);
 
 			return true;
 		}
@@ -124,10 +126,6 @@ public class CenterlineProgressScript : MonoBehaviour {
 	// returns true if progress is allowed. progress is always allowed if there is no centerline
 	public bool QueryProgress(out bool lapCompleted) {
 		lapCompleted = false;
-		// TODO: check if finish line was passed
-		// TODO: don't trigger lap completion if backtracking progress marker over finish line, which is possible when finish line is in look behind range of a fork start
-		// TODO: teleport car to start line if start line is separate from finish line
-		// IDEA: query centerline if allowed to finish lap when touching goal post object, increment lap anyway if skipping finish line and leaving allowed lap finish range (by query returning false next frame before getting a goal post collision signal)
 
 		if (!CenterlineScript.IsInitialized)
 			return true;
@@ -160,8 +158,6 @@ public class CenterlineProgressScript : MonoBehaviour {
 				return false;
 			}
 		} else {
-
-			// FIXME: wont move onto forks which start at end of parent after lookbehind distance
 
 			// check behind last valid point to see if there is a fork start in range
 			(int checkStartIndex, float distanceBehindFoundSqr) = CenterlineScript.GetEarliestForkStartBehind(
@@ -223,27 +219,41 @@ public class CenterlineProgressScript : MonoBehaviour {
 				return false;
 			}
 
+			//
 
 			CenterlineScript.InternalCenterline postLine = lastValidLine;
 			int postIndex = lastValidIndex;
 
 			// lap counting
 
-
-
 			if (!waitForFinish) {
 				// check if finish line is in range ahead on along the centerline
 				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
+					// queue up valid lap crossing for future goal post collision or centerline progress
 					waitForFinish = true;
 				}
 			} else {
 				// check if finish line is still in range in world space
 				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+					// dequeue lap crossing validation
 					waitForFinish = false;
-					lapCompleted = true;
+					if (discardNextLap) {
+						// dequeue lap increment discard if it was queued
+						discardNextLap = false;
+					} else {
+						// mark lap count to be incremented
+						lapCompleted = true;
+					}
 				}
 			}
 
+			if (discardNextLap && !CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+				discardNextLap = false;
+			}
+
+
+			// Co-driver
+			
 			float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
 
 			if (CoDriverCheckAheadDistanceSqr > 0)
@@ -256,22 +266,38 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	public bool ValidateFinishCrossing(out bool shouldReset) {
 
+		if (waitForFinish) {
+			shouldReset = false;
+			if (discardNextLap)
+				return false;
+			waitForFinish = false;
+			return true;
+		}
+
 		shouldReset = true;
 
 		// check that last valid pos is in range of finish line
-		if (!CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
-			return false;
+		if (CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
+			shouldReset = false;
+			if (discardNextLap)
+				return false;
+			return true;
 		}
 
 		// if not in range ahead, check if finish line was recently passed
-		if (!waitForFinish) {
-			shouldReset = false;
-			return false;
-		}
+		// if (!waitForFinish) {
+		// 	if (discardNextLap)
+		// 		shouldReset = false;
+		// 	return false;
+		// }
 
 		waitForFinish = false;
 
 		shouldReset = false;
+
+		if (discardNextLap)
+			return false;
+
 		return true;
 	}
 

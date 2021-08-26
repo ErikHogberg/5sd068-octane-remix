@@ -395,8 +395,9 @@ public class SteeringScript : MonoBehaviour {
 
 		progressScript = GetComponent<CenterlineProgressScript>();
 		CenterlineScript.InitProgressScript(progressScript);
+		
 		// TODO: move car to start before countdown
-		progressScript.MoveToStartOnNextQuery = true;
+		// progressScript.MoveToStartOnNextQuery = true;
 		// ResetTransform();
 
 	}
