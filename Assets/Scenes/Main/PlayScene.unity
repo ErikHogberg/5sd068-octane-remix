@@ -17126,6 +17126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b45db2319d3cc3a4fb729f62fa2a7c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IgnoreFirstLap: 1
   CheatMitigationSearchDistance: 5
   CheatMitigationLookBehindDistance: 5
   FinishLineCheckWorldRangeSqr: 1
@@ -19053,6 +19054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b45db2319d3cc3a4fb729f62fa2a7c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IgnoreFirstLap: 1
   CheatMitigationSearchDistance: 5
   CheatMitigationLookBehindDistance: 5
   FinishLineCheckWorldRangeSqr: 1
@@ -20224,6 +20226,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RenderMode
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
+        type: 3}
+      propertyPath: IgnoreFirstLap
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}

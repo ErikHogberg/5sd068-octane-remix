@@ -6,9 +6,12 @@ using UnityEngine.Events;
 
 public class CenterlineProgressScript : MonoBehaviour {
 
+	public bool IgnoreFirstLap = true;
+
 	// Cheat mitigation
 	int lastValidIndex = -1;
 	CenterlineScript.InternalCenterline lastValidLine = null;
+	Vector3 lastValidPos => CenterlineScript.MainInstanceTransform.TransformPoint(lastValidLine.LinePoints[lastValidIndex]);
 
 	// lap counting
 	bool waitForFinish = false;
@@ -40,6 +43,10 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	[HideInInspector]
 	public bool MoveToStartOnNextQuery = false;
+
+	private void Awake() {
+		discardNextLap = IgnoreFirstLap;
+	}
 
 	void Update() {
 
@@ -142,8 +149,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 			}
 		}
 
-		CenterlineScript.InternalCenterline preLine = lastValidLine;
-		int preIndex = lastValidIndex;
+		// CenterlineScript.InternalCenterline preLine = lastValidLine;
+		// int preIndex = lastValidIndex;
 
 		if (lastValidLine == null || lastValidIndex < 0) {
 			// start over progress with the closest point if the last valid point is unassigned
@@ -219,10 +226,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 				return false;
 			}
 
-			//
-
-			CenterlineScript.InternalCenterline postLine = lastValidLine;
-			int postIndex = lastValidIndex;
+			// CenterlineScript.InternalCenterline postLine = lastValidLine;
+			// int postIndex = lastValidIndex;
 
 			// lap counting
 
@@ -234,7 +239,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 				}
 			} else {
 				// check if finish line is still in range in world space
-				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+				if (!CenterlineScript.FinishLineInRangeStatic(lastValidPos, FinishLineCheckWorldRangeSqr)) {
 					// dequeue lap crossing validation
 					waitForFinish = false;
 					if (discardNextLap) {
@@ -247,7 +252,8 @@ public class CenterlineProgressScript : MonoBehaviour {
 				}
 			}
 
-			if (discardNextLap && !CenterlineScript.FinishLineInRangeStatic(lastValidLine.LinePoints[lastValidIndex], FinishLineCheckWorldRangeSqr)) {
+			if (discardNextLap && !CenterlineScript.FinishLineInRangeStatic(lastValidPos, FinishLineCheckWorldRangeSqr)) {
+				// disable lap discard if too far from the finish line
 				discardNextLap = false;
 			}
 
@@ -266,39 +272,24 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 	public bool ValidateFinishCrossing(out bool shouldReset) {
 
+		// check if a lap crossing is expected
 		if (waitForFinish) {
 			shouldReset = false;
+			// check if lap should be discarded
 			if (discardNextLap)
 				return false;
+
+			// dequeue lap crossing
 			waitForFinish = false;
+
+			// discard successive validation calls while still in range of the goal post
+			discardNextLap = true;
 			return true;
 		}
 
-		shouldReset = true;
-
-		// check that last valid pos is in range of finish line
-		if (CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
-			shouldReset = false;
-			if (discardNextLap)
-				return false;
-			return true;
-		}
-
-		// if not in range ahead, check if finish line was recently passed
-		// if (!waitForFinish) {
-		// 	if (discardNextLap)
-		// 		shouldReset = false;
-		// 	return false;
-		// }
-
-		waitForFinish = false;
-
-		shouldReset = false;
-
-		if (discardNextLap)
-			return false;
-
-		return true;
+		shouldReset = !discardNextLap;
+		
+		return false;
 	}
 
 	public void SetLastValid(CenterlineScript.InternalCenterline line, int index) {

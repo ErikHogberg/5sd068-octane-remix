@@ -395,7 +395,7 @@ public class SteeringScript : MonoBehaviour {
 
 		progressScript = GetComponent<CenterlineProgressScript>();
 		CenterlineScript.InitProgressScript(progressScript);
-		
+
 		// TODO: move car to start before countdown
 		// progressScript.MoveToStartOnNextQuery = true;
 		// ResetTransform();
@@ -560,8 +560,11 @@ public class SteeringScript : MonoBehaviour {
 
 			if (finishedLap)
 				lapsCompleted++;
+			else
+				print("lap not incremented");
 
 			if (shouldReset) {
+				print("goal post caused reset");
 				ResetTransform();
 				CallResetEvents();
 			}

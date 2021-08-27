@@ -1171,10 +1171,15 @@ public class CenterlineScript : MonoBehaviour, ISerializationCallbackReceiver {
 			}
 
 			foreach (var fork in line.Forks) {
-				if (index == fork.StartIndex && FinishLineInRange(fork, 0, rangeSqr = distanceTraveledSqr)) {
+				// if (index == fork.StartIndex && FinishLineInRange(fork, 0, rangeSqr = distanceTraveledSqr)) {
+				if (index == fork.StartIndex && FinishLineInRange(fork, 0, rangeSqr - distanceTraveledSqr)) {
 					return true;
 				}
 			}
+		}
+
+		if (line.RejoinLine != null && distanceTraveledSqr < rangeSqr) {
+			return FinishLineInRange(line.RejoinLine, line.RejoinIndex, rangeSqr-distanceTraveledSqr);
 		}
 
 		// return GetSqrDistance(transform.TransformPoint(FinishLine.LinePoints[FinishIndex]), pos) < rangeSqr;
