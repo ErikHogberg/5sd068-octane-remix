@@ -17127,10 +17127,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IgnoreFirstLap: 1
-  CheatMitigationSearchDistance: 5
-  CheatMitigationLookBehindDistance: 5
-  FinishLineCheckWorldRangeSqr: 1
-  FinishLineCheckCenterlineRangeSqr: 1
+  CheatMitigationSearchDistance: 50
+  CheatMitigationLookBehindDistance: 30
+  FinishLineCheckWorldRangeSqr: 2000
+  FinishLineCheckCenterlineRangeSqr: 500
   CheatCheckPerSec: 10
   CheckInUpdate: 0
   ResetEvent:
@@ -19055,10 +19055,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IgnoreFirstLap: 1
-  CheatMitigationSearchDistance: 5
-  CheatMitigationLookBehindDistance: 5
-  FinishLineCheckWorldRangeSqr: 1
-  FinishLineCheckCenterlineRangeSqr: 1
+  CheatMitigationSearchDistance: 50
+  CheatMitigationLookBehindDistance: 30
+  FinishLineCheckWorldRangeSqr: 2000
+  FinishLineCheckCenterlineRangeSqr: 500
   CheatCheckPerSec: 10
   CheckInUpdate: 0
   ResetEvent:
@@ -20230,12 +20230,12 @@ PrefabInstance:
     - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: IgnoreFirstLap
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
       propertyPath: FinishLineCheckWorldRangeSqr
-      value: 1000
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 5966643306296056370, guid: 93ddd33367930dd4394c396a7b1e5d4b,
         type: 3}
