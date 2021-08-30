@@ -558,10 +558,12 @@ public class SteeringScript : MonoBehaviour {
 			// TODO: don't increment lap on start due to touching finish line at start line (due to them being the same line, etc.)
 			bool finishedLap = progressScript.ValidateFinishCrossing(out bool shouldReset);
 
-			if (finishedLap)
-				lapsCompleted++;
-			else
+			if (finishedLap) {
+				LapsCompleted++;
+				print($"{LapsCompleted} laps completed");
+			} else {
 				print("lap not incremented");
+			}
 
 			if (shouldReset) {
 				print("goal post caused reset");

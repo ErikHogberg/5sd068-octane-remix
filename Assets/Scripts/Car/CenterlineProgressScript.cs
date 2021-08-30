@@ -209,13 +209,11 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 			if (lastValidLine != linePoint.Item2) {
-				if (
-					// lastValidLine.RejoinLine == linePoint.Item2 || 
-					lastValidLine.Forks.Contains(linePoint.Item2)
-					)
+				if (lastValidLine.Forks.Contains(linePoint.Item2)) {
 					lastForkParent = lastValidLine;
-				else
+				} else {
 					lastForkParent = null;
+				}
 			}
 
 			lastValidIndex = linePoint.Item1;
@@ -233,7 +231,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 			if (!waitForFinish) {
 				// check if finish line is in range ahead on along the centerline
-				if (CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
+				if (!discardNextLap && CenterlineScript.FinishLineInRangeStatic(lastValidLine, lastValidIndex, FinishLineCheckCenterlineRangeSqr)) {
 					// queue up valid lap crossing for future goal post collision or centerline progress
 					waitForFinish = true;
 				}
@@ -259,7 +257,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 
 
 			// Co-driver
-			
+
 			float CoDriverCheckAheadDistanceSqr = CoDriverUIScript.CheckAheadDistanceStatic;
 
 			if (CoDriverCheckAheadDistanceSqr > 0)
@@ -288,7 +286,7 @@ public class CenterlineProgressScript : MonoBehaviour {
 		}
 
 		shouldReset = !discardNextLap;
-		
+
 		return false;
 	}
 
