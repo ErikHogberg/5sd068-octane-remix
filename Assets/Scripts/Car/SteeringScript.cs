@@ -23,28 +23,6 @@ public class SteeringScript : MonoBehaviour {
 
 	public static bool EnableProfileChange = true;
 
-	// TODO: efficient way to store and share replays
-	// TODO: option to dynamically speed up or slow down replays depending on distance to active player car
-	private class GhostData {
-		public Vector3 Position;
-		public Quaternion Rotation;
-		public float TimeStamp;
-
-		// TODO: toggle effects
-
-		public GhostData(Vector3 pos, Quaternion rot, float time) {
-			Position = pos;
-			Rotation = rot;
-			TimeStamp = time;
-		}
-
-		public GhostData(Transform transform, float time) {
-			Position = transform.position;
-			Rotation = transform.rotation;
-			TimeStamp = time;
-		}
-	}
-
 	[Serializable]
 	public class SpeedProfile {
 
@@ -152,6 +130,9 @@ public class SteeringScript : MonoBehaviour {
 	public static SteeringScript MainInstance;
 	private static bool freezeNextFrame = false;
 
+	private Vector3 emergencyResetPos = Vector3.zero;
+	private Quaternion emergencyResetRot = Quaternion.identity;
+
 	public int CurrentProfileIndex = 0;
 	public SpeedProfile CurrentProfile => SpeedProfiles[CurrentProfileIndex];
 	public List<SpeedProfile> SpeedProfiles;
@@ -180,7 +161,7 @@ public class SteeringScript : MonoBehaviour {
 	private float boostLimitMax = 0.5f;
 
 	//Returns between 0.0 and -boostLimitMax
-	private float BoostLimit() { return (0.0f - (boostLimitMax * boostLimiter)); }
+	private float BoostLimit => (0.0f - (boostLimitMax * boostLimiter));
 	public void SetBoostLimit(float limit) { boostLimiter = limit; }
 
 
@@ -319,7 +300,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// [Tooltip("If the car starts right in front of the goal post. Makes the first time crossing the finish line not count as a lap")]
 	// public bool StartBeforeGoalPost = false;
-	private bool startBeforeGoalPost = false;
+	// private bool startBeforeGoalPost = false;
 
 	#region object refs and input bindings
 
@@ -334,22 +315,6 @@ public class SteeringScript : MonoBehaviour {
 
 	private IEnumerable<WheelCollider> allWheelColliders;
 	private IEnumerable<GameObject> allWheelModels;
-
-	// [Header("Key bindings")]
-	public InputActionReference SteeringKeyBinding;
-	public InputActionReference GasKeyBinding;
-	public InputActionReference BrakeKeyBinding;
-	[Space]
-	public InputActionReference BoostKeyBinding;
-	public InputActionReference ResetKeyBinding;
-	[Space]
-	public InputActionReference YawKeyBinding;
-	public InputActionReference PitchKeyBinding;
-	public InputActionReference LeftRotateToggleKeyBinding;
-	public InputActionReference LeftYawKeyBinding;
-	public InputActionReference LeftPitchKeyBinding;
-
-	public InputActionReference ChangeCameraKeyBinding;
 
 	#endregion
 
@@ -378,17 +343,20 @@ public class SteeringScript : MonoBehaviour {
 	public int LapsCompleted {
 		get { return lapsCompleted; }
 		set {
-			if (startBeforeGoalPost) {
-				startBeforeGoalPost = false;
-				print("lap invalidated");
-				return;
-			}
+			// if (startBeforeGoalPost) {
+			// 	startBeforeGoalPost = false;
+			// 	print("lap invalidated");
+			// 	return;
+			// }
 
 			lapsCompleted = value;
 			foreach (var item in LapCompletedObservers)
 				item.Notify(lapsCompleted);
 		}
 	}
+
+	[HideInInspector]
+	public CenterlineProgressScript progressScript;
 
 	public List<Camera> Cameras = new List<Camera>();
 	// public Camera CurrentCamera = null;
@@ -402,6 +370,9 @@ public class SteeringScript : MonoBehaviour {
 			Physics.gravity = Physics.gravity.normalized * GravityOverride;
 		}
 
+		emergencyResetPos = transform.position;
+		emergencyResetRot = transform.rotation;
+
 		allWheelColliders = FrontWheelColliders.Concat(RearWheelColliders);
 		allWheelModels = FrontWheelModels.Concat(RearWheelModels);
 
@@ -412,13 +383,22 @@ public class SteeringScript : MonoBehaviour {
 		// SetProfile(CurrentProfileIndex);
 		UpdateWheelFriction();
 
+		// TODO: check if the below comments are still relevant, or were related to the now removed segment system based cheat mitigation system
+
 		// TODO: teleport car to start segment reset spot
 		// FIXME: reset triggers penalty popup, prematurely starting game
 		// IDEA: reset fn with option to disable penalty
 		// LevelPieceSuperClass.ResetToStart();
 
-		// FIXME: move car before freeze
+		// TODO: move car before freeze. in awake?
 		// RemixEditorGoalPost.MoveCarToStart();
+
+		progressScript = GetComponent<CenterlineProgressScript>();
+		CenterlineScript.InitProgressScript(progressScript);
+
+		// TODO: move car to start before countdown
+		progressScript.MoveToStartOnNextQuery = true;
+		// ResetTransform();
 
 	}
 
@@ -426,21 +406,17 @@ public class SteeringScript : MonoBehaviour {
 		rb = GetComponent<Rigidbody>();
 		carSound = GetComponent<CarSoundHandler>();
 
-		// IDEA: add null check to input bindings, dont crash if not set in editor
-		InitInput();
-
 		effects = GetComponent<CarParticleHandlerScript>();
-		LevelPieceSuperClass.ClearCurrentSegment();
+
+		// LevelPieceSuperClass.ClearCurrentSegment();
 
 		// RemixEditorGoalPost.MoveCarToStart();
-		startBeforeGoalPost = false;
-		if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
-			startBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
+		// startBeforeGoalPost = false;
+		// if (RemixEditorGoalPost.StartSpot && RemixEditorGoalPost.FinishSpot)
+		// 	startBeforeGoalPost = RemixEditorGoalPost.StartSpot == RemixEditorGoalPost.FinishSpot;
 	}
 
 	void OnEnable() {
-		EnableInput();
-
 		InputSystem.ResumeHaptics();
 
 		MainInstance = this;
@@ -449,10 +425,7 @@ public class SteeringScript : MonoBehaviour {
 	}
 
 	void OnDisable() {
-		DisableInput();
-
 		InputSystem.PauseHaptics();
-
 	}
 
 	private void OnDestroy() {
@@ -547,24 +520,29 @@ public class SteeringScript : MonoBehaviour {
 		if (effects)
 			effects.UpdateEffects(sqrVelocity, touchingGround);
 
-		// TODO: ambient engine rumble using controller rumble
-		// IDEA: curves and min/max values for both hi and lo freq motors
-		// IDEA: start with lo freq rumble when still, reduce lo and increase hi as velocity increases
-		// if (sqrVelocity > EngineRumbleSpeedMinMax.x) {
-		// 	var engineRumble = EngineRumbleCurve.Evaluate(( EngineRumbleSpeedMinMax.y - EngineRumbleSpeedMinMax.x)/sqrVelocity ); // not done
-		// }
 
-
-		//To keep the velocity needle moving smoothly
+		// To keep the velocity needle moving smoothly
 		RefreshUI();
 
 		// touchedGroundLastTick = false;
 
 		Rumble();
 
+		// IDEA: dont check every frame, define a cheat check interval
+		if (progressScript) {
+			if (progressScript.QueryProgress(out bool lapCompleted)) {
+				if (lapCompleted)
+					LapsCompleted++;
+			} else {
+				ResetTransform();
+				CallResetEvents();
+			}
+		}
+
+
 	}
 
-	//To avoid jittery number updates on the UI
+	// To avoid jittery number updates on the UI
 	int updateCount = 0;
 	void LateUpdate() {
 		if (updateCount >= UIUpdateInterval) {
@@ -575,8 +553,29 @@ public class SteeringScript : MonoBehaviour {
 		updateCount++;
 	}
 
-	private bool CheckIfTouchingGround() {
+	private void OnTriggerEnter(Collider other) {
+		if (other.CompareTag("FinishLine")) {
+			// TODO: don't increment lap on start due to touching finish line at start line (due to them being the same line, etc.)
+			bool finishedLap = progressScript.ValidateFinishCrossing(out bool shouldReset);
 
+			if (finishedLap) {
+				LapsCompleted++;
+				print($"{LapsCompleted} laps completed");
+			} else {
+				print("lap not incremented");
+			}
+
+			if (shouldReset) {
+				print("goal post caused reset");
+				ResetTransform();
+				CallResetEvents();
+			}
+		}
+
+	}
+
+	private bool CheckIfTouchingGround() {
+		// NOTE: also sets sound parameter
 		foreach (WheelCollider wheelCollider in allWheelColliders) {
 			if (wheelCollider.isGrounded) {
 				carSound.RecieveGroundedData(true);
@@ -747,78 +746,54 @@ public class SteeringScript : MonoBehaviour {
 
 	private bool leftStickRotationEnabled = false;
 
-	// TODO: check if list of input action callback just keeps growing
-	// FIXME: error when leaving scene, delegates are still called
-	// private static bool inputInit = false;
-	private void InitInput() {
-		// if (inputInit) 
-		// 	return;
+	// Left stick X, kbd A and D
+	public void OnSteer(InputValue value) {
+		SetSteering(value.Get<float>());
+	}
 
-		// inputInit = true;
+	// Right trigger, kbd W
+	public void OnGas(InputValue value) {
+		SetGas(value.Get<float>());
+	}
 
-		// adds press actions
-		SteeringKeyBinding.action.performed += SetSteering;
-		GasKeyBinding.action.performed += SetGas;
-		BrakeKeyBinding.action.performed += SetBraking;
+	// Left trigger, kbd S
+	public void OnBrake(InputValue value) {
+		SetBraking(value.Get<float>());
+	}
 
-		BoostKeyBinding.action.performed += StartBoost;
+	// A button, kbd spacebar
+	public void OnBoost(InputValue value) {
+		if (value.Get<float>() > 0)
+			StartBoost();
+		else
+			StopBoost();
+	}
 
-		YawKeyBinding.action.performed += SetYaw;
-		PitchKeyBinding.action.performed += SetPitch;
-		LeftPitchKeyBinding.action.performed += SetLeftPitch;
-		LeftRotateToggleKeyBinding.action.performed += EnableLeftStickRotation;
-
-		ResetKeyBinding.action.performed += Reset;
-
-		if (ChangeCameraKeyBinding)
-			ChangeCameraKeyBinding.action.performed += NextCamera;
-
-		// adds release actions
-		SteeringKeyBinding.action.canceled += SetSteering;
-		GasKeyBinding.action.canceled += SetGas;
-		BrakeKeyBinding.action.canceled += SetBraking;
-
-		BoostKeyBinding.action.canceled += StopBoost;
-
-		YawKeyBinding.action.canceled += SetYaw;
-		PitchKeyBinding.action.canceled += SetPitch;
-		LeftPitchKeyBinding.action.canceled += SetLeftPitch;
-		LeftRotateToggleKeyBinding.action.canceled += DisableLeftStickRotation;
+	public void OnHandbrake(InputValue value) {
+		// if (value.Get<float>() > 0f)
 
 	}
 
-	private void EnableInput() {
-		// Debug.Log("Enabled car input");
-		SteeringKeyBinding.action.Enable();
-		GasKeyBinding.action.Enable();
-		BrakeKeyBinding.action.Enable();
-		ResetKeyBinding.action.Enable();
-		BoostKeyBinding.action.Enable();
+	// Select button, kbd backspace
+	public void OnReset(InputValue value) {
+		if (value.Get<float>() > 0f)
+			ResetIfAllowed();
 
-		YawKeyBinding.action.Enable();
-		PitchKeyBinding.action.Enable();
-		LeftYawKeyBinding.action.Enable();
-		LeftPitchKeyBinding.action.Enable();
-		LeftRotateToggleKeyBinding.action.Enable();
-
-		ChangeCameraKeyBinding?.action.Enable();
 	}
 
-	private void DisableInput() {
-		// Debug.Log("Disabled car input");
-		SteeringKeyBinding.action.Disable();
-		// GasKeyBinding.action.Disable(); // NOTE: not disabled here to not disable gas to start the start countdown
-		BrakeKeyBinding.action.Disable();
-		ResetKeyBinding.action.Disable();
-		BoostKeyBinding.action.Disable();
+	// Right stick X, kbd left and right arrows
+	public void OnYaw(InputValue value) {
+		SetYaw(value.Get<float>());
+	}
 
-		YawKeyBinding.action.Disable();
-		PitchKeyBinding.action.Disable();
-		LeftYawKeyBinding.action.Disable();
-		LeftPitchKeyBinding.action.Disable();
-		LeftRotateToggleKeyBinding.action.Disable();
+	// Right stick Y, kbd up and down arrows
+	public void OnPitch(InputValue value) {
+		SetPitch(value.Get<float>());
+	}
 
-		ChangeCameraKeyBinding?.action.Disable();
+	public void OnChangeCamera(InputValue value) {
+		if (value.Get<float>() > 0f)
+			NextCamera();
 	}
 
 	#endregion
@@ -856,11 +831,10 @@ public class SteeringScript : MonoBehaviour {
 
 	}
 
-	private void SetSteering(CallbackContext c) {
+	private void SetSteering(float input) {
 		if (leftStickRotationEnabled)
 			return;
 
-		float input = c.ReadValue<float>();
 		steeringBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 
 	}
@@ -891,9 +865,9 @@ public class SteeringScript : MonoBehaviour {
 		lastAppliedGasValue = gasBuffer;
 	}
 
-	private void SetGas(CallbackContext c) {
+	private void SetGas(float input) {
 		// Debug.Log("gas car: " + gameObject.name);
-		float input = c.ReadValue<float>();
+		// float input = c.ReadValue<float>();
 		gasBuffer = CurrentProfile.GasPedalCurve.EvaluateMirrored(input);
 
 	}
@@ -932,8 +906,8 @@ public class SteeringScript : MonoBehaviour {
 
 	}
 
-	private void SetBraking(CallbackContext c) {
-		float input = c.ReadValue<float>();
+	private void SetBraking(float input) {
+		// float input = c.ReadValue<float>();
 		float pastBrakeBuffer = brakeBuffer;
 		brakeBuffer = CurrentProfile.BrakePedalCurve.EvaluateMirrored(input);
 
@@ -1000,14 +974,14 @@ public class SteeringScript : MonoBehaviour {
 		rb.rotation *= Quaternion.Euler(pitchAmount, 0, 0);
 	}
 
-	private void SetYaw(CallbackContext c) {
-		float input = c.ReadValue<float>();
+	private void SetYaw(float input) {
+		// float input = c.ReadValue<float>();
 		yawBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 	}
 	public float GetYaw() { return yawBuffer; }
 
-	private void SetPitch(CallbackContext c) {
-		float input = c.ReadValue<float>();
+	private void SetPitch(float input) {
+		// float input = c.ReadValue<float>();
 		pitchBuffer = CurrentProfile.SteeringCurve.EvaluateMirrored(input);
 	}
 
@@ -1081,12 +1055,15 @@ public class SteeringScript : MonoBehaviour {
 
 	private void AddBoost(float amount) {
 		boostAmount += amount;
-		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit());
+		boostAmount = Mathf.Clamp(boostAmount, 0, 1 + BoostLimit);
 
 		BoostBarUIScript.SetBarPercentage((float)boostAmount);
 	}
 
-	private void StartBoost(CallbackContext _) {
+	private void StartBoost() {
+		if (StartCountdownScript.IsShown)
+			return;
+
 		if (boostAmount < MinBoostLevel)
 			return;
 
@@ -1102,7 +1079,6 @@ public class SteeringScript : MonoBehaviour {
 	private void StopBoost() {
 
 		if (boostTimer > BoostTimeThreshold) {
-			// IDEA: make async call?
 			ScoreBoard boardOne = ScoreManager.Board(0);
 			if (boardOne != null) {
 				boardOne.AddSkill(ScoreSkill.BOOST, (int)(BoostScorePerSec * boostTimer));
@@ -1111,7 +1087,9 @@ public class SteeringScript : MonoBehaviour {
 		boostTimer = 0f;
 
 		boostWindupTimer = 0f;
-		Time.timeScale = 1f;
+
+		if (!StartCountdownScript.IsShown)
+			Time.timeScale = 1f;
 
 		effects?.StopBoost();
 
@@ -1196,7 +1174,7 @@ public class SteeringScript : MonoBehaviour {
 		}
 	}
 
-	public void Reset(Vector3 pos, Quaternion rot) {
+	public void ResetTo(Vector3 pos, Quaternion rot) {
 		CallResetObservers();
 
 		effects?.DisableAllEffects();
@@ -1205,15 +1183,17 @@ public class SteeringScript : MonoBehaviour {
 		rb.velocity = Vector3.zero;
 		rb.angularVelocity = Vector3.zero;
 
+
 		// rb.MovePosition(pos);
 		// rb.MoveRotation(rot);
 		transform.position = pos;
 		transform.rotation = rot;
 
+
 		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 	}
 
-	public void Reset() {
+	public void CallResetEvents() {
 		// CallResetObservers();
 		// StartCountdownScript.StartPenaltyCountdownStatic(1f);
 
@@ -1222,28 +1202,40 @@ public class SteeringScript : MonoBehaviour {
 			item.brakeTorque = 0;
 		}
 
-		if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
-		) {
-			Transform resetSpot = LevelWorldScript.CurrentLevel.TestRespawnSpot;
+		// if (!LevelPieceSuperClass.ResetToCurrentSegment()// && LevelWorldScript.CurrentLevel != null
+		// ) {
 
-			rb.velocity = Vector3.zero;
-			rb.angularVelocity = Vector3.zero;
+		rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
 
-			rb.MovePosition(resetSpot.position);
-			rb.MoveRotation(resetSpot.rotation);
+		// if (!progressScript.Reset()) {
 
-			CallResetObservers();
-			StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
+		// 	rb.MovePosition(emergencyResetPos);
+		// 	rb.MoveRotation(emergencyResetRot);
+		// }
+
+		CallResetObservers();
+		StartCountdownScript.StartPenaltyCountdownStatic(1.5f);
 
 
-			//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
-			//CarRBHandler.Instance.FreezeRB(2.0f);
+		//For some reason, calling FreezeRB stops car from actually being moved to the resetspot?
+		//CarRBHandler.Instance.FreezeRB(2.0f);
+		// }
+	}
+
+	public void ResetTransform() {
+		if (!progressScript || !progressScript.ResetTransform()) {
+			rb.MovePosition(emergencyResetPos);
+			rb.MoveRotation(emergencyResetRot);
 		}
 	}
 
-	private void Reset(CallbackContext _) {
-		if (!StartCountdownScript.IsShown)
-			Reset();
+
+	private void ResetIfAllowed() {
+		if (!StartCountdownScript.IsShown) {
+			ResetTransform();
+			CallResetEvents();
+		}
 	}
 
 	public void Teleport(Vector3 pos, Quaternion rot) {
@@ -1345,16 +1337,12 @@ public class SteeringScript : MonoBehaviour {
 		for (int i = 0; i < Cameras.Count; i++) {
 			Cameras[i].gameObject.SetActive(i == CurrentCameraIndex);
 		}
-		
-	}
 
-	public void NextCamera(CallbackContext _callback) {
-		NextCamera();
 	}
-
 
 	// Recording
 
+	/*
 	// TODO: load ghost data
 	private Queue<GhostData> ghostRecording = new Queue<GhostData>();
 	private GhostData currentGhostData = null;
@@ -1366,6 +1354,7 @@ public class SteeringScript : MonoBehaviour {
 
 	// TODO: static timer, incremented by main instance, used by ghosts
 	float GhostTimer = 0f;
+	// TODO: ghost playback should probably be performed on a different object using a separate script
 	public void PlayBackRecording() {
 
 		while (true) {
@@ -1393,5 +1382,6 @@ public class SteeringScript : MonoBehaviour {
 
 		ghostRecording.Enqueue(new GhostData(transform, GhostTimer));
 	}
+	// */
 
 }

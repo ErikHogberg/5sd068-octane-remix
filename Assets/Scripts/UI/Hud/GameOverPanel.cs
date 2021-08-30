@@ -34,7 +34,7 @@ public class GameOverPanel : MonoBehaviour, IObserver<int> {
 	// }
 
 	public void Notify(int lapsCompleted) {
-		if (lapsCompleted >= MaxLaps) {
+		if (lapsCompleted == MaxLaps) {
 			// TODO: disable car controls
 			TimerScript.Instance.StopTimer();
 			ScoreManager.Board(0).StopScoreCollecting();
@@ -49,6 +49,7 @@ public class GameOverPanel : MonoBehaviour, IObserver<int> {
 			gameObject.SetActive(true);
 			EventSystem.current.SetSelectedGameObject(gameObject.transform.GetChild(2).gameObject);
 		}
+		
 	}
 
 }

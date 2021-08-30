@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.VFX;
 using UnityEngine.VFX.Utility;
 
@@ -96,6 +97,8 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 	TemperatureUIScript temperatureUI;
 	IntegrityUIScript integrityUI;
 
+	[HideInInspector]
+	public List<IObserver<ContactPoint, float>> RockCollisionObservers = new List<IObserver<ContactPoint, float>>();
 
 	private void Start() {
 		carControls = GetComponent<SteeringScript>();
@@ -175,7 +178,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 
-	public void RockHit(float sqrImpactVelocity) {
+	public void RockHit(float sqrImpactVelocity, ContactPoint contact) {
 		float sqrVelocity = sqrImpactVelocity;//carControls.Velocity.sqrMagnitude;
 		float sqrMin = rockVelocityMinMax.x * rockVelocityMinMax.x;
 		if (damageTimer <= 0.0f && !carControls.IsInvulnerable && sqrVelocity > sqrMin) {
@@ -188,14 +191,18 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			currIntegrity -= rockIntegEffect * rockVelocityDamageCurve.Evaluate(percentage);
 			Hit();
 		}
+
+		foreach (var item in RockCollisionObservers)
+			item.Notify(contact, sqrImpactVelocity);
 	}
 
 	public void Instakill() {
 		// if (!carControls.IsInvulnerable) {
 		// currIntegrity = 0;
 		UINotificationSystem.Notify("Your car got crushed!", InstakillColor, 2);
-		carControls.Reset();
-		Reset();
+		carControls.ResetTransform();
+		carControls.CallResetEvents();
+		ResetTempAndInteg();
 		// }
 	}
 
@@ -248,8 +255,9 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			float smokePercent = 1f - (currIntegrity / maxIntegrity);
 			smokePercent = (smokePercent - SmokeMinIntegrity) / (SmokeMaxIntegrity - SmokeMinIntegrity);
 			float smokeIntensity = SmokeCurve.Evaluate(Mathf.Clamp01(smokePercent));
+			Smoke.enabled = smokeIntensity > 0;
 			Smoke.SetFloat(smokeValue, smokeIntensity);
-			Debug.Log("smoke updated to " + smokeIntensity + ", " + smokePercent);
+			// Debug.Log("smoke updated to " + smokeIntensity + ", " + smokePercent);
 		}
 	}
 
@@ -271,8 +279,9 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 			// UINotificationSystem.Notify("Your car exploded!", ExplodeColor, 5);
 			UINotificationSystem.Notify("Your car broke down! Restarting with penalty.", ExplodeColor, 5);
 			// TODO: time and/or score penalty
-			carControls.Reset();
-			Reset();
+			carControls.ResetTransform();
+			carControls.CallResetEvents();
+			ResetTempAndInteg();
 		}
 
 		if (currTemp >= boostTempThreshold) {
@@ -291,7 +300,7 @@ public class TemperatureAndIntegrity : MonoBehaviour, IObserver<bool> {
 		}
 	}
 
-	private void Reset() {
+	private void ResetTempAndInteg() {
 		currIntegrity = maxIntegrity;
 		currTemp = 0.0f; goalTemp = 0.0f;
 		SetTempUI(); SetIntegUI();

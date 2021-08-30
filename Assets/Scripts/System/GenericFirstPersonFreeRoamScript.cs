@@ -8,36 +8,30 @@ public class GenericFirstPersonFreeRoamScript : MonoBehaviour {
 	public float MoveSpeed = 100f;
 	public float MouseSpeed = 100f;
 
-	private bool mouseDown = false;
+	// private bool mouseDown = false;
 
 	Vector3 oldMousePos = Vector3.zero;
 
 	private void Update() {
 
-		if (Input.GetMouseButtonDown(1)) {
-			mouseDown = true;
-		} else if (Input.GetMouseButtonUp(1)) {
-			mouseDown = false;
-		}
 
-		if (mouseDown) {
-			Vector3 delta = Input.mousePosition - oldMousePos;
+		if (Mouse.current.rightButton.isPressed) {
+			Vector3 delta = Mouse.current.delta.ReadValue(); //Input.mousePosition - oldMousePos;
 
 			transform.Rotate(Vector3.up, delta.x * MouseSpeed * Time.deltaTime, Space.World);
 			transform.Rotate(Vector3.right,-delta.y * MouseSpeed * Time.deltaTime, Space.Self);
 		}
 
-		if (Input.GetKey(KeyCode.I))
+		if (Keyboard.current.iKey.isPressed )
 			transform.Translate(Vector3.forward * MoveSpeed * Time.deltaTime, Space.Self);
-		if (Input.GetKey(KeyCode.K))
+		if (Keyboard.current.kKey.isPressed )
 			transform.Translate(Vector3.back * MoveSpeed * Time.deltaTime, Space.Self);
 
-		if (Input.GetKey(KeyCode.J))
+		if (Keyboard.current.jKey.isPressed )
 			transform.Translate(Vector3.left * MoveSpeed * Time.deltaTime, Space.Self);
-		if (Input.GetKey(KeyCode.L))
+		if (Keyboard.current.lKey.isPressed )
 			transform.Translate(Vector3.right * MoveSpeed * Time.deltaTime, Space.Self);
 
-		oldMousePos = Input.mousePosition;
 
 	}
 

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
+public class GoalPostScript : MonoBehaviour {
 
 	public static GoalPostScript MainInstance;
 
@@ -10,7 +10,12 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 	public GameObject PortalExit;
 	public GameObject PortalEffects;
 
-	private bool ready = true;
+	[Space]
+	[Tooltip("If centerline placement should be raycasted")]
+	public bool Raycast = true;
+	[Tooltip("Which layers placement raycast reacts to")]
+	public LayerMask HitMask;
+
 
 	private void Awake() {
 		if (IsMainInstance) {
@@ -18,94 +23,39 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 		} else {
 			ContainerObject.SetActive(false);
 		}
-		// if (ParentSegment)
-		// 	ParentSegment.LeaveSegmentObservers.Add(this);
-		LevelPieceSuperClass.LeaveSegmentObservers.Add(this);
-		print("leave observer registered");
 
-		RemixEditorGoalPost.UpdateGoalPost();
+		// RemixEditorGoalPost.UpdateGoalPost();
 	}
 
 	private void OnDestroy() {
 		if (IsMainInstance) {
 			MainInstance = null;
 		}
-		LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
+		// LevelPieceSuperClass.LeaveSegmentObservers.Remove(this);
 	}
 
-	private bool readyOnAnyNextNotify = false;
-
-	private void OnTriggerEnter(Collider other) {
-		if (!ready) {
-
-			print("goal post not ready!");
-			return;
+	private void Start() {
+		if (CenterlineScript.MainInstance) {
+			MoveTo(CenterlineScript.MainInstance.FinishLine, CenterlineScript.MainInstance.FinishIndex);
 		}
-
-		ready = false;
-
-		if (!RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment)) {
-			print("invalid goal post transition!");
-			// LevelPieceSuperClass.ResetToCurrentSegment();
-			ready = true;
-			return;
-		} else {
-			print("any next notify set");
-			readyOnAnyNextNotify = true;
-		}
-
-		// if (!LevelPieceSuperClass.CheckCurrentSegment(ParentSegment)) {
-		// 	// Resets if entering from wrong segment
-
-		// 	// LevelPieceSuperClass.ResetToCurrentSegment();
-
-		// 	bool transitionSucceeded = ParentSegment.AttemptTransition();
-
-		// 	if (!transitionSucceeded) {
-		// 		return;
-		// 	}
-		// }
-
-		SteeringScript.MainInstance.LapsCompleted++;
-		print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
-
 	}
 
-	// called when car leaves parent segment
-	public void Notify(LevelPieceSuperClass segment) {
+	// private void OnTriggerEnter(Collider other) {
+	// 	// notify/check the centerline system for finish line crossing validity
+	// 	if (other.TryGetComponent<SteeringScript>(out SteeringScript steeringScript)) {
+	// 		bool cross = steeringScript.progressScript.ValidateFinishCrossing(out bool shouldReset);
 
-		if (readyOnAnyNextNotify) {
-			print("any next notify used");
-			ready = true;
-			readyOnAnyNextNotify = false;
-			return;
-		}
+	// 		if (cross) {
+	// 			SteeringScript.MainInstance.LapsCompleted++;
+	// 			print("Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
+	// 		}
 
-		if (!RemixEditorGoalPost.CheckTransition(segment)) {
-			return;
-		}
-
-		if (ready) {
-			// Registers lap if the car somehow missed the goal post
-			int oldLapsCompleted = SteeringScript.MainInstance.LapsCompleted;
-			SteeringScript.MainInstance.LapsCompleted++;
-			print("[Notify] Laps completed: " + SteeringScript.MainInstance.LapsCompleted + " <--");
-
-			if (oldLapsCompleted < SteeringScript.MainInstance.LapsCompleted
-			&& RemixEditorGoalPost.FinishSpot != RemixEditorGoalPost.StartSpot) {
-				// RemixEditorGoalPost.AttemptTransition(LevelPieceSuperClass.CurrentSegment);
-				RemixEditorGoalPost.MoveCarToStart();
-				// RemixEditorGoalPost.MoveCarToStart();
-				ready = false;
-				readyOnAnyNextNotify = true;
-				print("[Notify] any next notify set");
-			}
-		} else {
-			ready = true;
-			print("goal post ready");
-		}
-
-	}
+	// 		if (shouldReset) {
+	// 			steeringScript.progressScript.ResetTransform();
+	// 			steeringScript.CallResetEvents();
+	// 		}
+	// 	}
+	// }
 
 	public void SetGoalPost(RemixEditorGoalPost goalPost) {
 		PortalExit.SetActive(false);
@@ -136,6 +86,25 @@ public class GoalPostScript : MonoBehaviour, IObserver<LevelPieceSuperClass> {
 
 	public static void SetInstanceGoalPortal(RemixEditorGoalPost entrance, RemixEditorGoalPost exit) {
 		MainInstance?.SetGoalPortal(entrance, exit);
+	}
+
+	public void MoveTo(CenterlineScript.InternalCenterline line, int index) {
+		Vector3 pos = CenterlineScript.GetLinePointPos(line, index);
+		Quaternion rot = CenterlineScript.GetLinePointRot(line, index);
+
+		if (Raycast) {
+			Ray ray = new Ray(pos, Vector3.down);
+			if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, HitMask)) {
+				pos = hitInfo.point;
+			}
+		}
+
+		ContainerObject.transform.position = pos;
+		ContainerObject.transform.rotation = rot;
+	}
+
+	public static void MoveToStatic(CenterlineScript.InternalCenterline line, int index) {
+		MainInstance?.MoveTo(line, index);
 	}
 
 }

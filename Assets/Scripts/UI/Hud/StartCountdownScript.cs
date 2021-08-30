@@ -18,7 +18,7 @@ public class StartCountdownScript : MonoBehaviour {
 	public Button StartButton;
 
 	[Space]
-	public InputActionReference GasBinding;
+	// public InputActionReference GasBinding;
 	public float MaxGasSpeed = 1f;
 
 	[Space]
@@ -36,20 +36,25 @@ public class StartCountdownScript : MonoBehaviour {
 		mainInstance = this;
 		// Debug.Log("gas action init");
 
-		GasBinding.action.performed += Gas;
-		GasBinding.action.canceled += Gas;
+		// GasBinding.action.performed += Gas;
+		// GasBinding.action.canceled += Gas;
 
-		GasBinding.action.Enable();
+		// GasBinding.action.Enable();
 	}
 
-	private void Gas(InputAction.CallbackContext c) {
-		gasBuffer = c.ReadValue<float>();
-		// Debug.Log("gas buffer input: " + gasBuffer);
+	// private void Gas(InputAction.CallbackContext c) {
+	// 	gasBuffer = c.ReadValue<float>();
+	// 	// Debug.Log("gas buffer input: " + gasBuffer);
+	// }
+
+	public void OnGas(InputValue value) {
+		gasBuffer = value.Get<float>();
 	}
+
 
 	private void OnEnable() {
 		// Debug.Log("gas action enabled");
-		GasBinding.action.Enable();
+		// GasBinding.action.Enable();
 	}
 
 	// private void OnDisable() {
@@ -81,7 +86,7 @@ public class StartCountdownScript : MonoBehaviour {
 
 			if (running) {
 				GasNeedle.SetTargetColor(NeedleMeterUIScript.ColorState.MAX);
-			} else if (GasBinding.action.triggered) {
+			} else if (gasBuffer > float.Epsilon) {
 				GasNeedle.SetTargetColor(NeedleMeterUIScript.ColorState.BOOST);
 			} else {
 				GasNeedle.SetTargetColor(NeedleMeterUIScript.ColorState.NORMAL);

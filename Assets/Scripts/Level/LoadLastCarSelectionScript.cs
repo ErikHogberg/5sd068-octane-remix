@@ -31,9 +31,9 @@ public class LoadLastCarSelectionScript : MonoBehaviour {
 				break;
 		}
 
-		RemixEditorGoalPost.MoveCarToStart();
+		// RemixEditorGoalPost.MoveCarToStart();
 
-		Debug.LogWarning("current car: " + SteeringScript.MainInstance.gameObject.name);
+		Debug.Log("current car: " + SteeringScript.MainInstance.gameObject.name);
 		LapCounterUIScript.SetCar();
 		GameOverPanel.SetCar();
 

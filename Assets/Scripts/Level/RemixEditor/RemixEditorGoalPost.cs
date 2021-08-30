@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPost> {
+public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPost>, IPointerDownHandler {
 	public static List<RemixEditorGoalPost> Instances = new List<RemixEditorGoalPost>();
 
 	public static RemixEditorGoalPost StartSpot = null;
@@ -44,8 +45,8 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		// 	StartSpot = this;
 		// }
 
-		if (FinishSpot)
-			UpdateGoalPost();
+		// if (FinishSpot)
+		// 	UpdateGoalPost();
 
 		GoalPost.gameObject.SetActive(false);
 	}
@@ -54,53 +55,18 @@ public class RemixEditorGoalPost : MonoBehaviour, IComparable<RemixEditorGoalPos
 		Instances.Remove(this);
 	}
 
-	private void OnMouseOver() {
+	public void OnPointerDown(PointerEventData eventData) {
 
-		if (EventSystem.current.IsPointerOverGameObject())
-			return;
-
-		if (Input.GetMouseButtonDown(0)) {
+		if (Mouse.current.leftButton.wasPressedThisFrame) {
 			RemixMapScript.Select(this);
+
 		}
 
-		if (Input.GetMouseButtonDown(1)) {
-			RemixMapScript.StartRotate();
-		}
-	}
-
-	public static bool CheckTransition(LevelPieceSuperClass targetSegment) {
-		if (!targetSegment) {
-			print("target segment null in check transition");
-			return false;
-		}
-
-		if (!FinishSpot) {
-			print("finish spot null in check transition");
-		}
-
-		return FinishSpot?.AllowedPreviousSegments.Contains(targetSegment.SegmentOrder) ?? true;
-	}
-
-	public static bool AttemptTransition(LevelPieceSuperClass targetSegment) {
-		if (targetSegment == null)
-			return true;
-
-		bool success = CheckTransition(targetSegment);
-
-		if (success) {
-			if (FinishSpot != StartSpot) {
-				MoveCarToStart();
-			}
-		} else {
-			LevelPieceSuperClass.ResetToCurrentSegment();
-		}
-
-		return success;
 	}
 
 	public static void MoveCarToStart() {
+		// TODO: use centerline for start/finish line instead
 		SteeringScript.MainInstance?.Teleport(StartSpot.SpawnSpot.position, StartSpot.SpawnSpot.rotation);
-		LevelPieceSuperClass.ClearCurrentSegment(notifyLeaving: false);
 	}
 
 	public static void UpdateGoalPost() {

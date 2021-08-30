@@ -16,7 +16,7 @@ public class PortalScript : MonoBehaviour {
 	private void OnTriggerEnter(Collider other) {
 
 		if (Segment && !LevelPieceSuperClass.CheckCurrentSegment(Segment)) {
-			LevelPieceSuperClass.ResetToCurrentSegment();
+			// LevelPieceSuperClass.ResetToCurrentSegment();
 			return;
 		}
 

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 [CanEditMultipleObjects]
 public class SteeringScriptEditor : Editor {
 
-	// SerializedProperty cellSize;
 
 	bool showSpeedProfiles = false;
 	List<bool> profileFoldStates = new List<bool>();
@@ -23,68 +22,18 @@ public class SteeringScriptEditor : Editor {
 	bool showInputBindings = false;
 	bool showCameras = false;
 
-	/*
-	[Header("Key bindings")]
-	public InputActionReference SteeringKeyBinding;
-	public InputActionReference GasKeyBinding;
-	public InputActionReference BrakeKeyBinding;
-	[Space]
-	public InputActionReference BoostKeyBinding;
-	public InputActionReference ResetKeyBinding;
-	[Space]
-	public InputActionReference YawKeyBinding;
-	public InputActionReference PitchKeyBinding;
-	public InputActionReference LeftRotateToggleKeyBinding;
-	public InputActionReference LeftYawKeyBinding;
-	public InputActionReference LeftPitchKeyBinding;
-	*/
-
-	SerializedProperty steeringKeyBinding;
-	SerializedProperty gasKeyBinding;
-	SerializedProperty brakeKeyBinding;
-	SerializedProperty boostKeyBinding;
-	SerializedProperty resetKeyBinding;
-	SerializedProperty yawKeyBinding;
-	SerializedProperty pitchKeyBinding;
-	SerializedProperty leftRotateToggleKeyBinding;
-	SerializedProperty leftYawKeyBinding;
-	SerializedProperty leftPitchKeyBinding;
-	SerializedProperty changeCameraKeyBinding;
 
 	Camera emptyCameraField;
 
-	void OnEnable() {
-		// cellSize = serializedObject.FindProperty("CellSize");
-	}
-
-
-	// private void OnSceneGUI() {
-	// 	SteeringScript segmentBendingScript = target as SteeringScript;
-
-	// 	Handles.color = Color.white;
-
-	// }
 
 	public override void OnInspectorGUI() {
 		// Update the serializedProperty - always do this in the beginning of OnInspectorGUI.
 		serializedObject.Update();
 
-		// oppositeCorner = serializedObject.FindProperty("OppositeCorner");
-		// cellPrefab = serializedObject.FindProperty("CellPrefab");
-
-		steeringKeyBinding = serializedObject.FindProperty("SteeringKeyBinding");
-		gasKeyBinding = serializedObject.FindProperty("GasKeyBinding");
-		brakeKeyBinding = serializedObject.FindProperty("BrakeKeyBinding");
-		boostKeyBinding = serializedObject.FindProperty("BoostKeyBinding");
-		resetKeyBinding = serializedObject.FindProperty("ResetKeyBinding");
-		yawKeyBinding = serializedObject.FindProperty("YawKeyBinding");
-		pitchKeyBinding = serializedObject.FindProperty("PitchKeyBinding");
-		leftRotateToggleKeyBinding = serializedObject.FindProperty("LeftRotateToggleKeyBinding");
-		leftYawKeyBinding = serializedObject.FindProperty("LeftYawKeyBinding");
-		leftPitchKeyBinding = serializedObject.FindProperty("LeftPitchKeyBinding");
-		changeCameraKeyBinding = serializedObject.FindProperty("ChangeCameraKeyBinding");
 
 		SteeringScript steeringScript = (SteeringScript)target;
+
+		EditorGUILayout.LabelField($"lap {steeringScript.LapsCompleted}");
 
 		showSpeedProfiles = EditorGUILayout.Foldout(showSpeedProfiles, "Speed profiles");
 
@@ -381,21 +330,6 @@ public class SteeringScriptEditor : Editor {
 
 		}
 
-		showInputBindings = EditorGUILayout.Foldout(showInputBindings, "Key Bindings");
-		if (showInputBindings) {
-			EditorGUILayout.PropertyField(steeringKeyBinding);
-			EditorGUILayout.PropertyField(gasKeyBinding);
-			EditorGUILayout.PropertyField(brakeKeyBinding);
-			EditorGUILayout.PropertyField(boostKeyBinding);
-			EditorGUILayout.PropertyField(resetKeyBinding);
-			EditorGUILayout.PropertyField(yawKeyBinding);
-			EditorGUILayout.PropertyField(pitchKeyBinding);
-			EditorGUILayout.PropertyField(leftRotateToggleKeyBinding);
-			EditorGUILayout.PropertyField(leftYawKeyBinding);
-			EditorGUILayout.PropertyField(leftPitchKeyBinding);
-			EditorGUILayout.PropertyField(changeCameraKeyBinding);
-		}
-
 		showCameras = EditorGUILayout.Foldout(showCameras, "Cameras");
 		if (showCameras) {
 			// TODO: cameras
@@ -424,6 +358,10 @@ public class SteeringScriptEditor : Editor {
 
 		}
 
+		// EditorGUILayout.LabelField("Cheat mitigation");
+		// steeringScript.CheatMitigationSearchDistance = EditorGUILayout.FloatField("Look ahead distance", steeringScript.CheatMitigationSearchDistance);
+		// steeringScript.CheatMitigationLookBehindDistance= EditorGUILayout.FloatField("Look behind distance", steeringScript.CheatMitigationLookBehindDistance);
+
 		if (EditorGUI.EndChangeCheck()) {
 			// FIXME: folding counts as script change
 			Undo.RecordObject(steeringScript, "Steering Script Change");
@@ -433,6 +371,13 @@ public class SteeringScriptEditor : Editor {
 		// Apply changes to the serializedProperty - always do this in the end of OnInspectorGUI.
 		serializedObject.ApplyModifiedProperties();
 	}
+
+	// private void OnDrawGizmos() {
+	// 	SteeringScript steeringScript = (SteeringScript)target;
+		
+	// 	Handles.Label( steeringScript.transform.position, $"lap: {steeringScript.LapsCompleted}");
+		
+	// }
 
 }
 // */

@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class RemixEditorToggleObject : MonoBehaviour, IComparable<RemixEditorToggleObject> {
+public class RemixEditorToggleObject : MonoBehaviour, IComparable<RemixEditorToggleObject>, IPointerDownHandler {
 	public static List<RemixEditorToggleObject> Instances = new List<RemixEditorToggleObject>();
 
 	[Tooltip("Order of the object in the remix editor list")]
@@ -26,19 +27,11 @@ public class RemixEditorToggleObject : MonoBehaviour, IComparable<RemixEditorTog
 		Instances.Remove(this);
 	}
 
-	private void OnMouseOver() {
+	public void OnPointerDown(PointerEventData eventData) {
 
-		if (EventSystem.current.IsPointerOverGameObject())
-			return;
-
-		if (Input.GetMouseButtonDown(0)) {
+		if (Mouse.current.leftButton.wasPressedThisFrame) {
 			RemixMapScript.Select(this);
 		}
-
-		if (Input.GetMouseButtonDown(1)) {
-			RemixMapScript.StartRotate();
-		}
-
 	}
 
 	public int CompareTo(RemixEditorToggleObject other) {

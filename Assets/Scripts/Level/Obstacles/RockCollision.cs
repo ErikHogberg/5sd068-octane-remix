@@ -13,7 +13,9 @@ public class RockCollision : MonoBehaviour {
 
 		// NOTE: should work as-is with multiplayer too
 		if (other.gameObject.TryGetComponent<TemperatureAndIntegrity>(out TemperatureAndIntegrity carTemp)) {
-			carTemp.RockHit(other.relativeVelocity.sqrMagnitude);
+			var contact0 = other.GetContact(0);
+			// IDEA: send contact(s?) instead of pos and normal
+			carTemp.RockHit(other.relativeVelocity.sqrMagnitude, contact0);
 		}
 
 		if (LimitVelocityOnHit
